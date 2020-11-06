@@ -1,0 +1,14 @@
+# laravel
+/vendor
+/node_modules
+.env
+/storage/
+
+# eclipse specific
+_ide_helper.php
+@TODO
+.buildpath
+.project
+.settings
+/.metadata/
+/composer.lock
