@@ -548,23 +548,23 @@ class GeomFileReader {
                         if($previousLine == $elevationIndicator) {
                             if($data != '0.000000') { //TODO: Fiksattava, ei voi olla kovakoodattu
                                 $previousLine = $data;
-                                $geo->ele = $data;
+                                $geo->ele = trim($data);
                             }
                             $previousLine = $data;
                         } else if($previousLine == $latIndicator) {
                             if($data != '0.000000') {//TODO: Fiksattava, ei voi olla kovakoodattu
-                                $geo->lat = $data;
+                                $geo->lat = trim($data);
                             }
                             $previousLine = $data;
                         } else if($previousLine == $lonIndicator) {
                             if($data != '0.000000') {//TODO: Fiksattava, ei voi olla kovakoodattu
-                                $geo->lon = $data;
+                                $geo->lon = trim($data);
                             }
                             $previousLine = $data;
                         } else if($previousLine == $nameIndicator) {
                             $name = $data;
                             $previousLine = $data;
-                            $geo->name = $data;
+                            $geo->name = trim($data);
                             array_push($geometries, $geo);
                             $geo = json_decode('{}');
                         } else {
@@ -597,10 +597,10 @@ class GeomFileReader {
                     continue;
                 }
 
-                $geo->lat = $data[$latIndicator];
-                $geo->lon = $data[$lonIndicator];
-                $geo->ele = $data[$elevationIndicator];
-                $geo->name = $data[$nameIndicator];
+                $geo->lat = trim($data[$latIndicator]);
+                $geo->lon = trim($data[$lonIndicator]);
+                $geo->ele = trim($data[$elevationIndicator]);
+                $geo->name = trim($data[$nameIndicator]);
                 array_push($geometries, $geo);
             }
             $feature = array ('type' => 'Feature', 'geometry' =>  $geometries);
