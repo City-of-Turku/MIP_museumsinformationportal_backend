@@ -166,7 +166,18 @@ class ReportController extends Controller {
 			    }
 
 			    $parameters = ReportServer::generateLoytoKonservointiraporttiParameters($request->parameters);
-			    break;
+					break;
+			case 'Kuntoraportti':
+				// Ainoastaan tutkijat ja pääkäyttäjät voivat tehdä ko. raportin
+				if(Auth::user()->ark_rooli != 'tutkija' && Auth::user()->ark_rooli != 'pääkäyttäjä') {
+						MipJson::setGeoJsonFeature();
+						MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+						MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+						return MipJson::getJson();
+				}
+
+				$parameters = ReportServer::generateKuntoraporttiParameters($request->parameters);
+				break;
 			default:
 				MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
 				MipJson::addMessage(Lang::get('raportti.invalid_report_type'));

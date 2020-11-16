@@ -356,5 +356,12 @@ class ReportServer {
 	      return $parameters;
 	}
 
-
+	// Kuntoraportti
+	public static function generateKuntoraporttiParameters($inputParams) {
+		$parameters = array(
+			array('name' => 'kuntoraporttiId', 'value' => $inputParams['kuntoraporttiId']),
+			array('name' => 'reportDisplayName', 'value' => $inputParams['reportDisplayName']),
+			array('name' => 'konservaattori', 'value' => $inputParams['konservaattori'])
+		);
+	}
 }

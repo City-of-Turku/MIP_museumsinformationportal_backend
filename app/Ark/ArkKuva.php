@@ -237,11 +237,16 @@ class ArkKuva extends Model {
 	    return $query->where('ark_kuva.otsikko', 'ilike', "%".$keyword."%");
 	}
 
-	public function scopewithRontgenKuva($query, $id) {
+	public function scopeWithRontgenKuva($query, $id) {
 	    return $query->join("ark_kuva_rontgenkuva", "ark_kuva_rontgenkuva.ark_kuva_id", "=", "ark_kuva.id")
 	    ->where("ark_kuva_rontgenkuva.ark_rontgenkuva_id", "=", $id);
 	}
-	
+
+	public function scopeWithKuntoraportti($query, $id) {
+		return $query->join("ark_kuva_kuntoraportti", "ark_kuva_kuntoraportti.ark_kuva_id", "=", "ark_kuva.id")
+		->where("ark_kuva_kuntoraportti.ark_kuntoraportti_id", "=", $id);
+}
+
 	public static function getSingle($id) {
 	    return ArkKuva::select('ark_kuva.*')->where('ark_kuva.id', '=', $id);
 	}

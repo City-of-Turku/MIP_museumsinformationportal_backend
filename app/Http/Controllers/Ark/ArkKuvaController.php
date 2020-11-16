@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Ark;
 
+use App\Ark\ArkKuntoraportti;
 use App\Http\Controllers\Controller;
 use App\Kayttaja;
 use App\Ark\ArkKuva;
@@ -31,6 +32,7 @@ use App\Ark\ArkKuvaLoyto;
 use App\Ark\ArkKuvaNayte;
 use App\Ark\ArkKuvaYksikko;
 use App\Ark\ArkKuvaKohde;
+use App\Ark\ArkKuvaKuntoraportti;
 use App\Ark\ArkKuvaTutkimus;
 use App\Ark\ArkKuvaTutkimusalue;
 use Illuminate\Database\QueryException;
@@ -140,7 +142,10 @@ class ArkKuvaController extends Controller {
                 $entities->withOtsikko($request->input("otsikko"));
             }
             if($request->input("ark_rontgenkuva_id") && $request->input("ark_rontgenkuva_id") !== 'null') {
-                $entities->WithRontgenKuva($request->input("ark_rontgenkuva_id"));
+                $entities->withRontgenKuva($request->input("ark_rontgenkuva_id"));
+            }
+            if($request->input("ark_kuntoraportti_id") && $request->input("ark_kuntoraportti_id") !== 'null') {
+                $entities->withKuntoraportti($request->input("ark_kuntoraportti_id"));
             }
 
             $total_rows = Utils::getCount($entities);
@@ -840,6 +845,16 @@ class ArkKuvaController extends Controller {
                 $kuvaRontgen->ark_rontgenkuva_id = $rontgenkuva->id;
                 $kuvaRontgen->jarjestys = $maxJarjestys;
                 $kuvaRontgen->save();
+                break;
+            case 22: // Kuntoraportti
+                $maxJarjestys = DB::table('ark_kuva_kuntoraportti')->where('ark_kuntoraportti_id', '=', $request->get('entiteetti_id'))->max('jarjestys')+1;
+                $kuntoraportti = ArkKuntoraportti::find($request->get('entiteetti_id'));
+                $kuvaKuntoraportti = new ArkKuvaKuntoraportti();
+                $kuvaKuntoraportti->luoja = Auth::user()->id;
+                $kuvaKuntoraportti->ark_kuva_id = $entity->id;
+                $kuvaKuntoraportti->ark_kuntoraportti_id = $kuntoraportti->id;
+                $kuvaKuntoraportti->jarjestys = $maxJarjestys;
+                $kuvaKuntoraportti->save();
                 break;
         }
     }
