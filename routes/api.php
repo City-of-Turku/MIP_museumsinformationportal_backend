@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,6 +23,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 /*
  * Login route
  */
+
 Route::post('/kayttaja/kirjaudu/', 'Auth\AuthController@login');
 Route::post("/kayttaja/{kayttajatunnus}/salasana_unohtunut/",	"KayttajaController@restorePassword"); // restore forgotten password for given username
 
@@ -47,7 +49,7 @@ Route::get("/oaipmh/", "FinnaController@index");
 /*
  * Inside of this routeGroup All the routes require user to be authenticated
  */
-Route::group(['middleware'=> 'auth.jwt'], function() {
+Route::group(['middleware' => 'auth.jwt'], function () {
 
 	/*
 	 * Userguide
@@ -351,8 +353,8 @@ Route::group(['middleware'=> 'auth.jwt'], function() {
 	// Käyttäjän sijainnin/reitin routet
 	Route::get("/reitti/",                                  "ReittiController@index");
 	Route::post("/reitti/",                                 "ReittiController@store");
-  Route::get("/reitti/{entiteettiTyyppi}/{entiteettiId}", "ReittiController@show");
-  Route::delete("/reitti/{id}",                           "ReittiController@destroy");
+	Route::get("/reitti/{entiteettiTyyppi}/{entiteettiId}", "ReittiController@show");
+	Route::delete("/reitti/{id}",                           "ReittiController@destroy");
 
 	/*
 	 * Koritoiminnallisuus
@@ -485,6 +487,15 @@ Route::group(['middleware'=> 'auth.jwt'], function() {
 	Route::delete("/loyto/{id}/",					    "Ark\LoytoController@destroy");
 
 	/*
+	 * Kuntoraportit
+	 */
+	Route::get("/loyto/{id}/kuntoraportit",				"Ark\LoytoController@kuntoraportit");
+	Route::post("/kuntoraportti",									"Ark\KuntoraporttiController@store");
+	Route::put("/kuntoraportti/{id}",							"Ark\KuntoraporttiController@update");
+	Route::delete("/kuntoraportti/{id}",					"Ark\KuntoraporttiController@destroy");
+
+
+	/*
 	 * Näyte
 	 */
 	Route::get("/nayte/",							    "Ark\NayteController@index");
@@ -495,7 +506,7 @@ Route::group(['middleware'=> 'auth.jwt'], function() {
 	Route::post("/nayte/alanumero/",   				    "Ark\NayteController@nayteAlanumero");
 	Route::get("/nayte/{id}/",						    "Ark\NayteController@show");
 	Route::put("/nayte/{id}/",						    "Ark\NayteController@update");
-	Route::delete("/loyto/{id}/",					    "Ark\NayteController@destroy");
+	Route::delete("/nayte/{id}/",					    "Ark\NayteController@destroy");
 
 	/*
 	 * Konservointi hallinta
@@ -676,4 +687,3 @@ Route::group(['middleware'=> 'auth.jwt'], function() {
 	 */
 	Route::get("/kyppi/tuokohde/{id}",			            "Ark\KyppiController@tuoKohde");
 });
-

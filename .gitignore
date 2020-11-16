@@ -2,6 +2,19 @@
 /vendor
 /node_modules
 .env
+.env.testing
+
+/storage/upload/*
+/storage/logs/*
+!/storage/logs/.gitkeep
+/storage/framework/cache/*
+!/storage/framework/cache/.gitkeep
+/storage/framework/sessions/*
+!/storage/framework/sessions/.gitkeep
+/storage/framework/testing/*
+!/storage/framework/testing/.gitkeep
+/storage/framework/views/*
+!/storage/framework/views/.gitkeep
 
 # eclipse specific
 _ide_helper.php
@@ -11,3 +24,5 @@ _ide_helper.php
 .settings
 /.metadata/
 /composer.lock
+.phpunit.result.cache
+.history
