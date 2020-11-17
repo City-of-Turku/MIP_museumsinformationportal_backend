@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
+<!-- 2019-05-16T16:08:24 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Yhteenvetoraportti_kunta" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isTitleNewPage="true" uuid="065dfbd7-d3f0-44b2-a9cc-0b1e1995f468">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="mipdev5 "/>
+	<subDataset name="kunta_kylat" uuid="65352280-959c-44c6-bade-c83ebb19ab60">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Mipdev5"/>
+		<parameter name="list_kyla_idt_array" class="java.lang.String" nestedType="java.lang.String"/>
+		<parameter name="list_kyla_idt_isEmpty" class="java.lang.Boolean">
+			<defaultValueExpression><![CDATA[$P{list_kyla_idt_isEmpty}]]></defaultValueExpression>
+		</parameter>
+		<parameter name="list_kunta_id" class="java.lang.Long"/>
+		<queryString language="SQL">
+			<![CDATA[select 
+			ky.id, ky.nimi 
+			from kyla ky
+			where 
+			$X{IN, ky.id::text, list_kyla_idt_array}
+			and ky.poistettu is null
+			and ky.kunta_id = $P{list_kunta_id}
+			order by ky.nimi ASC]]>
+		</queryString>
+		<field name="id" class="java.lang.Integer"/>
+		<field name="nimi" class="java.lang.String"/>
+	</subDataset>
+	<parameter name="kunta_id" class="java.lang.Long"/>
+	<parameter name="kyla_idt" class="java.lang.String">
+		<parameterDescription><![CDATA[]]></parameterDescription>
+		<defaultValueExpression><![CDATA[null]]></defaultValueExpression>
+	</parameter>
+	<parameter name="kyla_idt_array" class="java.util.List" nestedType="java.lang.String" isForPrompting="false">
+		<parameterDescription><![CDATA[]]></parameterDescription>
+		<defaultValueExpression><![CDATA[Arrays.asList($P{kyla_idt}.split(","))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="kyla_idt_isEmpty" class="java.lang.Boolean" isForPrompting="false">
+		<defaultValueExpression><![CDATA[$P{kyla_idt}.isEmpty()]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MIP_BACKEND_URL" class="java.lang.String"/>
+	<parameter name="MIP_MAPSERVER_URL" class="java.lang.String"/>
+	<parameter name="inventointiprojekti_id" class="java.lang.Long">
+		<parameterDescription><![CDATA[Rajoittaa entiteettien näyttämistä raportilla inventointiprojektin mukaisesti.]]></parameterDescription>
+	</parameter>
+	<queryString>
+		<![CDATA[select 
+	ku.id as kunta_id, ku.nimi as kunta_nimi, sq_inventointiprojekti.inventointiprojekti_nimi,
+	case 
+	when char_length($P{kyla_idt}) > 0 then $P{kyla_idt}
+	else kylat.kylaidt
+	end as kylaidt,
+	sq_alueet_count.alueet_count
+	from kunta ku
+	left join (
+   		select kyla.kunta_id, string_agg(kyla.id::text, ',') as kylaidt
+    	from kyla     
+    	group by kyla.kunta_id
+	) kylat on kylat.kunta_id = ku.id	
+	left join (
+		select kunta_id, count(*) as alueet_count
+	    from alue sub_a
+	    join alue_kyla sub_ak on sub_ak.alue_id = sub_a.id
+	    join kyla sub_ky on sub_ky.id = sub_ak.kyla_id
+	    join kunta sub_k on sub_k.id = sub_ky.kunta_id
+	    where sub_a.id is not null
+	    and sub_a.poistettu is null
+	    group by kunta_id
+	) sq_alueet_count on sq_alueet_count.kunta_id = ku.id
+	left join (
+		select inventointiprojekti.nimi as inventointiprojekti_nimi, inventointiprojekti.id as inventointiprojekti_id
+		from inventointiprojekti
+		where inventointiprojekti.poistettu is null
+	) sq_inventointiprojekti on sq_inventointiprojekti.inventointiprojekti_id = $P{inventointiprojekti_id}
+	where 
+	ku.id = $P{kunta_id}
+	and ku.poistettu is null
+	ORDER BY ku.nimi ASC]]>
+	</queryString>
+	<field name="kunta_id" class="java.lang.Integer"/>
+	<field name="kunta_nimi" class="java.lang.String"/>
+	<field name="kylaidt" class="java.lang.String"/>
+	<field name="alueet_count" class="java.lang.Integer"/>
+	<field name="inventointiprojekti_nimi" class="java.lang.String"/>
+	<title>
+		<band height="788">
+			<image>
+				<reportElement x="185" y="80" width="190" height="70" uuid="efb08d1a-5a45-415f-8966-639e1f03d81b"/>
+				<imageExpression><![CDATA["VS_MaakuntaMuseo_logo_FI.png"]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="10" y="170" width="534" height="30" uuid="28d869fd-9277-4a2f-bef5-8df2e7a461e5">
+					<printWhenExpression><![CDATA[$F{inventointiprojekti_nimi} == null]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font size="16"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{kunta_nimi}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd.MM.yyyy">
+				<reportElement x="50" y="750" width="100" height="30" uuid="33a04013-72ef-4cd5-9777-12d815b8be68"/>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement x="10" y="200" width="534" height="30" uuid="a0c27e76-9c0e-4a4d-a07d-b02114fad641">
+					<property name="net.sf.jasperreports.export.headertoolbar.table.name" value=""/>
+					<printWhenExpression><![CDATA[!$P{kyla_idt_isEmpty} && $F{inventointiprojekti_nimi} == null]]></printWhenExpression>
+				</reportElement>
+				<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
+					<datasetRun subDataset="kunta_kylat" uuid="67f4d24f-5d04-42a8-a3e4-a5fe1f19211c">
+						<datasetParameter name="list_kyla_idt_array">
+							<datasetParameterExpression><![CDATA[$P{kyla_idt_array}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="list_kyla_idt_isEmpty">
+							<datasetParameterExpression><![CDATA[$P{kyla_idt_isEmpty}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="list_kunta_id">
+							<datasetParameterExpression><![CDATA[$P{kunta_id}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:listContents height="30" width="534">
+						<textField>
+							<reportElement x="0" y="0" width="534" height="30" uuid="c7f4fcf6-2a74-4d5b-8d04-1dc3b4e53958"/>
+							<textElement textAlignment="Center">
+								<font size="14"/>
+							</textElement>
+							<textFieldExpression><![CDATA[$F{nimi}]]></textFieldExpression>
+						</textField>
+					</jr:listContents>
+				</jr:list>
+			</componentElement>
+			<textField>
+				<reportElement x="10" y="230" width="534" height="30" uuid="1cce65d0-83f9-4286-9e84-c9740ffd0e40">
+					<printWhenExpression><![CDATA[$F{inventointiprojekti_nimi} != null]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font size="16"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{inventointiprojekti_nimi}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<detail>
+		<band height="18">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<frame>
+				<reportElement x="0" y="0" width="554" height="10" isPrintInFirstWholeBand="true" isPrintWhenDetailOverflows="true" uuid="3de21841-e37d-4317-b127-6e46a99a93d2">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<subreport isUsingCache="false" runToBottom="false">
+					<reportElement x="0" y="0" width="554" height="10" isRemoveLineWhenBlank="true" isPrintWhenDetailOverflows="true" uuid="03238d48-3eb4-47b6-8c76-c8fccd5351a5">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					</reportElement>
+					<subreportParameter name="kyla_idt">
+						<subreportParameterExpression><![CDATA[$F{kylaidt}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="MIP_BACKEND_URL">
+						<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="MIP_MAPSERVER_URL">
+						<subreportParameterExpression><![CDATA[$P{MIP_MAPSERVER_URL}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="inventointiprojekti_id">
+						<subreportParameterExpression><![CDATA[$P{inventointiprojekti_id}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA["Yhteenvetoraportti_kylat.jasper"]]></subreportExpression>
+				</subreport>
+			</frame>
+		</band>
+		<band height="13">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<break>
+				<reportElement x="0" y="12" width="100" height="1" uuid="614e7afb-b74b-4bec-a344-39b73c90c907"/>
+			</break>
+		</band>
+		<band height="50">
+			<frame>
+				<reportElement x="0" y="0" width="554" height="10" isRemoveLineWhenBlank="true" uuid="d030cc91-9047-4f8b-b791-1c50ed3e28bb">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<subreport isUsingCache="false" runToBottom="false">
+					<reportElement x="0" y="0" width="554" height="10" isRemoveLineWhenBlank="true" uuid="8c4e0e5a-9d77-4794-843c-83bf89367267">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+						<printWhenExpression><![CDATA[$P{inventointiprojekti_id} == null]]></printWhenExpression>
+					</reportElement>
+					<subreportParameter name="kyla_idt">
+						<subreportParameterExpression><![CDATA[$F{kylaidt}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="inventointiprojekti_id">
+						<subreportParameterExpression><![CDATA[$P{inventointiprojekti_id}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA["Yhteenvetoraportti_inventointiprojektit.jasper"]]></subreportExpression>
+				</subreport>
+			</frame>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="20">
+			<staticText>
+				<reportElement x="0" y="0" width="150" height="20" uuid="b05a59b8-ffdb-4718-acd0-d92b65ba05f8"/>
+				<text><![CDATA[Museon informaatioportaali]]></text>
+			</staticText>
+			<textField pattern="dd.MM.yyyy">
+				<reportElement x="150" y="0" width="110" height="20" uuid="8757c552-940b-4da4-9447-fdac3c551616">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Master">
+				<reportElement x="376" y="0" width="178" height="20" uuid="1fb263c6-6dd1-42f0-a03c-39663cc7a5c2">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Sivu " + $V{MASTER_CURRENT_PAGE} + " / " + $V{MASTER_TOTAL_PAGES}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>

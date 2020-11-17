@@ -1,0 +1,1114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
+<!-- 2020-11-05T15:19:31 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Konservointiraportti_loydolle" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="70f50391-5405-497c-af51-13d2fe4d51e5">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Kehitys"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="net.sf.jasperreports.export.docx.frames.as.nested.tables" value=""/>
+	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table 1_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table 1_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table 1_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="Ens_kons_kuva" uuid="f3e7fada-3abe-46b8-8b88-90bf50b80c7d">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
+		<parameter name="loytoId" class="java.lang.Long"/>
+		<parameter name="MIP_BACKEND_URL" class="java.lang.String"/>
+		<queryString language="SQL">
+			<![CDATA[select ak.* 
+from ark_kuva ak
+left join ark_kuva_loyto akl on akl.ark_kuva_id = ak.id 
+left join ark_loyto l on l.id = akl.ark_loyto_id 
+where l.id = $P{loytoId}
+and ak.konservointivaihe_id  is not null
+order by id asc
+limit 1]]>
+		</queryString>
+		<field name="id" class="java.lang.Long"/>
+		<field name="kuvaaja" class="java.lang.String"/>
+		<field name="organisaatio" class="java.lang.String"/>
+		<field name="luettelointinumero" class="java.lang.String"/>
+		<field name="kuvaus" class="java.lang.String"/>
+		<field name="tekijanoikeuslauseke" class="java.lang.String"/>
+		<field name="julkinen" class="java.lang.Boolean"/>
+		<field name="polku" class="java.lang.String"/>
+		<field name="tiedostonimi" class="java.lang.String"/>
+		<field name="alkup_tiedostonimi" class="java.lang.String"/>
+		<field name="luotu" class="java.sql.Timestamp"/>
+		<field name="luoja" class="java.lang.Integer"/>
+		<field name="muokattu" class="java.sql.Timestamp"/>
+		<field name="muokkaaja" class="java.lang.Integer"/>
+		<field name="poistettu" class="java.sql.Timestamp"/>
+		<field name="poistaja" class="java.lang.Integer"/>
+		<field name="ark_tutkimus_id" class="java.lang.Integer"/>
+		<field name="kuvauspvm" class="java.sql.Timestamp"/>
+		<field name="kuvaussuunta" class="java.lang.String"/>
+		<field name="otsikko" class="java.lang.String"/>
+		<field name="konservointivaihe_id" class="java.lang.Long"/>
+		<field name="tunnistekuva" class="java.lang.Boolean"/>
+		<field name="lisatiedot" class="java.lang.String"/>
+		<field name="migraatiodata" class="java.lang.String"/>
+	</subDataset>
+	<subDataset name="Rontgenkuva_numerot" uuid="7c2878f8-c027-465f-a181-51126b2e0f14">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
+		<parameter name="loytoId" class="java.lang.Long"/>
+		<queryString language="SQL">
+			<![CDATA[select string_agg(r.numero, ', ') as numerot
+from ark_rontgenkuva r
+left join ark_rontgenkuva_loyto arl on arl.ark_rontgenkuva_id = r.id 
+left join ark_loyto l on l.id = arl.ark_loyto_id 
+where l.id = $P{loytoId}
+group by l.id]]>
+		</queryString>
+		<field name="numerot" class="java.lang.String"/>
+	</subDataset>
+	<subDataset name="Kons_toimenpiteet" uuid="937709e2-4022-4dcd-ba23-d080a4fd534a">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
+		<parameter name="loytoId" class="java.lang.Long"/>
+		<parameter name="kons_toimenpiteetDSArray" class="java.util.List" nestedType="java.lang.String" isForPrompting="false"/>
+		<queryString language="SQL">
+			<![CDATA[select kt.nimi as toimenpide_nimi, 
+m.nimi as menetelma_nimi,
+ktt.alkaa as toimenpide_alkaa, 
+kl.paattyy as toimenpide_paattyy, 
+ktt.menetelman_kuvaus, 
+ktt.lisatiedot as toimenpide_lisatiedot, 
+materiaalit.materiaali_nimi, 
+k.etunimi || ' ' || k.sukunimi as tekija, 
+kl.id
+from ark_kons_toimenpiteet ktt
+left join ark_kons_toimenpide kt on kt.id = ktt.ark_kons_toimenpide_id
+left join ark_kons_loyto kl on kl.ark_kons_toimenpiteet_id = ktt.id
+left join ark_kons_menetelma m on m.id = ktt.ark_kons_menetelma_id 
+left join (
+    select aktm.ark_kons_toimenpiteet_id, string_agg(akm.nimi, ', ') as materiaali_nimi
+    from ark_kons_toimenpide_materiaalit aktm
+    left join ark_kons_materiaali akm on akm.id = aktm.ark_kons_materiaali_id 
+    group by aktm.ark_kons_toimenpiteet_id 
+) materiaalit on (materiaalit.ark_kons_toimenpiteet_id = ktt.ark_kons_toimenpide_id)
+left join ark_loyto l on l.id = kl.ark_loyto_id
+left join kayttaja k on k.id = ktt.tekija
+where l.id = $P{loytoId}
+AND $X{IN, kl.id::text, kons_toimenpiteetDSArray}]]>
+		</queryString>
+		<field name="toimenpide_nimi" class="java.lang.String"/>
+		<field name="menetelma_nimi" class="java.lang.String"/>
+		<field name="toimenpide_alkaa" class="java.sql.Date"/>
+		<field name="toimenpide_paattyy" class="java.sql.Date"/>
+		<field name="menetelman_kuvaus" class="java.lang.String"/>
+		<field name="toimenpide_lisatiedot" class="java.lang.String"/>
+		<field name="materiaali_nimi" class="java.lang.String"/>
+		<field name="tekija" class="java.lang.String"/>
+		<field name="id" class="java.lang.Long"/>
+	</subDataset>
+	<subDataset name="Kons_kasittelyt" uuid="03adf348-f6d1-4462-b1bb-6db407ff6df1">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
+		<parameter name="loytoId" class="java.lang.Long"/>
+		<parameter name="kons_toimenpiteetDSArray" class="java.util.List" nestedType="java.lang.String" isForPrompting="false"/>
+		<queryString language="SQL">
+			<![CDATA[select 
+akk.kasittelytunnus, 
+akk2.paivamaara, 
+akk2.kasittelytoimenpide, 
+akk2.huomiot,
+akl.id
+from ark_kons_kasittelytapahtumat akk2
+left join ark_kons_kasittely akk on akk.id  = akk2.ark_kons_kasittely_id 
+left join ark_kons_loyto akl on akl.ark_kons_kasittely_id = akk.id 
+left join ark_loyto l on l.id = akl.ark_loyto_id 
+where l.id = $P{loytoId}
+AND $X{IN, akl.id::text, kons_toimenpiteetDSArray}
+order by akk.kasittelytunnus asc, akk2.paivamaara desc]]>
+		</queryString>
+		<field name="kasittelytunnus" class="java.lang.String"/>
+		<field name="paivamaara" class="java.sql.Date"/>
+		<field name="kasittelytoimenpide" class="java.lang.String"/>
+		<field name="huomiot" class="java.lang.String"/>
+		<field name="id" class="java.lang.Long"/>
+		<group name="kasittelytunnus">
+			<groupExpression><![CDATA[$F{kasittelytunnus}]]></groupExpression>
+		</group>
+	</subDataset>
+	<subDataset name="Kons_kuvat" uuid="c1c7eb74-323b-42e4-b4bc-492c1fd179a0">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
+		<parameter name="MIP_BACKEND_URL" class="java.lang.String"/>
+		<parameter name="loytoId" class="java.lang.Long"/>
+		<queryString language="SQL">
+			<![CDATA[select k.id, k.luettelointinumero, k.otsikko, ak.nimi_fi, k.kuvaus
+from ark_kuva k
+left join ark_kuva_loyto akl on akl.ark_kuva_id = k.id
+left join ark_loyto l on l.id = akl.ark_loyto_id
+left join ark_konservointivaihe ak on ak.id  = k.konservointivaihe_id 
+where l.id = $P{loytoId}
+and k.konservointivaihe_id is not null
+and k.poistettu is null]]>
+		</queryString>
+		<field name="id" class="java.lang.Long"/>
+		<field name="luettelointinumero" class="java.lang.String"/>
+		<field name="otsikko" class="java.lang.String"/>
+		<field name="nimi_fi" class="java.lang.String"/>
+		<field name="kuvaus" class="java.lang.String"/>
+	</subDataset>
+	<subDataset name="Kons_tiedostot" uuid="efa46a2b-5eb4-4729-8509-8da95e9c81a0">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
+		<parameter name="loytoId" class="java.lang.Long"/>
+		<parameter name="kons_toimenpiteetDSArray" class="java.util.List" nestedType="java.lang.String" isForPrompting="false"/>
+		<queryString language="SQL">
+			<![CDATA[select at2.otsikko, 
+at2.kuvaus,
+akl.id
+from ark_tiedosto at2
+left join ark_tiedosto_kons_toimenpiteet atkt on atkt.ark_tiedosto_id = at2.id 
+left join ark_tiedosto_kons_kasittely atkk on atkk.ark_tiedosto_id = at2.id 
+left join ark_kons_kasittely akk on akk.id = atkk.ark_kons_kasittely_id 
+left join ark_kons_loyto akl on (akl.ark_kons_toimenpiteet_id = atkt.ark_kons_toimenpiteet_id or akl.ark_kons_kasittely_id = akk.id)
+left join ark_loyto l on l.id = akl.ark_loyto_id 
+where l.id = $P{loytoId}
+and l.poistettu is null
+and at2.poistettu is null
+and atkt.poistettu is null
+and atkk.poistettu is null
+and akk.poistettu is null
+AND $X{IN, akl.id::text, kons_toimenpiteetDSArray}]]>
+		</queryString>
+		<field name="otsikko" class="java.lang.String"/>
+		<field name="kuvaus" class="java.lang.String"/>
+		<field name="id" class="java.lang.Long"/>
+	</subDataset>
+	<subDataset name="Rontgen_kuvat" uuid="31619a14-5bb7-4a9a-a132-bec43cf39a3b">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Kehitys"/>
+		<parameter name="loytoId" class="java.lang.Long">
+			<parameterDescription><![CDATA[]]></parameterDescription>
+		</parameter>
+		<parameter name="MIP_BACKEND_URL" class="java.lang.String"/>
+		<queryString language="SQL">
+			<![CDATA[select k.id, k.luettelointinumero, k.otsikko,  k.kuvaus, ar.numero
+from ark_kuva k
+left join ark_kuva_rontgenkuva akr on akr.ark_kuva_id = k.id
+left join ark_rontgenkuva ar on ar.id = akr.ark_rontgenkuva_id 
+left join ark_rontgenkuva_loyto arl on arl.ark_rontgenkuva_id = akr.ark_rontgenkuva_id 
+left join ark_loyto l on l.id = arl.ark_loyto_id 
+where l.id = $P{loytoId}
+and k.poistettu is null]]>
+		</queryString>
+		<field name="id" class="java.lang.Long"/>
+		<field name="luettelointinumero" class="java.lang.String"/>
+		<field name="otsikko" class="java.lang.String"/>
+		<field name="kuvaus" class="java.lang.String"/>
+		<field name="numero" class="java.lang.String"/>
+	</subDataset>
+	<parameter name="loytoId" class="java.lang.Long"/>
+	<parameter name="MIP_BACKEND_URL" class="java.lang.String"/>
+	<parameter name="raportti_luoja" class="java.lang.String"/>
+	<parameter name="kons_toimenpiteet" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select l.*, 
+			alt.nimi_fi as tyyppi,
+			coalesce(esineen_nimi.esineen_nimet, '') as esineen_nimi,
+			almk.nimi_fi as materiaalikoodi,
+			ark_loyto_materiaali.nimi_fi as ensisijainen_materiaali,
+			coalesce(loyto_materiaalit.muut_materiaalit, '') as muut_materiaalit,
+			t.nimi as tutkimus_nimi 
+			from ark_loyto l
+		    left join ark_tutkimusalue_yksikko y on y.id = l.ark_tutkimusalue_yksikko_id
+			left join ark_tutkimusalue ta on (ta.id = l.ark_tutkimusalue_id OR ta.id = y.ark_tutkimusalue_id)
+			left join ark_tutkimus t on t.id = ta.ark_tutkimus_id
+			left join ark_loyto_tyyppi alt on alt.id = l.ark_loyto_tyyppi_id 
+			left join ark_loyto_materiaalikoodi almk on almk.id = l.ark_loyto_materiaalikoodi_id
+			left join ( select ark_loyto_materiaalit.ark_loyto_id, string_agg(distinct ark_loyto_materiaali.nimi_fi, ', ') as muut_materiaalit
+			    from ark_loyto_materiaalit
+			    join ark_loyto_materiaali on ark_loyto_materiaalit.ark_loyto_materiaali_id = ark_loyto_materiaali.id    
+			    group by ark_loyto_materiaalit.ark_loyto_id
+			) loyto_materiaalit on (loyto_materiaalit.ark_loyto_id = l.id)
+			left join ( select ark_loyto_tyyppi_tarkenteet.ark_loyto_id, string_agg(distinct ark_loyto_tyyppi_tarkenne.nimi_fi, ', ') as esineen_nimet
+			    from ark_loyto_tyyppi_tarkenteet
+			    join ark_loyto_tyyppi_tarkenne on ark_loyto_tyyppi_tarkenteet.ark_loyto_tyyppi_tarkenne_id = ark_loyto_tyyppi_tarkenne.id
+			    group by ark_loyto_tyyppi_tarkenteet.ark_loyto_id
+			) esineen_nimi on (esineen_nimi.ark_loyto_id = l.id)
+			left join ark_loyto_materiaali on ark_loyto_materiaali.id = l.ark_loyto_ensisijainen_materiaali_id
+		    where l.id = $P{loytoId}]]>
+	</queryString>
+	<field name="id" class="java.lang.Long"/>
+	<field name="ark_tutkimusalue_yksikko_id" class="java.lang.Long"/>
+	<field name="ark_tutkimusalue_kerros_id" class="java.lang.Long"/>
+	<field name="ark_loyto_materiaalikoodi_id" class="java.lang.Long"/>
+	<field name="ark_loyto_tyyppi_id" class="java.lang.Long"/>
+	<field name="luettelointinumero" class="java.lang.String"/>
+	<field name="alanumero" class="java.lang.Integer"/>
+	<field name="loytopaikan_tarkenne" class="java.lang.String"/>
+	<field name="koordinaatti_z" class="java.math.BigDecimal"/>
+	<field name="kuvaus" class="java.lang.String"/>
+	<field name="kappalemaara" class="java.lang.Integer"/>
+	<field name="paino" class="java.math.BigDecimal"/>
+	<field name="painoyksikko" class="java.lang.String"/>
+	<field name="pituus" class="java.math.BigDecimal"/>
+	<field name="pituusyksikko" class="java.lang.String"/>
+	<field name="leveys" class="java.math.BigDecimal"/>
+	<field name="leveysyksikko" class="java.lang.String"/>
+	<field name="korkeus" class="java.math.BigDecimal"/>
+	<field name="korkeusyksikko" class="java.lang.String"/>
+	<field name="halkaisija" class="java.math.BigDecimal"/>
+	<field name="halkaisijayksikko" class="java.lang.String"/>
+	<field name="paksuus" class="java.math.BigDecimal"/>
+	<field name="paksuusyksikko" class="java.lang.String"/>
+	<field name="muut_mitat" class="java.lang.String"/>
+	<field name="tulkinta" class="java.lang.String"/>
+	<field name="alkuvuosi" class="java.lang.Integer"/>
+	<field name="alkuvuosi_ajanlasku" class="java.lang.String"/>
+	<field name="paatosvuosi" class="java.lang.Integer"/>
+	<field name="paatosvuosi_ajanlasku" class="java.lang.String"/>
+	<field name="ajoitus_kuvaus" class="java.lang.String"/>
+	<field name="ajoituksen_perusteet" class="java.lang.String"/>
+	<field name="tutkimukset_lahteet" class="java.lang.String"/>
+	<field name="lisatiedot" class="java.lang.String"/>
+	<field name="luotu" class="java.sql.Timestamp"/>
+	<field name="luoja" class="java.lang.Integer"/>
+	<field name="muokattu" class="java.sql.Timestamp"/>
+	<field name="muokkaaja" class="java.lang.Integer"/>
+	<field name="poistettu" class="java.sql.Timestamp"/>
+	<field name="poistaja" class="java.lang.Integer"/>
+	<field name="ark_loyto_ensisijainen_materiaali_id" class="java.lang.Long"/>
+	<field name="koordinaatti_n" class="java.math.BigDecimal"/>
+	<field name="koordinaatti_e" class="java.math.BigDecimal"/>
+	<field name="loydon_tila_id" class="java.lang.Integer"/>
+	<field name="konservointi" class="java.lang.Integer"/>
+	<field name="loytopaivamaara" class="java.sql.Date"/>
+	<field name="kappalemaara_arvio" class="java.lang.Boolean"/>
+	<field name="ark_tutkimusalue_id" class="java.lang.Long"/>
+	<field name="vakituinen_sailytystila_id" class="java.lang.Integer"/>
+	<field name="vakituinen_hyllypaikka" class="java.lang.String"/>
+	<field name="tilapainen_sijainti" class="java.lang.String"/>
+	<field name="paino_ennen" class="java.math.BigDecimal"/>
+	<field name="paino_ennen_yksikko" class="java.lang.String"/>
+	<field name="paino_jalkeen" class="java.math.BigDecimal"/>
+	<field name="paino_jalkeen_yksikko" class="java.lang.String"/>
+	<field name="kunto" class="java.lang.String"/>
+	<field name="kunto_paivamaara" class="java.sql.Date"/>
+	<field name="tekija" class="java.lang.Integer"/>
+	<field name="sailytysolosuhteet" class="java.lang.String"/>
+	<field name="konservointi_lisatiedot" class="java.lang.String"/>
+	<field name="migraatiodata" class="java.lang.String"/>
+	<field name="kenttanumero_vanha_tyonumero" class="java.lang.String"/>
+	<field name="siirtyy_finnaan" class="java.lang.Boolean"/>
+	<field name="tutkimus_nimi" class="java.lang.String"/>
+	<field name="esineen_nimi" class="java.lang.String"/>
+	<field name="materiaalikoodi" class="java.lang.String"/>
+	<field name="ensisijainen_materiaali" class="java.lang.String"/>
+	<field name="muut_materiaalit" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="54">
+			<textField>
+				<reportElement x="50" y="0" width="430" height="30" uuid="689c90f6-d7d6-4ee3-9637-d2383b09fa85"/>
+				<textElement textAlignment="Center">
+					<font size="16"/>
+				</textElement>
+				<textFieldExpression><![CDATA["KONSERVOINTIRAPORTTI"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="50" y="30" width="430" height="20" uuid="12ff845d-d8fa-4eaf-87ea-ac49d84bd52b"/>
+				<textElement textAlignment="Center">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Turun museokeskus"]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<detail>
+		<band height="438" splitType="Stretch">
+			<componentElement>
+				<reportElement x="380" y="0" width="170" height="210" uuid="30afffe4-a3c5-4568-b7f5-645b99569bb8">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="net.sf.jasperreports.export.headertoolbar.table.name" value=""/>
+				</reportElement>
+				<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
+					<datasetRun subDataset="Ens_kons_kuva" uuid="c2480e8e-f6e4-4919-b308-9ffda81b36ca">
+						<datasetParameter name="MIP_BACKEND_URL">
+							<datasetParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="loytoId">
+							<datasetParameterExpression><![CDATA[$P{loytoId}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:listContents height="210" width="170">
+						<image hAlign="Center" vAlign="Middle" onErrorType="Blank">
+							<reportElement x="0" y="0" width="170" height="210" uuid="83bef521-ff01-48b2-a2de-47930a9c5808"/>
+							<box>
+								<pen lineColor="#E3E3E3"/>
+								<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<imageExpression><![CDATA[$P{MIP_BACKEND_URL} + "/raportti/ark_kuva/"+$F{id}+"/pieni"]]></imageExpression>
+						</image>
+					</jr:listContents>
+				</jr:list>
+			</componentElement>
+			<frame>
+				<reportElement x="0" y="0" width="380" height="190" uuid="59a6fa09-bf81-4a20-b69c-c50e442e1a6b"/>
+				<textField>
+					<reportElement x="0" y="0" width="130" height="20" uuid="0a2b9a8a-4303-42f9-8b5f-eb80152faef4"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Löydön perustiedot:"]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="0" y="20" width="130" height="20" uuid="b47b7244-95eb-4574-85fa-e200712569b9"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Luettelointinumero:"]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement positionType="FixRelativeToBottom" x="130" y="20" width="250" height="20" uuid="3aa24ab5-120d-4fe4-906f-5ef45b6ab4ce"/>
+					<textElement>
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{luettelointinumero}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="130" y="40" width="250" height="20" uuid="8cf8dc66-34b3-4664-8720-7eb5688cf865"/>
+					<textElement>
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{tutkimus_nimi}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="0" y="40" width="130" height="20" uuid="8448a89a-3b07-43de-a752-44a2d09cb165"/>
+					<textElement>
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Tutkimuksen nimi:"]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="0" y="70" width="130" height="20" uuid="1eaf85e7-12d9-470e-a270-e6cb844da9ce"/>
+					<textElement>
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Ensisijainen materiaali:"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="130" y="70" width="250" height="20" uuid="5e40ba32-cd97-4cc0-b273-0e2a3afac80a"/>
+					<textElement>
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{ensisijainen_materiaali}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="0" y="90" width="130" height="20" uuid="c2f4759f-7dfb-4290-aabc-3dca6034a79c"/>
+					<textElement>
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Muut materiaalit:"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="130" y="90" width="250" height="20" uuid="308e67a6-238b-4848-ab94-fdc4a0e79135"/>
+					<textElement>
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{muut_materiaalit}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="0" y="110" width="130" height="20" uuid="e54e62a4-3648-4ff8-919c-fc7c08c1f28b"/>
+					<textElement>
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Esineen nimi:"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="130" y="110" width="250" height="20" uuid="f41af874-fa71-4984-975b-53cb06795f3e"/>
+					<textElement>
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{esineen_nimi}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="0" y="130" width="130" height="20" uuid="94a24ba6-8960-48d6-8bfe-83928df1c36f"/>
+					<textElement>
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Kuvaus:"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="130" y="130" width="250" height="20" uuid="b315c691-c93a-4b49-ac26-2be94582ee77"/>
+					<textElement>
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{kuvaus}]]></textFieldExpression>
+				</textField>
+				<frame>
+					<reportElement positionType="Float" x="0" y="150" width="380" height="40" uuid="779ff2b3-0071-4c0f-9267-cc7d6e61ea4f"/>
+					<textField>
+						<reportElement x="0" y="0" width="130" height="20" uuid="4885f9d6-4378-46bd-ab95-1b998d709ac9">
+							<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+						</reportElement>
+						<textElement>
+							<font isBold="false"/>
+						</textElement>
+						<textFieldExpression><![CDATA["Kpl: "]]></textFieldExpression>
+					</textField>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement x="130" y="0" width="250" height="20" uuid="d2697d06-08c0-4d09-b70d-6e777dd9cdd1">
+							<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+						</reportElement>
+						<textElement>
+							<font isBold="false"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{kappalemaara}]]></textFieldExpression>
+					</textField>
+					<textField>
+						<reportElement x="0" y="20" width="130" height="20" uuid="fccda63e-e6f1-4afc-8218-a0757171b096">
+							<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+						</reportElement>
+						<textElement>
+							<font isBold="false"/>
+						</textElement>
+						<textFieldExpression><![CDATA["Röntgenkuvan nro: "]]></textFieldExpression>
+					</textField>
+					<componentElement>
+						<reportElement x="130" y="20" width="250" height="20" uuid="a7b69251-b7be-4106-a8f5-3b12d0110ad4">
+							<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+						</reportElement>
+						<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
+							<datasetRun subDataset="Rontgenkuva_numerot" uuid="e640632f-e4ec-4263-893a-afdb51543016">
+								<datasetParameter name="loytoId">
+									<datasetParameterExpression><![CDATA[$P{loytoId}]]></datasetParameterExpression>
+								</datasetParameter>
+								<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+							</datasetRun>
+							<jr:listContents height="20" width="250">
+								<textField isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="250" height="20" uuid="f9f6d330-b916-4dbd-bec5-8793958ddaff">
+										<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+									</reportElement>
+									<textFieldExpression><![CDATA[$F{numerot}]]></textFieldExpression>
+								</textField>
+							</jr:listContents>
+						</jr:list>
+					</componentElement>
+				</frame>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="250" width="550" height="180" uuid="5ab559f9-0e44-43e3-942e-add1e1c5521f"/>
+				<textField>
+					<reportElement x="0" y="0" width="130" height="20" uuid="9e82adb8-1d94-4aa4-8965-8d2e96db2613"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Kuntomääritys:"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="180" y="20" width="370" height="20" uuid="ae3b3c7a-9e1b-4530-9a6c-8a3b4464b06f">
+						<printWhenExpression><![CDATA[$F{paino_ennen} != null]]></printWhenExpression>
+					</reportElement>
+					<textElement>
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{paino_ennen} + " " + $F{paino_ennen_yksikko}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="40" y="20" width="140" height="20" uuid="4d35d0aa-f554-4a49-bc40-e17e85f8abc6"/>
+					<textElement>
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Paino ennen konservointia:"]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="40" y="40" width="140" height="20" uuid="47804403-6ae7-47b6-a363-8c3fde4fc4d6"/>
+					<textElement>
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Paino konservoinnin jälkeen:"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="180" y="40" width="370" height="20" uuid="8f021743-a66e-4848-9c58-c8fd0cbf90e9">
+						<printWhenExpression><![CDATA[$F{paino_jalkeen} != null]]></printWhenExpression>
+					</reportElement>
+					<textElement>
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{paino_jalkeen} + " " + $F{paino_jalkeen_yksikko}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="40" y="60" width="140" height="20" uuid="a3a477c5-e0bb-4088-b08b-5c9adcc5d93a"/>
+					<textElement>
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Kunto ennen konservointia:"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="40" y="80" width="510" height="20" isRemoveLineWhenBlank="true" uuid="e68b9ce8-fb41-4f9d-b4b0-147389212e20"/>
+					<textElement>
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{kunto}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement positionType="Float" x="40" y="100" width="140" height="20" uuid="4a413367-f7c8-484f-bd22-c2392e5084e5"/>
+					<textElement>
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Säilytysolosuhteet: "]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="40" y="120" width="510" height="20" isRemoveLineWhenBlank="true" uuid="a83441d7-1bc3-44da-aaad-d3a37cab7f6b"/>
+					<textElement>
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{sailytysolosuhteet}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement positionType="Float" x="40" y="140" width="140" height="20" uuid="694b80df-aa45-4298-bdc4-58bc0b50e229"/>
+					<textElement>
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Lisätiedot: "]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="40" y="160" width="510" height="20" isRemoveLineWhenBlank="true" uuid="d04b7992-d219-429c-a072-0c161e785ad6"/>
+					<textElement>
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{konservointi_lisatiedot}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="210" width="550" height="40" uuid="2944d853-1aae-46f9-968b-cd9a849c6cd2"/>
+				<textField>
+					<reportElement x="0" y="0" width="550" height="20" uuid="d504747c-b998-47f8-ad0d-b1334ccdc840"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Liitteet: "]]></textFieldExpression>
+				</textField>
+				<componentElement>
+					<reportElement x="40" y="20" width="510" height="20" uuid="720e9c5f-816b-41ab-b37d-c256e9fa3061">
+						<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+					</reportElement>
+					<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
+						<datasetRun subDataset="Kons_tiedostot" uuid="6a27d5ca-9384-495e-b3b8-d94d50d188a6">
+							<datasetParameter name="loytoId">
+								<datasetParameterExpression><![CDATA[$P{loytoId}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="kons_toimenpiteetDSArray">
+								<datasetParameterExpression><![CDATA[Arrays.asList($P{kons_toimenpiteet}.split(","))]]></datasetParameterExpression>
+							</datasetParameter>
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+						<jr:listContents height="20" width="510">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="510" height="20" uuid="2e433e36-26e2-4959-98e1-644ab416b8d5"/>
+								<textFieldExpression><![CDATA[$F{otsikko} + " - " + $F{kuvaus}]]></textFieldExpression>
+							</textField>
+						</jr:listContents>
+					</jr:list>
+				</componentElement>
+			</frame>
+		</band>
+		<band height="302">
+			<frame>
+				<reportElement positionType="Float" x="0" y="0" width="550" height="190" isRemoveLineWhenBlank="true" uuid="902c99ca-39c0-4aac-ae9e-3bddc47926cc">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<textField>
+					<reportElement x="0" y="0" width="180" height="20" uuid="c0b62878-273b-4380-92ad-0f2eaf6807d7">
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					</reportElement>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Konservointitoimenpiteet:"]]></textFieldExpression>
+				</textField>
+				<componentElement>
+					<reportElement x="0" y="20" width="550" height="60" isRemoveLineWhenBlank="true" uuid="68e837e6-43af-4eff-8a0c-aed1f2535b97">
+						<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.grid.JSSGridBagLayout"/>
+						<property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
+						<property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
+						<property name="com.jaspersoft.studio.table.style.detail" value="Table_TD"/>
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+						<datasetRun subDataset="Kons_toimenpiteet" uuid="1528ce2c-80ef-465a-9884-ed17417ed8e5">
+							<datasetParameter name="loytoId">
+								<datasetParameterExpression><![CDATA[$P{loytoId}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="kons_toimenpiteetDSArray">
+								<datasetParameterExpression><![CDATA[Arrays.asList($P{kons_toimenpiteet}.split(","))]]></datasetParameterExpression>
+							</datasetParameter>
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+						<jr:column width="137" uuid="72885d4b-ef5e-4105-8f9e-bac47aa5fe0a">
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<jr:columnHeader style="Table_CH" height="30">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.grid.JSSGridBagLayout"/>
+								<staticText>
+									<reportElement x="0" y="0" width="137" height="30" uuid="3612b603-81f2-4bbf-902c-d57f30b40649">
+										<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+									</reportElement>
+									<textElement textAlignment="Center" verticalAlignment="Middle"/>
+									<text><![CDATA[Toimenpide]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="30">
+								<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.grid.JSSGridBagLayout"/>
+								<textField isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="137" height="30" uuid="ef1da9a2-7f7f-44d1-b5fe-f993f56f357b">
+										<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+									</reportElement>
+									<textElement textAlignment="Center" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[$F{toimenpide_nimi}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="137" uuid="5b9f6e22-7418-4932-accf-53dc1dc824ac">
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<jr:columnHeader style="Table_CH" height="30">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.grid.JSSGridBagLayout"/>
+								<staticText>
+									<reportElement x="0" y="0" width="137" height="30" uuid="6f84b46e-0490-4e5b-8a6b-2d031a32ae5f"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle"/>
+									<text><![CDATA[Menetelmä]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="30">
+								<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.grid.JSSGridBagLayout"/>
+								<textField isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="137" height="30" uuid="2e212903-4506-4835-93e3-c10149e70f2d">
+										<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+									</reportElement>
+									<textElement textAlignment="Center" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[$F{menetelma_nimi}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="137" uuid="059afcbd-eee4-42d7-a183-806b59e4474d">
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<jr:columnHeader style="Table_CH" height="30">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.grid.JSSGridBagLayout"/>
+								<staticText>
+									<reportElement x="0" y="0" width="137" height="30" uuid="791d5667-a5b9-4b34-b04b-42520a550ce9"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle"/>
+									<text><![CDATA[Alkaa]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="30">
+								<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.grid.JSSGridBagLayout"/>
+								<textField pattern="dd.MM.yyyy" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="137" height="30" uuid="597d0d6b-0db3-41e9-98f2-bca7baaa08ac"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[$F{toimenpide_alkaa}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="137" uuid="3f9378e5-ff75-4727-9302-0fe5c08fe653">
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<jr:columnHeader style="Table_CH" height="30">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.grid.JSSGridBagLayout"/>
+								<staticText>
+									<reportElement x="0" y="0" width="137" height="30" uuid="365e1424-67b7-483e-9b4e-0ba6300e42c6"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle"/>
+									<text><![CDATA[Päättyy]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="30">
+								<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.grid.JSSGridBagLayout"/>
+								<textField pattern="dd.MM.yyyy" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="137" height="30" uuid="20894c0d-9451-4e86-a7d0-85cb28087361"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[$F{toimenpide_paattyy}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+					</jr:table>
+				</componentElement>
+				<componentElement>
+					<reportElement positionType="Float" x="0" y="90" width="550" height="100" isRemoveLineWhenBlank="true" uuid="37d970cf-5828-4e70-ba3c-34156704dc69">
+						<property name="net.sf.jasperreports.export.headertoolbar.table.name" value=""/>
+					</reportElement>
+					<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
+						<datasetRun subDataset="Kons_toimenpiteet" uuid="0cd74b43-4ef4-4acf-9dca-6bc95c97d7d0">
+							<datasetParameter name="loytoId">
+								<datasetParameterExpression><![CDATA[$P{loytoId}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="kons_toimenpiteetDSArray">
+								<datasetParameterExpression><![CDATA[Arrays.asList($P{kons_toimenpiteet}.split(","))]]></datasetParameterExpression>
+							</datasetParameter>
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+						<jr:listContents height="100" width="550">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement positionType="Float" x="9" y="0" width="541" height="20" isRemoveLineWhenBlank="true" uuid="bb77d469-c7c9-4bf9-ad4b-c2c9fe574635"/>
+								<textElement markup="styled"/>
+								<textFieldExpression><![CDATA["<li>" + $F{toimenpide_nimi} + "</li>"]]></textFieldExpression>
+							</textField>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement positionType="Float" x="20" y="20" width="530" height="20" isRemoveLineWhenBlank="true" uuid="5d8b209e-bdbc-40d0-87d6-68a962008390"/>
+								<textFieldExpression><![CDATA[$F{menetelma_nimi}]]></textFieldExpression>
+							</textField>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement positionType="Float" x="20" y="40" width="530" height="20" isRemoveLineWhenBlank="true" uuid="8109abeb-585e-4de1-845d-a842b44485c7"/>
+								<textFieldExpression><![CDATA[$F{menetelman_kuvaus}]]></textFieldExpression>
+							</textField>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement positionType="Float" x="20" y="60" width="530" height="20" isRemoveLineWhenBlank="true" uuid="23b98643-25b8-4c2c-8baa-9b46eff067f8"/>
+								<textFieldExpression><![CDATA[$F{toimenpide_lisatiedot}]]></textFieldExpression>
+							</textField>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement positionType="Float" x="20" y="80" width="530" height="20" isRemoveLineWhenBlank="true" uuid="8842dac3-7829-4821-ab1e-a0b237cfbd5d"/>
+								<textFieldExpression><![CDATA[$F{materiaali_nimi}]]></textFieldExpression>
+							</textField>
+						</jr:listContents>
+					</jr:list>
+				</componentElement>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="190" width="550" height="80" uuid="bb4b76b7-c4fd-4334-8894-82d80c077e50">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textField>
+					<reportElement x="0" y="5" width="550" height="20" uuid="ca43129d-8824-41ba-a14b-610d57a1fb65"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Käsittelytiedot: "]]></textFieldExpression>
+				</textField>
+				<componentElement>
+					<reportElement x="1" y="25" width="549" height="60" isRemoveLineWhenBlank="true" uuid="3ac416c7-df17-4081-9007-7b322a6b201c">
+						<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+						<property name="com.jaspersoft.studio.table.style.table_header" value="Table 1_TH"/>
+						<property name="com.jaspersoft.studio.table.style.column_header" value="Table 1_CH"/>
+						<property name="com.jaspersoft.studio.table.style.detail" value="Table 1_TD"/>
+					</reportElement>
+					<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+						<datasetRun subDataset="Kons_kasittelyt" uuid="0d379278-9611-4a00-b0b4-21898154b5df">
+							<datasetParameter name="loytoId">
+								<datasetParameterExpression><![CDATA[$P{loytoId}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="kons_toimenpiteetDSArray">
+								<datasetParameterExpression><![CDATA[Arrays.asList($P{kons_toimenpiteet}.split(","))]]></datasetParameterExpression>
+							</datasetParameter>
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+						<jr:column width="90" uuid="b810bd71-51ed-41b4-873f-fc2cddf51984">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<jr:groupHeader groupName="kasittelytunnus">
+								<jr:cell style="Table 1_CH" height="30" rowSpan="1">
+									<textField>
+										<reportElement x="0" y="0" width="90" height="30" isRemoveLineWhenBlank="true" uuid="513abeae-c5bf-4d4c-9733-af3b02b589e6"/>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font isBold="true"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$F{kasittelytunnus}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupHeader>
+							<jr:detailCell style="Table 1_TD" height="30"/>
+						</jr:column>
+						<jr:column width="110" uuid="d516e25b-4910-42ad-bd3c-54848c314afb">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+							<jr:groupHeader groupName="kasittelytunnus">
+								<jr:cell style="Table 1_CH" height="30" rowSpan="1">
+									<property name="com.jaspersoft.studio.unit.height" value="px"/>
+									<staticText>
+										<reportElement x="0" y="0" width="110" height="30" uuid="1a3ad523-d1c7-4e6e-b44b-6155b2782d16">
+											<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+										</reportElement>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<text><![CDATA[Päivämäärä]]></text>
+									</staticText>
+								</jr:cell>
+							</jr:groupHeader>
+							<jr:detailCell style="Table 1_TD" height="30">
+								<textField isStretchWithOverflow="true" pattern="dd.MM.yyyy" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="110" height="30" uuid="f2d3bf4f-dca6-430a-9d29-041d789b9728"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[$F{paivamaara}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="170" uuid="adb78048-93f6-493d-92ed-53ec6dfde541">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<jr:groupHeader groupName="kasittelytunnus">
+								<jr:cell style="Table 1_CH" height="30" rowSpan="1">
+									<staticText>
+										<reportElement x="0" y="0" width="170" height="30" uuid="b3992089-5225-4120-8851-685adc9f13c4"/>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<text><![CDATA[Käsittelytoimenpide]]></text>
+									</staticText>
+								</jr:cell>
+							</jr:groupHeader>
+							<jr:detailCell style="Table 1_TD" height="30">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="170" height="30" uuid="799fc2de-0696-4c3b-b1a1-33d4a00fdfd1"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[$F{kasittelytoimenpide}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="179" uuid="6e22401e-99e3-4f01-9ed7-b97fc78e8416">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<jr:groupHeader groupName="kasittelytunnus">
+								<jr:cell style="Table 1_CH" height="30" rowSpan="1">
+									<staticText>
+										<reportElement x="0" y="0" width="179" height="30" uuid="e635ff2c-2a8b-4f0c-bcdb-5aaacd313a20"/>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<text><![CDATA[Huomiot]]></text>
+									</staticText>
+								</jr:cell>
+							</jr:groupHeader>
+							<jr:detailCell style="Table 1_TD" height="30">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="179" height="30" uuid="48f7a2b4-66fa-4423-9d08-451cfe454b8c"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[$F{huomiot}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+					</jr:table>
+				</componentElement>
+			</frame>
+		</band>
+		<band height="380">
+			<frame>
+				<reportElement x="0" y="0" width="550" height="380" uuid="afca4ec0-29ef-4052-a437-1925c7d16563">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textField>
+					<reportElement positionType="Float" x="0" y="0" width="180" height="20" uuid="8ef0df1c-c2e2-44ee-8763-23ed07a37cea">
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					</reportElement>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Kuvat:"]]></textFieldExpression>
+				</textField>
+				<componentElement>
+					<reportElement positionType="Float" x="0" y="20" width="549" height="360" isRemoveLineWhenBlank="true" uuid="a9ffdfa8-4b4e-46a2-af52-e579f9a3cf82">
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					</reportElement>
+					<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
+						<datasetRun subDataset="Kons_kuvat" uuid="ba1b4d75-9d40-4a37-9cf9-e1a2acbcd911">
+							<datasetParameter name="loytoId">
+								<datasetParameterExpression><![CDATA[$P{loytoId}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="MIP_BACKEND_URL">
+								<datasetParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></datasetParameterExpression>
+							</datasetParameter>
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+						<jr:listContents height="360" width="549">
+							<textField>
+								<reportElement x="0" y="300" width="549" height="20" isRemoveLineWhenBlank="true" uuid="1769946f-79c1-4bb6-b236-d2ed3a9455e3"/>
+								<textFieldExpression><![CDATA[$F{luettelointinumero} == null ? $F{otsikko} : $F{luettelointinumero}]]></textFieldExpression>
+							</textField>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="320" width="549" height="20" uuid="fcdb1636-6c72-4c84-8148-e53679700dbf">
+									<printWhenExpression><![CDATA[$F{nimi_fi} != null]]></printWhenExpression>
+								</reportElement>
+								<textFieldExpression><![CDATA["Konservointivaihe: " + $F{nimi_fi}]]></textFieldExpression>
+							</textField>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="340" width="549" height="20" isRemoveLineWhenBlank="true" uuid="e58b2e86-d67c-4b8b-a86b-e7bf141a4d04">
+									<printWhenExpression><![CDATA[$F{kuvaus} != null]]></printWhenExpression>
+								</reportElement>
+								<box>
+									<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+								<textFieldExpression><![CDATA[$F{kuvaus}]]></textFieldExpression>
+							</textField>
+							<image onErrorType="Blank">
+								<reportElement x="0" y="0" width="549" height="300" isRemoveLineWhenBlank="true" uuid="e010642f-83ea-40f5-a292-3411e64b9035">
+									<printWhenExpression><![CDATA[$F{id} != null]]></printWhenExpression>
+								</reportElement>
+								<box>
+									<pen lineColor="#E3E3E3"/>
+									<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+								<imageExpression><![CDATA[$P{MIP_BACKEND_URL} + "/raportti/ark_kuva/"+$F{id}+"/pieni"]]></imageExpression>
+							</image>
+						</jr:listContents>
+					</jr:list>
+				</componentElement>
+			</frame>
+		</band>
+		<band height="382">
+			<textField>
+				<reportElement x="0" y="0" width="180" height="20" uuid="cf3f50c0-6024-4838-9e27-2115409b3c79">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Röntgenkuvat:"]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement positionType="Float" x="0" y="20" width="549" height="320" isRemoveLineWhenBlank="true" uuid="a5fa4977-957b-48fd-9d1d-79e3d10618b2">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="net.sf.jasperreports.export.headertoolbar.table.name" value=""/>
+				</reportElement>
+				<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
+					<datasetRun subDataset="Rontgen_kuvat" uuid="07e562c1-0f65-4ef7-b387-8a1868264746">
+						<datasetParameter name="loytoId">
+							<datasetParameterExpression><![CDATA[$P{loytoId}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="MIP_BACKEND_URL">
+							<datasetParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:listContents height="320" width="549">
+						<textField>
+							<reportElement x="0" y="300" width="549" height="20" isRemoveLineWhenBlank="true" uuid="be657145-497c-408b-8968-16e15f482b30"/>
+							<textFieldExpression><![CDATA["Röntgenkuva: "+$F{numero} +" " +$F{otsikko}]]></textFieldExpression>
+						</textField>
+						<image onErrorType="Blank">
+							<reportElement x="0" y="0" width="549" height="300" isRemoveLineWhenBlank="true" uuid="23323ca7-a9ff-47b7-93b5-190e58787337">
+								<printWhenExpression><![CDATA[$F{id} != null]]></printWhenExpression>
+							</reportElement>
+							<box>
+								<pen lineColor="#E3E3E3"/>
+								<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<imageExpression><![CDATA[$P{MIP_BACKEND_URL} + "/raportti/ark_kuva/"+$F{id}+"/pieni"]]></imageExpression>
+						</image>
+					</jr:listContents>
+				</jr:list>
+			</componentElement>
+		</band>
+		<band height="234">
+			<frame>
+				<reportElement x="0" y="0" width="550" height="119" uuid="9a2288a2-0588-4463-9df2-ae2c37c02f31">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textField>
+					<reportElement x="0" y="15" width="180" height="20" uuid="d894f76e-f094-4513-87f8-ec6a4edaac13">
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					</reportElement>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Tekijä / tekijät: "]]></textFieldExpression>
+				</textField>
+				<componentElement>
+					<reportElement x="-1" y="35" width="551" height="20" isRemoveLineWhenBlank="true" uuid="13292bb6-2ba3-4735-81ee-c9f38118064f">
+						<property name="net.sf.jasperreports.export.headertoolbar.table.name" value=""/>
+					</reportElement>
+					<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
+						<datasetRun subDataset="Kons_toimenpiteet" uuid="ebda88f8-0bcf-4dfc-911a-ffb3c2ee01c8">
+							<datasetParameter name="loytoId">
+								<datasetParameterExpression><![CDATA[$P{loytoId}]]></datasetParameterExpression>
+							</datasetParameter>
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+						<jr:listContents height="20" width="551">
+							<textField>
+								<reportElement isPrintRepeatedValues="false" x="0" y="0" width="551" height="20" uuid="5123ab89-1827-4b8b-abde-182b3010a67c"/>
+								<textFieldExpression><![CDATA[$F{tekija}]]></textFieldExpression>
+							</textField>
+						</jr:listContents>
+					</jr:list>
+				</componentElement>
+				<textField>
+					<reportElement positionType="Float" x="0" y="70" width="549" height="20" uuid="13180ba4-143c-4683-99a8-9476eade8f16"/>
+					<textFieldExpression><![CDATA["pvm"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="120" y="90" width="430" height="20" isRemoveLineWhenBlank="true" uuid="e181bc70-e472-4418-ac1c-5e06e34fdbbd"/>
+					<textFieldExpression><![CDATA[$P{raportti_luoja}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="20" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<textField>
+				<reportElement x="480" y="0" width="70" height="20" uuid="6c2e2570-b957-48f7-8936-cbe85dd8f712"/>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>

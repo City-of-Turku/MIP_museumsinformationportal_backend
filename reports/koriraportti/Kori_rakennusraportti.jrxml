@@ -1,0 +1,1027 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Kori_rakennusraportti" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" isIgnorePagination="true" uuid="dea69c35-0e8e-453e-972c-f915cdff87f9">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="net.sf.jasperreports.export.xls.collapse.row.span" value="true"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Mipdev5DataAdapter.xml"/>
+	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="Perustietoraportti_ds" uuid="e5498d72-613d-41ea-a70e-2b8eb01ec8d5">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MIPapp049Server-1\Test1_DB.xml"/>
+		<parameter name="valitutKentat_table" class="java.lang.String"/>
+		<parameter name="valitutKentatArray_table" class="java.util.List" nestedType="java.lang.String" isForPrompting="false">
+			<defaultValueExpression><![CDATA[Arrays.asList($P{valitutKentat_table}.split(","))]]></defaultValueExpression>
+		</parameter>
+		<parameter name="koriId" class="java.lang.String"/>
+		<queryString language="SQL">
+			<![CDATA[select
+					rakennus.id,
+					kunta.nimi as kunta,
+					kunta.nimi_se as kunta_se, 
+					kyla.nimi as kyla,
+					kyla.nimi_se as kyla_se,  
+					kiinteisto.nimi as kiinteisto,
+					kiinteisto.kiinteistotunnus,
+					kiinteisto.palstanumero,
+					ro.osoitteet,
+					rakennus.postinumero,        
+					rakennus.inventointinumero,
+					rakennus.rakennustunnus,
+					raktyyp.rakennustyypit,
+					raktyyp.rakennustyypit_se,
+					rakennus.rakennustyyppi_kuvaus,
+					rakennus.rakennusvuosi_alku,
+					rakennus.rakennusvuosi_loppu,
+					rakennus.rakennusvuosi_selite,
+					rm.muutosvuodet,
+					ralkuperainen_kaytto.alkuperainen_kaytto,
+                    ralkuperainen_kaytto.alkuperainen_kaytto_se,
+					rnykykaytto.nykykaytto,
+                    rnykykaytto.nykykaytto_se,
+					rakennus.kerroslukumaara,
+					rakennus.asuin_ja_liikehuoneistoja,
+					rperustus.perustus,
+                    rperustus.perustus_se,
+					rrunko.runko,
+                    rrunko.runko_se,
+					rvuoraus.vuoraus,
+                    rvuoraus.vuoraus_se,
+					rakennus.ulkovari,
+					rkatto.kattotyypit,
+					rkatto.kattotyypit_se,
+					rkate.katetyypit,
+					rkate.katetyypit_se,
+					kuntotyyppi.nimi_fi as kunto,
+                    kuntotyyppi.nimi_se as kunto_se,
+					tyylisuunta.nimi_fi as nykytyyli,
+                    tyylisuunta.nimi_se as nykytyyli_se,
+					rakennus.purettu,
+					rakennus.erityispiirteet,
+					rh.kulttuurihistorialliset_arvot,
+					rh.kulttuurihistorialliset_arvot_se,
+					arvotustyyppi.nimi_fi as arvoluokka,
+					arvotustyyppi.nimi_se as arvoluokka_se,
+					rakennus.kulttuurihistoriallisetarvot_perustelut,
+					st_x(rakennus.rakennuksen_sijainti) as sijainti_x, 
+					st_y(rakennus.rakennuksen_sijainti) as sijainti_y,
+                    suunnittelijat.suunnittelija
+					from rakennus
+					left join kiinteisto on rakennus.kiinteisto_id = kiinteisto.id
+					LEFT JOIN (
+					    SELECT rrkh.rakennus_id, string_agg(rkh.nimi_fi, ',') AS kulttuurihistorialliset_arvot, string_agg(rkh.nimi_se, ',') AS kulttuurihistorialliset_arvot_se
+					    FROM rakennus_rakennuskulttuurihistoriallinenarvo rrkh, rakennuskulttuurihistoriallinenarvo rkh
+					    WHERE rrkh.kulttuurihistoriallinenarvo_id = rkh.id
+					    GROUP BY rrkh.rakennus_id
+					) rh ON (rh.rakennus_id = rakennus.id)
+					LEFT JOIN (
+					    SELECT rrt.rakennus_id, string_agg(rt.nimi_fi, ',') AS rakennustyypit, string_agg(rt.nimi_se, ',') AS rakennustyypit_se
+					    FROM rakennus_rakennustyyppi rrt, rakennustyyppi rt
+					    WHERE rrt.rakennustyyppi_id = rt.id
+					    GROUP BY rrt.rakennus_id
+					) raktyyp ON (raktyyp.rakennus_id = rakennus.id)
+                    LEFT JOIN (
+					    SELECT rrt.rakennus_id, string_agg(rt.nimi_fi, ',') AS runko, string_agg(rt.nimi_se, ',') AS runko_se
+					    FROM rakennus_runkotyyppi rrt, runkotyyppi rt
+					    WHERE rrt.runkotyyppi_id = rt.id
+					    GROUP BY rrt.rakennus_id
+					) rrunko ON (rrunko.rakennus_id = rakennus.id)
+                    LEFT JOIN (
+					    SELECT rap.rakennus_id, string_agg(ak.nimi_fi, ',') AS alkuperainen_kaytto, string_agg(ak.nimi_se, ',') AS alkuperainen_kaytto_se
+					    FROM rakennus_alkuperainenkaytto rap, kayttotarkoitus ak
+					    WHERE rap.kayttotarkoitus_id = ak.id
+					    GROUP BY rap.rakennus_id
+					) ralkuperainen_kaytto ON (ralkuperainen_kaytto.rakennus_id = rakennus.id)
+                    LEFT JOIN (
+					    SELECT rnk.rakennus_id, string_agg(ak.nimi_fi, ',') AS nykykaytto, string_agg(ak.nimi_se, ',') AS nykykaytto_se
+					    FROM rakennus_nykykaytto rnk, kayttotarkoitus ak
+					    WHERE rnk.kayttotarkoitus_id = ak.id
+					    GROUP BY rnk.rakennus_id
+					) rnykykaytto ON (rnykykaytto.rakennus_id = rakennus.id)
+                    LEFT JOIN (
+					    SELECT rpt.rakennus_id, string_agg(pt.nimi_fi, ',') AS perustus, string_agg(pt.nimi_se, ',') AS perustus_se
+					    FROM rakennus_perustustyyppi rpt, perustustyyppi pt
+					    WHERE rpt.perustustyyppi_id = pt.id
+					    GROUP BY rpt.rakennus_id
+					) rperustus ON (rperustus.rakennus_id = rakennus.id)
+                    LEFT JOIN (
+					    SELECT rvt.rakennus_id, string_agg(vt.nimi_fi, ',') AS vuoraus, string_agg(vt.nimi_se, ',') AS vuoraus_se
+					    FROM rakennus_vuoraustyyppi rvt, vuoraustyyppi vt
+					    WHERE rvt.vuoraustyyppi_id = vt.id
+					    GROUP BY rvt.rakennus_id
+					) rvuoraus ON (rvuoraus.rakennus_id = rakennus.id)                    
+					LEFT JOIN (
+					    SELECT rakennus_muutosvuosi.rakennus_id, string_agg(rakennus_muutosvuosi.alkuvuosi::text || '-' || rakennus_muutosvuosi.loppuvuosi::text || ' : ' || rakennus_muutosvuosi.selite, ',') as muutosvuodet
+					    FROM rakennus_muutosvuosi
+					    GROUP BY rakennus_muutosvuosi.rakennus_id
+					) rm on (rm.rakennus_id = rakennus.id)
+					LEFT JOIN (
+					    SELECT rk.rakennus_id, string_agg(katot.nimi_fi, ',') AS kattotyypit, string_agg(katot.nimi_se, ',') AS kattotyypit_se
+					    FROM rakennus_kattotyyppi rk, kattotyyppi katot
+					    WHERE rk.kattotyyppi_id = katot.id
+					    GROUP BY rk.rakennus_id
+					) rkatto ON (rkatto.rakennus_id = rakennus.id)
+					LEFT JOIN (
+					    SELECT rka.rakennus_id, string_agg(katteet.nimi_fi, ',') AS katetyypit, string_agg(katteet.nimi_se, ',') AS katetyypit_se
+					    FROM rakennus_katetyyppi rka, katetyyppi katteet
+					    WHERE rka.katetyyppi_id = katteet.id
+					    GROUP BY rka.rakennus_id
+					) rkate ON (rkate.rakennus_id = rakennus.id)
+					LEFT JOIN (
+					    SELECT roj.rakennus_id, string_agg(roj.katunimi || ' ' || roj.katunumero, ',') as osoitteet
+					    FROM (select * from rakennus_osoite order by jarjestysnumero asc) roj
+					    GROUP BY roj.rakennus_id
+					) ro on (ro.rakennus_id = rakennus.id)
+					LEFT JOIN (
+                        SELECT sr.rakennus_id, string_agg(s.sukunimi || ' ' || s.etunimi, ', ') AS suunnittelija
+                        FROM suunnittelija_rakennus sr, suunnittelija s
+                        WHERE sr.suunnittelija_id = s.id
+                        GROUP BY sr.rakennus_id
+                        ) suunnittelijat on (suunnittelijat.rakennus_id = rakennus.id)
+					left join arvotustyyppi on rakennus.arvotustyyppi_id = arvotustyyppi.id
+                    left join kuntotyyppi on rakennus.kuntotyyppi_id = kuntotyyppi.id
+                    left join tyylisuunta on rakennus.nykyinen_tyyli_id = tyylisuunta.id
+					join kyla on kiinteisto.kyla_id = kyla.id
+					join kunta on kyla.kunta_id = kunta.id					
+					WHERE 
+						kiinteisto.poistettu is null
+					AND 
+						rakennus.poistettu is null
+					AND 
+						rakennus.id IN (select json_array_elements_text(kori_id_lista)::int from kori where kori.id::text = $P{koriId}) 	
+					GROUP BY kunta.nimi, kunta.nimi_se, kyla.nimi,kyla.nimi_se, kiinteisto.nimi, kiinteisto.kiinteistotunnus, kiinteisto.palstanumero, ro.osoitteet, rakennus.id, raktyyp.rakennustyypit, raktyyp.rakennustyypit_se,
+					rm.muutosvuodet, ralkuperainen_kaytto.alkuperainen_kaytto, ralkuperainen_kaytto.alkuperainen_kaytto_se, rnykykaytto.nykykaytto, rnykykaytto.nykykaytto_se, rperustus.perustus, rperustus.perustus_se,
+					rrunko.runko, rrunko.runko_se, rvuoraus.vuoraus, rvuoraus.vuoraus_se, rkatto.kattotyypit, rkatto.kattotyypit_se, rkate.katetyypit, rkate.katetyypit_se, kuntotyyppi.nimi_fi, kuntotyyppi.nimi_se,
+					tyylisuunta.nimi_fi, tyylisuunta.nimi_se, rh.kulttuurihistorialliset_arvot, rh.kulttuurihistorialliset_arvot_se, arvotustyyppi.nimi_fi, arvotustyyppi.nimi_se, suunnittelijat.suunnittelija
+					ORDER BY kunta.nimi, kyla.nimi, kiinteisto.nimi ASC]]>
+		</queryString>
+		<field name="id" class="java.lang.Integer"/>
+		<field name="kunta" class="java.lang.String"/>
+		<field name="kyla" class="java.lang.String"/>
+		<field name="kiinteisto" class="java.lang.String"/>
+		<field name="kiinteistotunnus" class="java.lang.String"/>
+		<field name="palstanumero" class="java.lang.String"/>
+		<field name="osoitteet" class="java.lang.String"/>
+		<field name="postinumero" class="java.lang.String"/>
+		<field name="inventointinumero" class="java.lang.String"/>
+		<field name="rakennustunnus" class="java.lang.String"/>
+		<field name="rakennustyypit" class="java.lang.String"/>
+		<field name="rakennustyyppi_kuvaus" class="java.lang.String"/>
+		<field name="rakennusvuosi_alku" class="java.lang.String"/>
+		<field name="rakennusvuosi_loppu" class="java.lang.String"/>
+		<field name="rakennusvuosi_selite" class="java.lang.String"/>
+		<field name="muutosvuodet" class="java.lang.String"/>
+		<field name="alkuperainen_kaytto" class="java.lang.String"/>
+		<field name="nykykaytto" class="java.lang.String"/>
+		<field name="kerroslukumaara" class="java.lang.String"/>
+		<field name="asuin_ja_liikehuoneistoja" class="java.lang.String"/>
+		<field name="perustus" class="java.lang.String"/>
+		<field name="runko" class="java.lang.String"/>
+		<field name="vuoraus" class="java.lang.String"/>
+		<field name="ulkovari" class="java.lang.String"/>
+		<field name="kattotyypit" class="java.lang.String"/>
+		<field name="katetyypit" class="java.lang.String"/>
+		<field name="kunto" class="java.lang.String"/>
+		<field name="nykytyyli" class="java.lang.String"/>
+		<field name="purettu" class="java.lang.Boolean"/>
+		<field name="erityispiirteet" class="java.lang.String"/>
+		<field name="kulttuurihistorialliset_arvot" class="java.lang.String"/>
+		<field name="kulttuurihistoriallisetarvot_perustelut" class="java.lang.String"/>
+		<field name="arvoluokka" class="java.lang.String"/>
+		<field name="sijainti_x" class="java.lang.Double"/>
+		<field name="sijainti_y" class="java.lang.Double"/>
+		<field name="suunnittelija" class="java.lang.String"/>
+		<variable name="row_number" class="java.lang.Integer" calculation="Count">
+			<variableExpression><![CDATA[$F{id}]]></variableExpression>
+		</variable>
+	</subDataset>
+	<parameter name="valitutKentat" class="java.lang.String"/>
+	<parameter name="valitutKentatArray" class="java.util.List" nestedType="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[Arrays.asList($P{valitutKentat}.split(","))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="koriId" class="java.lang.String" nestedType="java.lang.String">
+		<parameterDescription><![CDATA[]]></parameterDescription>
+	</parameter>
+	<queryString language="SQL">
+		<![CDATA[SELECT * from rakennus limit 1]]>
+	</queryString>
+	<detail>
+		<band height="50" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<componentElement>
+				<reportElement x="0" y="0" width="1500" height="50" uuid="78c97f43-21d8-4d93-bbdf-725b4fbc95ea">
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.HorizontalRowLayout"/>
+					<property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
+					<property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
+					<property name="com.jaspersoft.studio.table.style.detail" value="Table_TD"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="net.sf.jasperreports.export.headertoolbar.table.name" value=""/>
+				</reportElement>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="Perustietoraportti_ds" uuid="e5b83db8-96d7-4804-b17a-f5fea809b275">
+						<datasetParameter name="valitutKentat_table">
+							<datasetParameterExpression><![CDATA[$P{valitutKentat}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="valitutKentatArray_table">
+							<datasetParameterExpression><![CDATA[$P{valitutKentatArray}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="koriId">
+							<datasetParameterExpression><![CDATA[$P{koriId}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:columnGroup width="3340" uuid="3675c142-a3bd-49dc-adaf-b8ef120aec51">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [34]"/>
+						<jr:column width="40" uuid="4350c5df-7aaf-4118-9e77-8bb854e3b369">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="40" height="30" uuid="92caea43-4fca-478e-a820-4db589b32f75"/>
+									<text><![CDATA[Nro]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField>
+									<reportElement x="0" y="0" width="40" height="20" uuid="84f8c699-054d-4615-a17d-13cc943b7a98"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$V{row_number}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="b79a67fd-22c9-46dd-9720-83ce9f2666b5">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.height" value="px"/>
+							</jr:tableFooter>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="3e60977e-3af4-445b-997b-84b5c18c9d02"/>
+									<text><![CDATA[Kunta]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<property name="com.jaspersoft.studio.unit.height" value="px"/>
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="6a2b7d99-2641-4f7b-9c6d-09c5f3484ecc"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{kunta}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="4df9a9af-8a56-4863-bf22-cef14c65ffd0">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="0b5410c3-d630-414b-818e-f91911325aa7"/>
+									<text><![CDATA[Kylä]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="0e757921-809f-4ce5-a61b-55420e956815"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{kyla}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="e73f61af-fd9d-47b3-a233-ce8903932800">
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<property name="com.jaspersoft.studio.unit.height" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="417aa4de-5f69-476b-b4c0-70694d74197c"/>
+									<text><![CDATA[Kiinteistö]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<property name="com.jaspersoft.studio.unit.height" value="px"/>
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="bc102c57-3ab7-4b7d-a0fe-9e252150cf2e">
+										<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+										<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+									</reportElement>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{kiinteisto}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="e73f61af-fd9d-47b3-a233-ce8903932800">
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<property name="com.jaspersoft.studio.unit.height" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="417aa4de-5f69-476b-b4c0-70694d74197c"/>
+									<text><![CDATA[Kiinteistötunnus]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<property name="com.jaspersoft.studio.unit.height" value="px"/>
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="bc102c57-3ab7-4b7d-a0fe-9e252150cf2e">
+										<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+										<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+									</reportElement>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[($F{palstanumero} != null) ? $F{kiinteistotunnus} + " " + $F{palstanumero} : $F{kiinteistotunnus}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="f1ee57ea-c8fe-49f1-942e-a9cddbafde20">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column6"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("inventointinumero")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="e64dd6b0-b9f9-409c-b156-54bb8b3b3133"/>
+									<text><![CDATA[Inventointinumero]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="520e80e0-91e2-4689-aaa1-9282faa2758f"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{inventointinumero}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="8d60bb95-ff92-4918-8b10-052710141f74">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column7"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("osoitteet")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="1e089a23-0075-4472-9d2c-1a0e8c302145"/>
+									<text><![CDATA[Osoitteet]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="4e02216c-9b70-4e44-a1fb-8c453eecb6d3"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{osoitteet}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="8f24db6d-e1f3-4b77-94f8-72158580b264">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column8"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("postinumero")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="6c439909-917d-4a21-9057-647fafcb1a03"/>
+									<text><![CDATA[Postinumero]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="aae1db0e-efc1-4315-930e-c8b3cf236e0b"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{postinumero}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="f9819ed6-d964-46ba-aa51-bc3125eeeb9b">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column9"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("rakennustunnus")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="0d301565-03e8-48ef-bb2d-edd380c4528c"/>
+									<text><![CDATA[Rakennustunnus]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="eae19d09-09d0-4118-bad3-b1bd7836b5ce"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textElement>
+										<paragraph lineSpacingSize="1.0"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{rakennustunnus}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="c0b9f167-194c-4a40-a471-9f5d99fab8e2">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column10"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("rakennustyypit")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="324854be-5cb7-4f14-9f6d-12e156ac3b11"/>
+									<text><![CDATA[Rakennustyypit]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="e50abe57-1c9c-4e3c-b55c-36910d526731"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{rakennustyypit}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="a1135bcc-5874-4748-aa0c-faa25f4b300c">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column11"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("rakennustyyppi_kuvaus")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="dd2c17c5-a393-40bb-8ac0-7d6088ca488c"/>
+									<text><![CDATA[Rakennustyypin kuvaus]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="7eefe114-c115-4748-aaa9-6524e936ba26"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{rakennustyyppi_kuvaus}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="eca63a1b-60f7-4b3d-a647-474b61c82073">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column12"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("rakennusvuosi")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="70c83287-3b68-4cc3-9f06-c725c6529ca7"/>
+									<text><![CDATA[Rakennusvuosi]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="5610e08a-c2c2-48ff-ac28-7cace4d70138"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[($F{rakennusvuosi_alku} != null && $F{rakennusvuosi_loppu} != null) ? $F{rakennusvuosi_alku} + " - " + $F{rakennusvuosi_loppu} : $F{rakennusvuosi_alku}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="89eb4413-80ef-46d6-bc77-979c2cbcf055">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column13"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("rakennusvuosi_selite")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="fd433444-96e2-449f-af09-0e750a8975eb"/>
+									<text><![CDATA[Rakennusvuosi selite]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="d7cb5976-f229-4817-86fa-9dfb010c1b09"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{rakennusvuosi_selite}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="d88ad4d7-5fba-4f11-a9cd-8de97579c844">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column14"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("muutosvuodet")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="7a41c401-f1db-4a6f-8047-f55c53deec01"/>
+									<text><![CDATA[Muutosvuodet]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="3db2931e-ff40-4a32-b8ad-905300cf5128"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{muutosvuodet}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="ec282cab-d81b-44ed-899d-c4bffc191646">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column15"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("alkuperainen_kaytto")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="d3a95897-bf80-4654-a833-6ffa43d9103c"/>
+									<text><![CDATA[Alkuperäinen käyttö]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="3e11a037-a732-424d-8743-9278c736435e"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{alkuperainen_kaytto}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="90100f73-c1c1-4880-a83a-6906df2e874f">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column16"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("nykykaytto")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="a0139340-6862-49db-8496-6990abe8fe65"/>
+									<text><![CDATA[Nykykäyttö]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="a63c59c6-1273-4dbf-a492-e8e4f648ded7"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{nykykaytto}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="95a6587d-8502-4032-a29d-e2d25384605a">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column17"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("kerroslukumaara")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="4d91b2d8-9e28-41af-9542-412fa34f0509"/>
+									<textElement>
+										<paragraph lineSpacing="Single"/>
+									</textElement>
+									<text><![CDATA[Kerroslukumäärä]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="6caa3daa-5200-4f5f-91e5-62e7734025c4"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{kerroslukumaara}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="4f05d804-4a9d-4342-903e-f7e2ca5f80ad">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column18"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("asuin_ja_liikehuoneistoja")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="8106d001-f6e8-4f94-ac8a-7ca52f612267"/>
+									<text><![CDATA[Asuin- ja liikehuoneistoja]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="c948348b-2ffb-429f-bb9b-fdef938dd9fd"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{asuin_ja_liikehuoneistoja}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="76b15240-c092-418e-a33b-395dde409d10">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column19"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("perustus")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="3bc1a5ed-d4cd-41fb-b402-d2bdf62d3482"/>
+									<text><![CDATA[Perustus]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" pattern="dd.MM.yyyy" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="c37858b3-97d1-405b-9dfc-962a20734c22"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{perustus}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="7da35ccf-342b-4f06-93ad-467d873baa53">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column20"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("runko")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="da02af22-136d-41ce-8564-614e5d652d6b"/>
+									<text><![CDATA[Runko]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="155caef9-a49c-4515-9e61-a087155aec1c"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{runko}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="7da35ccf-342b-4f06-93ad-467d873baa53">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column21"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("vuoraus")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="da02af22-136d-41ce-8564-614e5d652d6b"/>
+									<text><![CDATA[Vuoraus]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="155caef9-a49c-4515-9e61-a087155aec1c"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{vuoraus}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="7da35ccf-342b-4f06-93ad-467d873baa53">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column22"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("ulkovari")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="da02af22-136d-41ce-8564-614e5d652d6b"/>
+									<text><![CDATA[Ulkoväri]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="155caef9-a49c-4515-9e61-a087155aec1c"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{ulkovari}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="7da35ccf-342b-4f06-93ad-467d873baa53">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column23"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("kattotyypit")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="da02af22-136d-41ce-8564-614e5d652d6b"/>
+									<text><![CDATA[Kattotyypit]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="155caef9-a49c-4515-9e61-a087155aec1c"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{kattotyypit}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="7da35ccf-342b-4f06-93ad-467d873baa53">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column24"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("katetyypit")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="da02af22-136d-41ce-8564-614e5d652d6b"/>
+									<text><![CDATA[Katetyypit]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="155caef9-a49c-4515-9e61-a087155aec1c"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{katetyypit}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="7da35ccf-342b-4f06-93ad-467d873baa53">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column25"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("kunto")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="da02af22-136d-41ce-8564-614e5d652d6b"/>
+									<text><![CDATA[Kunto]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="155caef9-a49c-4515-9e61-a087155aec1c"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{kunto}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="7da35ccf-342b-4f06-93ad-467d873baa53">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column26"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("nykytyyli")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="da02af22-136d-41ce-8564-614e5d652d6b"/>
+									<text><![CDATA[Nykytyyli]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="155caef9-a49c-4515-9e61-a087155aec1c"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{nykytyyli}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="7da35ccf-342b-4f06-93ad-467d873baa53">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column27"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("purettu")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="da02af22-136d-41ce-8564-614e5d652d6b"/>
+									<text><![CDATA[Purettu]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="155caef9-a49c-4515-9e61-a087155aec1c"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[($F{purettu} == true) ? "Kyllä" : "Ei"]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="7da35ccf-342b-4f06-93ad-467d873baa53">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column28"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("erityispiirteet")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="da02af22-136d-41ce-8564-614e5d652d6b"/>
+									<text><![CDATA[Erityispiirteet]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="155caef9-a49c-4515-9e61-a087155aec1c"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{erityispiirteet}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="7da35ccf-342b-4f06-93ad-467d873baa53">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column29"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("kulttuurihistorialliset_arvot")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="da02af22-136d-41ce-8564-614e5d652d6b"/>
+									<text><![CDATA[Kulttuurihistorialliset arvot]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="155caef9-a49c-4515-9e61-a087155aec1c"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{kulttuurihistorialliset_arvot}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="7da35ccf-342b-4f06-93ad-467d873baa53">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column30"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("kulttuurihistoriallisetarvot_perustelut")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="da02af22-136d-41ce-8564-614e5d652d6b"/>
+									<text><![CDATA[Perustelut]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="155caef9-a49c-4515-9e61-a087155aec1c"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{kulttuurihistoriallisetarvot_perustelut}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="7da35ccf-342b-4f06-93ad-467d873baa53">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column31"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("arvoluokka")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="da02af22-136d-41ce-8564-614e5d652d6b"/>
+									<text><![CDATA[Arvoluokka]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="155caef9-a49c-4515-9e61-a087155aec1c"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{arvoluokka}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="7da35ccf-342b-4f06-93ad-467d873baa53">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column32"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("suunnittelija")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="dd2c17c5-a393-40bb-8ac0-7d6088ca488c"/>
+									<text><![CDATA[Suunnittelija]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="7eefe114-c115-4748-aaa9-6524e936ba26"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{suunnittelija}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="7da35ccf-342b-4f06-93ad-467d873baa53">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column33"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("rakennuksen_sijainti")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="dd2c17c5-a393-40bb-8ac0-7d6088ca488c"/>
+									<text><![CDATA[Sijainti_x]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="7eefe114-c115-4748-aaa9-6524e936ba26"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{sijainti_x}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="7da35ccf-342b-4f06-93ad-467d873baa53">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column34"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("rakennuksen_sijainti")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="dd2c17c5-a393-40bb-8ac0-7d6088ca488c"/>
+									<text><![CDATA[Sijainti_y]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="7eefe114-c115-4748-aaa9-6524e936ba26"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{sijainti_y}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+					</jr:columnGroup>
+				</jr:table>
+			</componentElement>
+		</band>
+	</detail>
+</jasperReport>

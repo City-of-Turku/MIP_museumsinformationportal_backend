@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
+<!-- 2019-05-23T13:15:07 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Yhteenvetoraportti_alue" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="824652e4-8ef2-446c-b82c-a3d87eb9d8b4">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="mipdev5 "/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="kyla_id" class="java.lang.Long">
+		<defaultValueExpression><![CDATA[$P{kyla_id}]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MIP_MAPSERVER_URL" class="java.lang.String"/>
+	<parameter name="MIP_BACKEND_URL" class="java.lang.String"/>
+	<parameter name="inventointiprojekti_id" class="java.lang.Long">
+		<defaultValueExpression><![CDATA[$P{inventointiprojekti_id}]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT distinct a.id as alue_id, a.nimi as alue_nimi,
+		ky.id as kyla_id, ky.nimi as kyla_nimi,
+		ku.id as kunta_id, ku.nimi as kunta_nimi	
+		from alue a
+		join alue_kyla ak on ak.alue_id = a.id
+		join kyla ky on ky.id = ak.kyla_id
+		join kunta ku on ku.id = ky.kunta_id
+		left join inventointiprojekti_alue ia on (ia.alue_id = a.id and ia.poistettu is null)
+		where a.poistettu is null
+		and ky.id = $P{kyla_id}	
+		AND	($P{inventointiprojekti_id} IS NULL OR ia.inventointiprojekti_id = $P{inventointiprojekti_id})
+		order by ky.nimi, a.nimi]]>
+	</queryString>
+	<field name="alue_id" class="java.lang.Long"/>
+	<field name="alue_nimi" class="java.lang.String"/>
+	<field name="kyla_id" class="java.lang.Long"/>
+	<field name="kyla_nimi" class="java.lang.String"/>
+	<field name="kunta_id" class="java.lang.Long"/>
+	<field name="kunta_nimi" class="java.lang.String"/>
+	<detail>
+		<band height="30" splitType="Stretch">
+			<subreport isUsingCache="false" runToBottom="false">
+				<reportElement x="0" y="0" width="595" height="30" isRemoveLineWhenBlank="true" uuid="c80ee476-6a88-4626-b914-15e8b938309a">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<printWhenExpression><![CDATA[$F{alue_id} != null]]></printWhenExpression>
+				</reportElement>
+				<subreportParameter name="alue_id">
+					<subreportParameterExpression><![CDATA[$F{alue_id}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="kyla_id">
+					<subreportParameterExpression><![CDATA[$P{kyla_id}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="MIP_BACKEND_URL">
+					<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="MIP_MAPSERVER_URL">
+					<subreportParameterExpression><![CDATA[$P{MIP_MAPSERVER_URL}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="inventointiprojekti_id">
+					<subreportParameterExpression><![CDATA[$P{inventointiprojekti_id}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA["Yhteenvetoraportti_alue.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+</jasperReport>

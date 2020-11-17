@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
+<!-- 2019-05-23T13:17:24 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Yhteenvetoraportti_kylat" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" isIgnorePagination="true" uuid="824652e4-8ef2-446c-b82c-a3d87eb9d8b4">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="kyla_idt" class="java.lang.String">
+		<defaultValueExpression><![CDATA[$P{kyla_idt}]]></defaultValueExpression>
+	</parameter>
+	<parameter name="MIP_MAPSERVER_URL" class="java.lang.String"/>
+	<parameter name="MIP_BACKEND_URL" class="java.lang.String"/>
+	<parameter name="kyla_idt_array" class="java.util.List" nestedType="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[Arrays.asList($P{kyla_idt}.split(","))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inventointiprojekti_id" class="java.lang.Long">
+		<defaultValueExpression><![CDATA[$P{inventointiprojekti_id}]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT distinct ky.id as kyla_id, ky.nimi as kyla_nimi,
+		ku.id as kunta_id, ku.nimi as kunta_nimi,
+		sq_alueet_count.alueet_count,
+		sq_kiinteistot_count.kiinteistot_count
+		from kyla ky 		
+		join kunta ku on ku.id = ky.kunta_id
+		left join (
+            select ak.kyla_id, count(*) as alueet_count
+            from alue_kyla ak, alue a
+            left join inventointiprojekti_alue ia on ia.alue_id = a.id
+            where ak.alue_id = a.id
+            and a.poistettu is null
+			AND	($P{inventointiprojekti_id} IS NULL OR ia.inventointiprojekti_id = $P{inventointiprojekti_id})
+            group by kyla_id
+        ) sq_alueet_count on (sq_alueet_count.kyla_id = ky.id)
+        left join (
+        	select k.kyla_id, count(*) as kiinteistot_count
+        	from kiinteisto k
+        	left join inventointiprojekti_kiinteisto ik on ik.kiinteisto_id = k.id
+        	where k.poistettu is null
+			AND	($P{inventointiprojekti_id} IS NULL OR ik.inventointiprojekti_id = $P{inventointiprojekti_id})
+        	group by k.kyla_id
+        ) sq_kiinteistot_count on (sq_kiinteistot_count.kyla_id = ky.id)
+		where ky.poistettu is null
+		and $X{IN, ky.id::text, kyla_idt_array}
+		group by ky.id, ku.id, sq_alueet_count.alueet_count, sq_kiinteistot_count.kiinteistot_count	
+		order by ky.nimi]]>
+	</queryString>
+	<field name="kyla_id" class="java.lang.Long"/>
+	<field name="kyla_nimi" class="java.lang.String"/>
+	<field name="kunta_id" class="java.lang.Long"/>
+	<field name="kunta_nimi" class="java.lang.String"/>
+	<field name="alueet_count" class="java.lang.Long"/>
+	<field name="kiinteistot_count" class="java.lang.Long"/>
+	<detail>
+		<band height="10" splitType="Immediate">
+			<frame>
+				<reportElement x="0" y="0" width="595" height="10" isRemoveLineWhenBlank="true" uuid="f90190b2-f1c0-43ae-9a5b-db9b338fad78"/>
+				<box>
+					<pen lineColor="#E9ED00"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<subreport isUsingCache="false" runToBottom="false">
+					<reportElement x="0" y="0" width="595" height="10" isRemoveLineWhenBlank="true" uuid="c80ee476-6a88-4626-b914-15e8b938309a">
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+						<printWhenExpression><![CDATA[$F{alueet_count} != null && $F{alueet_count} > 0l]]></printWhenExpression>
+					</reportElement>
+					<subreportParameter name="kyla_id">
+						<subreportParameterExpression><![CDATA[$F{kyla_id}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="MIP_BACKEND_URL">
+						<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="MIP_MAPSERVER_URL">
+						<subreportParameterExpression><![CDATA[$P{MIP_MAPSERVER_URL}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="inventointiprojekti_id">
+						<subreportParameterExpression><![CDATA[$P{inventointiprojekti_id}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA["Yhteenvetoraportti_alueet.jasper"]]></subreportExpression>
+				</subreport>
+			</frame>
+		</band>
+		<band height="10" splitType="Immediate">
+			<frame>
+				<reportElement x="0" y="0" width="595" height="10" isRemoveLineWhenBlank="true" uuid="5ac32d43-beec-4144-9f4a-8ba2a92bf277"/>
+				<box>
+					<pen lineColor="#C8DE04"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<subreport isUsingCache="false" runToBottom="false">
+					<reportElement positionType="Float" x="0" y="0" width="595" height="10" isRemoveLineWhenBlank="true" uuid="76384c18-850a-4c1d-899b-249816f1d599">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<printWhenExpression><![CDATA[$F{kiinteistot_count} != null && $F{kiinteistot_count} > 0l]]></printWhenExpression>
+					</reportElement>
+					<subreportParameter name="kyla_id">
+						<subreportParameterExpression><![CDATA[$F{kyla_id}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="MIP_BACKEND_URL">
+						<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="inventointiprojekti_id">
+						<subreportParameterExpression><![CDATA[$P{inventointiprojekti_id}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA["Yhteenvetoraportti_kiinteistot.jasper"]]></subreportExpression>
+				</subreport>
+			</frame>
+		</band>
+	</detail>
+</jasperReport>
