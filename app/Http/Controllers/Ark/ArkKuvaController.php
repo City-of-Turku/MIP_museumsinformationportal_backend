@@ -120,6 +120,10 @@ class ArkKuvaController extends Controller {
             } else if($request->input("ark_tutkimus_id") && $request->input("ark_tutkimusalue_id") != 'null') {
                 $entities->withTutkimusalueId($request->input("ark_tutkimusalue_id"));
             }
+            // Tutkimuksen näkymään haettavat kuvat - ei näytetä mm. rontgen ja kuntoraporttien kuvia.
+            if($request->input("ark_tutkimus_id") && $request->input("tutkimus_view")) {
+                $entities->withTutkimusId($request->input("ark_tutkimus_id"), true);
+            }
             if($request->input("ark_kohde_id")) {
                 $entities->withKohdeId($request->input("ark_kohde_id"));
             }
