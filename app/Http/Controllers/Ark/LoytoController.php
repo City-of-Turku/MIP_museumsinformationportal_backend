@@ -338,7 +338,10 @@ class LoytoController extends Controller
                     'luettelointinrohistoria.loytoTapahtuma',
                     'luettelointinrohistoria.luoja',
                     'tutkimusalue.tutkimus',//irtolöytö tai tarkastus
-                    'sailytystila'))->first();
+                    'sailytystila',
+                    'kuntoraportit' => function($query) {
+                        $query->orderBy('luotu', 'DESC');
+                    }))->first();
                 if(!$loyto) {
                     MipJson::setGeoJsonFeature();
                     MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
@@ -350,7 +353,7 @@ class LoytoController extends Controller
                 $properties = clone($loyto);
 
                 // Deserialisoidaan JSON string kannasta, poistetaan myös control characterit
-                $properties->migraatiodata = preg_replace('/[[:cntrl:]]/', ' ', $properties->migraatiodata); 
+                $properties->migraatiodata = preg_replace('/[[:cntrl:]]/', ' ', $properties->migraatiodata);
                 $properties->migraatiodata = json_decode($properties->migraatiodata, true);
 
                 MipJson::setGeoJsonFeature(null, $properties);
@@ -893,7 +896,7 @@ class LoytoController extends Controller
 
         try {
             $vanhaLuettelointiNro = $loyto->luettelointinumero;
-            
+
             $loyto->fill($request->all()['properties']);
 
             // Pitää olla Turun museokeskus, jotta voidaan vaihtaa luettelointinumeroita
@@ -908,7 +911,7 @@ class LoytoController extends Controller
             if($vaihto){
                 // Kaivaustutkimuksen löytö esim: TMK12345:KA271:1
                 if($request->input('properties.yksikko')){
-                    
+
                     // Juokseva alanumero per yksikkö ja materiaalikoodi
                     $alanumero = $loyto::getAlanumero($request->input('properties.ark_tutkimusalue_yksikko_id'), $request->input('properties.materiaalikoodi.id'), null, null);
                     $loyto->alanumero = $alanumero;
@@ -917,13 +920,13 @@ class LoytoController extends Controller
                         . $request->input('properties.materiaalikoodi.koodi')
                         . $request->input('properties.yksikko.yksikon_numero') . ':'
                         . (string)$alanumero;
-                    
+
                 } else if(!$request->input('properties.yksikko')){
                     // Irtolöytö tai tarkastustutkimus esim: TMK222:1 (alkuosa + löydön päänumero + alanumero)
                     if($request->input('properties.tutkimusalue.ark_tutkimus_id') && $request->input('properties.ark_tutkimusalue_id')) {
                         $alanumero = $loyto::getAlanumero(null, null, $request->input('properties.tutkimusalue.ark_tutkimus_id'), $request->input('properties.ark_tutkimusalue_id'));
                         $loyto->alanumero = $alanumero;
-                        
+
                         $loyto->luettelointinumero = $alkuosa . $request->input('properties.tutkimusalue.tutkimus.loyto_paanumero'). ':' . (string)$alanumero;
                     }
                 }
@@ -1036,7 +1039,7 @@ class LoytoController extends Controller
 
         // Haetaan löydön tilalle tapahtuma id
         $tilaTapahtuma = LoytoTilaTapahtuma::haeLoydonTilaIdMukaan($request->input('properties.loydon_tila.id'));
-        
+
         $uusiTapahtuma = self::uusiTapahtuma($loyto);
 
         $uusiTapahtuma->ark_loyto_tapahtuma_id = $tilaTapahtuma->ark_loyto_tapahtuma_id;
@@ -1066,7 +1069,7 @@ class LoytoController extends Controller
             $uusiTapahtuma->vakituinen_sailytystila_id = $request->input('properties.sailytystila.id');
             $uusiTapahtuma->vakituinen_hyllypaikka = $request->input('properties.vakituinen_hyllypaikka');
         }
-        
+
         // Log::debug("Uusi tapahtuma:");
         // Log::debug($uusiTapahtuma);
 
@@ -1148,6 +1151,48 @@ class LoytoController extends Controller
             MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
+        return MipJson::getJson();
+    }
+
+    public function kuntoraportit($id) {
+        /*
+         * Käyttöoikeus
+         */
+    	if(!Kayttaja::hasPermissionForEntity('arkeologia.ark_loyto.muokkaus', $id)) {
+            MipJson::setGeoJsonFeature();
+            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+            return MipJson::getJson();
+        }
+
+        try {
+
+            // Hae löytö
+            $loyto = Loyto::getSingle($id)->with( array(
+                'kuntoraportit' => function($query) {
+                    $query->orderBy('luotu', 'DESC');
+                }))->first();
+            $kuntoraportit = $loyto->kuntoraportit;
+            if(!$loyto) {
+                MipJson::setGeoJsonFeature();
+                MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
+                MipJson::addMessage(Lang::get('loyto.search_not_found'));
+                return MipJson::getJson();
+            }
+            MipJson::initGeoJsonFeatureCollection(count($kuntoraportit));
+            foreach ($kuntoraportit as $kr) {
+                // löydön lisäys feature listaan
+                MipJson::addGeoJsonFeatureCollectionFeaturePoint(null, $kr);
+            }
+
+            MipJson::addMessage(Lang::get('loyto.search_success'));
+        }
+        catch(QueryException $e) {
+            Log::debug($e);
+            MipJson::setGeoJsonFeature();
+            MipJson::addMessage(Lang::get('loyto.search_failed'));
+            MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
         return MipJson::getJson();
     }
 }

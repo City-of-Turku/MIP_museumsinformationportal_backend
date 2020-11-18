@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Kori_alueraportti" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" isIgnorePagination="true" uuid="dea69c35-0e8e-453e-972c-f915cdff87f9">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="net.sf.jasperreports.export.xls.collapse.row.span" value="true"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Mipdev5DataAdapter.xml"/>
+	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="Perustietoraportti_ds" uuid="e5498d72-613d-41ea-a70e-2b8eb01ec8d5">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MIPapp049Server-1\Test1_DB.xml"/>
+		<parameter name="valitutKentat_table" class="java.lang.String"/>
+		<parameter name="valitutKentatArray_table" class="java.util.List" nestedType="java.lang.String" isForPrompting="false">
+			<defaultValueExpression><![CDATA[Arrays.asList($P{valitutKentat_table}.split(","))]]></defaultValueExpression>
+		</parameter>
+		<parameter name="koriId" class="java.lang.String"/>
+		<queryString language="SQL">
+			<![CDATA[select 
+						alue.id, 
+						alue.nimi,
+						alue.historia,
+						alue.maisema,
+						alue.nykytila,
+						alue.paikkakunta,
+						st_x(alue.keskipiste) as sijainti_x,
+						st_y(alue.keskipiste) as sijainti_y,
+						btrim(st_astext(alue.aluerajaus), 'POLYGON()') as aluerajaus,
+						kk.kunta,
+						kk.kyla
+						from alue 
+						left join (
+						    select ak.alue_id, string_agg(distinct kunta.nimi, ', ') as kunta, string_agg(distinct ky.nimi, ', ') as kyla
+						    from alue_kyla ak, kyla ky
+						    join kunta on ky.kunta_id = kunta.id
+						    where ak.kyla_id = ky.id
+						    group by ak.alue_id
+						) kk on (kk.alue_id = alue.id)
+						join alue_kyla on alue_kyla.alue_id = alue.id
+						join kyla on kyla.id = alue_kyla.kyla_id
+						join kunta on kunta.id = kyla.kunta_id
+						WHERE 
+						    alue.poistettu is null
+						AND
+							alue.id IN (select json_array_elements_text(kori_id_lista)::int from kori where kori.id::text = $P{koriId}) 					
+						GROUP BY alue.id, kk.kunta, kk.kyla
+						ORDER BY kk.kunta, kk.kyla, alue.nimi ASC]]>
+		</queryString>
+		<field name="id" class="java.lang.Integer"/>
+		<field name="nimi" class="java.lang.String"/>
+		<field name="historia" class="java.lang.String"/>
+		<field name="maisema" class="java.lang.String"/>
+		<field name="nykytila" class="java.lang.String"/>
+		<field name="paikkakunta" class="java.lang.String"/>
+		<field name="kunta" class="java.lang.String"/>
+		<field name="kyla" class="java.lang.String"/>
+		<field name="sijainti_x" class="java.lang.Double"/>
+		<field name="sijainti_y" class="java.lang.Double"/>
+		<field name="aluerajaus" class="java.lang.String"/>
+		<variable name="row_number" class="java.lang.Integer" calculation="Count">
+			<variableExpression><![CDATA[$F{id}]]></variableExpression>
+		</variable>
+	</subDataset>
+	<parameter name="valitutKentat" class="java.lang.String"/>
+	<parameter name="valitutKentatArray" class="java.util.List" nestedType="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[Arrays.asList($P{valitutKentat}.split(","))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="koriId" class="java.lang.String" nestedType="java.lang.String">
+		<parameterDescription><![CDATA[]]></parameterDescription>
+	</parameter>
+	<queryString language="SQL">
+		<![CDATA[SELECT * from alue limit 1]]>
+	</queryString>
+	<detail>
+		<band height="40" splitType="Stretch">
+			<componentElement>
+				<reportElement x="0" y="0" width="1500" height="40" uuid="78c97f43-21d8-4d93-bbdf-725b4fbc95ea">
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.HorizontalRowLayout"/>
+					<property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
+					<property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
+					<property name="com.jaspersoft.studio.table.style.detail" value="Table_TD"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="Perustietoraportti_ds" uuid="d0e8600b-9f4c-4c34-b667-bd0dddbf7f2f">
+						<datasetParameter name="valitutKentat_table">
+							<datasetParameterExpression><![CDATA[$P{valitutKentat}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="valitutKentatArray_table">
+							<datasetParameterExpression><![CDATA[$P{valitutKentatArray}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="koriId">
+							<datasetParameterExpression><![CDATA[$P{koriId}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:columnGroup width="1040" uuid="0289b697-1e18-49d4-a42b-af471035d508">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [11]"/>
+						<jr:column width="40" uuid="c1ee9a9b-b040-4cfe-869c-f6ddcae5e6f0">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="40" height="30" uuid="41bea59c-a9b8-40be-800c-4ad926f8d6cb"/>
+									<text><![CDATA[Nro]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField>
+									<reportElement x="0" y="0" width="40" height="20" uuid="8a78c159-93e6-4603-9448-77d741804b00"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$V{row_number}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="b79a67fd-22c9-46dd-9720-83ce9f2666b5">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+							<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.height" value="px"/>
+							</jr:tableFooter>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="3e60977e-3af4-445b-997b-84b5c18c9d02"/>
+									<text><![CDATA[Kunta]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="6a2b7d99-2641-4f7b-9c6d-09c5f3484ecc"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{kunta}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="4df9a9af-8a56-4863-bf22-cef14c65ffd0">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="0b5410c3-d630-414b-818e-f91911325aa7"/>
+									<text><![CDATA[Kylä]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="0e757921-809f-4ce5-a61b-55420e956815"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{kyla}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="4df9a9af-8a56-4863-bf22-cef14c65ffd0">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="0b5410c3-d630-414b-818e-f91911325aa7"/>
+									<text><![CDATA[Nimi]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="0e757921-809f-4ce5-a61b-55420e956815"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{nimi}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="36c0897b-51e7-48c1-9e11-bc7773e2b5cc">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("paikkakunta")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="bf8329b7-5169-4b48-b790-1d3e1dd784eb"/>
+									<text><![CDATA[Paikkakunta]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="8e8540ef-5fdd-47c4-b5a4-e3f0c82237ef"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{paikkakunta}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="36c0897b-51e7-48c1-9e11-bc7773e2b5cc">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column6"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("historia")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="bf8329b7-5169-4b48-b790-1d3e1dd784eb"/>
+									<text><![CDATA[Historia]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="8e8540ef-5fdd-47c4-b5a4-e3f0c82237ef"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{historia}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="36c0897b-51e7-48c1-9e11-bc7773e2b5cc">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column7"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("maisema")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="bf8329b7-5169-4b48-b790-1d3e1dd784eb"/>
+									<text><![CDATA[Maisema]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="8e8540ef-5fdd-47c4-b5a4-e3f0c82237ef"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{maisema}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="36c0897b-51e7-48c1-9e11-bc7773e2b5cc">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column8"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("nykytila")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="bf8329b7-5169-4b48-b790-1d3e1dd784eb"/>
+									<text><![CDATA[Nykytila]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="8e8540ef-5fdd-47c4-b5a4-e3f0c82237ef"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{nykytila}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="a1135bcc-5874-4748-aa0c-faa25f4b300c">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column9"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("alueen_sijainti")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="dd2c17c5-a393-40bb-8ac0-7d6088ca488c"/>
+									<text><![CDATA[Sijainti_x]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="7eefe114-c115-4748-aaa9-6524e936ba26"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{sijainti_x}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="a1135bcc-5874-4748-aa0c-faa25f4b300c">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column10"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("alueen_sijainti")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="dd2c17c5-a393-40bb-8ac0-7d6088ca488c"/>
+									<text><![CDATA[Sijainti_y]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="7eefe114-c115-4748-aaa9-6524e936ba26"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{sijainti_y}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="a1135bcc-5874-4748-aa0c-faa25f4b300c">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column11"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$P{valitutKentatArray}.contains("alueen_sijainti")]]></printWhenExpression>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="dd2c17c5-a393-40bb-8ac0-7d6088ca488c"/>
+									<text><![CDATA[Aluerajaus]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="7eefe114-c115-4748-aaa9-6524e936ba26"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$F{aluerajaus}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+					</jr:columnGroup>
+				</jr:table>
+			</componentElement>
+		</band>
+	</detail>
+</jasperReport>

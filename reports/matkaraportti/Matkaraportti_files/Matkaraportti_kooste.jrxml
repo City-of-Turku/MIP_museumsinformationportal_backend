@@ -1,0 +1,562 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
+<!-- 2018-01-10T13:10:27 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Matkaraportti_kooste" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="334a4b8b-a48c-4b5a-8c8d-99592a37c3a1">
+	<property name="net.sf.jasperreports.export.xls.collapse.row.span" value="true"/>
+	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="Matkaraportit" uuid="6d718fc1-975c-4ace-a4b8-8635192b9f49">
+		<property name="com.jaspersoft.studio.data.sql.tables" value="bWF0a2FyYXBvcnR0aSAsMTc2LDcyLDk2MWM5MWRhLTg2MDktNGMyMy05MDE3LTgyOWU2NzAxYWQy&#xA;OTtrYXl0dGFqYSAsNzIyLDI4LDZjYzlkMzkwLWQ2NTUtNDVkOS1iNDUzLTdkOGRkNDkxYTY2ZTtt&#xA;YXRrYXJhcG9ydGluc3l5ICw1MzYsNzIsZDJkZWI3MTQtN2RmNi00MjFjLWI5YmMtNWFhN2IyOGFi&#xA;NDc5O2tpaW50ZWlzdG8gLDg0Niw3MixmOGE0OTJhMy04ZWE5LTRkNzgtODhhOS1hOTFlN2JmMWZi&#xA;NzA7a3VudGEgLDEwNDEsNzIsZjFlYzA2NmQtZThmZS00MmRhLTkzZWItZjJmY2YxNjhiYTZjO21h&#xA;dGthcmFwb3J0dGlfc3l5ICwzMzcsNDMsMGZhMGE2ZTktOWQwZS00ZWEwLTlkNjgtMmRmMDE1YWJj&#xA;ZDRhO2t5bGEgLDk1OSw3MixjYzMzMjA1Yy03ZmRhLTQ1NWEtYmI3OS0wYWMyZGRiNzA3M2Q7"/>
+		<parameter name="pvm_alku_table" class="java.util.Date"/>
+		<parameter name="pvm_loppu_table" class="java.util.Date"/>
+		<parameter name="kayttaja_id_table" class="java.lang.Long"/>
+		<parameter name="kiinteisto_id_table" class="java.lang.Long"/>
+		<parameter name="syyt_table" class="java.lang.String" nestedType="java.lang.String"/>
+		<parameter name="pvm_alku_table_isEmpty" class="java.lang.Boolean">
+			<parameterDescription><![CDATA[]]></parameterDescription>
+			<defaultValueExpression><![CDATA[$P{pvm_alku_table} == null]]></defaultValueExpression>
+		</parameter>
+		<parameter name="pvm_loppu_table_isEmpty" class="java.lang.Boolean">
+			<defaultValueExpression><![CDATA[$P{pvm_loppu_table} == null]]></defaultValueExpression>
+		</parameter>
+		<parameter name="kayttaja_id_table_isEmpty" class="java.lang.Boolean">
+			<defaultValueExpression><![CDATA[$P{kayttaja_id_table} == null]]></defaultValueExpression>
+		</parameter>
+		<parameter name="kiinteisto_id_table_isEmpty" class="java.lang.Boolean">
+			<parameterDescription><![CDATA[]]></parameterDescription>
+			<defaultValueExpression><![CDATA[$P{kiinteisto_id_table} == null]]></defaultValueExpression>
+		</parameter>
+		<parameter name="syyt_table_isEmpty" class="java.lang.Boolean">
+			<defaultValueExpression><![CDATA[$P{syyt_table} .isEmpty()]]></defaultValueExpression>
+		</parameter>
+		<parameter name="syytArray_table" class="java.util.List" nestedType="java.lang.String">
+			<defaultValueExpression><![CDATA[Arrays.asList($P{syyt_table}.split(","))]]></defaultValueExpression>
+		</parameter>
+		<parameter name="valKentat_table" class="java.lang.String"/>
+		<queryString language="SQL">
+			<![CDATA[select 
+    mr.id, mr.tehtavan_kuvaus, mr.huomautukset, mr.matkapvm, mr.kiinteisto_id, mr.luotu, 
+    kayttaja.etunimi, kayttaja.sukunimi,
+    s.syyt,
+    ki.nimi, ki.kiinteistotunnus, ki.palstanumero,
+    ky.nimi as kyla, ku.nimi as kunta,
+    (
+    select count(id) as kaavoitus_count
+    from matkaraportti_syy
+    where matkaraportti_syy.matkaraportinsyy_id = 1    
+    and matkaraportti_syy.matkaraportti_id = mr.id
+    ),
+    (
+    select count(id) as katselmus_count
+    from matkaraportti_syy
+    where matkaraportti_syy.matkaraportinsyy_id = 2    
+    and matkaraportti_syy.matkaraportti_id = mr.id
+    ),
+    (
+    select count(id) as korjaus_count
+    from matkaraportti_syy
+    where matkaraportti_syy.matkaraportinsyy_id = 3
+    and matkaraportti_syy.matkaraportti_id = mr.id
+    ),
+    (
+    select count(id) as korjausneuvonta_count
+    from matkaraportti_syy
+    where matkaraportti_syy.matkaraportinsyy_id = 4
+    and matkaraportti_syy.matkaraportti_id = mr.id
+    ),
+    (
+    select count(id) as rakennussuojelu_count
+    from matkaraportti_syy
+    where matkaraportti_syy.matkaraportinsyy_id = 5    
+    and matkaraportti_syy.matkaraportti_id = mr.id
+    ),
+    (
+    select count(id) as tarkastus_count
+    from matkaraportti_syy
+    where matkaraportti_syy.matkaraportinsyy_id = 6    
+    and matkaraportti_syy.matkaraportti_id = mr.id
+    )
+from matkaraportti mr
+join (
+    select matkaraportti_syy.matkaraportti_id, string_agg(syy.nimi_fi, ',') as syyt
+    from matkaraportti_syy, matkaraportinsyy syy
+    where matkaraportti_syy.matkaraportinsyy_id = syy.id
+    group by matkaraportti_syy.matkaraportti_id
+) s on (s.matkaraportti_id = mr.id)
+join matkaraportti_syy mrs on mrs.matkaraportti_id = mr.id
+join kayttaja on mr.luoja = kayttaja.id
+join kiinteisto ki on mr.kiinteisto_id = ki.id
+join kyla ky on ki.kyla_id = ky.id
+join kunta ku on ky.kunta_id = ku.id
+where
+mr.poistettu is null 
+and 
+(
+	( 
+	  $P{pvm_alku_table_isEmpty} or
+	  mr.matkapvm >= $P{pvm_alku_table}
+	)
+	and
+	(
+	   $P{pvm_loppu_table_isEmpty} or
+	  mr.matkapvm <= $P{pvm_loppu_table}
+	)
+	and
+	(
+	  $P{kayttaja_id_table_isEmpty} or
+	  mr.luoja = $P{kayttaja_id_table}
+	)
+	and
+	(
+	  $P{kiinteisto_id_table_isEmpty} or
+	  mr.kiinteisto_id = $P{kiinteisto_id_table}
+	)
+	and
+	(
+	  $P{syyt_table_isEmpty} or
+	  $X{IN, mrs.matkaraportinsyy_id::text, syytArray_table} 	  
+	)
+)
+group by mr.id, kayttaja.etunimi, kayttaja.sukunimi, s.syyt, ki.nimi, ki.kiinteistotunnus, ki.palstanumero, ky.nimi, ku.nimi
+order by mr.matkapvm, ku.nimi, ky.nimi ASC]]>
+		</queryString>
+		<field name="id" class="java.lang.Long"/>
+		<field name="tehtavan_kuvaus" class="java.lang.String"/>
+		<field name="huomautukset" class="java.lang.String"/>
+		<field name="matkapvm" class="java.sql.Date"/>
+		<field name="kiinteisto_id" class="java.lang.Integer"/>
+		<field name="luotu" class="java.sql.Timestamp"/>
+		<field name="etunimi" class="java.lang.String"/>
+		<field name="sukunimi" class="java.lang.String"/>
+		<field name="syyt" class="java.lang.String"/>
+		<field name="nimi" class="java.lang.String"/>
+		<field name="kiinteistotunnus" class="java.lang.String"/>
+		<field name="palstanumero" class="java.lang.Integer"/>
+		<field name="kyla" class="java.lang.String"/>
+		<field name="kunta" class="java.lang.String"/>
+		<field name="kaavoitus_count" class="java.lang.Integer"/>
+		<field name="katselmus_count" class="java.lang.Integer"/>
+		<field name="korjausneuvonta_count" class="java.lang.Integer"/>
+		<field name="korjaus_count" class="java.lang.Integer"/>
+		<field name="rakennussuojelu_count" class="java.lang.Integer"/>
+		<field name="tarkastus_count" class="java.lang.Integer"/>
+		<variable name="matkapvm1" class="java.lang.Integer" calculation="Count">
+			<variableExpression><![CDATA["Käyntejä " + $F{matkapvm}]]></variableExpression>
+		</variable>
+		<variable name="kaavoitus_count1" class="java.lang.Integer" calculation="Sum">
+			<variableExpression><![CDATA[$F{kaavoitus_count}]]></variableExpression>
+		</variable>
+		<variable name="katselmus_count1" class="java.lang.Integer" calculation="Sum">
+			<variableExpression><![CDATA[$F{katselmus_count}]]></variableExpression>
+		</variable>
+		<variable name="korjausneuvonta_count1" class="java.lang.Integer" calculation="Sum">
+			<variableExpression><![CDATA[$F{korjausneuvonta_count}]]></variableExpression>
+		</variable>
+		<variable name="korjaus_count1" class="java.lang.Integer" calculation="Sum">
+			<variableExpression><![CDATA[$F{korjaus_count}]]></variableExpression>
+		</variable>
+		<variable name="rakennussuojelu_count1" class="java.lang.Integer" calculation="Sum">
+			<variableExpression><![CDATA[$F{rakennussuojelu_count}]]></variableExpression>
+		</variable>
+		<variable name="tarkastus_count1" class="java.lang.Integer" calculation="Sum">
+			<variableExpression><![CDATA[$F{tarkastus_count}]]></variableExpression>
+		</variable>
+		<variable name="syyt_v" class="java.util.List">
+			<variableExpression><![CDATA[Arrays.asList($F{syyt}.split(","))]]></variableExpression>
+		</variable>
+	</subDataset>
+	<parameter name="report_name" class="java.lang.String"/>
+	<parameter name="pvm_alku" class="java.lang.String">
+		<parameterDescription><![CDATA[]]></parameterDescription>
+	</parameter>
+	<parameter name="pvm_loppu" class="java.lang.String"/>
+	<parameter name="kayttaja_id" class="java.lang.Long"/>
+	<parameter name="kiinteisto_id" class="java.lang.Long"/>
+	<parameter name="syyt" class="java.lang.String" nestedType="java.lang.String"/>
+	<parameter name="valitutKentat" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[SELECT * from matkaraportti limit 1]]>
+	</queryString>
+	<variable name="pvm_alku_isEmpty" class="java.lang.Boolean">
+		<variableExpression><![CDATA[$P{pvm_alku}.toString().isEmpty()]]></variableExpression>
+	</variable>
+	<variable name="pvm_loppu_isEmpty" class="java.lang.Boolean">
+		<variableExpression><![CDATA[$P{pvm_loppu}.toString().isEmpty()]]></variableExpression>
+	</variable>
+	<variable name="kayttaja_id_isEmpty" class="java.lang.String">
+		<variableExpression><![CDATA[$P{kayttaja_id}.toString().isEmpty()]]></variableExpression>
+	</variable>
+	<variable name="kiinteisto_id_isEmpty" class="java.lang.String">
+		<variableExpression><![CDATA[$P{kiinteisto_id}.toString().isEmpty()]]></variableExpression>
+	</variable>
+	<title>
+		<band height="90" splitType="Stretch">
+			<image>
+				<reportElement x="360" y="0" width="194" height="90" uuid="e2e6615e-554c-4de5-be5f-1718931d6ba0">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<imageExpression><![CDATA["VS_MaakuntaMuseo_logo_FI.png"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement x="0" y="0" width="280" height="30" uuid="daf582a0-dce2-49ec-8350-87af52b44e8a"/>
+				<textElement>
+					<font size="16"/>
+				</textElement>
+				<text><![CDATA[Matkaraportit - kooste]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="0" y="30" width="280" height="50" uuid="128989d3-8c69-4254-9509-ac378794669a"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{report_name}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<detail>
+		<band height="211" splitType="Stretch">
+			<componentElement>
+				<reportElement x="0" y="0" width="1130" height="80" uuid="701075b3-447f-4447-baac-83dded230530">
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+					<property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
+					<property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
+					<property name="com.jaspersoft.studio.table.style.detail" value="Table_TD"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="Matkaraportit" uuid="961f8bab-6a82-49f5-bacf-1be6f72ca003">
+						<datasetParameter name="kayttaja_id_table">
+							<datasetParameterExpression><![CDATA[$P{kayttaja_id}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="kiinteisto_id_table">
+							<datasetParameterExpression><![CDATA[$P{kiinteisto_id}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="pvm_alku_table">
+							<datasetParameterExpression><![CDATA[new SimpleDateFormat("yyyy-MM-dd").parse($P{pvm_alku})]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="pvm_loppu_table">
+							<datasetParameterExpression><![CDATA[new SimpleDateFormat("yyyy-MM-dd").parse($P{pvm_loppu})]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="syyt_table">
+							<datasetParameterExpression><![CDATA[$P{syyt}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="valKentat_table">
+							<datasetParameterExpression><![CDATA[$P{valitutKentat}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="80" uuid="8aab1790-bf80-4fd0-8a5c-3b2f7eda7b1c">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+						<printWhenExpression><![CDATA[$P{valitutKentat}.contains("matkapvm")]]></printWhenExpression>
+						<jr:tableFooter style="Table_TH" height="30" rowSpan="1">
+							<textField>
+								<reportElement x="0" y="0" width="80" height="30" uuid="9358423b-0774-45ee-b427-3bc96cece7d0"/>
+								<textElement>
+									<font isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA["Yhteensä: " + $V{matkapvm1}]]></textFieldExpression>
+							</textField>
+						</jr:tableFooter>
+						<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+							<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							<staticText>
+								<reportElement x="0" y="0" width="80" height="30" uuid="1880b828-d95e-4c2a-8919-96acc873d3f5"/>
+								<text><![CDATA[Matkapäivä]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="Table_TD" height="20">
+							<textField isStretchWithOverflow="true" pattern="dd.MM.yyyy" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="80" height="20" uuid="f5489e99-7d9b-490c-80c7-713a56209b6d"/>
+								<textFieldExpression><![CDATA[$F{matkapvm}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="2ec11a74-699a-4bd2-b756-d28959cb506f">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+						<printWhenExpression><![CDATA[$P{valitutKentat}.contains("kayttaja_nimi")]]></printWhenExpression>
+						<jr:tableFooter style="Table_TH" height="30" rowSpan="1">
+							<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						</jr:tableFooter>
+						<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+							<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							<staticText>
+								<reportElement x="0" y="0" width="150" height="30" uuid="e8a4c310-754b-48ce-9565-329d1484a510"/>
+								<text><![CDATA[Nimi]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="Table_TD" height="20">
+							<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="150" height="20" uuid="95e0dbc6-4456-4876-9d6d-9dd8b735bff3"/>
+								<textFieldExpression><![CDATA[$F{etunimi} + " " + $F{sukunimi}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="100" uuid="6e302f55-2f19-497c-a1d6-95ee765642ad">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+						<printWhenExpression><![CDATA[$P{valitutKentat}.contains("kunta")]]></printWhenExpression>
+						<jr:tableFooter style="Table_TH" height="30" rowSpan="1"/>
+						<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+							<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							<staticText>
+								<reportElement x="0" y="0" width="100" height="30" uuid="3e27050c-4042-44d4-820e-44b8e39aef91"/>
+								<text><![CDATA[Kunta]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="Table_TD" height="20">
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="100" height="20" uuid="8cb31d71-b357-45e2-bc98-d39474b4485f"/>
+								<textFieldExpression><![CDATA[$F{kunta}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="100" uuid="aa32b0f3-f9b4-4e7b-91c4-9ddd2deea25d">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+						<printWhenExpression><![CDATA[$P{valitutKentat}.contains("kyla")]]></printWhenExpression>
+						<jr:tableFooter style="Table_TH" height="30" rowSpan="1"/>
+						<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement x="0" y="0" width="100" height="30" uuid="818519af-f222-4b59-8fa8-babc85efd468"/>
+								<text><![CDATA[Kylä]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="Table_TD" height="20">
+							<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="100" height="20" uuid="3862e3dc-f4e2-40a1-8d6e-325fe7c58cff"/>
+								<textFieldExpression><![CDATA[$F{kyla}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="120" uuid="606ae7cd-5b85-423e-83df-407c1e1959db">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
+						<printWhenExpression><![CDATA[$P{valitutKentat}.contains("kiinteistotunnus")]]></printWhenExpression>
+						<jr:tableFooter style="Table_TH" height="30" rowSpan="1"/>
+						<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement x="0" y="0" width="120" height="30" uuid="84db0862-04d6-4b6b-a1f0-b1f55bd61adc"/>
+								<text><![CDATA[Kiinteistötunnus]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="Table_TD" height="20">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="120" height="20" uuid="ec8b3a48-26db-44f5-a4d6-986fd485b07f"/>
+								<textFieldExpression><![CDATA[($F{palstanumero} != null) ? ($F{kiinteistotunnus} + " (" + $F{palstanumero} + ") ") : $F{kiinteistotunnus}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150" uuid="67cbb156-2c99-417a-a666-c1b859cea880">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column6"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+						<printWhenExpression><![CDATA[$P{valitutKentat}.contains("kiinteisto_nimi")]]></printWhenExpression>
+						<jr:tableFooter style="Table_TH" height="30" rowSpan="1">
+							<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						</jr:tableFooter>
+						<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+							<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							<staticText>
+								<reportElement x="0" y="0" width="120" height="30" uuid="3690ebbf-8f36-44be-8754-a53402c5a127"/>
+								<text><![CDATA[Kohde]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="Table_TD" height="20">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="120" height="20" uuid="648137b0-a844-4bda-b90e-8a3fecc90cfe"/>
+								<textFieldExpression><![CDATA[$F{nimi}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="70" uuid="3158008f-d62e-4161-9bae-b2d97f562e8d">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column7"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+						<printWhenExpression><![CDATA[$P{valitutKentat}.contains("kaavoitus")]]></printWhenExpression>
+						<jr:tableFooter style="Table_TH" height="30" rowSpan="1">
+							<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							<textField>
+								<reportElement x="0" y="0" width="70" height="30" uuid="c4779f05-e0aa-44e2-9f05-494e8e02ba30"/>
+								<textElement>
+									<font isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$V{kaavoitus_count1}]]></textFieldExpression>
+							</textField>
+						</jr:tableFooter>
+						<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+							<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							<staticText>
+								<reportElement x="0" y="0" width="70" height="30" uuid="2f75e00e-dbf1-4258-b0ec-d7ab5d9fae60"/>
+								<text><![CDATA[Kaavoitus]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="Table_TD" height="20">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="70" height="20" uuid="c18e0c67-771a-4375-aaa4-495377d65594"/>
+								<textFieldExpression><![CDATA[$V{syyt_v}.contains("Kaavoitus") ? "X" : ""]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="70" uuid="6501e5cb-45b4-41c1-a016-c0cf22c4ea01">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column8"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+						<printWhenExpression><![CDATA[$P{valitutKentat}.contains("katselmus")]]></printWhenExpression>
+						<jr:tableFooter style="Table_TH" height="30" rowSpan="1">
+							<textField>
+								<reportElement x="0" y="0" width="70" height="30" uuid="bcb0783c-6fd2-45b8-949b-d26543d5d9be"/>
+								<textElement>
+									<font isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$V{katselmus_count1}]]></textFieldExpression>
+							</textField>
+						</jr:tableFooter>
+						<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+							<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							<staticText>
+								<reportElement x="0" y="0" width="70" height="30" uuid="58214ae5-cf40-4c56-aace-da72d224fb35"/>
+								<text><![CDATA[Katselmus]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="Table_TD" height="20">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="70" height="20" uuid="6909f0cb-53cc-4c3c-8dd6-10b6726bd771"/>
+								<textFieldExpression><![CDATA[$V{syyt_v}.contains("Katselmus") ? "X" : ""]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="70" uuid="0c239c2d-b5f3-47ae-9a3f-559837ecf001">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column9"/>
+						<printWhenExpression><![CDATA[$P{valitutKentat}.contains("korjaus")]]></printWhenExpression>
+						<jr:tableFooter style="Table_TH" height="30" rowSpan="1">
+							<textField>
+								<reportElement x="0" y="0" width="70" height="30" uuid="cdee924d-fbff-4002-aff2-538b9e6881cb"/>
+								<textElement>
+									<font isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$V{korjaus_count1}]]></textFieldExpression>
+							</textField>
+						</jr:tableFooter>
+						<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement x="0" y="0" width="70" height="30" uuid="6b15a412-c4d3-4628-b099-88a176fec259"/>
+								<text><![CDATA[Korjaus]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="Table_TD" height="20">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="70" height="20" uuid="6e8dabef-9b4d-4577-aedc-64d8f32f4263"/>
+								<textFieldExpression><![CDATA[$V{syyt_v}.contains("Korjaus") ? "X" : ""]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="0b1436a8-bdec-4cd6-bf0f-91d50aa33175">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column10"/>
+						<printWhenExpression><![CDATA[$P{valitutKentat}.contains("korjausneuvonta")]]></printWhenExpression>
+						<jr:tableFooter style="Table_TH" height="30" rowSpan="1">
+							<textField>
+								<reportElement x="0" y="0" width="90" height="30" uuid="a78d8d58-ae3d-4c75-a9c1-8007fd8781b6"/>
+								<textElement>
+									<font isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$V{korjausneuvonta_count1}]]></textFieldExpression>
+							</textField>
+						</jr:tableFooter>
+						<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement x="0" y="0" width="90" height="30" uuid="ad3d6943-0935-4fcb-9d7b-3138c405e910"/>
+								<text><![CDATA[Korjausneuvonta]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="Table_TD" height="20">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="90" height="20" uuid="c2a45744-c143-45dc-8c71-e7a43d4c7075"/>
+								<textFieldExpression><![CDATA[$V{syyt_v}.contains("Korjausneuvonta") ? "X" : ""]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="1d520ce7-fb4a-4eac-8639-6cdb6e9eb1ca">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column11"/>
+						<printWhenExpression><![CDATA[$P{valitutKentat}.contains("rakennussuojelu")]]></printWhenExpression>
+						<jr:tableFooter style="Table_TH" height="30" rowSpan="1">
+							<textField>
+								<reportElement x="0" y="0" width="90" height="30" uuid="62dfe2da-f62d-40be-9cd4-487fb1311eae"/>
+								<textElement>
+									<font isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$V{rakennussuojelu_count1}]]></textFieldExpression>
+							</textField>
+						</jr:tableFooter>
+						<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement x="0" y="0" width="90" height="30" uuid="e2b67e14-6a9d-4800-90c7-b0552fb0281f"/>
+								<text><![CDATA[Rakennussuojelu]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="Table_TD" height="20">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="90" height="20" uuid="7a0dab46-6c64-4968-9f09-96a88a0278f8"/>
+								<textFieldExpression><![CDATA[$V{syyt_v}.contains("Rakennussuojelu") ? "X" : ""]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="70" uuid="459cafa1-d950-415f-931b-310cce3e8bb1">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column12"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+						<printWhenExpression><![CDATA[$P{valitutKentat}.contains("tarkastus")]]></printWhenExpression>
+						<jr:tableFooter style="Table_TH" height="30" rowSpan="1">
+							<textField>
+								<reportElement x="0" y="0" width="70" height="30" uuid="07620fed-07ba-4a5d-868a-afd00be93fbb"/>
+								<textElement>
+									<font isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$V{tarkastus_count1}]]></textFieldExpression>
+							</textField>
+						</jr:tableFooter>
+						<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+							<property name="com.jaspersoft.studio.unit.width" value="px"/>
+							<staticText>
+								<reportElement x="0" y="0" width="70" height="30" uuid="ac8d31d6-dc18-48d3-9eb1-9f9dcb192516"/>
+								<text><![CDATA[Tarkastus]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="Table_TD" height="20">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="70" height="20" uuid="586dbe25-46c0-4657-b234-13b375caba1b"/>
+								<textFieldExpression><![CDATA[$V{syyt_v}.contains("Tarkastus") ? "X" : ""]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+	</detail>
+</jasperReport>

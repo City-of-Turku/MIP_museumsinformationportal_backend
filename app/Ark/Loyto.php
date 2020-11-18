@@ -516,6 +516,10 @@ class Loyto extends Model
         return $this->belongsTo('App\Ark\ArkSailytystila', 'vakituinen_sailytystila_id');
     }
 
+    public function kuntoraportit() {
+        return $this->hasMany('App\Ark\ArkKuntoraportti', 'ark_loyto_id', 'id');
+    }
+
     /**
      * Joinaa tutkimuksen, tutkimusalueen ja yksikön löytöön.
      */

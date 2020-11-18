@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
+<!-- 2017-10-30T12:56:14 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Rakennus_Kuvat" columnCount="2" pageWidth="595" pageHeight="842" whenNoDataType="NoPages" columnWidth="270" columnSpacing="17" leftMargin="0" rightMargin="20" topMargin="0" bottomMargin="0" uuid="dfa01177-3ff2-4411-8fd2-b4c2848d8955">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MipDev5DataAdapter.xml"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="rakennus_id" class="java.lang.Long">
+		<parameterDescription><![CDATA[Rakennuksen ID]]></parameterDescription>
+	</parameter>
+	<parameter name="MIP_BACKEND_URL" class="java.lang.String">
+		<parameterDescription><![CDATA[Backendin osoite]]></parameterDescription>
+	</parameter>
+	<queryString language="SQL">
+		<![CDATA[select k.id as kuva_id, k.kuvaaja, k.pvm_kuvaus, k.otsikko
+                from kuva_rakennus kk, kuva k
+                where 
+                kk.kuva_id = k.id
+                and
+                k.poistettu is null
+                and
+                kk.rakennus_id = $P{rakennus_id}
+                order by jarjestys]]>
+	</queryString>
+	<field name="kuva_id" class="java.lang.Long"/>
+	<field name="kuvaaja" class="java.lang.String"/>
+	<field name="pvm_kuvaus" class="java.sql.Timestamp"/>
+	<field name="otsikko" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="230">
+			<frame>
+				<reportElement x="0" y="0" width="270" height="190" isRemoveLineWhenBlank="true" uuid="983bfcd8-2d19-43ae-84e2-1cc836788a56">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0" lineColor="#CCCCCC"/>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#CCCCCC"/>
+				</box>
+				<image hAlign="Center" vAlign="Middle" onErrorType="Blank">
+					<reportElement x="0" y="0" width="270" height="190" isRemoveLineWhenBlank="true" uuid="a7ae2dbe-560f-429d-8dd5-80a131b77828">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					</reportElement>
+					<imageExpression><![CDATA[$P{MIP_BACKEND_URL} + "/raportti/kuva/"+$F{kuva_id}+"/pieni"]]></imageExpression>
+				</image>
+			</frame>
+			<textField>
+				<reportElement x="0" y="190" width="270" height="19" isRemoveLineWhenBlank="true" uuid="12cfeb7c-1a92-4fe5-8e91-71a65b942178">
+					<printWhenExpression><![CDATA[$F{otsikko}!=null && $F{otsikko}.trim().length()>0l]]></printWhenExpression>
+				</reportElement>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{otsikko}]]></textFieldExpression>
+			</textField>
+			<frame>
+				<reportElement positionType="Float" x="0" y="210" width="270" height="20" uuid="9509f5a7-b407-4eb0-b7b0-d2bb578be67c"/>
+				<textField isBlankWhenNull="true">
+					<reportElement x="0" y="0" width="170" height="20" isRemoveLineWhenBlank="true" uuid="b8ee33fe-066b-44f0-9502-d6268172f186"/>
+					<textFieldExpression><![CDATA[$F{kuvaaja}]]></textFieldExpression>
+				</textField>
+				<textField pattern="dd.MM.yyyy" isBlankWhenNull="true">
+					<reportElement x="170" y="0" width="100" height="20" isRemoveLineWhenBlank="true" uuid="8c143ab1-2a43-45fa-bd42-cf98b11afac8">
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					</reportElement>
+					<textElement textAlignment="Right"/>
+					<textFieldExpression><![CDATA[$F{pvm_kuvaus}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</detail>
+</jasperReport>
