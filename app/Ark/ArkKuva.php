@@ -57,7 +57,7 @@ class ArkKuva extends Model {
     public static function getAll() {
         //Distinct poistaa duplikaatit kuvat, joita voi tulla jos yksi kuva linkataan moneen yksikköön ja löytöön tutkimuksen sisällä
         return ArkKuva::select("ark_kuva.*")->leftjoin("ark_kuva_kohde", "ark_kuva_kohde.ark_kuva_id", "=", "ark_kuva.id")
-        ->leftjoin("ark_kohde", "ark_kohde.id", "=", "ark_kuva_kohde.ark_kohde_id")->distinct();
+        ->leftjoin("ark_kohde", "ark_kohde.id", "=", "ark_kuva_kohde.ark_kohde_id")->whereNull('ark_kuva.poistettu')->distinct();
     }
 
 
@@ -189,7 +189,19 @@ class ArkKuva extends Model {
 
 	//Kaikilla paitsi kohteella pitää löytyä ark_tutkimus_id
 	public function scopeWithTutkimusId($query, $id) {
-	    return $query->where("ark_tutkimus_id", "=", $id);
+			return $query->where("ark_tutkimus_id", "=", $id)->whereRaw(
+				'(ark_kuva.id not in (
+						select ak.id
+						from ark_kuva ak
+						where ak.konservointivaihe_id is not null and ak.tunnistekuva is false
+				union
+						select akk2.ark_kuva_id
+						from ark_kuva_kuntoraportti akk2
+				union
+						select akr.ark_kuva_id
+						from ark_kuva_rontgenkuva akr
+				))'
+			);
 	}
 
 	// Tarkastustutkimuksen tutkimusalueelle voidaan luetteloida kuvia

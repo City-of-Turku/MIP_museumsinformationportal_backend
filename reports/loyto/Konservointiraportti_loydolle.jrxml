@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-11-05T15:19:31 -->
+<!-- 2020-11-18T10:10:15 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Konservointiraportti_loydolle" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="70f50391-5405-497c-af51-13d2fe4d51e5">
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Kehitys"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="net.sf.jasperreports.export.docx.frames.as.nested.tables" value=""/>
 	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
@@ -127,21 +127,24 @@ ktt.menetelman_kuvaus,
 ktt.lisatiedot as toimenpide_lisatiedot, 
 materiaalit.materiaali_nimi, 
 k.etunimi || ' ' || k.sukunimi as tekija, 
-kl.id
+kl.id,
+akk.kasittelytunnus
 from ark_kons_toimenpiteet ktt
 left join ark_kons_toimenpide kt on kt.id = ktt.ark_kons_toimenpide_id
 left join ark_kons_loyto kl on kl.ark_kons_toimenpiteet_id = ktt.id
 left join ark_kons_menetelma m on m.id = ktt.ark_kons_menetelma_id 
+left join ark_kons_kasittely akk on akk.id = ktt.ark_kons_kasittely_id 
 left join (
     select aktm.ark_kons_toimenpiteet_id, string_agg(akm.nimi, ', ') as materiaali_nimi
     from ark_kons_toimenpide_materiaalit aktm
     left join ark_kons_materiaali akm on akm.id = aktm.ark_kons_materiaali_id 
     group by aktm.ark_kons_toimenpiteet_id 
-) materiaalit on (materiaalit.ark_kons_toimenpiteet_id = ktt.ark_kons_toimenpide_id)
+) materiaalit on (materiaalit.ark_kons_toimenpiteet_id = ktt.id)
 left join ark_loyto l on l.id = kl.ark_loyto_id
 left join kayttaja k on k.id = ktt.tekija
 where l.id = $P{loytoId}
-AND $X{IN, kl.id::text, kons_toimenpiteetDSArray}]]>
+AND $X{IN, kl.id::text, kons_toimenpiteetDSArray}
+order by ktt.alkaa ]]>
 		</queryString>
 		<field name="toimenpide_nimi" class="java.lang.String"/>
 		<field name="menetelma_nimi" class="java.lang.String"/>
@@ -152,6 +155,7 @@ AND $X{IN, kl.id::text, kons_toimenpiteetDSArray}]]>
 		<field name="materiaali_nimi" class="java.lang.String"/>
 		<field name="tekija" class="java.lang.String"/>
 		<field name="id" class="java.lang.Long"/>
+		<field name="kasittelytunnus" class="java.lang.String"/>
 	</subDataset>
 	<subDataset name="Kons_kasittelyt" uuid="03adf348-f6d1-4462-b1bb-6db407ff6df1">
 		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
@@ -700,13 +704,14 @@ and k.poistettu is null]]>
 							</datasetParameter>
 							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 						</datasetRun>
-						<jr:column width="137" uuid="72885d4b-ef5e-4105-8f9e-bac47aa5fe0a">
+						<jr:column width="110" uuid="72885d4b-ef5e-4105-8f9e-bac47aa5fe0a">
 							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
-							<jr:columnHeader style="Table_CH" height="30">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 								<property name="com.jaspersoft.studio.unit.width" value="px"/>
-								<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.grid.JSSGridBagLayout"/>
+								<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
 								<staticText>
-									<reportElement x="0" y="0" width="137" height="30" uuid="3612b603-81f2-4bbf-902c-d57f30b40649">
+									<reportElement x="0" y="0" width="110" height="30" uuid="3612b603-81f2-4bbf-902c-d57f30b40649">
 										<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 									</reportElement>
 									<textElement textAlignment="Center" verticalAlignment="Middle"/>
@@ -716,7 +721,7 @@ and k.poistettu is null]]>
 							<jr:detailCell style="Table_TD" height="30">
 								<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.grid.JSSGridBagLayout"/>
 								<textField isBlankWhenNull="true">
-									<reportElement x="0" y="0" width="137" height="30" uuid="ef1da9a2-7f7f-44d1-b5fe-f993f56f357b">
+									<reportElement x="0" y="0" width="110" height="30" uuid="ef1da9a2-7f7f-44d1-b5fe-f993f56f357b">
 										<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 									</reportElement>
 									<textElement textAlignment="Center" verticalAlignment="Middle"/>
@@ -724,13 +729,14 @@ and k.poistettu is null]]>
 								</textField>
 							</jr:detailCell>
 						</jr:column>
-						<jr:column width="137" uuid="5b9f6e22-7418-4932-accf-53dc1dc824ac">
+						<jr:column width="110" uuid="5b9f6e22-7418-4932-accf-53dc1dc824ac">
 							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
-							<jr:columnHeader style="Table_CH" height="30">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 								<property name="com.jaspersoft.studio.unit.width" value="px"/>
-								<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.grid.JSSGridBagLayout"/>
+								<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
 								<staticText>
-									<reportElement x="0" y="0" width="137" height="30" uuid="6f84b46e-0490-4e5b-8a6b-2d031a32ae5f"/>
+									<reportElement x="0" y="0" width="110" height="30" uuid="6f84b46e-0490-4e5b-8a6b-2d031a32ae5f"/>
 									<textElement textAlignment="Center" verticalAlignment="Middle"/>
 									<text><![CDATA[Menetelmä]]></text>
 								</staticText>
@@ -738,7 +744,7 @@ and k.poistettu is null]]>
 							<jr:detailCell style="Table_TD" height="30">
 								<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.grid.JSSGridBagLayout"/>
 								<textField isBlankWhenNull="true">
-									<reportElement x="0" y="0" width="137" height="30" uuid="2e212903-4506-4835-93e3-c10149e70f2d">
+									<reportElement x="0" y="0" width="110" height="30" uuid="2e212903-4506-4835-93e3-c10149e70f2d">
 										<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 									</reportElement>
 									<textElement textAlignment="Center" verticalAlignment="Middle"/>
@@ -746,41 +752,63 @@ and k.poistettu is null]]>
 								</textField>
 							</jr:detailCell>
 						</jr:column>
-						<jr:column width="137" uuid="059afcbd-eee4-42d7-a183-806b59e4474d">
+						<jr:column width="110" uuid="b31a4af6-338c-4e52-9dfd-0aa52c121d6b">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
 							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
-							<jr:columnHeader style="Table_CH" height="30">
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 								<property name="com.jaspersoft.studio.unit.width" value="px"/>
-								<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.grid.JSSGridBagLayout"/>
+								<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
 								<staticText>
-									<reportElement x="0" y="0" width="137" height="30" uuid="791d5667-a5b9-4b34-b04b-42520a550ce9"/>
+									<reportElement x="0" y="0" width="110" height="30" uuid="cdc60621-488c-4513-9f64-6df51c67e492"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle"/>
+									<text><![CDATA[Käsittely]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="30">
+								<textField isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="110" height="30" uuid="59b6c286-1682-4cb9-863f-54d85d9db0ad"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[$F{kasittelytunnus}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="110" uuid="059afcbd-eee4-42d7-a183-806b59e4474d">
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+								<staticText>
+									<reportElement x="0" y="0" width="110" height="30" uuid="791d5667-a5b9-4b34-b04b-42520a550ce9"/>
 									<textElement textAlignment="Center" verticalAlignment="Middle"/>
 									<text><![CDATA[Alkaa]]></text>
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table_TD" height="30">
-								<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.grid.JSSGridBagLayout"/>
+								<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
 								<textField pattern="dd.MM.yyyy" isBlankWhenNull="true">
-									<reportElement x="0" y="0" width="137" height="30" uuid="597d0d6b-0db3-41e9-98f2-bca7baaa08ac"/>
+									<reportElement x="0" y="0" width="110" height="30" uuid="597d0d6b-0db3-41e9-98f2-bca7baaa08ac"/>
 									<textElement textAlignment="Center" verticalAlignment="Middle"/>
 									<textFieldExpression><![CDATA[$F{toimenpide_alkaa}]]></textFieldExpression>
 								</textField>
 							</jr:detailCell>
 						</jr:column>
-						<jr:column width="137" uuid="3f9378e5-ff75-4727-9302-0fe5c08fe653">
+						<jr:column width="110" uuid="3f9378e5-ff75-4727-9302-0fe5c08fe653">
 							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
-							<jr:columnHeader style="Table_CH" height="30">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 								<property name="com.jaspersoft.studio.unit.width" value="px"/>
-								<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.grid.JSSGridBagLayout"/>
+								<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
 								<staticText>
-									<reportElement x="0" y="0" width="137" height="30" uuid="365e1424-67b7-483e-9b4e-0ba6300e42c6"/>
+									<reportElement x="0" y="0" width="110" height="30" uuid="365e1424-67b7-483e-9b4e-0ba6300e42c6"/>
 									<textElement textAlignment="Center" verticalAlignment="Middle"/>
 									<text><![CDATA[Päättyy]]></text>
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table_TD" height="30">
-								<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.grid.JSSGridBagLayout"/>
+								<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
 								<textField pattern="dd.MM.yyyy" isBlankWhenNull="true">
-									<reportElement x="0" y="0" width="137" height="30" uuid="20894c0d-9451-4e86-a7d0-85cb28087361"/>
+									<reportElement x="0" y="0" width="110" height="30" uuid="20894c0d-9451-4e86-a7d0-85cb28087361"/>
 									<textElement textAlignment="Center" verticalAlignment="Middle"/>
 									<textFieldExpression><![CDATA[$F{toimenpide_paattyy}]]></textFieldExpression>
 								</textField>
