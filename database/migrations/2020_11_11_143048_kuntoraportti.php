@@ -39,13 +39,6 @@ class Kuntoraportti extends Migration
             $table->foreign("muokkaaja")->references("id")->on("kayttaja");
             $table->foreign("poistaja")->references("id")->on("kayttaja");
         });
-
-        // Lisätään löydölle näyttelyn nimi ja näyttelypaikka.
-        Schema::table('ark_loyto', function($table) {
-            $table->text("nayttelyn_nimi")->nullable();
-            $table->text("nayttelypaikka")->nullable();
-        });
-
     }
 
     /**
