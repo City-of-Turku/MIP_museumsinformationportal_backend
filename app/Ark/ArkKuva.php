@@ -188,7 +188,8 @@ class ArkKuva extends Model {
 	}
 
 	//Kaikilla paitsi kohteella pitää löytyä ark_tutkimus_id
-	public function scopeWithTutkimusId($query, $id) {
+	public function scopeWithTutkimusId($query, $id, $tutkimusView = false) {
+		if($tutkimusView == true) {
 			return $query->where("ark_tutkimus_id", "=", $id)->whereRaw(
 				'(ark_kuva.id not in (
 						select ak.id
@@ -202,6 +203,9 @@ class ArkKuva extends Model {
 						from ark_kuva_rontgenkuva akr
 				))'
 			);
+		} else {
+			return $query->where("ark_tutkimus_id", "=", $id);
+		}
 	}
 
 	// Tarkastustutkimuksen tutkimusalueelle voidaan luetteloida kuvia
