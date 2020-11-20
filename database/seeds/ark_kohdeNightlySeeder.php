@@ -40,9 +40,9 @@ class ark_kohdeNightlySeeder extends Seeder
 
         if(empty($haku)){
             echo 'Tallennettua hakupaivaa ei loytynyt, kaytetaan kuluvaa paivaa.' .PHP_EOL;
-            
-           Log::info('Tallennettua hakupaivaa ei loytynyt, kaytetaan kuluvaa paivaa.');
-            
+
+            Log::info('Tallennettua hakupaivaa ei loytynyt, kaytetaan kuluvaa paivaa.');
+
             $hakupaiva = date("Y-m-d");
         }else{
             $hakupaiva = $haku->seuraava_hakupvm;
@@ -58,25 +58,35 @@ class ark_kohdeNightlySeeder extends Seeder
 
         try {
 
-            // Kyppi kutsu Varsinais-suomen alueelle
-            $xml = $kyppiService->haeMuinaisjaannoksetSoap($hakupaiva, null);
+            $maakunnat = config('app.kyppi_haku_maakunnat');
+            $maakunnat = array_filter(explode(',', $maakunnat)); // array_filter koska muuten lista on [""] (koko 1)
 
-            // Luodaan dom
-            $dom = self::luoDom();
-            $dom->loadXML($xml);
+            for($i = 0; $i < sizeof($maakunnat); $i++) {
+                // Kyppi kutsu Maakuntien alueelle
+                $xml = $kyppiService->haeMuinaisjaannoksetSoap($hakupaiva, null, trim($maakunnat[$i]));
 
-            // Varsinais-suomen kohteiden läpikäynti
-            self::muodostaKohde($kyppiService, $dom);
+                // Luodaan dom
+                $dom = $this->luoDom();
+                $dom->loadXML($xml);
 
-            // Kyppi kutsu Ypäjän kunnalla
-            $xmlKunta = $kyppiService->haeMuinaisjaannoksetSoap($hakupaiva, 'Ypäjä');
+                // Varsinais-suomen kohteiden läpikäynti
+                $this->muodostaKohde($kyppiService, $dom);
+            }
 
-            // Luodaan dom
-            $domKunta = self::luoDom();
-            $domKunta->loadXML($xmlKunta);
+            $kunnat = config('app.kyppi_haku_kunnat');
+            $kunnat = array_filter(explode(',', $kunnat)); // array_filter koska muuten lista on [""] (koko 1)
 
-            // Ypäjän kohteiden läpikäynti
-            self::muodostaKohde($kyppiService, $domKunta);
+            for($i = 0; $i<sizeof($kunnat); $i++) {
+                // Kyppi kutsu kunnalla
+                $xmlKunta = $kyppiService->haeMuinaisjaannoksetSoap($hakupaiva, trim($kunnat[$i]), null);
+
+                // Luodaan dom
+                $domKunta = $this->luoDom();
+                $domKunta->loadXML($xmlKunta);
+
+                // Kunnan kohteiden läpikäynti
+                $this->muodostaKohde($kyppiService, $domKunta);
+            }
 
             /*
              * Päivitetään yöllisen ajon lopuksi seuraavan ajon pvm valmiiksi. Kuluva päivä - 2 päivää.
