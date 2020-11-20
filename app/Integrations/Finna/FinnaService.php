@@ -20,15 +20,17 @@ use App\Ark\KohdeTutkimus;
  *
  */
 class FinnaService{
-    private static $IDENTIFIER = 'oai:mip.turku.fi:';
-    private $baseurl; //'https://rest-mip.turku.fi/api/oaipmh'; //'https://rest-mip.turku.fi/api/oaipmh';
+    private $IDENTIFIER = '';
+    private $baseurl;
     private static $LOYTOIDENTIFIER = 17;
     private $HAKUMAARA = 1000;
-    private static $TURUNMUSEOKESKUS = 'Turun museokeskus';
-    private static $ARKEOLOGINENKOKOELMA = 'Arkeologinen kokoelma';
-    private static $KOKOELMA = 'Kokoelma';
-    private static $MUSEOURL = 'https://www.turku.fi/kulttuuri-ja-liikunta/museo/kokoelmat';
-    public $ADMINEMAIL = '';
+    private $ORGANISATION = '';
+    private $ARKEOLOGINENKOKOELMA = '';
+    private $KOKOELMA = '';
+    private $MUSEOURL = '';
+		public $ADMINEMAIL = '';
+		private $REPOSITORY_NAME = '';
+		private $REPOSITORY_IDENTIFIER = '';
 
     var $completeListSize = null; // Haussa tulevien löytöjen kokonaismäärä
     var $cursor = 0; // Kursorin positio ("sivutus")
@@ -36,7 +38,14 @@ class FinnaService{
     function __construct() {
         $this->baseurl = url('/').'api/oaipmh';
         $this->ADMINEMAIL = config('app.finna_admin_email');
-        $this->HAKUMAARA = config('app.finna_hakumaara');
+				$this->HAKUMAARA = config('app.finna_hakumaara');
+				$this->IDENTIFIER = config('app.finna_identifier');
+				$this->ORGANISATION = config('app.finna_organisation');
+				$this->ARKEOLOGINENKOKOELMA = config('app.finna_arkeologinen_kokoelma');
+				$this->KOKOELMA = config('app.finna_kokoelma');
+				$this->MUSEOURL = config('app.finna_museo_url');
+				$this->REPOSITORY_NAME = config('app.finna_repository_name');
+				$this->REPOSITORY_IDENTIFIER = config('app.finna_repository_identifier');
     }
 
     public function setCursor(int $cursorPos) {
@@ -47,8 +56,8 @@ class FinnaService{
         $this->completeListSize = $size;
     }
 
-    private static function makeLoytoIdentifier($loyto_id) {
-        return self::$IDENTIFIER . self::$LOYTOIDENTIFIER . '.' . $loyto_id;
+    public function makeLoytoIdentifier($loyto_id) {
+        return $this->IDENTIFIER . self::$LOYTOIDENTIFIER . '.' . $loyto_id;
     }
 
     /*
@@ -60,21 +69,19 @@ class FinnaService{
 
 	    // Muuttujat XMLn täyttöä varten.
 	    $responseDate = FinnaUtils::dateTo8601Zulu(Carbon::now()); // Esim: 2001-07-08T22:00:00Z
-        $repositoryName = "MIP";
         $protocolVersion = '2.0';
         $adminEmail = $this->ADMINEMAIL;
         $earliestDatestamp = '2000-01-01T00:00:00Z'; // ??
         $deleteRecord = 'persistent';
         $granularity = 'YYYY-MM-DDThh:mm:ssZ';
         $scheme = 'oai';
-        $repositoryIdentifier = 'mip.turku.fi';
         $delimiter = ':';
 
         // Asetetaan arvot XML:ään
         $xml = simplexml_load_string(FinnaUtils::getIdentifyXml());
         $xml->responseDate = $responseDate;
         $xml->request = $this->baseurl;
-        $xml->Identify->repositoryName = $repositoryName;
+        $xml->Identify->repositoryName = $this->REPOSITORY_NAME ;
         $xml->Identify->baseURL = $this->baseurl;
         $xml->Identify->protocolVersion = $protocolVersion;
         $xml->Identify->adminEmail = $adminEmail;
@@ -82,9 +89,9 @@ class FinnaService{
         $xml->Identify->deleteRecord = $deleteRecord;
         $xml->Identify->granularity = $granularity;
         $xml->Identify->description->{'oai-identifier'}->scheme = $scheme;
-        $xml->Identify->description->{'oai-identifier'}->repositoryIdentifier = $repositoryIdentifier;
+        $xml->Identify->description->{'oai-identifier'}->repositoryIdentifier = $this->REPOSITORY_IDENTIFIER;
         $xml->Identify->description->{'oai-identifier'}->delimiter = $delimiter;
-        $xml->Identify->description->{'oai-identifier'}->sampleIdentifier = self::makeLoytoIdentifier(123);
+        $xml->Identify->description->{'oai-identifier'}->sampleIdentifier = $this->makeLoytoIdentifier(123);
 
 	    return $xml->asXML();
 	}
@@ -130,11 +137,11 @@ class FinnaService{
               foreach($loydot as $loyto) {
                 $loytoIdList .= $loyto['id'] . ",";
                 $writer->startElement('record');
-                    self::writeRecordElement($writer, $loyto, 'ListRecords');
+                    $this->writeRecordElement($writer, $loyto, 'ListRecords');
                 $writer->endElement();
               }
               if($isIncomplete) {
-                  self::setCursor($this->cursor+$this->HAKUMAARA);
+                  $this->setCursor($this->cursor+$this->HAKUMAARA);
                   self::writeResumptionToken($writer, $this->cursor, $this->completeListSize);
               }
             $writer->endElement();
@@ -185,11 +192,11 @@ class FinnaService{
 	        foreach($loydot as $loyto) {
 	          $loytoIdList .= $loyto['id'] . ","; //Log::debug("LOYTO ID: " . $loyto['id'] . ", luotu: ".$loyto['luotu'].", muokattu: ".$loyto['muokattu'].", poistettu: ".$loyto['poistettu']);
 	          $writer->startElement('record');
-	          self::writeRecordElement($writer, $loyto, 'ListIdentifiers');
+	          $this->writeRecordElement($writer, $loyto, 'ListIdentifiers');
 	          $writer->endElement();
 	        }
 	        if($isIncomplete) {
-	          self::setCursor($this->cursor+$this->HAKUMAARA);
+	          $this->setCursor($this->cursor+$this->HAKUMAARA);
 	          self::writeResumptionToken($writer, $this->cursor, $this->completeListSize);
 	        }
 	      $writer->endElement();
@@ -234,7 +241,7 @@ class FinnaService{
 	        $writer->endElement();
 	        $writer->startElement('GetRecord');
 	          $writer->startElement('record');
-	            self::writeRecordElement($writer, $loyto, 'GetRecord');
+	            $this->writeRecordElement($writer, $loyto, 'GetRecord');
 	          $writer->endElement();
 	        $writer->endElement();
 	      $writer->endElement();
@@ -243,7 +250,7 @@ class FinnaService{
 	    return $writer->flush();
 	}
 
-	private static function writeRecordElement($writer, $loyto, $verb=null) {
+	private function writeRecordElement($writer, $loyto, $verb=null) {
 	    $isPoistettu = self::loytoIsPoistettu($loyto);
 	    // Header elementti
 	    $writer->startElement('header');
@@ -252,7 +259,7 @@ class FinnaService{
 	        $writer->writeAttribute('status', 'deleted');
 	    }
 	      $writer->startElement('identifier');
-	        $writer->text(self::makeLoytoIdentifier($loyto['id']));
+	        $writer->text($this->makeLoytoIdentifier($loyto['id']));
 	      $writer->endElement();
 	      $writer->startElement('datestamp');
 	      if($loyto['poistettu']) {
@@ -270,7 +277,7 @@ class FinnaService{
 	    if($verb == 'ListRecords' || $verb == 'GetRecord') {
     	    if($isPoistettu == false) {
     	        $writer->startElement('metadata');
-    	          self::writeLidoElement($writer, $loyto);
+    	          $this->writeLidoElement($writer, $loyto);
     	        $writer->endElement();
     	    }
 	    }
@@ -299,7 +306,7 @@ class FinnaService{
 	    return false;
 	}
 
-	private static function writeLidoElement($writer, $loyto) {
+	private function writeLidoElement($writer, $loyto) {
         $writer->startElementNs('lido', 'lidoWrap', 'http://www.lido-schema.org');
           $writer->writeAttribute('xmlns:gml', 'http://www.opengis.net/gml');
           $writer->writeAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
@@ -309,19 +316,19 @@ class FinnaService{
               $writer->writeAttribute('lido:type', 'ITEM');
               $writer->text($loyto['id']);
             $writer->endElement();
-            self::writeDescriptiveMetadataElement($writer, $loyto);
-            self::writeAdministrativeMetadata($writer, $loyto);
+            $this->writeDescriptiveMetadataElement($writer, $loyto);
+            $this->writeAdministrativeMetadata($writer, $loyto);
           $writer->endElement();
         $writer->endElement();
 	}
 
-	private static function writeDescriptiveMetadataElement($writer, $loyto) {
+	private function writeDescriptiveMetadataElement($writer, $loyto) {
 	    $writer->startElement('lido:descriptiveMetadata');
 	      $writer->writeAttribute('xml:lang', 'fi');
 	      self::writeObjectClassificationWrap($writer, $loyto);
-	      self::writeObjectIdentificationWrap($writer, $loyto);
+	      $this->writeObjectIdentificationWrap($writer, $loyto);
 	      self::writeEventWrap($writer, $loyto);
-	      self::writeObjectRelationWrap($writer, $loyto);
+	      $this->writeObjectRelationWrap($writer, $loyto);
 	    $writer->endElement();
 	}
 
@@ -337,11 +344,11 @@ class FinnaService{
 	    $writer->endElement();
 	}
 
-	private static function writeObjectIdentificationWrap($writer, $loyto) {
+	private function writeObjectIdentificationWrap($writer, $loyto) {
 
 	    $writer->startElement('lido:objectIdentificationWrap');
 	      self::writeTitleWrap($writer, $loyto);
-          self::writeRepositoryWrap($writer, $loyto);
+          $this->writeRepositoryWrap($writer, $loyto);
           self::writeObjectDescriptionWrap($writer, $loyto);
           self::writeObjectMeasurementsWrap($writer, $loyto);
 	    $writer->endElement();
@@ -433,17 +440,17 @@ class FinnaService{
 	    $writer->endElement();
 	}
 
-	private static function writeRepositoryWrap($writer, $loyto) {
+	private function writeRepositoryWrap($writer, $loyto) {
 	    $writer->startElement('lido:repositoryWrap');
 	      $writer->startElement('lido:repositorySet');
 	        $writer->startElement('lido:repositoryName');
 	          $writer->startElement('lido:legalBodyName');
 	            $writer->startElement('lido:appellationValue');
-	              $writer->text(self::$TURUNMUSEOKESKUS);
+	              $writer->text($this->ORGANISATION);
 	            $writer->endElement();
 	          $writer->endElement();
 	          $writer->startElement('lido:legalBodyWeblink');
-	            $writer->text(self::$MUSEOURL);
+	            $writer->text($this->MUSEOURL);
 	          $writer->endElement();
 	        $writer->endElement();
 	        $writer->startElement('lido:workID');
@@ -690,10 +697,10 @@ class FinnaService{
 	    $writer->endElement();
 	}
 
-	private static function writeObjectRelationWrap($writer, $loyto) {
+	private function writeObjectRelationWrap($writer, $loyto) {
 	    $writer->startElement('lido:objectRelationWrap');
 	      self::writeSubjectWrap($writer, $loyto);
-	      self::writeRelatedWorksWrap($writer, $loyto);
+	      $this->writeRelatedWorksWrap($writer, $loyto);
 	    $writer->endElement();
 	}
 
@@ -772,40 +779,40 @@ class FinnaService{
 	    return $displayText;
 	}
 
-	private static function writeRelatedWorksWrap($writer, $loyto) {
+	private function writeRelatedWorksWrap($writer, $loyto) {
 	    $writer->startElement('lido:relatedWorksWrap');
 	      $writer->startElement('lido:relatedWorkSet');
 	        $writer->startElement('lido:relatedWork');
 	          $writer->startElement('lido:displayObject');
-	            $writer->text(self::$ARKEOLOGINENKOKOELMA);
+	            $writer->text($this->ARKEOLOGINENKOKOELMA);
 	          $writer->endElement();
 	        $writer->endElement();
 	        $writer->startElement('lido:relatedWorkRelType');
 	          $writer->startElement('lido:term');
-	            $writer->text(self::$KOKOELMA);
+	            $writer->text($this->KOKOELMA);
 	          $writer->endElement();
 	        $writer->endElement();
 	      $writer->endElement();
 	    $writer->endElement();
 	}
 
-	private static function writeAdministrativeMetadata($writer, $loyto) {
+	private function writeAdministrativeMetadata($writer, $loyto) {
         $writer->startElement('lido:administrativeMetadata');
           $writer->writeAttribute('xml:lang', 'fi');
-          self::writeRightsWorkWrap($writer, $loyto);
-          self::writeRecordWrap($writer, $loyto);
-          self::writeResourceWrap($writer, $loyto);
+          $this->writeRightsWorkWrap($writer, $loyto);
+          $this->writeRecordWrap($writer, $loyto);
+          $this->writeResourceWrap($writer, $loyto);
 
         $writer->endElement();
 	}
 
-	private static function writeRightsWorkWrap($writer, $loyto) {
+	private function writeRightsWorkWrap($writer, $loyto) {
 	    $writer->startElement('lido:rightsWorkWrap');
 	      $writer->startElement('lido:rightsWorkSet');
 	        $writer->startElement('lido:rightsHolder');
 	          $writer->startElement('lido:legalBodyName');
 	            $writer->startElement('lido:appellationValue');
-	               $writer->text(self::$TURUNMUSEOKESKUS);
+	               $writer->text($this->ORGANISATION);
 	            $writer->endElement();
 	          $writer->endElement();
 	        $writer->endElement();
@@ -813,7 +820,7 @@ class FinnaService{
 	    $writer->endElement();
 	}
 
-	private static function writeRecordWrap($writer, $loyto) {
+	private function writeRecordWrap($writer, $loyto) {
 	    $writer->startElement('lido:recordWrap');
 	      $writer->startElement('lido:recordID');
 	        $writer->writeAttribute('lido:type', 'local');
@@ -827,17 +834,17 @@ class FinnaService{
 	      $writer->startElement('lido:recordSource');
 	        $writer->startElement('lido:legalBodyName');
 	          $writer->startElement('lido:appellationValue');
-	            $writer->text(self::$TURUNMUSEOKESKUS);
+	            $writer->text($this->ORGANISATION);
 	          $writer->endElement();
 	        $writer->endElement();
 	        $writer->startElement('lido:legalBodyWeblink');
-	          $writer->text(self::$MUSEOURL);
+	          $writer->text($this->MUSEOURL);
 	        $writer->endElement();
 	      $writer->endElement();
 	    $writer->endElement();
 	}
 
-	private static function writeResourceWrap($writer, $loyto) {
+	private function writeResourceWrap($writer, $loyto) {
 	    // Haetaan erikokoiset kuvat löydölle
         $kuva = ArkKuva::loytoTunnistekuva($loyto['id'])->first();
         if($kuva && $kuva->polku && $kuva->tiedostonimi) {
@@ -908,11 +915,11 @@ class FinnaService{
                       $writer->startElement('lido:rightsHolder');
                         $writer->startElement('lido:legalBodyName');
                           $writer->startElement('lido:appellationValue');
-                            $writer->text(self::$TURUNMUSEOKESKUS);
+                            $writer->text($this->ORGANISATION);
                           $writer->endElement();
                         $writer->endElement();
                         $writer->startElement('lido:legalBodyWeblink');
-                          $writer->text(self::$MUSEOURL);
+                          $writer->text($this->MUSEOURL);
                         $writer->endElement();
                       $writer->endElement();
                       $writer->startElement('lido:creditLine');

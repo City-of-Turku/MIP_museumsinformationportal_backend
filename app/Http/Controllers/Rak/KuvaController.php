@@ -161,8 +161,8 @@ class KuvaController extends Controller {
     			"entiteetti_tyyppi" => "required|numeric|exists:entiteetti_tyyppi,id",
     			"entiteetti_id"		=> "required|numeric",
     			'otsikko'			=> 'required',
-    			'kuvaus'			=> 'string',
-    			'kuvaaja'			=> 'string',
+    			'kuvaus'			=> 'nullable|string',
+    			'kuvaaja'			=> 'nullable|string',
     			"julkinen"			=> "boolean"
     	]);
 
@@ -434,8 +434,8 @@ class KuvaController extends Controller {
 
     	$validator = Validator::make($request->all(), [
     			'otsikko'			=> 'required',
-    			'kuvaus'			=> 'string',
-    			'kuvaaja'			=> 'string',
+    			'kuvaus'			=> 'nullable|string',
+    			'kuvaaja'			=> 'nullable|string',
     			"julkinen"			=> "boolean"
     	]);
 
@@ -861,7 +861,7 @@ class KuvaController extends Controller {
 	   				    foreach($request->idt as $id) {
 	   				        $img = KuvaSuunnittelija::whereImageIdAndSuunnittelijaId($id, $request->input('entiteetti_id'))->first();
 	   				        $img->updateJarjestys($order, $img->kuva_id, $img->suunnittelija_id);
-	   				        
+
 	   				        //Set the first kuva to public and others as not public
 	   				        if($order == 1){
 	   				            $kuva = Kuva::getSingle($id)->first();
@@ -872,7 +872,7 @@ class KuvaController extends Controller {
 	   				            $kuva->julkinen = false;
 	   				            $kuva->update();
 	   				        }
-	   				        
+
 	   				        $order++;
 	   				    }
 	   				    break;
@@ -1126,9 +1126,9 @@ class KuvaController extends Controller {
 	   		$kiinteisto = null;
 
 	   		if($request->palstanumero) {
-	   			$kiinteisto = $kiinteisto->where('palstanumero', $request->palstanumero)->get();
+	   			$kiinteisto = Kiinteisto::where('palstanumero', $request->palstanumero)->get();
 	   		} else {
-	   			$kiinteisto = $kiinteisto = Kiinteisto::where('kiinteistotunnus', $request->kiinteistotunnus)->whereNull('palstanumero')->get();
+	   			$kiinteisto = Kiinteisto::where('kiinteistotunnus', $request->kiinteistotunnus)->whereNull('palstanumero')->get();
 	   		}
 
 	   		if(count($kiinteisto) == 0) {

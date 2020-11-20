@@ -363,5 +363,7 @@ class ReportServer {
 			array('name' => 'reportDisplayName', 'value' => $inputParams['reportDisplayName']),
 			array('name' => 'konservaattori', 'value' => $inputParams['konservaattori'])
 		);
+		return $parameters;
 	}
+
 }
