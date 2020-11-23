@@ -311,8 +311,17 @@ return [
     'kyppi_password' => env('KYPPI_PASSWORD'),
     'kyppi_muinaisjaannos_uri' => env('KYPPI_MUINAISJAANNOS_URI'),
     'kyppi_muinaisjaannos_endpoint' => env('KYPPI_MUINAISJAANNOS_ENDPOINT'),
+    'kyppi_haku_maakunnat' => env('KYPPI_HAKU_MAAKUNNAT'),
+    'kyppi_haku_kunnat' => env('KYPPI_HAKU_KUNNAT'),
 
     'finna_admin_email' => env('FINNA_ADMIN_EMAIL'),
-    'finna_hakumaara' => env('FINNA_HAKUMAARA')
+    'finna_hakumaara' => env('FINNA_HAKUMAARA'),
+    'finna_identifier' => env('FINNA_IDENTIFIER'),
+    'finna_organisation' => env('FINNA_ORGANISATION'),
+    'finna_arkeologinen_kokoelma' => env('FINNA_ARKEOLOGINEN_KOKOELMA'),
+    'finna_kokoelma' => env('FINNA_KOKOELMA'),
+    'finna_museo_url' => env('FINNA_MUSEO_URL'),
+    'finna_repository_name' => env('FINNA_REPOSITORY_NAME'),
+    'finna_repository_identifier' => env('FINNA_REPOSITORY_IDENTIFIER')
 
 ];

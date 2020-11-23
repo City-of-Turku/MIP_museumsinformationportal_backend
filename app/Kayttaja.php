@@ -11,6 +11,7 @@ use App\Ark\Rontgenkuva;
 use App\Ark\Tutkimus;
 use App\Ark\Tutkimusalue;
 use App\Ark\TutkimusalueYksikko;
+use App\Ark\TutkimusKayttaja;
 use App\Rak\Kuva;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
@@ -553,17 +554,23 @@ class Kayttaja extends Model implements JWTSubject, Authenticatable {
 
 		//Käyttäjällä on ainakin katseluoikeudet tutkimukseen, koska tutkimus on löytynyt
 		$permissions['katselu'] = true;
-		//Tarkastetaan, onko käyttäjällä oikeudet muokata tutkimukseen liittyviä tietoja.
-		//Käyttäjällä on oikeus muokata tutkimukseen liittyviä tietoja, JOS tutkimus ei ole vielä valmis
-		if($tutkimus->valmis == true) {
-			$permissions['luonti'] = false;
-			$permissions['muokkaus'] = false;
-			$permissions['poisto'] = false;
-		} else {
-			$permissions['luonti'] = true;
-			$permissions['muokkaus'] = true;
-			$permissions['poisto'] = true;
-		}
+
+		/*
+		 * US10291
+		 * Tutkimukseen liitetty katselija saa aina muokata tietoja, jos hän kuuluu tutkimuksen käyttäjiin
+		 */
+			$tutkimusKayttaja = TutkimusKayttaja::getSingleByTutkimusIdAndUserId($tutkimus->id, Auth::user()->id)->first();
+			if($tutkimusKayttaja && $tutkimusKayttaja->id) {
+				$permissions['luonti'] = true;
+				$permissions['muokkaus'] = true;
+				$permissions['poisto'] = true;
+			} else {
+				$permissions['luonti'] = false;
+				$permissions['muokkaus'] = false;
+				$permissions['poisto'] = false;
+
+			}
+
 		return $permissions;
 	}
 
