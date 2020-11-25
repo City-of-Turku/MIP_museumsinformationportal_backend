@@ -167,6 +167,8 @@ class KyppiService{
         // <muinaisjaannos> elementin alta löytyy kaikki tarvittava
         $muinaisjaannos = $dom->getElementsByTagName( 'muinaisjaannos' )->item(0);
 
+        Log::debug($muinaisjaannos->saveXML());
+
         // Kohteen luonti ja tietojen populointi
         $this->muodostaKohdeKypinTiedoilla($muinaisjaannos, $kohde);
 

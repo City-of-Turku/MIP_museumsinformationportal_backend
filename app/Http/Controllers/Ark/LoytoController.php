@@ -264,6 +264,11 @@ class LoytoController extends Controller
             // suorita query
             $loydot = $loydot->get();
 
+            // US10297
+            if(Auth::user()->ark_rooli == 'katselija') {
+                $loydot = $loydot->makeHidden(['sisaiset_lisatiedot']);
+            }
+
             MipJson::initGeoJsonFeatureCollection(count($loydot), $total_rows);
             foreach ($loydot as $loyto) {
                 // löydön lisäys feature listaan
@@ -278,6 +283,7 @@ class LoytoController extends Controller
             MipJson::addMessage(Lang::get('loyto.search_success'));
 
         } catch (Exception $e) {
+            Log::error($e);
             MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
             MipJson::addMessage(Lang::get('loyto.search_failed'));
         }
@@ -349,6 +355,11 @@ class LoytoController extends Controller
                     return MipJson::getJson();
                 }
 
+                // US10297
+                if(Auth::user()->ark_rooli == 'katselija') {
+                    $loyto = $loyto->makeHidden(['sisaiset_lisatiedot']);
+                }
+
                 // Muodostetaan propparit
                 $properties = clone($loyto);
 
@@ -361,6 +372,7 @@ class LoytoController extends Controller
                 MipJson::addMessage(Lang::get('loyto.search_success'));
             }
             catch(QueryException $e) {
+                Log::error($e);
                 MipJson::setGeoJsonFeature();
                 MipJson::addMessage(Lang::get('loyto.search_failed'));
                 MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -434,6 +446,11 @@ class LoytoController extends Controller
 
             // suorita query
             $loydot = $loydot->get();
+
+            // US10297
+            if(Auth::user()->ark_rooli == 'katselija') {
+                $loyto = $loydot->makeHidden(['sisaiset_lisatiedot']);
+            }
 
             MipJson::initGeoJsonFeatureCollection(count($loydot), $total_rows);
 
@@ -537,7 +554,7 @@ class LoytoController extends Controller
                 $tapahtuma->save();
 
             } catch(Exception $e) {
-                app('log')->debug($e);
+                Log::error($e);
                 DB::rollback();
                 MipJson::setGeoJsonFeature();
                 MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -569,6 +586,11 @@ class LoytoController extends Controller
                 'tutkimusalue.tutkimus',
                 'sailytystila'
             ))->first();
+
+            // US10297
+            if(Auth::user()->ark_rooli == 'katselija') {
+                $loyto = $loyto->makeHidden(['sisaiset_lisatiedot']);
+            }
 
             MipJson::addMessage(Lang::get('loyto.save_success'));
             MipJson::setGeoJsonFeature(null, $loyto);
@@ -718,6 +740,11 @@ class LoytoController extends Controller
 
                         // Deserialisoidaan JSON string kannasta
                         $loyto->migraatiodata = json_decode($loyto->migraatiodata, true);
+
+                        // US10297
+                        if(Auth::user()->ark_rooli == 'katselija') {
+                            $loyto = $loyto->makeHidden(['sisaiset_lisatiedot']);
+                        }
 
                     MipJson::addMessage(Lang::get('loyto.save_success'));
                     MipJson::setGeoJsonFeature(null, $loyto);
@@ -975,6 +1002,11 @@ class LoytoController extends Controller
                     'luettelointinrohistoria.luoja',
                     'tutkimusalue.tutkimus',//irtolöytö tai tarkastus
                     'sailytystila'))->first();
+
+                    // US10297
+                    if(Auth::user()->ark_rooli == 'katselija') {
+                        $loyto = $loyto->makeHidden(['sisaiset_lisatiedot']);
+                    }
 
                 MipJson::addMessage(Lang::get('loyto.list_number_changed'));
                 MipJson::setGeoJsonFeature(null, $loyto);
