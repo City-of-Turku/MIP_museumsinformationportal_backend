@@ -26,7 +26,7 @@ class Loyto extends Model
         'paatosvuosi_ajanlasku', 'ajoitus_kuvaus', 'ajoituksen_perusteet', 'tutkimukset_lahteet', 'lisatiedot', 'loydon_tila_id', 'konservointi',
         'loytopaivamaara', 'kappalemaara_arvio', 'ark_tutkimusalue_id', 'vakituinen_sailytystila_id', 'vakituinen_hyllypaikka', 'tilapainen_sijainti',
         'paino_ennen', 'paino_ennen_yksikko', 'paino_jalkeen', 'paino_jalkeen_yksikko', 'kunto', 'kunto_paivamaara', 'sailytysolosuhteet', 'konservointi_lisatiedot',
-        'siirtyy_finnaan'
+        'siirtyy_finnaan', 'sisaiset_lisatiedot'
     );
 
     /**
