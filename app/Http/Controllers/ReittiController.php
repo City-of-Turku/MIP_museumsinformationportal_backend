@@ -221,19 +221,26 @@ class ReittiController extends Controller {
 
 
 		/*
-		 * Role check - Pitää olla pääkäyttäjä, tutkija tai reitin lisääjä
+		 * Role check - Pitää olla pääkäyttäjä, tutkija tai reitin lisääjä.
+		 * PHP ei jostain syystä halua kaikkia iffin ehtoja samaan, joten tehty näin.
 		 */
 	    $kayttaja = Auth::user();
 	    $rakRooli = $kayttaja->rooli;
 	    $arkRooli = $kayttaja->ark_rooli;
-
-	    //Log::debug("Roolit: " . $rakRooli . ", " . $arkRooli);
-
-	    $hasPermission = false;
-	    if($rakRooli == 'paakayttaja' || $rakRooli == 'tutkija' ||
-	       $arkRooli == 'paakayttaja' || $arkRooli == 'tutkija' ||
-	       $entity->luoja == $kayttaja->id) {
-
+			$hasPermission = false;
+			if($rakRooli == 'pääkäyttäjä') {
+	        $hasPermission = true;
+			}
+			if($rakRooli == 'tutkija') {
+	        $hasPermission = true;
+	    }
+			if($arkRooli == 'pääkäyttäjä') {
+	        $hasPermission = true;
+			}
+			if($arkRooli == 'tutkija') {
+	        $hasPermission = true;
+			}
+			if($entity->luoja == $kayttaja->id) {
 	        $hasPermission = true;
 	    }
 
