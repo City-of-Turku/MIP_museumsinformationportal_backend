@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
+<!-- 2020-11-27T13:01:09 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Arkisto_rekisteritiedot" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="ecf5dc04-d9a0-4031-8e58-0eeee6f21185">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
+	<parameter name="tutkimusraporttiId" class="java.lang.Long"/>
+	<queryString language="SQL">
+		<![CDATA[select tr.arkisto_ja_rekisteritiedot
+from ark_tutkimusraportti tr
+where tr.id = $P{tutkimusraporttiId}]]>
+	</queryString>
+	<field name="arkisto_ja_rekisteritiedot" class="java.lang.String"/>
+	<title>
+		<band height="22" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="550" height="20" uuid="540b0c70-c8f3-44fe-b5d9-569d455ebc3c"/>
+				<text><![CDATA[Arkisto- ja rekisteritiedot]]></text>
+			</staticText>
+		</band>
+	</title>
+	<detail>
+		<band height="125" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="0" y="0" width="550" height="125" isRemoveLineWhenBlank="true" uuid="922d3c24-d4df-4902-97b3-9fa9ce5af72f"/>
+				<textElement markup="none"/>
+				<textFieldExpression><![CDATA[$F{arkisto_ja_rekisteritiedot}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+</jasperReport>

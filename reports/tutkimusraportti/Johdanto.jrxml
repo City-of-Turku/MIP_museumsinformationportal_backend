@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
+<!-- 2020-11-27T13:46:58 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Johdanto" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="f4dd15b9-83fc-453d-84cb-38a4f4189994">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
+	<property name="net.sf.jasperreports.print.create.bookmarks" value="true"/>
+	<parameter name="tutkimusraporttiId" class="java.lang.Long"/>
+	<queryString language="SQL">
+		<![CDATA[select * from ark_tutkimusraportti where id = $P{tutkimusraporttiId}]]>
+	</queryString>
+	<field name="id" class="java.lang.Long"/>
+	<field name="ark_tutkimuslaji_id" class="java.lang.Long"/>
+	<field name="nimi" class="java.lang.String"/>
+	<field name="rahoittaja" class="java.lang.String"/>
+	<field name="alkupvm" class="java.sql.Date"/>
+	<field name="loppupvm" class="java.sql.Date"/>
+	<field name="kenttatyo_alkupvm" class="java.sql.Date"/>
+	<field name="kenttatyo_loppupvm" class="java.sql.Date"/>
+	<field name="loyto_paanumero" class="java.lang.String"/>
+	<field name="digikuva_paanumero" class="java.lang.String"/>
+	<field name="mustavalko_paanumero" class="java.lang.String"/>
+	<field name="dia_paanumero" class="java.lang.String"/>
+	<field name="valmis" class="java.lang.Boolean"/>
+	<field name="julkinen" class="java.lang.Boolean"/>
+	<field name="kl_koodi" class="java.lang.Integer"/>
+	<field name="tiivistelma" class="java.lang.String"/>
+	<field name="luotu" class="java.sql.Timestamp"/>
+	<field name="luoja" class="java.lang.Integer"/>
+	<field name="muokattu" class="java.sql.Timestamp"/>
+	<field name="muokkaaja" class="java.lang.Integer"/>
+	<field name="poistettu" class="java.sql.Timestamp"/>
+	<field name="poistaja" class="java.lang.Integer"/>
+	<field name="ark_loyto_kokoelmalaji_id" class="java.lang.Long"/>
+	<field name="ark_raportti_kokoelmalaji_id" class="java.lang.Long"/>
+	<field name="ark_kartta_kokoelmalaji_id" class="java.lang.Long"/>
+	<field name="ark_valokuva_kokoelmalaji_id" class="java.lang.Long"/>
+	<field name="ark_nayte_kokoelmalaji_id" class="java.lang.Long"/>
+	<field name="tutkimuksen_lyhenne" class="java.lang.String"/>
+	<field name="nayte_paanumero" class="java.lang.String"/>
+	<field name="lisatiedot" class="java.lang.String"/>
+	<field name="kenttatyojohtaja" class="java.lang.String"/>
+	<field name="toimeksiantaja" class="java.lang.String"/>
+	<field name="kuvaus" class="java.lang.String"/>
+	<title>
+		<band height="79" splitType="Stretch">
+			<textField bookmarkLevel="1">
+				<reportElement x="0" y="0" width="550" height="40" uuid="6c334f59-b953-404f-89e4-8242e0f50412"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["1. Johdanto"]]></textFieldExpression>
+				<anchorNameExpression><![CDATA["1. Johdanto"]]></anchorNameExpression>
+			</textField>
+		</band>
+	</title>
+	<detail>
+		<band height="270" splitType="Stretch">
+			<textField isStretchWithOverflow="true">
+				<reportElement x="2" y="40" width="548" height="60" uuid="1e4be5fb-e2e0-4185-b218-dae728b97a2c"/>
+				<textFieldExpression><![CDATA["Tässä johdantotekstiä jne"]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+</jasperReport>

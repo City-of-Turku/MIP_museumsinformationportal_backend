@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
+<!-- 2020-11-27T13:41:27 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Tutkimusraportti" pageWidth="595" pageHeight="842" sectionType="Part" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="30" bottomMargin="30" uuid="d2716064-8ae4-40cf-a575-33afba400e3a">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
+	<property name="net.sf.jasperreports.print.create.bookmarks" value="true"/>
+	<property name="com.jaspersoft.studio.book.group.cover.header" value="Cover and Table of Contents"/>
+	<property name="com.jaspersoft.studio.book.group.cover.footer" value="Backcover"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<parameter name="tutkimusraporttiId" class="java.lang.Long"/>
+	<queryString>
+		<![CDATA[select tr.* , t.*
+from ark_tutkimusraportti tr
+left join ark_tutkimus t on t.id = tr.ark_tutkimus_id
+where tr.id = $P{tutkimusraporttiId}]]>
+	</queryString>
+	<field name="id" class="java.lang.Long"/>
+	<field name="ark_tutkimus_id" class="java.lang.Long"/>
+	<field name="arkisto_ja_rekisteritiedot" class="java.lang.String"/>
+	<field name="johdanto" class="java.lang.String"/>
+	<field name="tutkimus_ja_dokumentointimenetelmat" class="java.lang.String"/>
+	<field name="havainnot" class="java.lang.String"/>
+	<field name="yhteenveto" class="java.lang.String"/>
+	<field name="lahdeluettelo" class="java.lang.String"/>
+	<field name="liitteet" class="java.lang.String"/>
+	<field name="luoja" class="java.lang.Integer"/>
+	<field name="luotu" class="java.sql.Timestamp"/>
+	<field name="muokkaaja" class="java.lang.Integer"/>
+	<field name="muokattu" class="java.sql.Timestamp"/>
+	<field name="poistaja" class="java.lang.Integer"/>
+	<field name="poistettu" class="java.sql.Timestamp"/>
+	<field name="COLUMN_16" class="java.lang.Long"/>
+	<field name="ark_tutkimuslaji_id" class="java.lang.Long"/>
+	<field name="nimi" class="java.lang.String"/>
+	<field name="rahoittaja" class="java.lang.String"/>
+	<field name="alkupvm" class="java.sql.Date"/>
+	<field name="loppupvm" class="java.sql.Date"/>
+	<field name="kenttatyo_alkupvm" class="java.sql.Date"/>
+	<field name="kenttatyo_loppupvm" class="java.sql.Date"/>
+	<field name="loyto_paanumero" class="java.lang.String"/>
+	<field name="digikuva_paanumero" class="java.lang.String"/>
+	<field name="mustavalko_paanumero" class="java.lang.String"/>
+	<field name="dia_paanumero" class="java.lang.String"/>
+	<field name="valmis" class="java.lang.Boolean"/>
+	<field name="julkinen" class="java.lang.Boolean"/>
+	<field name="kl_koodi" class="java.lang.Integer"/>
+	<field name="tiivistelma" class="java.lang.String"/>
+	<field name="COLUMN_32" class="java.sql.Timestamp"/>
+	<field name="COLUMN_33" class="java.lang.Integer"/>
+	<field name="COLUMN_34" class="java.sql.Timestamp"/>
+	<field name="COLUMN_35" class="java.lang.Integer"/>
+	<field name="COLUMN_36" class="java.sql.Timestamp"/>
+	<field name="COLUMN_37" class="java.lang.Integer"/>
+	<field name="ark_loyto_kokoelmalaji_id" class="java.lang.Long"/>
+	<field name="ark_raportti_kokoelmalaji_id" class="java.lang.Long"/>
+	<field name="ark_kartta_kokoelmalaji_id" class="java.lang.Long"/>
+	<field name="ark_valokuva_kokoelmalaji_id" class="java.lang.Long"/>
+	<field name="ark_nayte_kokoelmalaji_id" class="java.lang.Long"/>
+	<field name="tutkimuksen_lyhenne" class="java.lang.String"/>
+	<field name="nayte_paanumero" class="java.lang.String"/>
+	<field name="lisatiedot" class="java.lang.String"/>
+	<field name="kenttatyojohtaja" class="java.lang.String"/>
+	<field name="toimeksiantaja" class="java.lang.String"/>
+	<field name="kuvaus" class="java.lang.String"/>
+	<field name="km_paanumero" class="java.lang.String"/>
+	<field name="loytojen_diariointipvm" class="java.sql.Date"/>
+	<group name="cover">
+		<groupHeader>
+			<part uuid="7aed05b9-1301-4a53-b47e-34289560bc0c">
+				<p:subreportPart xmlns:p="http://jasperreports.sourceforge.net/jasperreports/parts" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/parts http://jasperreports.sourceforge.net/xsd/parts.xsd">
+					<subreportParameter name="tutkimusraporttiId">
+						<subreportParameterExpression><![CDATA[$P{tutkimusraporttiId}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="REPORT_CONNECTION">
+						<subreportParameterExpression><![CDATA[$P{REPORT_CONNECTION}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportExpression><![CDATA["Tutkimusraportti_cover.jasper"]]></subreportExpression>
+				</p:subreportPart>
+			</part>
+		</groupHeader>
+		<groupFooter>
+			<part uuid="88decbbe-63ad-45cc-9e03-5dadc50004d5">
+				<p:subreportPart xmlns:p="http://jasperreports.sourceforge.net/jasperreports/parts" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/parts http://jasperreports.sourceforge.net/xsd/parts.xsd">
+					<subreportExpression><![CDATA["Tutkimusraportti_backcover.jasper"]]></subreportExpression>
+				</p:subreportPart>
+			</part>
+		</groupFooter>
+	</group>
+	<detail>
+		<part uuid="86219e4f-8f4e-48fe-82f9-83a9743bd3c5">
+			<p:subreportPart xmlns:p="http://jasperreports.sourceforge.net/jasperreports/parts" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/parts http://jasperreports.sourceforge.net/xsd/parts.xsd">
+				<subreportParameter name="REPORT_CONNECTION">
+					<subreportParameterExpression><![CDATA[$P{REPORT_CONNECTION}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="tutkimusraporttiId">
+					<subreportParameterExpression><![CDATA[$P{tutkimusraporttiId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportExpression><![CDATA["Arkisto_rekisteritiedot.jasper"]]></subreportExpression>
+			</p:subreportPart>
+		</part>
+		<part uuid="f42ddd5a-226b-4a99-bfa7-4c30665b5627">
+			<p:subreportPart xmlns:p="http://jasperreports.sourceforge.net/jasperreports/parts" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/parts http://jasperreports.sourceforge.net/xsd/parts.xsd">
+				<subreportParameter name="REPORT_CONNECTION">
+					<subreportParameterExpression><![CDATA[$P{REPORT_CONNECTION}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="tutkimusraporttiId">
+					<subreportParameterExpression><![CDATA[$P{tutkimusraporttiId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportExpression><![CDATA["Tiivistelma.jasper"]]></subreportExpression>
+			</p:subreportPart>
+		</part>
+		<part evaluationTime="Report" uuid="56ab525c-754f-4f48-a52c-7cc23934be3d">
+			<property name="net.sf.jasperreports.bookmarks.data.source.parameter" value="REPORT_DATA_SOURCE"/>
+			<p:subreportPart xmlns:p="http://jasperreports.sourceforge.net/jasperreports/parts" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/parts http://jasperreports.sourceforge.net/xsd/parts.xsd" usingCache="true">
+				<subreportParameter name="REPORT_CONNECTION">
+					<subreportParameterExpression><![CDATA[$P{REPORT_CONNECTION}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="REPORT_DATA_SOURCE">
+					<subreportParameterExpression><![CDATA[$P{REPORT_DATA_SOURCE}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportExpression><![CDATA["Tutkimusraportti_toc.jasper"]]></subreportExpression>
+			</p:subreportPart>
+		</part>
+		<part uuid="6f561d45-6296-4101-b334-e2cd722a1293">
+			<p:subreportPart xmlns:p="http://jasperreports.sourceforge.net/jasperreports/parts" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/parts http://jasperreports.sourceforge.net/xsd/parts.xsd">
+				<subreportParameter name="REPORT_CONNECTION">
+					<subreportParameterExpression><![CDATA[$P{REPORT_CONNECTION}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="tutkimusraporttiId">
+					<subreportParameterExpression><![CDATA[$P{tutkimusraporttiId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportExpression><![CDATA["Johdanto.jasper"]]></subreportExpression>
+			</p:subreportPart>
+		</part>
+		<part uuid="6b241cb0-2f13-4619-a5ab-5c4e34250649">
+			<p:subreportPart xmlns:p="http://jasperreports.sourceforge.net/jasperreports/parts" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/parts http://jasperreports.sourceforge.net/xsd/parts.xsd">
+				<subreportParameter name="REPORT_CONNECTION">
+					<subreportParameterExpression><![CDATA[$P{REPORT_CONNECTION}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="tutkimusraporttiId">
+					<subreportParameterExpression><![CDATA[$P{tutkimusraporttiId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportExpression><![CDATA["Tutkimusalueet.jasper"]]></subreportExpression>
+			</p:subreportPart>
+		</part>
+		<part uuid="3cb46433-3f59-47a4-a4b3-91e0b1c81ec5">
+			<p:subreportPart xmlns:p="http://jasperreports.sourceforge.net/jasperreports/parts" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/parts http://jasperreports.sourceforge.net/xsd/parts.xsd">
+				<subreportParameter name="REPORT_CONNECTION">
+					<subreportParameterExpression><![CDATA[$P{REPORT_CONNECTION}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportExpression><![CDATA["Tutkimus_ja_dokumentointimenetelmat.jasper"]]></subreportExpression>
+			</p:subreportPart>
+		</part>
+	</detail>
+</jasperReport>
