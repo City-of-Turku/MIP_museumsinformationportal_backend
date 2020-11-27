@@ -366,4 +366,14 @@ class ReportServer {
 		return $parameters;
 	}
 
+	// Tutkimusraportti
+	public static function generateTutkimusraporttiParameters($inputParams) {
+		$parameters = array(
+			array('name' => 'tutkimusraporttiId', 'value' => $inputParams['tutkimusraporttiId']),
+			array('name' => 'reportDisplayName', 'value' => $inputParams['reportDisplayName']),
+			array('name' => 'laji', 'value' => $inputParams['laji'])
+		);
+		return $parameters;
+	}
+
 }

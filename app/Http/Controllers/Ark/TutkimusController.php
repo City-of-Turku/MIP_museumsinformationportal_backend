@@ -36,7 +36,6 @@ class TutkimusController extends Controller
      * @param Request $request
      */
     public function index(Request $request) {
-
         /*
          * Käyttöoikeustarkistukset Tutkimus.php luokassa
          */
@@ -262,6 +261,7 @@ class TutkimusController extends Controller
             MipJson::addMessage(Lang::get('tutkimus.search_success'));
 
          } catch (Exception $e) {
+             Log::error($e);
              MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
              MipJson::addMessage(Lang::get('tutkimus.search_failed'));
          }
@@ -323,7 +323,8 @@ class TutkimusController extends Controller
                     'tarkastus.tarkastaja',
                     'inventointiKohteet.sijainnit',
                     'inventointiKohteet.laji',
-                    'inventointiKohteet.tyypit.tyyppi'
+                    'inventointiKohteet.tyypit.tyyppi',
+                    'tutkimusraportti'
                 ))->first();
 
                 if(!$tutkimus) {
@@ -412,6 +413,7 @@ class TutkimusController extends Controller
                 MipJson::addMessage(Lang::get('tutkimus.search_success'));
             }
              catch(QueryException $e) {
+                 Log::error($e);
                  MipJson::setGeoJsonFeature();
                  MipJson::addMessage(Lang::get('tutkimus.search_failed'));
                  MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);

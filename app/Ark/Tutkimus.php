@@ -24,7 +24,7 @@ class Tutkimus extends Model
         'loyto_paanumero', 'nayte_paanumero', 'digikuva_paanumero', 'mustavalko_paanumero', 'dia_paanumero', 'valmis', 'julkinen',
         'katuosoite', 'katunumero', 'postinumero', 'kl_koodi', 'tiivistelma', 'ark_loyto_kokoelmalaji_id',
         'ark_raportti_kokoelmalaji_id', 'ark_kartta_kokoelmalaji_id', 'ark_valokuva_kokoelmalaji_id', 'ark_nayte_kokoelmalaji_id',
-        'muokattu', 'muokkaaja', 'lisatiedot', 'kenttatyojohtaja', 'toimeksiantaja', 'kuvaus'
+        'muokattu', 'muokkaaja', 'lisatiedot', 'kenttatyojohtaja', 'toimeksiantaja', 'kuvaus', 'km_paanumero', 'loytojen_diariointipvm'
     );
 
     /*
@@ -236,6 +236,10 @@ class Tutkimus extends Model
 
     public function inventointiKohteet() {
         return $this->belongsToMany('App\Ark\Kohde' ,'ark_tutkimus_inv_kohteet' ,'ark_tutkimus_id' ,'ark_kohde_id')->withPivot('inventointipaiva', 'inventoija_id');
+    }
+
+    public function tutkimusraportti() {
+        return $this->hasOne('App\Ark\Tutkimusraportti', 'ark_tutkimus_id');
     }
 
     // Toimiikohan ihan???

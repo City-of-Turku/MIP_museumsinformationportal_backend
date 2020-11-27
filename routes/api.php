@@ -391,6 +391,14 @@ Route::group(['middleware' => 'auth.jwt'], function () {
 	Route::post("tutkimus/{id}/kayttaja",					"Ark\TutkimusController@muokkaaKayttajia");
 
 	/*
+	 * Tutkimusraportit
+	 */
+	Route::post("/tutkimusraportti",									"Ark\TutkimusraporttiController@store");
+	Route::put("/tutkimusraportti/{id}",							"Ark\TutkimusraporttiController@update");
+	Route::delete("/tutkimusraportti/{id}",					"Ark\TutkimusraporttiController@destroy");
+	Route::get("/tutkimusraportti/{id}", 			"Ark\TutkimusraporttiController@getSingle");
+
+	/*
 	 * Tutkimusalueet
 	 */
 	Route::get("/tutkimusalueet", 							"Ark\TutkimusalueController@index");
