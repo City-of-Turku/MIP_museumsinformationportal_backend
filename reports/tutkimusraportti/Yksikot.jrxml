@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-11-27T13:41:31 -->
+<!-- 2020-11-30T16:01:08 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Yksikot" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="435b7430-f0b0-4430-bff1-69f977403d18">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
 	<property name="net.sf.jasperreports.print.create.bookmarks" value="true"/>
 	<parameter name="tutkimusalueId" class="java.lang.Long"/>
 	<queryString language="SQL">
-		<![CDATA[select * from ark_tutkimusalue_yksikko where ark_tutkimusalue_id = $P{tutkimusalueId}]]>
+		<![CDATA[select * 
+from ark_tutkimusalue_yksikko 
+where ark_tutkimusalue_id = $P{tutkimusalueId}
+and poistettu is null]]>
 	</queryString>
 	<field name="id" class="java.lang.Long"/>
 	<field name="ark_tutkimusalue_id" class="java.lang.Integer"/>
@@ -51,36 +54,29 @@
 	<background>
 		<band splitType="Stretch"/>
 	</background>
-	<title>
-		<band height="79" splitType="Stretch">
+	<detail>
+		<band height="173" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="0" y="30" width="554" height="50" isRemoveLineWhenBlank="true" uuid="c225b724-eda2-4609-904a-6c82d42f7ff0"/>
+				<textFieldExpression><![CDATA[$F{kuvaus}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="0" y="100" width="554" height="60" isRemoveLineWhenBlank="true" uuid="c7369119-3f5c-451d-a51e-998d69e41640"/>
+				<textFieldExpression><![CDATA[$F{tulkinta}]]></textFieldExpression>
+			</textField>
 			<textField bookmarkLevel="3">
-				<reportElement x="0" y="0" width="550" height="30" uuid="25023f9c-87c4-4677-91cd-1b57331fe6f7"/>
+				<reportElement x="0" y="0" width="480" height="30" uuid="59860863-a0f9-428e-819a-a69a02160a17"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
 				<textFieldExpression><![CDATA[$F{yksikkotunnus}]]></textFieldExpression>
 				<anchorNameExpression><![CDATA[$F{yksikkotunnus}]]></anchorNameExpression>
 			</textField>
 		</band>
-	</title>
-	<detail>
-		<band height="125" splitType="Stretch">
-			<textField>
-				<reportElement x="100" y="0" width="450" height="30" uuid="c225b724-eda2-4609-904a-6c82d42f7ff0"/>
-				<textFieldExpression><![CDATA[$F{kuvaus}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="100" y="31" width="450" height="30" uuid="c7369119-3f5c-451d-a51e-998d69e41640"/>
-				<textFieldExpression><![CDATA[$F{tulkinta}]]></textFieldExpression>
-			</textField>
-			<staticText>
-				<reportElement x="0" y="0" width="100" height="30" uuid="f7abab29-7692-4958-91a7-5a4b71e8976b"/>
-				<text><![CDATA[Kuvaus:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="0" y="31" width="100" height="30" uuid="6fbb1394-ff9a-4563-be5b-1998e0d25db8"/>
-				<text><![CDATA[Tulkinta:]]></text>
-			</staticText>
-		</band>
 	</detail>
 	<pageFooter>
-		<band height="54" splitType="Stretch"/>
+		<band height="30" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+		</band>
 	</pageFooter>
 </jasperReport>

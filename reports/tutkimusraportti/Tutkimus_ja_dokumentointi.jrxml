@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
+<!-- 2020-11-30T15:36:35 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Tutkimus_ja_dokumentointi" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="462ff0df-0ca5-470b-95a4-57e8b6ee5ad6">
+	<property name="net.sf.jasperreports.print.create.bookmarks" value="true"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<parameter name="tutkimusraporttiId" class="java.lang.Long"/>
+	<queryString>
+		<![CDATA[select tutkimus_ja_dokumentointimenetelmat from ark_tutkimusraportti where id = $P{tutkimusraporttiId}]]>
+	</queryString>
+	<field name="tutkimus_ja_dokumentointimenetelmat" class="java.lang.String"/>
+	<pageHeader>
+		<band height="30">
+			<textField bookmarkLevel="1">
+				<reportElement x="0" y="0" width="480" height="30" uuid="d342ab89-43ef-412d-b3de-4eaaf4b5aed0">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER} == 1l]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["2. Tutkimus- ja dokumentointimenetelmät"]]></textFieldExpression>
+				<anchorNameExpression><![CDATA["2. Tutkimus- ja dokumentointimenetelmat"]]></anchorNameExpression>
+			</textField>
+			<textField evaluationTime="Master">
+				<reportElement x="510" y="0" width="44" height="30" uuid="9fc7694a-174c-44e3-a96b-a7dcbb6834f4">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left"/>
+				<textFieldExpression><![CDATA[" / " + $V{MASTER_TOTAL_PAGES}]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Master">
+				<reportElement x="480" y="0" width="30" height="30" uuid="a139fc87-fa87-4405-85fd-7fb292191b81"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$V{MASTER_CURRENT_PAGE}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<detail>
+		<band height="72" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="0" y="0" width="554" height="70" isRemoveLineWhenBlank="true" uuid="a824d623-33ff-471e-b70c-ca52f95c923f"/>
+				<textFieldExpression><![CDATA[$F{tutkimus_ja_dokumentointimenetelmat}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+</jasperReport>
