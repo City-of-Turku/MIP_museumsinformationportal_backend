@@ -20,6 +20,7 @@ class Tutkimusraportti extends Migration
             $table->bigInteger('ark_tutkimus_id');
 
             $table->text("arkisto_ja_rekisteritiedot")->nullable();
+            $table->text("tiivistelma")->nullable();
             $table->text("johdanto")->nullable();
             $table->text("tutkimus_ja_dokumentointimenetelmat")->nullable();
             $table->text("havainnot")->nullable();
@@ -69,8 +70,7 @@ class Tutkimusraportti extends Migration
 
         // Lisätään tutkimukselle uudet kentat
         Schema::table('ark_tutkimus', function($table) {
-            $table->text("km_paanumero")->nullable();
-            $table->date("loytojen_diariointipvm")->nullable();
+            $table->text("km_paanumerot_ja_diaarnum")->nullable();
         });
     }
 

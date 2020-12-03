@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Ark;
 
 use App\Ark\ArkKuva;
+use App\Ark\Tutkimus;
 use App\Ark\Tutkimusraportti;
 use App\Ark\TutkimusraporttiKuva;
 use App\Http\Controllers\Controller;
@@ -39,12 +40,16 @@ class TutkimusraporttiController extends Controller
 			$entity = new Tutkimusraportti($request->all()['properties']);
 			$entity->luoja = Auth::user()->id;
 			$entity->save();
+			// Päivitetään myös tutkimuksen tiivistelmä vastaamaan tutkimusraportin tiivistelmää
+			$tutkimus = Tutkimus::getSingle($entity->ark_tutkimus_id)->first();
+			$tutkimus->tiivistelma = $request->all()['properties']['tiivistelma'];
+			$tutkimus->update();
 
 			// Kuvalinkkaukset
-			TutkimusraporttiKuva::paivita_kuvat($entity->id, json_decode($request->all()['properties']['kuvat_kansilehti']), 'kansilehti');
-			TutkimusraporttiKuva::paivita_kuvat($entity->id, json_decode($request->all()['properties']['kuvat_johdanto']), 'johdanto');
-			TutkimusraporttiKuva::paivita_kuvat($entity->id, json_decode($request->all()['properties']['kuvat_havainnot']), 'havainnot');
-			TutkimusraporttiKuva::paivita_kuvat($entity->id, json_decode($request->all()['properties']['kuvat_yhteenveto']), 'yhteenveto');
+			TutkimusraporttiKuva::paivita_kuvat($entity->id, $request->input('properties.kuvat_kansilehti'), 'kansilehti');
+			TutkimusraporttiKuva::paivita_kuvat($entity->id, $request->input('properties.kuvat_johdanto'), 'johdanto');
+			TutkimusraporttiKuva::paivita_kuvat($entity->id, $request->input('properties.kuvat_havainnot'), 'havainnot');
+			TutkimusraporttiKuva::paivita_kuvat($entity->id, $request->input('properties.kuvat_yhteenveto'), 'yhteenveto');
 		} catch (Exception $e) {
 			Log::debug("Tutkimusraportti store failed: " . $e);
 			DB::rollback();
@@ -98,7 +103,10 @@ class TutkimusraporttiController extends Controller
 			$author_field = Tutkimusraportti::UPDATED_BY;
 			$entity->$author_field = Auth::user()->id;
 			$entity->update();
-
+			// Päivitetään myös tutkimuksen tiivistelmä vastaamaan tutkimusraportin tiivistelmää
+			$tutkimus = Tutkimus::getSingle($entity->ark_tutkimus_id)->first();
+			$tutkimus->tiivistelma = $request->all()['properties']['tiivistelma'];
+			$tutkimus->update();
 
 			// Kuvalinkkaukset
 			TutkimusraporttiKuva::paivita_kuvat($entity->id, $request->input('properties.kuvat_kansilehti'), 'kansilehti');
@@ -199,30 +207,36 @@ class TutkimusraporttiController extends Controller
 			$kuvat_yhteenveto= [];
 
 			foreach ($tutkimusraporttikuvat as $tutkimusraporttikuva) {
-				$ark_kuva = $tutkimusraporttikuva->ark_kuva()->first()->makeVisible(['polku']);
-				$images = ArkKuva::getImageUrls($ark_kuva->polku . $ark_kuva->tiedostonimi);
-				$ark_kuva->url = $images->original;
-				$ark_kuva->url_tiny = $images->tiny;
-				$ark_kuva->url_small = $images->small;
-				$ark_kuva->url_medium = $images->medium;
-				$ark_kuva->url_large = $images->large;
+				// SoftDelete aiheuttaa ongelmia relaatioiden hakutilanteessa (hakee myös poistetut, jolloin ark_kuva jääkin nulliksi).
+				// Siksi haetaan tässä myös poistetut ja käsitellään ainoastan jos kuvaa ei ole poistettu.
+				$ark_kuva = $tutkimusraporttikuva->ark_kuva()->withTrashed()->with(['asiasanat', 'luoja', 'muokkaaja'])->first();
+				if($ark_kuva->poistettu == null) {
+					$ark_kuva = $ark_kuva->makeVisible(['polku']);
 
-				if($tutkimusraporttikuva->kappale == 'kansilehti') {
-					array_push($kuvat_kansilehti, $ark_kuva);
-				}
-				if($tutkimusraporttikuva->kappale == 'johdanto') {
-					array_push($kuvat_johdanto, $ark_kuva);
-				}
+					$images = ArkKuva::getImageUrls($ark_kuva->polku . $ark_kuva->tiedostonimi);
+					$ark_kuva->url = $images->original;
+					$ark_kuva->url_tiny = $images->tiny;
+					$ark_kuva->url_small = $images->small;
+					$ark_kuva->url_medium = $images->medium;
+					$ark_kuva->url_large = $images->large;
 
-				if($tutkimusraporttikuva->kappale == 'havainnot') {
-					array_push($kuvat_havainnot, $ark_kuva);
-				}
-				if($tutkimusraporttikuva->kappale == 'tutkimus_ja_dokumentointimenetelmat') {
-					array_push($kuvat_tutkimus_ja_dokumentointimenetelmat, $ark_kuva);
-				}
+					if($tutkimusraporttikuva->kappale == 'kansilehti') {
+						array_push($kuvat_kansilehti, $ark_kuva);
+					}
+					if($tutkimusraporttikuva->kappale == 'johdanto') {
+						array_push($kuvat_johdanto, $ark_kuva);
+					}
 
-				if($tutkimusraporttikuva->kappale == 'yhteenveto') {
-					array_push($kuvat_yhteenveto, $ark_kuva);
+					if($tutkimusraporttikuva->kappale == 'havainnot') {
+						array_push($kuvat_havainnot, $ark_kuva);
+					}
+					if($tutkimusraporttikuva->kappale == 'tutkimus_ja_dokumentointimenetelmat') {
+						array_push($kuvat_tutkimus_ja_dokumentointimenetelmat, $ark_kuva);
+					}
+
+					if($tutkimusraporttikuva->kappale == 'yhteenveto') {
+						array_push($kuvat_yhteenveto, $ark_kuva);
+					}
 				}
 			}
 			$entity->kuvat_kansilehti = $kuvat_kansilehti;

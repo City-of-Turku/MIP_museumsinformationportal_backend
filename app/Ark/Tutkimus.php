@@ -24,7 +24,7 @@ class Tutkimus extends Model
         'loyto_paanumero', 'nayte_paanumero', 'digikuva_paanumero', 'mustavalko_paanumero', 'dia_paanumero', 'valmis', 'julkinen',
         'katuosoite', 'katunumero', 'postinumero', 'kl_koodi', 'tiivistelma', 'ark_loyto_kokoelmalaji_id',
         'ark_raportti_kokoelmalaji_id', 'ark_kartta_kokoelmalaji_id', 'ark_valokuva_kokoelmalaji_id', 'ark_nayte_kokoelmalaji_id',
-        'muokattu', 'muokkaaja', 'lisatiedot', 'kenttatyojohtaja', 'toimeksiantaja', 'kuvaus', 'km_paanumero', 'loytojen_diariointipvm'
+        'muokattu', 'muokkaaja', 'lisatiedot', 'kenttatyojohtaja', 'toimeksiantaja', 'kuvaus', 'km_paanumerot_ja_diaarnum'
     );
 
     /*

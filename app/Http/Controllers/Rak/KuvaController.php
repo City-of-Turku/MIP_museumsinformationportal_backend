@@ -108,7 +108,7 @@ class KuvaController extends Controller {
     			$entities = $entities->with(array('luoja', 'muokkaaja'))->get();
 
     			if(count($entities) <= 0) {
-    				MipJson::setGeoJsonFeature();
+    				MipJson::initGeoJsonFeatureCollection(count($entities), $total_rows);
     				MipJson::addMessage(Lang::get('kuva.search_not_found'));
     			}
     			else  {

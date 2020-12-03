@@ -22,7 +22,7 @@ class Tutkimusraportti extends Model
     protected $fillable = array(
         'ark_tutkimus_id', 'arkisto_ja_rekisteritiedot', 'johdanto',
         'tutkimus_ja_dokumentointimenetelmat', 'havainnot', 'yhteenveto',
-        'lahdeluettelo', 'liitteet'
+        'lahdeluettelo', 'liitteet', 'tiivistelma'
     );
 
     /*
