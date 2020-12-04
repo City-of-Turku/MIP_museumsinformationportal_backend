@@ -707,8 +707,9 @@ class FinnaService{
 	private static function writeSubjectWrap($writer, $loyto) {
 	    $writer->startElement('lido:subjectWrap');
 	      $writer->startElement('lido:subjectSet');
-	        $writer->startElement('lido:displaySubject');
-	          $writer->text($loyto['kuvaus']);
+					$writer->startElement('lido:displaySubject');
+						$kuvaus = self::fixKuvausText($loyto['kuvaus']);
+	          $writer->text($kuvaus);
 	        $writer->endElement();
 	        $writer->startElement('lido:subject'); // AIHEEN PAIKKA
 	          $writer->startElement('lido:subjectPlace');
