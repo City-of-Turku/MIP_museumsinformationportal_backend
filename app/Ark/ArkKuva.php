@@ -366,34 +366,43 @@ class ArkKuva extends Model {
 	    return false;
 	}
 
-	public static function updateTunnistekuva($loytoId) {
+	public static function updateLoytoTunnistekuva($loytoId) {
 	    DB::select(DB::raw('update ark_kuva set tunnistekuva = false
-                            where ark_kuva.id in(
-                            	select ark_kuva.id
-                            	from ark_kuva
-                            	left join ark_kuva_loyto on ark_kuva.id = ark_kuva_loyto.ark_kuva_id
-                            	left join ark_loyto on ark_loyto.id = ark_kuva_loyto.ark_loyto_id
-                            	where ark_loyto.id = :lId
-                            	and ark_kuva.luettelointinumero is null
-                            );'), array('lId' => $loytoId));
+				where ark_kuva.id in(
+					select ark_kuva.id
+					from ark_kuva
+					left join ark_kuva_loyto on ark_kuva.id = ark_kuva_loyto.ark_kuva_id
+					left join ark_loyto on ark_loyto.id = ark_kuva_loyto.ark_loyto_id
+					where ark_loyto.id = :lId
+					and ark_kuva.luettelointinumero is null
+				);'), array('lId' => $loytoId));
 	}
+
+	public static function updateYksikkoTunnistekuva($yksikkoId) {
+		DB::select(DB::raw('update ark_kuva set tunnistekuva = false
+			where ark_kuva.id in(
+				select ark_kuva.id
+				from ark_kuva
+				left join ark_kuva_yksikko on ark_kuva.id = ark_kuva_yksikko.ark_kuva_id
+				left join ark_tutkimusalue_yksikko on ark_tutkimusalue_yksikko.id = ark_kuva_yksikko.ark_yksikko_id
+				where ark_tutkimusalue_yksikko.id = :yId
+			);'), array('yId' => $yksikkoId));
+}
 
 	public static function tutkimus($kuvaId) {
 	    return Tutkimus::on()->fromQuery(DB::raw('select t.*
-                                            from ark_kuva k
-                                            left join ark_kuva_loyto kl on kl.ark_kuva_id = k.id
-                                            left join ark_kuva_nayte kn on kn.ark_kuva_id = k.id
-                                            left join ark_kuva_yksikko ky on ky.ark_kuva_id = k.id
-                                            left join ark_loyto l on l.id = kl.ark_loyto_id
-                                            left join ark_nayte n on n.id = kn.ark_nayte_id
-                                            left join ark_tutkimusalue_yksikko ty on ty.id = l.ark_tutkimusalue_yksikko_id
-                                            left join ark_tutkimusalue ta on ta.id = ty.ark_tutkimusalue_id
-                                            left join ark_tutkimus t on t.id = ta.ark_tutkimus_id
-                                            where k.id = :kuvaId
-                                            and k.poistettu is null;'), array('kuvaId' => $kuvaId));
+				from ark_kuva k
+				left join ark_kuva_loyto kl on kl.ark_kuva_id = k.id
+				left join ark_kuva_nayte kn on kn.ark_kuva_id = k.id
+				left join ark_kuva_yksikko ky on ky.ark_kuva_id = k.id
+				left join ark_loyto l on l.id = kl.ark_loyto_id
+				left join ark_nayte n on n.id = kn.ark_nayte_id
+				left join ark_tutkimusalue_yksikko ty on ty.id = l.ark_tutkimusalue_yksikko_id
+				left join ark_tutkimusalue ta on ta.id = ty.ark_tutkimusalue_id
+				left join ark_tutkimus t on t.id = ta.ark_tutkimus_id
+				where k.id = :kuvaId
+				and k.poistettu is null;'), array('kuvaId' => $kuvaId));
 	}
-
-
 
 	public static function loytoTunnistekuva($loytoId) {
 	    return ArkKuva::select('ark_kuva.*')
@@ -403,5 +412,4 @@ class ArkKuva extends Model {
 	    ->where('ark_kuva.tunnistekuva', '=', true)
 	    ->where('ark_kuva.poistettu', '=', null);
 	}
-
 }

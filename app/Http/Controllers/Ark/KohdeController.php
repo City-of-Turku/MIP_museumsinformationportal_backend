@@ -780,7 +780,7 @@ class KohdeController extends Controller {
     /**
      * Muodostaa kohteista feature listan jossa kohteista valittu tarvittavat tiedot.
      */
-    private function muodostaKohdeDtoLista($kohdeLista){
+    private static function muodostaKohdeDtoLista($kohdeLista){
 
         MipJson::initGeoJsonFeatureCollection(count($kohdeLista));
 
@@ -809,7 +809,7 @@ class KohdeController extends Controller {
      * Hakee muinaisjäännöksen Kypistä ja asettaa vivun jonka mukaan UI:ssa näytetään ilmoitus tietojen muuttumisesta.
      * Käyttäjä voi päivittää tiedot, jolloin haetaan kyseisen MJ kaikki tiedot.
      */
-    private function tarkistaKyppiMuutos($kohde){
+    private static function tarkistaKyppiMuutos($kohde){
 
         $kyppiService = new KyppiService();
 

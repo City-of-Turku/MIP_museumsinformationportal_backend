@@ -86,7 +86,7 @@ class ArkKuvaController extends Controller {
             return MipJson::getJson();
         }
 
-//          try {
+          try {
             $rivi = (isset($request->rivi) && is_numeric($request->rivi)) ? $request->rivi : 0;
             $riveja = (isset($request->rivit) && is_numeric($request->rivit)) ? $request->rivit : 100;
             $jarjestys_kentta = (isset($request->jarjestys)) ? $request->jarjestys : "ark_kuva.id";
@@ -157,7 +157,7 @@ class ArkKuvaController extends Controller {
             $entities = $entities->get();
 
             if(count($entities) <= 0) {
-                MipJson::setGeoJsonFeature();
+                MipJson::initGeoJsonFeatureCollection(count($entities), $total_rows);
                 MipJson::addMessage(Lang::get('kuva.search_not_found'));
                 return MipJson::getJson();
             }
@@ -191,7 +191,6 @@ class ArkKuvaController extends Controller {
             }
 
             MipJson::initGeoJsonFeatureCollection(count($returnEntities), $total_rows);
-
             //Hoidetaan palautettaville kuville urlit ja relaatiot mukaan
             foreach ($returnEntities as $entity) {
                 $images = ArkKuva::getImageUrls($entity->polku.$entity->tiedostonimi);
@@ -228,11 +227,12 @@ class ArkKuvaController extends Controller {
             }
             MipJson::addMessage(Lang::get('kuva.found_count',["count" => count($returnEntities)]));
 
-//        } catch(Exception $e) {
-//           MipJson::setGeoJsonFeature();
-//           MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
-//           MipJson::addMessage(Lang::get('kuva.search_failed'));
-//        }
+        } catch(Exception $e) {
+            Log::debug($e);
+            MipJson::setGeoJsonFeature();
+            MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+            MipJson::addMessage(Lang::get('kuva.search_failed'));
+        }
         return MipJson::getJson();
     }
 
@@ -345,6 +345,7 @@ class ArkKuvaController extends Controller {
 
         } catch(Exception $e) {
             DB::rollback();
+            Log::debug($e);
 
             MipJson::setGeoJsonFeature();
             MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -399,6 +400,7 @@ class ArkKuvaController extends Controller {
             MipJson::addMessage(Lang::get('kuva.search_success'));
         }
         catch(QueryException $e) {
+            Log::debug($e);
             MipJson::addMessage(Lang::get('kuva.search_failed'));
             MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -513,7 +515,12 @@ class ArkKuvaController extends Controller {
             }
 
             if($entity->tunnistekuva) {
-                ArkKuva::updateTunnistekuva($request->loydot[0]['id']);
+                if($request->loydot && $request->loydot[0]['id']) {
+                    ArkKuva::updateLoytoTunnistekuva($request->loydot[0]['id']);
+                }
+                if($request->yksikot && $request->yksikot[0]['id']) {
+                    ArkKuva::updateYksikkoTunnistekuva($request->yksikot[0]['id']);
+                }
             }
 
             $author_field = ArkKuva::UPDATED_BY;
@@ -537,6 +544,7 @@ class ArkKuvaController extends Controller {
             DB::commit();
 
         } catch(Exception $e) {
+            Log::debug($e);
             DB::rollback();
             MipJson::setGeoJsonFeature();
             MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);

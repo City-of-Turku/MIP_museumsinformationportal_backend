@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
+<!-- 2020-12-01T14:46:39 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Tutkimusalueet" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="46fb868b-ad4e-4b5e-bfc1-29f32a3381f3">
+	<property name="net.sf.jasperreports.print.create.bookmarks" value="true"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<parameter name="tutkimusraporttiId" class="java.lang.Long"/>
+	<parameter name="MIP_BACKEND_URL" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[select ta.id as tutkimusalue_id, 
+	ta.nimi,
+	ta.sijaintikuvaus, 
+	ta.havainnot as tutkimusalue_havainnot, 
+	ta.yhteenveto,
+	NULLIF(regexp_replace(ta.nimi, '\D','','g'), '')::numeric AS jarjestys
+from ark_tutkimusraportti tr
+left join ark_tutkimus t on t.id = tr.ark_tutkimus_id
+left join ark_tutkimusalue ta on ta.ark_tutkimus_id = t.id
+where tr.id = $P{tutkimusraporttiId}
+and ta.poistettu is null
+order by jarjestys, ta.nimi, ta.id]]>
+	</queryString>
+	<field name="tutkimusalue_id" class="java.lang.Long"/>
+	<field name="nimi" class="java.lang.String"/>
+	<field name="sijaintikuvaus" class="java.lang.String"/>
+	<field name="tutkimusalue_havainnot" class="java.lang.String"/>
+	<field name="yhteenveto" class="java.lang.String"/>
+	<field name="jarjestys" class="java.math.BigDecimal"/>
+	<detail>
+		<band height="237" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="0" y="50" width="554" height="50" isRemoveLineWhenBlank="true" uuid="cb9c1cf8-58b1-47be-a6b5-87cf0f035199"/>
+				<textFieldExpression><![CDATA[$F{tutkimusalue_havainnot}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="0" y="180" width="554" height="57" isRemoveLineWhenBlank="true" uuid="a8c083fe-d957-4c29-ba42-622dbf73e0c8"/>
+				<textFieldExpression><![CDATA[$F{yhteenveto}]]></textFieldExpression>
+			</textField>
+			<subreport>
+				<reportElement positionType="Float" x="-20" y="100" width="595" height="58" isRemoveLineWhenBlank="true" uuid="fa1007f6-1d8e-4976-831e-197ff92f651e"/>
+				<subreportParameter name="tutkimusalueId">
+					<subreportParameterExpression><![CDATA[$F{tutkimusalue_id}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="MIP_BACKEND_URL">
+					<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA["Yksikot.jasper"]]></subreportExpression>
+			</subreport>
+			<textField bookmarkLevel="2">
+				<reportElement x="0" y="0" width="480" height="30" uuid="4bce41dc-ddb2-496d-a34c-9be0b8242fae"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nimi}]]></textFieldExpression>
+				<anchorNameExpression><![CDATA[$F{nimi}]]></anchorNameExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="30" width="100" height="20" uuid="6961e12f-43bc-47f9-ac18-5e5cfab1a7da"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Havainnot]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="160" width="100" height="20" uuid="dca546ff-cb9c-4613-92da-d8158e5c4c03"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Yhteenveto]]></text>
+			</staticText>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="30" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+		</band>
+	</pageFooter>
+</jasperReport>

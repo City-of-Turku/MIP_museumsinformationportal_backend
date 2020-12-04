@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
+<!-- 2020-12-01T11:01:02 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Wave Cover" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="c50b24eb-eb33-413f-8e75-e7e20a5341fd">
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<subDataset name="kuva_kansilehti" uuid="dbe1dc2c-51e5-46c4-802f-8399c0abf0ec">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
+		<parameter name="tutkimusraporttiId" class="java.lang.Long"/>
+		<parameter name="MIP_BACKEND_URL" class="java.lang.String"/>
+		<queryString language="SQL">
+			<![CDATA[select k.id
+from ark_kuva k
+left join ark_tutkimusraportti_kuva atk on atk.ark_kuva_id = k.id
+left join ark_tutkimusraportti tr on tr.id = atk.ark_tutkimusraportti_id 
+where tr.id = 1
+and atk.kappale = 'kansilehti']]>
+		</queryString>
+		<field name="id" class="java.lang.Long"/>
+	</subDataset>
+	<parameter name="tutkimusraporttiId" class="java.lang.Long"/>
+	<parameter name="MIP_BACKEND_URL" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select tr.id, raportti_luoja.etunimi, raportti_luoja.sukunimi, t.nimi as tutkimus_nimi
+from ark_tutkimusraportti tr
+left join ark_tutkimus t on t.id = tr.ark_tutkimus_id
+left join kayttaja raportti_luoja on raportti_luoja.id = tr.luoja
+where tr.id = $P{tutkimusraporttiId}]]>
+	</queryString>
+	<field name="id" class="java.lang.Long"/>
+	<field name="etunimi" class="java.lang.String"/>
+	<field name="sukunimi" class="java.lang.String"/>
+	<field name="tutkimus_nimi" class="java.lang.String"/>
+	<title>
+		<band height="841" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="20" y="200" width="557" height="54" isRemoveLineWhenBlank="true" forecolor="#000000" uuid="5bb49d37-ea51-4ca3-a18a-38cb0e66e0ee"/>
+				<box leftPadding="20" rightPadding="20"/>
+				<textElement textAlignment="Left">
+					<font size="34"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tutkimus_nimi}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="20" y="670" width="557" height="30" isRemoveLineWhenBlank="true" uuid="38fc9afd-edcb-42f3-b6bc-cd258f6507b3"/>
+				<textElement textAlignment="Left">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{etunimi} + " " + $F{sukunimi} + " " + DATEFORMAT(TODAY( ),"yyyy")]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement positionType="Float" x="20" y="290" width="557" height="316" uuid="a32676d4-4e4b-4b79-a9ab-791ec337dc95">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="net.sf.jasperreports.export.headertoolbar.table.name" value=""/>
+				</reportElement>
+				<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
+					<datasetRun subDataset="kuva_kansilehti" uuid="70a0849b-f48b-49e9-b01e-76bafb330271">
+						<datasetParameter name="MIP_BACKEND_URL">
+							<datasetParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="tutkimusraporttiId">
+							<datasetParameterExpression><![CDATA[$P{tutkimusraporttiId}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:listContents height="316" width="557">
+						<image hAlign="Center" vAlign="Middle" onErrorType="Blank">
+							<reportElement x="0" y="0" width="557" height="316" uuid="4e204347-ab39-4ffa-a002-3c84f72a38c7"/>
+							<box>
+								<pen lineColor="#E3E3E3"/>
+								<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<imageExpression><![CDATA[$P{MIP_BACKEND_URL} + "/raportti/ark_kuva/"+$F{id}+"/pieni"]]></imageExpression>
+						</image>
+					</jr:listContents>
+				</jr:list>
+			</componentElement>
+		</band>
+	</title>
+</jasperReport>

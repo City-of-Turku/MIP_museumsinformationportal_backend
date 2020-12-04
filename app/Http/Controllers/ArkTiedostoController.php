@@ -124,7 +124,7 @@ class ArkTiedostoController extends Controller {
 			) )->get ();
 
 			if (count ( $entities ) <= 0) {
-				MipJson::setGeoJsonFeature ();
+				MipJson::initGeoJsonFeatureCollection(count($entities), $total_rows);
 				MipJson::addMessage ( Lang::get ( 'tiedosto.search_not_found' ) );
 				return MipJson::getJson ();
 			}

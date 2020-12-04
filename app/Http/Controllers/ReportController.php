@@ -178,6 +178,9 @@ class ReportController extends Controller {
 
 				$parameters = ReportServer::generateKuntoraporttiParameters($request->parameters);
 				break;
+				case 'Tutkimusraportti':
+					$parameters = ReportServer::generateTutkimusraporttiParameters($request->parameters);
+					break;
 			default:
 				MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
 				MipJson::addMessage(Lang::get('raportti.invalid_report_type'));
