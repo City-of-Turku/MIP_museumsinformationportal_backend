@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Ark;
 
+use App\Ark\ArkKuva;
 use App\Kayttaja;
 use App\Utils;
 use App\Ark\Kohde;
 use App\Ark\KohdeTutkimus;
+use App\Ark\Loyto;
+use App\Ark\Nayte;
 use App\Ark\Tutkimus;
 use App\Ark\TutkimusKayttaja;
 use App\Ark\TutkimusKiinteistoRakennus;
@@ -299,7 +302,8 @@ class TutkimusController extends Controller
                 if( !empty($kohdeTutkimus) ){
                     $kohde = Kohde::getSingle($kohdeTutkimus->ark_kohde_id)->with(array (
                         'kunnatkylat.kunta',
-                        'kunnatkylat.kyla'))->first();
+                        'kunnatkylat.kyla',
+                        'kiinteistotrakennukset'))->first();
                 }
 
                 // Hae tutkimus
@@ -323,8 +327,7 @@ class TutkimusController extends Controller
                     'tarkastus.tarkastaja',
                     'inventointiKohteet.sijainnit',
                     'inventointiKohteet.laji',
-                    'inventointiKohteet.tyypit.tyyppi',
-                    'tutkimusraportti'
+                    'inventointiKohteet.tyypit.tyyppi'
                 ))->first();
 
                 if(!$tutkimus) {
@@ -385,6 +388,7 @@ class TutkimusController extends Controller
                 // Lisätään kohteelta palautettavat tiedot
                 if( !empty($kohde) ){
                     $properties->setAttribute('kohde' ,$kohde);
+
 
                     if( !empty($kohde->kunnatkylat[0]->kunta) ){
                         $properties->setAttribute('kohde_kunta' ,$kohde->kunnatkylat[0]->kunta);
@@ -829,6 +833,54 @@ class TutkimusController extends Controller
 
         foreach ($tutkimukset as $tutkimus) {
             MipJson::addGeoJsonFeatureCollectionFeaturePoint(null, $tutkimus);
+        }
+
+        return MipJson::getJson ();
+    }
+
+    /*
+     * Hakee tutkimukseen liittyvien löytöjen ja näytteiden lukumäärät
+     * ja digikuvien ensimmäisen ja viimeisen luettelointinumeron.
+     * Tiloja Poistettu löytöluettelosta ja poistettu kokoelmasta ei huomioida.
+     */
+    public function lukumaarat($id) {
+        /*
+         * Käyttöoikeus
+         */
+        if(!Kayttaja::hasArkTutkimusSubPermission('arkeologia.ark_tutkimus.katselu', $id)) {
+            MipJson::setGeoJsonFeature();
+            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+            return MipJson::getJson();
+        }
+        try {
+            $tutkimus = Tutkimus::getSingle($id)->select('id', 'nimi')->first();
+
+            $loydotCount = Loyto::getAll()->where('loydon_tila_id', '!=', 9)
+                ->where('loydon_tila_id', '!=', 5)->withTutkimusId($id)->count();
+
+            $naytteetCount = Nayte::getAll()->where('ark_nayte_tila_id', '!=', 3)
+                ->where('ark_nayte_tila_id', '!=', 7)->withTutkimusId($id)->count();
+
+            $digikuvatAlku = ArkKuva::getAll()->withTutkimusId($id)->whereNotNull('luettelointinumero')->orderBy('ark_kuva.id', 'asc')->select('ark_kuva.id', 'luettelointinumero')->first();
+            $digikuvatLoppu = ArkKuva::getAll()->withTutkimusId($id)->whereNotNull('luettelointinumero')->orderBy('ark_kuva.id', 'desc')->select('ark_kuva.id', 'luettelointinumero')->first();
+
+            $tutkimus->loydotCount = $loydotCount;
+            $tutkimus->naytteetCount = $naytteetCount;
+            $tutkimus->digikuvatAlku = $digikuvatAlku->luettelointinumero;
+            $tutkimus->digikuvatLoppu = $digikuvatLoppu->luettelointinumero;
+
+            // Muodostetaan propparit
+            $properties = clone($tutkimus);
+
+            MipJson::setGeoJsonFeature(null, $properties);
+            MipJson::addMessage(Lang::get('tutkimus.search_success'));
+
+        } catch(Exception $e) {
+            Log::debug($e);
+            MipJson::setGeoJsonFeature();
+            MipJson::setMessages(array(Lang::get('tutkimus.search_failed'),$e->getMessage()));
+            MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return MipJson::getJson ();

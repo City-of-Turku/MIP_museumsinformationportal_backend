@@ -389,6 +389,7 @@ Route::group(['middleware' => 'auth.jwt'], function () {
 	Route::delete("/tutkimus/{id}/",						"Ark\TutkimusController@destroy");
 	Route::get("/tutkimus/{tutkimus_id}/historia",			"Ark\TutkimusController@historia");
 	Route::post("tutkimus/{id}/kayttaja",					"Ark\TutkimusController@muokkaaKayttajia");
+	Route::get("/tutkimus/{id}/lukumaarat", 			"Ark\TutkimusController@lukumaarat");
 
 	/*
 	 * Tutkimusraportit
@@ -396,7 +397,7 @@ Route::group(['middleware' => 'auth.jwt'], function () {
 	Route::post("/tutkimusraportti",									"Ark\TutkimusraporttiController@store");
 	Route::put("/tutkimusraportti/{id}",							"Ark\TutkimusraporttiController@update");
 	Route::delete("/tutkimusraportti/{id}",					"Ark\TutkimusraporttiController@destroy");
-	Route::get("/tutkimusraportti/{id}", 			"Ark\TutkimusraporttiController@getSingle");
+	Route::get("/tutkimusraportti/{tutkimusId}", 			"Ark\TutkimusraporttiController@getSingleByTutkimusId");
 
 	/*
 	 * Tutkimusalueet

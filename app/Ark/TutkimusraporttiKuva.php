@@ -76,7 +76,6 @@ class TutkimusraporttiKuva extends Model
         // poista vanhat
         DB::table('ark_tutkimusraportti_kuva')->where([['ark_tutkimusraportti_id', '=', $tutkimusraporttiId], ['kappale', '=', $kappale]])->delete();
         $i = 0;
-        Log::debug($kuvat);
         if ($kuvat != null) {
             foreach ($kuvat as $key => $val) {
                 $k = new TutkimusraporttiKuva();

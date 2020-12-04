@@ -175,42 +175,46 @@ class TutkimusraporttiController extends Controller
 		return MipJson::getJson();
 	}
 
-	public function getSingle($id)
+	public function getSingleByTutkimusId($tutkimusId)
 	{
+		/*
+		 * Käyttöoikeus - Jos on oikeudet tutkimukseen liittyvien entiteettien muokkaukseen, on oikeudet raportin muokkaukseen
+		 */
+		if (!Kayttaja::hasArkTutkimusSubPermission('arkeologia.ark_loyto.muokkaus', $tutkimusId)) {
+			MipJson::setGeoJsonFeature();
+			MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+			MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+			return MipJson::getJson();
+		}
 
 		try {
+			$tutkimus = Tutkimus::getSingle($tutkimusId)->with( array('tutkimusraportti', 'tutkimusraportti.tutkimusraporttikuvat.ark_kuva', 'tutkimusraportti.luoja', 'tutkimusraportti.muokkaaja'))->first();
+			$tutkimusraportti = $tutkimus->tutkimusraportti;
 
-			$entity = Tutkimusraportti::where('id', $id)->with('tutkimusraporttikuvat.ark_kuva', 'luoja', 'muokkaaja')->first();
-
-			if (!$entity) {
+			if (!$tutkimus) {
 				MipJson::setGeoJsonFeature();
-				MipJson::addMessage(Lang::get('tutkimusraportti.search_not_found'));
+				MipJson::addMessage(Lang::get('tutkimus.search_not_found'));
 				MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
 				return MipJson::getJson();
 			}
-
-			/*
-		   * Käyttöoikeus - Jos on oikeudet tutkimukseen liittyvien entiteettien muokkaukseen, on oikeudet raportin muokkaukseen
-		   */
-			if (!Kayttaja::hasArkTutkimusSubPermission('arkeologia.ark_loyto.muokkaus', $entity->tutkimus->ark_tutkimus_id)) {
+			if (!$tutkimusraportti) {
 				MipJson::setGeoJsonFeature();
-				MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
-				MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+				MipJson::addMessage(Lang::get('tutkimusraportti.search_not_found'));
 				return MipJson::getJson();
 			}
 
-			$tutkimusraporttikuvat = $entity->tutkimusraporttikuvat()->get();
+			$tutkimusraporttikuvat = $tutkimusraportti->tutkimusraporttikuvat;
 			$kuvat_kansilehti = [];
 			$kuvat_johdanto = [];
 			$kuvat_havainnot = [];
 			$kuvat_tutkimus_ja_dokumentointimenetelmat = [];
-			$kuvat_yhteenveto= [];
+			$kuvat_yhteenveto = [];
 
 			foreach ($tutkimusraporttikuvat as $tutkimusraporttikuva) {
 				// SoftDelete aiheuttaa ongelmia relaatioiden hakutilanteessa (hakee myös poistetut, jolloin ark_kuva jääkin nulliksi).
 				// Siksi haetaan tässä myös poistetut ja käsitellään ainoastan jos kuvaa ei ole poistettu.
 				$ark_kuva = $tutkimusraporttikuva->ark_kuva()->withTrashed()->with(['asiasanat', 'luoja', 'muokkaaja'])->first();
-				if($ark_kuva->poistettu == null) {
+				if ($ark_kuva->poistettu == null) {
 					$ark_kuva = $ark_kuva->makeVisible(['polku']);
 
 					$images = ArkKuva::getImageUrls($ark_kuva->polku . $ark_kuva->tiedostonimi);
@@ -220,35 +224,34 @@ class TutkimusraporttiController extends Controller
 					$ark_kuva->url_medium = $images->medium;
 					$ark_kuva->url_large = $images->large;
 
-					if($tutkimusraporttikuva->kappale == 'kansilehti') {
+					if ($tutkimusraporttikuva->kappale == 'kansilehti') {
 						array_push($kuvat_kansilehti, $ark_kuva);
 					}
-					if($tutkimusraporttikuva->kappale == 'johdanto') {
+					if ($tutkimusraporttikuva->kappale == 'johdanto') {
 						array_push($kuvat_johdanto, $ark_kuva);
 					}
 
-					if($tutkimusraporttikuva->kappale == 'havainnot') {
+					if ($tutkimusraporttikuva->kappale == 'havainnot') {
 						array_push($kuvat_havainnot, $ark_kuva);
 					}
-					if($tutkimusraporttikuva->kappale == 'tutkimus_ja_dokumentointimenetelmat') {
+					if ($tutkimusraporttikuva->kappale == 'tutkimus_ja_dokumentointimenetelmat') {
 						array_push($kuvat_tutkimus_ja_dokumentointimenetelmat, $ark_kuva);
 					}
 
-					if($tutkimusraporttikuva->kappale == 'yhteenveto') {
+					if ($tutkimusraporttikuva->kappale == 'yhteenveto') {
 						array_push($kuvat_yhteenveto, $ark_kuva);
 					}
 				}
 			}
-			$entity->kuvat_kansilehti = $kuvat_kansilehti;
-			$entity->kuvat_johdanto = $kuvat_johdanto;
-			$entity->kuvat_havainnot = $kuvat_havainnot;
-			$entity->kuvat_tutkimus_ja_dokumentointimenetelmat = $kuvat_tutkimus_ja_dokumentointimenetelmat;
-			$entity->kuvat_yhteenveto = $kuvat_yhteenveto;
-			//TODO LOPuT
-			unset($entity->tutkimusraporttikuvat);
+			$tutkimusraportti->kuvat_kansilehti = $kuvat_kansilehti;
+			$tutkimusraportti->kuvat_johdanto = $kuvat_johdanto;
+			$tutkimusraportti->kuvat_havainnot = $kuvat_havainnot;
+			$tutkimusraportti->kuvat_tutkimus_ja_dokumentointimenetelmat = $kuvat_tutkimus_ja_dokumentointimenetelmat;
+			$tutkimusraportti->kuvat_yhteenveto = $kuvat_yhteenveto;
+			unset($tutkimusraportti->tutkimusraporttikuvat);
 
 			// Muodostetaan propparit
-			$properties = clone ($entity);
+			$properties = clone ($tutkimusraportti);
 
 			MipJson::setGeoJsonFeature(null, $properties);
 			MipJson::addMessage(Lang::get('tutkimusraportti.search_ok'));
