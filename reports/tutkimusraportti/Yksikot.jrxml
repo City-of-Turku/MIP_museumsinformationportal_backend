@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-12-03T10:31:56 -->
+<!-- 2020-12-04T14:17:27 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Yksikot" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="435b7430-f0b0-4430-bff1-69f977403d18">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
@@ -60,6 +60,7 @@ left join (
 ) esiintyy_lisaksi on (y.id = esiintyy_lisaksi.yksikko_id)
 where y.ark_tutkimusalue_id = $P{tutkimusalueId}
 and y.poistettu is null
+and y.kaivaus_valmis = true
 order by jarjestys]]>
 	</queryString>
 	<field name="yksikkotunnus" class="java.lang.String"/>
