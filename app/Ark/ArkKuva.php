@@ -399,7 +399,7 @@ class ArkKuva extends Model {
 				left join ark_nayte n on n.id = kn.ark_nayte_id
 				left join ark_tutkimusalue_yksikko ty on ty.id = l.ark_tutkimusalue_yksikko_id
 				left join ark_tutkimusalue ta on ta.id = ty.ark_tutkimusalue_id
-				left join ark_tutkimus t on t.id = ta.ark_tutkimus_id
+				left join ark_tutkimus t on (t.id = ta.ark_tutkimus_id or t.id = k.ark_tutkimus_id)
 				where k.id = :kuvaId
 				and k.poistettu is null;'), array('kuvaId' => $kuvaId));
 	}
