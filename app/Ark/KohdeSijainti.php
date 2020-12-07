@@ -25,8 +25,8 @@ class KohdeSijainti extends Model {
 	}
 
 	public function getPropertiesAttribute() {
-		$kohde = DB::select(DB::raw('select nimi, muinaisjaannostunnus from ark_kohde where id = '.$this->kohde_id));
-		return array('tuhoutunut' => $this->tuhoutunut, 'nimi' => $kohde[0]->nimi, 'id' => $this->kohde_id, 'muinaisjaannostunnus' => $kohde[0]->muinaisjaannostunnus);
+		$kohde = DB::select(DB::raw('select nimi, muinaisjaannostunnus, ark_kohdelaji_id from ark_kohde where id = '.$this->kohde_id));
+		return array('tuhoutunut' => $this->tuhoutunut, 'nimi' => $kohde[0]->nimi, 'id' => $this->kohde_id, 'muinaisjaannostunnus' => $kohde[0]->muinaisjaannostunnus, 'ark_kohdelaji_id' => $kohde[0]->ark_kohdelaji_id);
 	}
 
 	public function getGeometryAttribute() {
