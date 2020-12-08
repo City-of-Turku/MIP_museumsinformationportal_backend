@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Kayttaja;
 use App\Ark\Loyto;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Integraatio Museoviraston muinaisjäännösrekisterin rajapintapalveluun.
@@ -35,6 +36,17 @@ class FinnaUtils
         JWTAuth::setToken($token); // Asetetaan token
         $user = JWTAuth::toUser(); // Asetetaan kirjautunut käyttäjä
         // Log::debug(Auth::user());
+    }
+
+    /*
+     * Validate that FINNA user role is katselija.
+     */
+    public static function validateUserRoleIsKatselija() {
+        $user = Auth::user();
+        if($user->ark_rooli != 'katselija') {
+            return false;
+        }
+        return true;
     }
 
     /**
