@@ -56,7 +56,7 @@ class Tutkimusraportti extends Migration
             $table->integer("poistaja")->nullable();
             $table->timestamp("poistettu")->nullable();
 
-            $table->foreign("ark_tutkimus_id")->references("id")->on("ark_tutkimus");
+            $table->foreign("ark_tutkimusraportti_id")->references("id")->on("ark_tutkimusraportti");
             $table->foreign("ark_kuva_id")->references("id")->on("ark_kuva");
             $table->foreign('luoja')->references('id')->on('kayttaja');
             $table->foreign('muokkaaja')->references('id')->on('kayttaja');
