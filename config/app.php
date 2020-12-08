@@ -313,6 +313,7 @@ return [
     'kyppi_muinaisjaannos_endpoint' => env('KYPPI_MUINAISJAANNOS_ENDPOINT'),
     'kyppi_haku_maakunnat' => env('KYPPI_HAKU_MAAKUNNAT'),
     'kyppi_haku_kunnat' => env('KYPPI_HAKU_KUNNAT'),
+    'kyppi_admin_email' => env('KYPPI_ADMIN_EMAIL'),
 
     'finna_admin_email' => env('FINNA_ADMIN_EMAIL'),
     'finna_hakumaara' => env('FINNA_HAKUMAARA'),
