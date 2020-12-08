@@ -303,7 +303,7 @@ class KyppiService{
 
             $soapFooter = '</soapenv:Envelope>';
             $xmlRequest = $soapHeader . $soapBody . $soapFooter;
-
+            // Log::debug($xmlRequest);
             // Aika alkaa nyt
             $time_start = microtime(true);
 

@@ -583,6 +583,12 @@ class TutkimusController extends Controller
                     MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
                 }
                 else {
+
+                    // Otetaan talteen alkuperäinen valmis ja julkinen arvot ja jos nämä
+                    // ovat muuttuneet, päivitetään myös löytöjen aikaleimat
+                    $origJulkinen = $tutkimus->julkinen;
+                    $origValmis = $tutkimus->valmis;
+
                     DB::beginTransaction();
                     Utils::setDBUser();
 
@@ -635,6 +641,11 @@ class TutkimusController extends Controller
                             $tarkastus->update();
                         }
 
+                        // Päivitetään löytöjen aikaleima, jotta esimerkiksi Finnan haravointi huomaa muuttuneet
+                        if($origJulkinen != $tutkimus->julkinen || $origValmis != $tutkimus->valmis) {
+                            $loydot = Loyto::getAll()->withTutkimusId($tutkimus->id);
+                            $loydot->update(['muokattu' => \Carbon\Carbon::now(), 'muokkaaja' => -1]);
+                        }
                     } catch(Exception $e) {
                         DB::rollback();
                         throw $e;
@@ -891,7 +902,6 @@ class TutkimusController extends Controller
         foreach($properties->tutkimusalueet as $ta) {
             // Joko piste-sijanti tai alue
             if($ta->sijainti || $ta->sijainti_piste) {
-
                 $s = DB::select(DB::raw("select ST_AsText(ST_transform(ark_tutkimusalue.sijainti_piste, ".Config::get('app.json_srid').")) from ark_tutkimusalue where ark_tutkimusalue.id = :id", ["id" => $ta->id]), [$ta->id]);
                 $splittedGeom = explode('(', $s[0]->st_astext);
 
@@ -920,7 +930,7 @@ class TutkimusController extends Controller
                     $geometry = array('type' => 'Point', 'coordinates' => $coordinates);
                 } else {
                     if(empty($splittedArea[2])){
-                        Log::error('Virheellinen polygon');
+                        Log::error('Virheellinen polygon, ta id: ' . $ta->id);
                         $coordinates = null;
                         $geometry = null;
                     } else{

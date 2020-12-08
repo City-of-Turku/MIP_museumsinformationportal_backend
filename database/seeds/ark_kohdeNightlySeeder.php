@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Log;
 use App\Integrations\KyppiService;
 use App\Ark\Kohde;
 use App\Utils;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Mail;
 
 class ark_kohdeNightlySeeder extends Seeder
 {
@@ -39,7 +41,7 @@ class ark_kohdeNightlySeeder extends Seeder
         $haku = DB::table('ark_kohde_nightly')->orderBy('seuraava_hakupvm', 'desc')->first();
 
         if(empty($haku)){
-            echo 'Tallennettua hakupaivaa ei loytynyt, kaytetaan kuluvaa paivaa.' .PHP_EOL;
+            // echo 'Tallennettua hakupaivaa ei loytynyt, kaytetaan kuluvaa paivaa.' .PHP_EOL;
 
             Log::info('Tallennettua hakupaivaa ei loytynyt, kaytetaan kuluvaa paivaa.');
 
@@ -49,9 +51,9 @@ class ark_kohdeNightlySeeder extends Seeder
         }
 
         // Testi: kovakoodattu pvm
-        //$hakupaiva = '2017-02-02';
+        // $hakupaiva = '2020-11-19';
 
-        echo 'KyppiService: HaeMuinaisjaannoksetSoap(' .$hakupaiva .')' .PHP_EOL;
+        // echo 'KyppiService: HaeMuinaisjaannoksetSoap(' .$hakupaiva .')' .PHP_EOL;
 
         // Aikaa alkaa nyt
         $time_start = microtime(true);
@@ -103,13 +105,24 @@ class ark_kohdeNightlySeeder extends Seeder
                     );
 
                 DB::commit();
-
             } catch (Exception $e) {
-                Log::error('ark_kohdeNightlySeeder exception: ' .$e->getTraceAsString());
+                Log::error('ark_kohdeNightlySeeder exception: ' .$e);
+                throw $e;
             }
 
         } catch (Exception $e) {
-            Log::error('ark_kohdeNightlySeeder exception: ' .$e->getTraceAsString());
+            Log::error('ark_kohdeNightlySeeder exception: ' .$e);
+
+            try {
+                $message_content = "Kohde nightly seeder fail. \n" . $e;
+
+                $mail_sent = Mail::raw($message_content, function($message) {
+                $message->from('mip@mip.fi', 'MIP');
+                $message->to(config('app.kyppi_admin_email'))->subject("MIP / " . App::environment());
+                });
+            } catch (Swift_TransportException $e) {
+                Log::error('Sending mail failed: ' . $e);
+            }
         }
 
         $time_end = microtime(true);
@@ -119,9 +132,9 @@ class ark_kohdeNightlySeeder extends Seeder
         Log::info('ark_kohdeNightlySeeder uusia kohteita: ' .$uusia);
         Log::info('ark_kohdeNightlySeeder paivitettyja kohteita: ' .$paivitettyja);
 
-        echo 'Suoritusaika: '.round($execution_time, 2) .' sec' .PHP_EOL;
-        echo 'Uusia kohteita: ' .$uusia .PHP_EOL;
-        echo 'Paivitettyja kohteita: ' .$paivitettyja .PHP_EOL;
+        // echo 'Suoritusaika: '.round($execution_time, 2) .' sec' .PHP_EOL;
+        // echo 'Uusia kohteita: ' .$uusia .PHP_EOL;
+        // echo 'Paivitettyja kohteita: ' .$paivitettyja .PHP_EOL;
 
     }
 
@@ -162,7 +175,7 @@ class ark_kohdeNightlySeeder extends Seeder
 
                 Log::info('ark_kohdeNightlySeeder tuodaan uusi kohde: ' .$muinaisjaannostunnus);
 
-                echo 'Tuodaan uusi kohde: ' .$muinaisjaannostunnus .PHP_EOL;
+                // echo 'Tuodaan uusi kohde: ' .$muinaisjaannostunnus .PHP_EOL;
 
                 // Lisätään
                 $kyppiService->lisaaTaiPaivitaKohde($muinaisjaannosDom, null, false);
@@ -172,7 +185,7 @@ class ark_kohdeNightlySeeder extends Seeder
                 $uusia++;
 
             }else{
-                echo 'Kohde on jo MIP:ssa, paivitetaan kohteen status: ' .$muinaisjaannostunnus .PHP_EOL;
+                // echo 'Kohde on jo MIP:ssa, paivitetaan kohteen status: ' .$muinaisjaannostunnus .PHP_EOL;
                 Log::info('ark_kohdeNightlySeeder paivitetaan kohteen status: ' .$muinaisjaannostunnus);
 
                 // Päivitetään vain status
