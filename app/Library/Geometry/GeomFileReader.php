@@ -587,8 +587,13 @@ class GeomFileReader {
             $latIndicator = '0';
             $lonIndicator = '1';
             $elevationIndicator = '2';
-            $nameIndicator = '8';
-
+            $minColCount = 4; //X, Y, Z ja Text sarakkeet pitää vähintään olla
+            
+            $data = fgetcsv($handle, 1000, ",");
+            if (count($data) < $minColCount){
+                throw new Exception(Lang::get('tiedosto.invalid_csv_file'));
+            }            
+            $nameIndicator = count($data) - 1;
             while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
                 $data = array_map("utf8_encode", $data); //UTF8 encode - äöå aiheuttaa muuten ongelmia
                 $geo = json_decode('{}');
