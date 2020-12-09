@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-11-18T10:10:15 -->
+<!-- 2020-12-09T08:49:00 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Konservointiraportti_loydolle" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="70f50391-5405-497c-af51-13d2fe4d51e5">
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="net.sf.jasperreports.export.docx.frames.as.nested.tables" value=""/>
 	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
@@ -144,7 +144,7 @@ left join ark_loyto l on l.id = kl.ark_loyto_id
 left join kayttaja k on k.id = ktt.tekija
 where l.id = $P{loytoId}
 AND $X{IN, kl.id::text, kons_toimenpiteetDSArray}
-order by ktt.alkaa ]]>
+order by ktt.alkaa]]>
 		</queryString>
 		<field name="toimenpide_nimi" class="java.lang.String"/>
 		<field name="menetelma_nimi" class="java.lang.String"/>
@@ -427,7 +427,7 @@ and k.poistettu is null]]>
 				<textField isBlankWhenNull="true">
 					<reportElement positionType="FixRelativeToBottom" x="130" y="20" width="250" height="20" uuid="3aa24ab5-120d-4fe4-906f-5ef45b6ab4ce"/>
 					<textElement>
-						<font isBold="false"/>
+						<font isBold="true"/>
 					</textElement>
 					<textFieldExpression><![CDATA[$F{luettelointinumero}]]></textFieldExpression>
 				</textField>
@@ -572,14 +572,14 @@ and k.poistettu is null]]>
 					<textFieldExpression><![CDATA[$F{paino_ennen} + " " + $F{paino_ennen_yksikko}]]></textFieldExpression>
 				</textField>
 				<textField>
-					<reportElement x="40" y="20" width="140" height="20" uuid="4d35d0aa-f554-4a49-bc40-e17e85f8abc6"/>
+					<reportElement x="10" y="20" width="170" height="20" uuid="4d35d0aa-f554-4a49-bc40-e17e85f8abc6"/>
 					<textElement>
 						<font isBold="false"/>
 					</textElement>
 					<textFieldExpression><![CDATA["Paino ennen konservointia:"]]></textFieldExpression>
 				</textField>
 				<textField>
-					<reportElement x="40" y="40" width="140" height="20" uuid="47804403-6ae7-47b6-a363-8c3fde4fc4d6"/>
+					<reportElement x="10" y="40" width="170" height="20" uuid="47804403-6ae7-47b6-a363-8c3fde4fc4d6"/>
 					<textElement>
 						<font isBold="false"/>
 					</textElement>
@@ -595,42 +595,42 @@ and k.poistettu is null]]>
 					<textFieldExpression><![CDATA[$F{paino_jalkeen} + " " + $F{paino_jalkeen_yksikko}]]></textFieldExpression>
 				</textField>
 				<textField>
-					<reportElement x="40" y="60" width="140" height="20" uuid="a3a477c5-e0bb-4088-b08b-5c9adcc5d93a"/>
+					<reportElement x="10" y="60" width="170" height="20" uuid="a3a477c5-e0bb-4088-b08b-5c9adcc5d93a"/>
 					<textElement>
 						<font isBold="false"/>
 					</textElement>
 					<textFieldExpression><![CDATA["Kunto ennen konservointia:"]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="40" y="80" width="510" height="20" isRemoveLineWhenBlank="true" uuid="e68b9ce8-fb41-4f9d-b4b0-147389212e20"/>
+					<reportElement x="10" y="80" width="539" height="20" isRemoveLineWhenBlank="true" uuid="e68b9ce8-fb41-4f9d-b4b0-147389212e20"/>
 					<textElement>
 						<font isBold="false"/>
 					</textElement>
 					<textFieldExpression><![CDATA[$F{kunto}]]></textFieldExpression>
 				</textField>
 				<textField>
-					<reportElement positionType="Float" x="40" y="100" width="140" height="20" uuid="4a413367-f7c8-484f-bd22-c2392e5084e5"/>
+					<reportElement positionType="Float" x="10" y="100" width="170" height="20" uuid="4a413367-f7c8-484f-bd22-c2392e5084e5"/>
 					<textElement>
 						<font isBold="false"/>
 					</textElement>
 					<textFieldExpression><![CDATA["Säilytysolosuhteet: "]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement positionType="Float" x="40" y="120" width="510" height="20" isRemoveLineWhenBlank="true" uuid="a83441d7-1bc3-44da-aaad-d3a37cab7f6b"/>
+					<reportElement positionType="Float" x="10" y="120" width="539" height="20" isRemoveLineWhenBlank="true" uuid="a83441d7-1bc3-44da-aaad-d3a37cab7f6b"/>
 					<textElement>
 						<font isBold="false"/>
 					</textElement>
 					<textFieldExpression><![CDATA[$F{sailytysolosuhteet}]]></textFieldExpression>
 				</textField>
 				<textField>
-					<reportElement positionType="Float" x="40" y="140" width="140" height="20" uuid="694b80df-aa45-4298-bdc4-58bc0b50e229"/>
+					<reportElement positionType="Float" x="10" y="140" width="170" height="20" uuid="694b80df-aa45-4298-bdc4-58bc0b50e229"/>
 					<textElement>
 						<font isBold="false"/>
 					</textElement>
 					<textFieldExpression><![CDATA["Lisätiedot: "]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement positionType="Float" x="40" y="160" width="510" height="20" isRemoveLineWhenBlank="true" uuid="d04b7992-d219-429c-a072-0c161e785ad6"/>
+					<reportElement positionType="Float" x="10" y="160" width="539" height="20" isRemoveLineWhenBlank="true" uuid="d04b7992-d219-429c-a072-0c161e785ad6"/>
 					<textElement>
 						<font isBold="false"/>
 					</textElement>
@@ -647,7 +647,7 @@ and k.poistettu is null]]>
 					<textFieldExpression><![CDATA["Liitteet: "]]></textFieldExpression>
 				</textField>
 				<componentElement>
-					<reportElement x="40" y="20" width="510" height="20" uuid="720e9c5f-816b-41ab-b37d-c256e9fa3061">
+					<reportElement x="10" y="20" width="540" height="20" uuid="720e9c5f-816b-41ab-b37d-c256e9fa3061">
 						<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
 					</reportElement>
 					<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
@@ -660,7 +660,7 @@ and k.poistettu is null]]>
 							</datasetParameter>
 							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 						</datasetRun>
-						<jr:listContents height="20" width="510">
+						<jr:listContents height="20" width="540">
 							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 								<reportElement x="0" y="0" width="510" height="20" uuid="2e433e36-26e2-4959-98e1-644ab416b8d5"/>
 								<textFieldExpression><![CDATA[$F{otsikko} + " - " + $F{kuvaus}]]></textFieldExpression>
