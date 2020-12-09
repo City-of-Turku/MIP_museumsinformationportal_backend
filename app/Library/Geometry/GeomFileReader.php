@@ -587,10 +587,10 @@ class GeomFileReader {
             $latIndicator = '0';
             $lonIndicator = '1';
             $elevationIndicator = '2';
-            $minRowCount = 4; //X, Y, Z ja Text sarakkeet pitää vähintään olla
+            $minColCount = 4; //X, Y, Z ja Text sarakkeet pitää vähintään olla
             
             $data = fgetcsv($handle, 1000, ",");
-            if (count($data) < $minRowCount){
+            if (count($data) < $minColCount){
                 throw new Exception(Lang::get('tiedosto.invalid_csv_file'));
             }            
             $nameIndicator = count($data) - 1;
