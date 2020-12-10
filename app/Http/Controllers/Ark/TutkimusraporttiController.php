@@ -42,8 +42,10 @@ class TutkimusraporttiController extends Controller
 			$entity->save();
 			// Päivitetään myös tutkimuksen tiivistelmä vastaamaan tutkimusraportin tiivistelmää
 			$tutkimus = Tutkimus::getSingle($entity->ark_tutkimus_id)->first();
-			$tutkimus->tiivistelma = $request->all()['properties']['tiivistelma'];
-			$tutkimus->update();
+			if($request->all()['properties']['tiivistelma']) {
+				$tutkimus->tiivistelma = $request->all()['properties']['tiivistelma'];
+				$tutkimus->update();
+			}
 
 			// Kuvalinkkaukset
 			TutkimusraporttiKuva::paivita_kuvat($entity->id, $request->input('properties.kuvat_kansilehti'), 'kansilehti');

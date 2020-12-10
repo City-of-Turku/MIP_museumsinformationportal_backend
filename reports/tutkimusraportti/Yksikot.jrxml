@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-12-04T14:17:27 -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Yksikot" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="435b7430-f0b0-4430-bff1-69f977403d18">
+<!-- 2020-12-09T23:28:06 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Yksikot" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="435b7430-f0b0-4430-bff1-69f977403d18">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
 	<property name="net.sf.jasperreports.print.create.bookmarks" value="false"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
 	<subDataset name="kuvat_yksikko" uuid="2ceecab6-d4e5-47fc-bc2a-8a1b400c0e0a">
 		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
@@ -78,11 +87,11 @@ order by jarjestys]]>
 	<detail>
 		<band height="616" splitType="Stretch">
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="0" y="140" width="554" height="40" isRemoveLineWhenBlank="true" uuid="c225b724-eda2-4609-904a-6c82d42f7ff0"/>
+				<reportElement positionType="Float" x="0" y="140" width="594" height="40" isRemoveLineWhenBlank="true" uuid="c225b724-eda2-4609-904a-6c82d42f7ff0"/>
 				<textFieldExpression><![CDATA[$F{kuvaus}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="0" y="210" width="554" height="50" isRemoveLineWhenBlank="true" uuid="c7369119-3f5c-451d-a51e-998d69e41640"/>
+				<reportElement positionType="Float" x="0" y="210" width="594" height="50" isRemoveLineWhenBlank="true" uuid="c7369119-3f5c-451d-a51e-998d69e41640"/>
 				<textFieldExpression><![CDATA[$F{tulkinta}]]></textFieldExpression>
 			</textField>
 			<textField>
@@ -93,7 +102,7 @@ order by jarjestys]]>
 				<textFieldExpression><![CDATA[$F{yksikkotunnus}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement x="140" y="30" width="414" height="20" isRemoveLineWhenBlank="true" uuid="61c32fc2-0904-46ef-9e65-c01084c76a63"/>
+				<reportElement x="180" y="30" width="414" height="20" isRemoveLineWhenBlank="true" uuid="61c32fc2-0904-46ef-9e65-c01084c76a63"/>
 				<textFieldExpression><![CDATA[$F{paamaalaji}]]></textFieldExpression>
 			</textField>
 			<staticText>
@@ -106,7 +115,7 @@ order by jarjestys]]>
 				<text><![CDATA[Päämaalaji]]></text>
 			</staticText>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="140" y="50" width="414" height="20" isRemoveLineWhenBlank="true" uuid="b676bc58-24d3-44dd-a250-de7153a2aa0f"/>
+				<reportElement positionType="Float" x="180" y="50" width="414" height="20" isRemoveLineWhenBlank="true" uuid="b676bc58-24d3-44dd-a250-de7153a2aa0f"/>
 				<textFieldExpression><![CDATA[$F{paasekoitteet}]]></textFieldExpression>
 			</textField>
 			<staticText>
@@ -119,7 +128,7 @@ order by jarjestys]]>
 				<text><![CDATA[Pääsekoite]]></text>
 			</staticText>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="140" y="70" width="414" height="20" isRemoveLineWhenBlank="true" uuid="7212b272-cd3b-42a2-bc79-32431a452878"/>
+				<reportElement positionType="Float" x="180" y="70" width="414" height="20" isRemoveLineWhenBlank="true" uuid="7212b272-cd3b-42a2-bc79-32431a452878"/>
 				<textFieldExpression><![CDATA[$F{muut_maalajit}]]></textFieldExpression>
 			</textField>
 			<staticText>
@@ -150,7 +159,7 @@ order by jarjestys]]>
 				<text><![CDATA[Tulkinta]]></text>
 			</staticText>
 			<componentElement>
-				<reportElement positionType="Float" x="0" y="260" width="554" height="350" isRemoveLineWhenBlank="true" uuid="dcd52419-764f-470e-b786-8b932b6e2ae1">
+				<reportElement positionType="Float" x="20" y="260" width="554" height="350" isRemoveLineWhenBlank="true" uuid="dcd52419-764f-470e-b786-8b932b6e2ae1">
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					<property name="net.sf.jasperreports.export.headertoolbar.table.name" value=""/>
 				</reportElement>
@@ -186,7 +195,7 @@ order by jarjestys]]>
 				</jr:list>
 			</componentElement>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="140" y="90" width="414" height="20" isRemoveLineWhenBlank="true" uuid="367f0db4-f1fc-4dea-aef1-b91ac03fc52e"/>
+				<reportElement positionType="Float" x="180" y="90" width="414" height="20" isRemoveLineWhenBlank="true" uuid="367f0db4-f1fc-4dea-aef1-b91ac03fc52e"/>
 				<textFieldExpression><![CDATA[$F{ajoitus}]]></textFieldExpression>
 			</textField>
 			<staticText>
@@ -200,9 +209,4 @@ order by jarjestys]]>
 			</staticText>
 		</band>
 	</detail>
-	<pageFooter>
-		<band height="30" splitType="Stretch">
-			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
-		</band>
-	</pageFooter>
 </jasperReport>

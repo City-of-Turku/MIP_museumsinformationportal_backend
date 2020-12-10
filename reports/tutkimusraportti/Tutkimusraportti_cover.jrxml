@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-12-08T23:39:54 -->
+<!-- 2020-12-09T23:42:04 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Wave Cover" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="c50b24eb-eb33-413f-8e75-e7e20a5341fd">
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
 	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
@@ -44,7 +44,7 @@ where tr.id = $P{tutkimusraporttiId}]]>
 	<title>
 		<band height="841" splitType="Stretch">
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="20" y="200" width="557" height="54" isRemoveLineWhenBlank="true" forecolor="#000000" uuid="5bb49d37-ea51-4ca3-a18a-38cb0e66e0ee"/>
+				<reportElement x="19" y="120" width="557" height="54" isRemoveLineWhenBlank="true" forecolor="#000000" uuid="5bb49d37-ea51-4ca3-a18a-38cb0e66e0ee"/>
 				<box leftPadding="20" rightPadding="20"/>
 				<textElement textAlignment="Left">
 					<font size="34"/>
@@ -52,14 +52,14 @@ where tr.id = $P{tutkimusraporttiId}]]>
 				<textFieldExpression><![CDATA[$F{tutkimus_nimi}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="20" y="670" width="557" height="20" isRemoveLineWhenBlank="true" uuid="38fc9afd-edcb-42f3-b6bc-cd258f6507b3"/>
+				<reportElement positionType="Float" x="20" y="652" width="557" height="20" isRemoveLineWhenBlank="true" uuid="38fc9afd-edcb-42f3-b6bc-cd258f6507b3"/>
 				<textElement textAlignment="Left">
 					<font size="12"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{etunimi} + " " + $F{sukunimi}]]></textFieldExpression>
 			</textField>
 			<componentElement>
-				<reportElement positionType="Float" x="20" y="290" width="557" height="316" uuid="a32676d4-4e4b-4b79-a9ab-791ec337dc95">
+				<reportElement x="20" y="240" width="557" height="316" uuid="a32676d4-4e4b-4b79-a9ab-791ec337dc95">
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					<property name="net.sf.jasperreports.export.headertoolbar.table.name" value=""/>
 				</reportElement>
@@ -89,7 +89,7 @@ where tr.id = $P{tutkimusraporttiId}]]>
 				</jr:list>
 			</componentElement>
 			<textField isStretchWithOverflow="true" pattern="yyyy" isBlankWhenNull="true">
-				<reportElement x="20" y="690" width="557" height="20" isRemoveLineWhenBlank="true" uuid="c4685922-b792-4260-bfc5-15c8fdac9292"/>
+				<reportElement x="20" y="683" width="557" height="20" isRemoveLineWhenBlank="true" uuid="c4685922-b792-4260-bfc5-15c8fdac9292"/>
 				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
 			</textField>
 		</band>

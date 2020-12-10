@@ -1,28 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-12-01T14:46:10 -->
+<!-- 2020-12-09T23:35:26 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Havainnot" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="c7fa246a-c218-4a4e-ae0f-c7a326f85204">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
 	<property name="net.sf.jasperreports.print.create.bookmarks" value="true"/>
-	<subDataset name="tutkimusalueet" uuid="48352fca-57b2-467d-821c-04a5aec44525">
-		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
-		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
-		<parameter name="tutkimusraporttiId" class="java.lang.Long"/>
-		<queryString language="SQL">
-			<![CDATA[select ta.id as tutkimusalue_id, ta.nimi, ta.sijaintikuvaus, ta.havainnot as tutkimusalue_havainnot, ta.yhteenveto
-from ark_tutkimusraportti tr
-left join ark_tutkimus t on t.id = tr.ark_tutkimus_id
-left join ark_tutkimusalue ta on ta.ark_tutkimus_id = t.id
-where tr.id = $P{tutkimusraporttiId}
-order by ta.id]]>
-		</queryString>
-		<field name="tutkimusalue_id" class="java.lang.Long"/>
-		<field name="nimi" class="java.lang.String"/>
-		<field name="sijaintikuvaus" class="java.lang.String"/>
-		<field name="tutkimusalue_havainnot" class="java.lang.String"/>
-		<field name="yhteenveto" class="java.lang.String"/>
-	</subDataset>
 	<subDataset name="kuvat_havainnot" uuid="e672699f-76cf-4257-ac21-9e3bf26f861c">
 		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
@@ -50,12 +32,13 @@ and atk.kappale = 'havainnot']]>
 	<parameter name="tutkimusraporttiId" class="java.lang.Long"/>
 	<parameter name="MIP_BACKEND_URL" class="java.lang.String"/>
 	<queryString language="SQL">
-		<![CDATA[select tr.havainnot as tutkimus_havainnot
+		<![CDATA[select tr.havainnot as tutkimus_havainnot, t.id as tutkimus_id
 from ark_tutkimusraportti tr
 left join ark_tutkimus t on t.id = tr.ark_tutkimus_id
 where tr.id = $P{tutkimusraporttiId}]]>
 	</queryString>
 	<field name="tutkimus_havainnot" class="java.lang.String"/>
+	<field name="tutkimus_id" class="java.lang.Long"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
@@ -107,15 +90,15 @@ where tr.id = $P{tutkimusraporttiId}]]>
 		</band>
 	</pageHeader>
 	<detail>
-		<band height="486" splitType="Stretch">
+		<band height="458" splitType="Stretch">
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement x="0" y="0" width="554" height="100" isRemoveLineWhenBlank="true" uuid="37f6faff-f4b8-4e1a-b8fd-1eb18eb35129"/>
+				<reportElement x="0" y="0" width="554" height="30" isRemoveLineWhenBlank="true" uuid="37f6faff-f4b8-4e1a-b8fd-1eb18eb35129"/>
 				<textFieldExpression><![CDATA[$F{tutkimus_havainnot}]]></textFieldExpression>
 			</textField>
 			<subreport>
-				<reportElement positionType="Float" x="-20" y="100" width="595" height="30" uuid="35f4a738-c843-484c-a1f0-7a5edf2a2b45"/>
-				<subreportParameter name="tutkimusraporttiId">
-					<subreportParameterExpression><![CDATA[$P{tutkimusraporttiId}]]></subreportParameterExpression>
+				<reportElement positionType="Float" x="0" y="40" width="554" height="50" uuid="35f4a738-c843-484c-a1f0-7a5edf2a2b45"/>
+				<subreportParameter name="tutkimusId">
+					<subreportParameterExpression><![CDATA[$F{tutkimus_id}]]></subreportParameterExpression>
 				</subreportParameter>
 				<subreportParameter name="MIP_BACKEND_URL">
 					<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
@@ -124,7 +107,7 @@ where tr.id = $P{tutkimusraporttiId}]]>
 				<subreportExpression><![CDATA["Tutkimusalueet.jasper"]]></subreportExpression>
 			</subreport>
 			<componentElement>
-				<reportElement positionType="Float" x="0" y="130" width="554" height="350" isRemoveLineWhenBlank="true" uuid="f1616249-91ea-4d4a-a356-e989a97392c7">
+				<reportElement positionType="Float" x="0" y="100" width="554" height="350" isRemoveLineWhenBlank="true" uuid="f1616249-91ea-4d4a-a356-e989a97392c7">
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					<property name="net.sf.jasperreports.export.headertoolbar.table.name" value=""/>
 				</reportElement>
