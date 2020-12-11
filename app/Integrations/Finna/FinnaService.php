@@ -2,6 +2,7 @@
 
 namespace App\Integrations\Finna;
 
+use App\Ark\ArkFinnaLog;
 use App\Utils;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\File;
@@ -11,7 +12,6 @@ use App\Ark\Loyto;
 use App\Ark\ArkKuva;
 use App\Ark\Kohde;
 use App\Ark\KohdeTutkimus;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Integraatio Museoviraston muinaisjäännösrekisterin rajapintapalveluun.
@@ -148,6 +148,8 @@ class FinnaService
 			$writer->startElement('record');
 			$this->writeRecordElement($writer, $loyto, 'ListRecords');
 			$writer->endElement();
+
+			$finnaLog = ArkFinnaLog::updateOrCreate(['ark_loyto_id' => $loyto['id']], ['siirto_pvm' => Carbon::now()]);
 		}
 		if ($isIncomplete) {
 			$this->setCursor($this->cursor + $this->HAKUMAARA);
@@ -315,6 +317,18 @@ class FinnaService
 		if ($loyto['loydon_tila_id'] && $loyto['loydon_tila_id']  == 9) {
 			return true;
 		}
+
+		// Löydon tutkimus ei ole julkinen ja valmis
+		if ($loyto['tutkimus']['julkinen'] != true || $loyto['tutkimus']['valmis'] != true) {
+			return true;
+		}
+
+		// Löydön siirtyy_finnaa on false
+		if ($loyto['siirtyy_finnaan'] == false) {
+			return true;
+		}
+
+		// TODO Vaatiiko jotain logiikkaa, jotta aina ei poistettu siirry uudelleen???
 
 		return false;
 	}
@@ -779,12 +793,7 @@ class FinnaService
 	// Kunta, kohteen nimi, tutkimuksen nimi
 	private static function getSubjectPlace($loyto)
 	{
-		$tutkimus = null;
-		if ($loyto['tutkimusalue']) {
-			$tutkimus = $loyto['tutkimusalue']['tutkimus'];
-		} else if ($loyto['yksikko']) {
-			$tutkimus = $loyto['yksikko']['tutkimusalue']['tutkimus'];
-		}
+		$tutkimus = $loyto['tutkimus'];
 
 		$kuntanimi = null;
 		if (isset($tutkimus['kunnat_kylat']) && sizeof($tutkimus['kunnat_kylat']) > 0 && $tutkimus['kunnat_kylat'][0]['kunta']['nimi']) {
@@ -1044,81 +1053,79 @@ class FinnaService
 	}
 
 
-	// Tietueiden haku. Metodi itsessään pitää huolen siitä, että ainoastaan valmiisiin
-	// ja julkisiin tutkimuksiin liittyvät löydöt päätyvät siirron piiriin
+	// Tietueiden haku
 	private function getLoydot($from = null, $until = null)
 	{
-		if(!FinnaUtils::validateUserRoleIsKatselija()) {
-			Log::channel('finna')->info("Invalid FINNA user role");
-			throw new Exception("Invalid user role");
-		}
-
-		$loydot = Loyto::getAll()->with(array(
-			'yksikko',
-			'yksikko.tutkimusalue.tutkimus.loytoKokoelmalaji',
-			'materiaalikoodi',
-			'ensisijainenMateriaali',
-			'materiaalit', // hakee välitaulun avulla muut löydön materiaalit
-			'loytotyyppi',
-			'loytotyyppiTarkenteet',
-			//'merkinnat',
-			'loydonAsiasanat',
-			//'loydonTila',
-			'luoja',
-			'muokkaaja',
-			//'luettelointinrohistoria',
-			'tutkimusalue.tutkimus', //IRTOLÖYTÖ tai tarkastus
-			//'sailytystila',
-			'yksikko.tutkimusalue.tutkimus.kohde',
-			'tutkimusalue.tutkimus.kohde'
-		));
-
-		$loydot->withDate($from, $until);
-		$loydot->withSiirtyyFinnaan(true);
-
+		$loydot = Loyto::getAllForFinna()
+			->withDate($from, $until)
+			->with(array(
+				'yksikko.tutkimusalue.tutkimus.loytoKokoelmalaji',
+				'yksikko.tutkimusalue.tutkimus.kohde',
+				'yksikko.tutkimusalue.tutkimus.kunnatKylat.kunta',
+				'materiaalikoodi',
+				'ensisijainenMateriaali',
+				'materiaalit', // hakee välitaulun avulla muut löydön materiaalit
+				'loytotyyppi',
+				'loytotyyppiTarkenteet',
+				'merkinnat',
+				'loydonAsiasanat',
+				'tutkimusalue.tutkimus.kohde', //IRTOLÖYTÖ tai tarkastus
+				'tutkimusalue.tutkimus.kunnatKylat.kunta',
+				'finnaLog' => function ($q) {
+					$q->orderBy('id', 'desc')->first();
+				}
+			))->distinct();
 		// Rivien määrän laskenta resumptionTokenia varten
 		$this->completeListSize = Utils::getCount($loydot);
 
 		Log::channel('finna')->info("Cursor position: " . $this->cursor);
-		// Rivimäärien rajoitus parametrien mukaan
-		$loydot->withLimit($this->cursor, $this->HAKUMAARA + 1);
 
-		// Sorttaus
-		$loydot->orderBy('ark_loyto.id', 'asc');
+		$loydot = $loydot->withLimit($this->cursor, $this->HAKUMAARA + 1)->orderBy('ark_loyto.id', 'asc');
+		// Sorttaus ja haku
+		$loydot = $loydot->orderBy('ark_loyto.id', 'asc')->get();
 
-		// suorita query
-		$loydot = $loydot->get()->toArray(); // Ilman toArray() relaatiot jäävät tyhjäksi (WTF?)
-		return $loydot;
+		// Asetetaan tutkimus siten, että se löytyy suoraan löydöltä
+		foreach ($loydot as $loyto) {
+			if ($loyto->yksikko == null) {
+				$loyto->tutkimus = $loyto->tutkimusalue->tutkimus;
+				unset($loyto->yksikko);
+			} else if ($loyto->tutkimusalue == null) {
+				$loyto->tutkimus = $loyto->yksikko->tutkimusalue->tutkimus;
+				unset($loyto->tutkimusalue);
+			}
+		}
+		// Palautetaan array, jostain syystä relaatiot jäävät palauttamatta muutoin.
+		return $loydot->toArray();
 	}
+
 	private function getLoyto($id)
 	{
-		if(!FinnaUtils::validateUserRoleIsKatselija()) {
-			Log::channel('finna')->info("Invalid FINNA user role");
-			throw new Exception("Invalid user role");
-		}
-
 		$loyto = Loyto::getSingle($id)->with(array(
-			'yksikko',
 			'yksikko.tutkimusalue.tutkimus.loytoKokoelmalaji',
+			'yksikko.tutkimusalue.tutkimus.kunnatKylat.kunta',
+			'yksikko.tutkimusalue.tutkimus.kohde',
 			'materiaalikoodi',
 			'ensisijainenMateriaali',
 			'materiaalit', // hakee välitaulun avulla muut löydön materiaalit
 			'loytotyyppi',
 			'loytotyyppiTarkenteet',
-			//'merkinnat',
+			'merkinnat',
 			'loydonAsiasanat',
-			'loydonTila',
-			'luoja',
-			'muokkaaja',
-			//'luettelointinrohistoria',
-			'tutkimusalue.tutkimus', //IRTOLÖYTÖ tai tarkastus
-			//'sailytystila',
-			'yksikko.tutkimusalue.tutkimus.kunnatKylat.kunta',
+			'tutkimusalue.tutkimus.kohde', // IRTOLÖYTÖ tai tarkastus
 			'tutkimusalue.tutkimus.kunnatKylat.kunta'
 		));
 
-		$loyto = $loyto->first()->toArray();
-		return $loyto;
+		// Asetetaan tutkimus siten, että se löytyy suoraan löydöltä
+		$loyto = $loyto->first();
+		if ($loyto->yksikko == null) {
+			$loyto->tutkimus = $loyto->tutkimusalue->tutkimus;
+			unset($loyto->yksikko);
+		} else if ($loyto->tutkimusalue == null) {
+			$loyto->tutkimus = $loyto->yksikko->tutkimusalue->tutkimus;
+			unset($loyto->tutkimusalue);
+		}
+		// Palautetaan array, jostain syystä relaatiot jäävät palauttamatta muutoin.
+		return $loyto->toArray();
 	}
 
 	private static function getKohde($tutkimusId)

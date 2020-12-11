@@ -76,7 +76,7 @@
           <ogc:Filter>
             <ogc:PropertyIsEqualTo>
               <ogc:PropertyName>tutkimuslaji</ogc:PropertyName>
-              <ogc:Literal>Kaivaus</ogc:Literal>
+              <ogc:Literal>Koekaivaus</ogc:Literal>
             </ogc:PropertyIsEqualTo>
           </ogc:Filter>
           <PointSymbolizer>
