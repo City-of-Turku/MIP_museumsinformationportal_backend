@@ -1094,7 +1094,7 @@ class FinnaService
 				unset($loyto->tutkimusalue);
 			}
 		}
-		// Palautetaan array, jostasin syystä relaatiot jäävät palauttamatta muutoin.
+		// Palautetaan array, jostain syystä relaatiot jäävät palauttamatta muutoin.
 		return $loydot->toArray();
 	}
 
@@ -1124,7 +1124,7 @@ class FinnaService
 			$loyto->tutkimus = $loyto->yksikko->tutkimusalue->tutkimus;
 			unset($loyto->tutkimusalue);
 		}
-		// Palautetaan array, jostasin syystä relaatiot jäävät palauttamatta muutoin.
+		// Palautetaan array, jostain syystä relaatiot jäävät palauttamatta muutoin.
 		return $loyto->toArray();
 	}
 
