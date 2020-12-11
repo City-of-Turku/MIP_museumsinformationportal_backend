@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-11-25T22:31:23 -->
+<!-- 2020-12-11T10:56:21 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Kuntoraportti" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="70f50391-5405-497c-af51-13d2fe4d51e5">
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="qa"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="net.sf.jasperreports.export.docx.frames.as.nested.tables" value=""/>
 	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
@@ -188,7 +188,8 @@ order by id]]>
 				where alt3.nimi_fi like 'Lainassa'
 	            order by alt.id desc
 	        ) tila_tapahtuma on (tila_tapahtuma.lid = l.id)
-		    where kr.id = $P{kuntoraporttiId}]]>
+		    where kr.id = $P{kuntoraporttiId}
+		    limit 1]]>
 	</queryString>
 	<field name="kohteen_lisakuvaus" class="java.lang.String"/>
 	<field name="loydon_kunto" class="java.lang.String"/>
@@ -341,7 +342,7 @@ order by id]]>
 						<textElement>
 							<font isBold="true"/>
 						</textElement>
-						<textFieldExpression><![CDATA[$F{esineen_nimi}]]></textFieldExpression>
+						<textFieldExpression><![CDATA[$F{tyyppi} + ", " + $F{esineen_nimi}]]></textFieldExpression>
 					</textField>
 				</frame>
 				<frame>
@@ -575,7 +576,7 @@ order by id]]>
 					<reportElement key="" x="130" y="40" width="424" height="20" isRemoveLineWhenBlank="true" uuid="e1582bdc-ffe6-4f17-ab6b-3007be12099f">
 						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
-						<printWhenExpression><![CDATA[$F{muut_mitat} != null ]]></printWhenExpression>
+						<printWhenExpression><![CDATA[$F{muut_mitat} != null]]></printWhenExpression>
 					</reportElement>
 					<textFieldExpression><![CDATA[$F{muut_mitat}]]></textFieldExpression>
 				</textField>
