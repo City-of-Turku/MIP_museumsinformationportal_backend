@@ -20,14 +20,15 @@ k.peruskarttanimi,
 k.peruskarttanumero,
 sijainti.sijainti,
 sijainti.tuhoutunut,
-geometrytype(sijainti) as sijainti_tyyppi
+geometrytype(sijainti) as sijainti_tyyppi,
+on_alakohde
 from ark_kohde k
 left join (
-    select ak.id as kohde_id, aks.sijainti as sijainti, aks.tuhoutunut as tuhoutunut, geometrytype(sijainti) as sijainti_tyyppi
+    select ak.id as kohde_id, aks.sijainti as sijainti, aks.tuhoutunut as tuhoutunut, geometrytype(sijainti) as sijainti_tyyppi, false as on_alakohde
     from ark_kohde ak
     left join ark_kohde_sijainti aks on aks.kohde_id = ak.id
     union
-    select aka.ark_kohde_id as kohde_id, aas.sijainti as sijainti, false as tuhoutunut, geometrytype(sijainti) as sijainti_tyyppi
+    select aka.ark_kohde_id as kohde_id, aas.sijainti as sijainti, false as tuhoutunut, geometrytype(sijainti) as sijainti_tyyppi, true as on_alakohde
     from ark_kohde_alakohde aka
     left join ark_alakohde_sijainti aas on aas.ark_kohde_alakohde_id = aka.id
 ) sijainti on (sijainti.kohde_id = k.id)
