@@ -570,6 +570,15 @@ class FinnaService
 			}
 		}
 
+		// Trim the whitespaces and dots and add single dot.
+		$newKuvaus = trim($newKuvaus, ". ");
+		$newKuvaus .= ".";
+
+		// Trimmataan myös mahdolliset peräkkäiset pisteet ja peräkkäiset välilyönnit tekstin keskeltä.
+		// Ei poista yksittäisiä välilyöntejä tai pisteitä.
+		$newKuvaus = preg_replace('/\.{2,}/', "", $newKuvaus);
+		$newKuvaus = preg_replace('/ {2,}/', "", $newKuvaus);
+
 		return $newKuvaus;
 	}
 
@@ -626,6 +635,10 @@ class FinnaService
 		if ($loyto['muut_mitat']) {
 			$text .= 'Muut mitat: ' . $loyto['muut_mitat'];
 		}
+
+		// Trimmataan lopusta turhat välimerkit ja lisätään piste.
+		$text = trim($text, "., ");
+		$text .= ".";
 
 		$writer->startElement('lido:displayObjectMeasurements');
 		$writer->text($text);
@@ -716,7 +729,8 @@ class FinnaService
 			$ajoitusText .= $loyto['ajoituksen_perusteet'];
 		}
 		// Trimmataan lopusta tyhjät välimerkit pois - tämä aiheuttaa ongelman Finnan päässä
-		$ajoitusText = trim($ajoitusText);
+		$ajoitusText = trim($ajoitusText, "., ");
+		$ajoitusText .= ".";
 
 		$writer->startElement('lido:eventWrap');
 		$writer->startElement('lido:eventSet');
