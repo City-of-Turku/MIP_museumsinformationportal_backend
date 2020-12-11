@@ -56,7 +56,7 @@ class FinnaController extends Controller {
             }
         } catch(Exception $e) {
             $requestDateTime = Carbon::now();
-            Log::channel('finna')->error("OAI-PMH error. Request: " . $request->fullUrl() . "\n" . $e->getTraceAsString());
+            Log::channel('finna')->error("OAI-PMH error. Request: " . $request->fullUrl() . "\n" . $e);
             return response('Server error. Please contact support (' . $finnaService->ADMINEMAIL. '). Request timestamp: ' . $requestDateTime , 500);
         }
 

@@ -8,6 +8,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Ark\TutkimusalueYksikko;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Löydön model
@@ -96,6 +97,32 @@ class Loyto extends Model
                             end::int as luettelointinumero3");
         }
 
+    }
+
+    /*
+     * Haetaan löydöt jotka kuuluvat
+     *  tutkimuksiin jotka ovat
+     *      julkisia ja valmiita
+     *  ja joiden
+     *      'siirtyy_finnaan' on true
+     *  tai jotka
+     *      on jo aikaisemmin siirretty finnaan
+     */
+    public static function getAllForFinna() {
+        return self::select("ark_loyto.*")
+        ->leftjoin('ark_tutkimusalue_yksikko', 'ark_loyto.ark_tutkimusalue_yksikko_id', '=', 'ark_tutkimusalue_yksikko.id')
+        ->join('ark_tutkimusalue', function($join) { //Joinitaan mukaan irtolöytötutkimukset myös, suoraan löytö->tutkimusalue->
+            $join->on('ark_tutkimusalue_yksikko.ark_tutkimusalue_id', '=', 'ark_tutkimusalue.id')
+            ->orOn('ark_loyto.ark_tutkimusalue_id', '=', 'ark_tutkimusalue.id');
+        })
+        ->join('ark_tutkimus', 'ark_tutkimusalue.ark_tutkimus_id', '=', 'ark_tutkimus.id')
+        ->where(function($q) {
+            $q->whereExists(function($q) {
+                 // haetaan mukaan löydöt jotka on jo aikaisemmin siirtynyt finnaan, jotta ne voidaan asettaa poistetuiksi (jos ne on poistettu ensimmäisen siirron jälkeen)
+                $q->select(DB::raw(1))->from('finna_log')->whereColumn('finna_log.ark_loyto_id', 'ark_loyto.id');
+                // sekä otetaan mukaan muutoin ainoastaan valmiiden ja julkisten tutkimusten löydöt, joiden siirtyy_finnaan on true
+            })->orWhere('ark_tutkimus.valmis', '=', true)->where('ark_tutkimus.julkinen', '=', true)->where('ark_loyto.siirtyy_finnaan', '=', true);
+        });
     }
 
     /**
@@ -536,6 +563,11 @@ class Loyto extends Model
 
     public function files() {
         return $this->belongsToMany('App\Ark\ArkTiedosto', 'ark_tiedosto_loyto', 'ark_loyto_id');
+    }
+
+
+    public function finnaLog() {
+        return $this->hasOne('App\Ark\ArkFinnaLog', 'ark_loyto_id', 'id');
     }
 
 }
