@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
+<!-- 2020-12-15T00:16:11 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Havainnot" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="c7fa246a-c218-4a4e-ae0f-c7a326f85204">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
+	<property name="net.sf.jasperreports.print.create.bookmarks" value="true"/>
+	<subDataset name="kuvat_havainnot" uuid="e672699f-76cf-4257-ac21-9e3bf26f861c">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
+		<parameter name="MIP_BACKEND_URL" class="java.lang.String"/>
+		<parameter name="tutkimusraporttiId" class="java.lang.Long"/>
+		<queryString language="SQL">
+			<![CDATA[select k.id, 
+    coalesce(k.luettelointinumero, k.otsikko, '') as otsake,
+    coalesce(k.kuvaus, '') as kuvaus,
+    coalesce(coalesce(k.kuvauspvm, null)::text, '') as kuvauspvm,
+    coalesce(k.kuvaaja, '') as kuvaaja
+from ark_kuva k
+left join ark_tutkimusraportti_kuva atk on atk.ark_kuva_id = k.id
+left join ark_tutkimusraportti tr on tr.id = atk.ark_tutkimusraportti_id 
+where tr.id = $P{tutkimusraporttiId}
+and k.poistettu is null
+and atk.kappale = 'havainnot']]>
+		</queryString>
+		<field name="id" class="java.lang.Long"/>
+		<field name="otsake" class="java.lang.String"/>
+		<field name="kuvaus" class="java.lang.String"/>
+		<field name="kuvauspvm" class="java.lang.String"/>
+		<field name="kuvaaja" class="java.lang.String"/>
+	</subDataset>
+	<parameter name="tutkimusraporttiId" class="java.lang.Long"/>
+	<parameter name="MIP_BACKEND_URL" class="java.lang.String"/>
+	<parameter name="MIP_MAPSERVER_URL" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[select 
+tr.havainnot as tutkimus_havainnot, 
+t.id as tutkimus_id, 
+uudet_ei_tyhjat.kohteet_id as uudet_ei_tyhjat_kohteet,
+tunnetut_ei_tyhjat.kohteet_id as tunnetut_ei_tyhjat_kohteet,
+uudet_tyhjat.kohteet_id as uudet_tyhjat_kohteet,
+tunnetut_tyhjat.kohteet_id as tunnetut_tyhjat_kohteet
+from ark_tutkimusraportti tr
+left join ark_tutkimus t on t.id = tr.ark_tutkimus_id
+-- uudet = mjtunnus ei ole, tyhja = false tai null
+left join (
+    select string_agg(k.id::text,',') as kohteet_id, atik.ark_tutkimus_id
+    from ark_kohde k
+    left join ark_tutkimus_inv_kohteet atik on atik.ark_kohde_id = k.id
+    where k.muinaisjaannostunnus is null and (k.tyhja = false or k.tyhja = null)
+    group by ark_tutkimus_id
+) uudet_ei_tyhjat on uudet_ei_tyhjat.ark_tutkimus_id = t.id
+-- tunnetut = mjtunnus on, tyhja = false tai null
+left join (
+    select string_agg(k.id::text,',') as kohteet_id, atik.ark_tutkimus_id
+    from ark_kohde k
+    left join ark_tutkimus_inv_kohteet atik on atik.ark_kohde_id = k.id
+    where k.muinaisjaannostunnus is not null and (k.tyhja = false or k.tyhja = null)
+    group by ark_tutkimus_id
+) tunnetut_ei_tyhjat on tunnetut_ei_tyhjat.ark_tutkimus_id = t.id
+-- uudet = mjtunnus ei ole, tyhja = true
+left join (
+    select string_agg(k.id::text,',') as kohteet_id, atik.ark_tutkimus_id
+    from ark_kohde k
+    left join ark_tutkimus_inv_kohteet atik on atik.ark_kohde_id = k.id
+    where k.muinaisjaannostunnus is null and k.tyhja = true 
+    group by ark_tutkimus_id
+) uudet_tyhjat on uudet_tyhjat.ark_tutkimus_id = t.id
+-- tunnetut = mjtunnus on, tyhja = true
+left join (
+    select string_agg(k.id::text,',') as kohteet_id, atik.ark_tutkimus_id
+    from ark_kohde k
+    left join ark_tutkimus_inv_kohteet atik on atik.ark_kohde_id = k.id
+    where k.muinaisjaannostunnus is not null and k.tyhja = true 
+    group by ark_tutkimus_id
+) tunnetut_tyhjat on tunnetut_tyhjat.ark_tutkimus_id = t.id
+where tr.id = $P{tutkimusraporttiId}]]>
+	</queryString>
+	<field name="tutkimus_havainnot" class="java.lang.String"/>
+	<field name="tutkimus_id" class="java.lang.Long"/>
+	<field name="uudet_ei_tyhjat_kohteet" class="java.lang.String"/>
+	<field name="tunnetut_ei_tyhjat_kohteet" class="java.lang.String"/>
+	<field name="uudet_tyhjat_kohteet" class="java.lang.String"/>
+	<field name="tunnetut_tyhjat_kohteet" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="31" splitType="Stretch">
+			<textField bookmarkLevel="1">
+				<reportElement x="0" y="0" width="480" height="30" uuid="ace0f768-4c38-41b4-b218-fdfd5744d80b"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["3. Havainnot"]]></textFieldExpression>
+				<anchorNameExpression><![CDATA["3. Havainnot"]]></anchorNameExpression>
+			</textField>
+			<textField evaluationTime="Master">
+				<reportElement x="510" y="0" width="44" height="30" uuid="183e0536-2e9f-4863-9ede-da3fed360cce">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER} == 1l]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Left"/>
+				<textFieldExpression><![CDATA[" / " + $V{MASTER_TOTAL_PAGES}]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Master">
+				<reportElement x="480" y="0" width="30" height="30" uuid="f830ae43-b4e5-4b23-a7bc-8f8f4f2590e4">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER} == 1l]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$V{MASTER_CURRENT_PAGE}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="30" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<textField evaluationTime="Master" isBlankWhenNull="true">
+				<reportElement x="510" y="0" width="44" height="30" isRemoveLineWhenBlank="true" uuid="2f2cf3bb-3983-4b37-8ee0-a48157d2a06e">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER} != 1l]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Left"/>
+				<textFieldExpression><![CDATA[" / " + $V{MASTER_TOTAL_PAGES}]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Master" isBlankWhenNull="true">
+				<reportElement x="480" y="0" width="30" height="30" isRemoveLineWhenBlank="true" uuid="9b99ab2d-827d-4a87-9746-fe800451127e">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER} != 1l]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$V{MASTER_CURRENT_PAGE}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<detail>
+		<band height="710" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="0" y="0" width="554" height="30" isRemoveLineWhenBlank="true" uuid="37f6faff-f4b8-4e1a-b8fd-1eb18eb35129"/>
+				<textFieldExpression><![CDATA[$F{tutkimus_havainnot}]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement positionType="Float" x="0" y="360" width="554" height="350" isRemoveLineWhenBlank="true" uuid="f1616249-91ea-4d4a-a356-e989a97392c7">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="net.sf.jasperreports.export.headertoolbar.table.name" value=""/>
+				</reportElement>
+				<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
+					<datasetRun subDataset="kuvat_havainnot" uuid="cebdac83-ea09-4503-abdd-6a4e74a2beaa">
+						<datasetParameter name="MIP_BACKEND_URL">
+							<datasetParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="tutkimusraporttiId">
+							<datasetParameterExpression><![CDATA[$P{tutkimusraporttiId}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:listContents height="350" width="554">
+						<image hAlign="Center" vAlign="Middle" onErrorType="Blank">
+							<reportElement x="0" y="0" width="554" height="316" uuid="d8d800b2-7d8a-446d-81b7-9188c08c63dd"/>
+							<box>
+								<pen lineColor="#E3E3E3"/>
+								<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<imageExpression><![CDATA[$P{MIP_BACKEND_URL} + "/raportti/ark_kuva/"+$F{id}+"/pieni"]]></imageExpression>
+						</image>
+						<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+							<reportElement x="0" y="316" width="554" height="30" isRemoveLineWhenBlank="true" uuid="504943fe-077e-4ef6-b708-c3e6ea2b16d3">
+								<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+							</reportElement>
+							<textFieldExpression><![CDATA[$F{otsake} + ". " + $F{kuvaus} + "\n" + $F{kuvaaja} + ", " + $F{kuvauspvm}]]></textFieldExpression>
+						</textField>
+					</jr:listContents>
+				</jr:list>
+			</componentElement>
+			<frame>
+				<reportElement x="0" y="30" width="554" height="80" uuid="97abad99-bf66-4304-b544-60b3bfe1f023"/>
+				<textField bookmarkLevel="2">
+					<reportElement positionType="Float" x="0" y="0" width="554" height="30" uuid="10d98679-efa6-49ea-ac94-7138b3aaa79c">
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					</reportElement>
+					<textElement>
+						<font size="12" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["3.1. Aiemmin tunnetut arkeologiset kohteet"]]></textFieldExpression>
+					<anchorNameExpression><![CDATA["Aiemmin tunnetut arkeologiset kohteet"]]></anchorNameExpression>
+				</textField>
+				<subreport>
+					<reportElement positionType="Float" x="0" y="30" width="554" height="50" uuid="35f4a738-c843-484c-a1f0-7a5edf2a2b45">
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					</reportElement>
+					<subreportParameter name="MIP_BACKEND_URL">
+						<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="kohdeIdt">
+						<subreportParameterExpression><![CDATA[$F{tunnetut_ei_tyhjat_kohteet}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="MIP_MAPSERVER_URL">
+						<subreportParameterExpression><![CDATA[$P{MIP_MAPSERVER_URL}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA["Kohteet.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement positionType="Float" x="0" y="110" width="554" height="50" uuid="bed3a8d6-bf59-4d49-8d7d-04f4d56a79d8">
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					</reportElement>
+					<subreportParameter name="MIP_BACKEND_URL">
+						<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="kohdeIdt">
+						<subreportParameterExpression><![CDATA[$F{tunnetut_tyhjat_kohteet}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="MIP_MAPSERVER_URL">
+						<subreportParameterExpression><![CDATA[$P{MIP_MAPSERVER_URL}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA["Kohteet.jasper"]]></subreportExpression>
+				</subreport>
+				<textField bookmarkLevel="2">
+					<reportElement positionType="Float" x="0" y="80" width="554" height="30" uuid="93348881-b7fe-46c7-9ec2-1f9bae6194e9"/>
+					<textElement>
+						<font size="12" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["3.2. Aiemmin tunnetut muut kuin arkeologiset kohteet"]]></textFieldExpression>
+					<anchorNameExpression><![CDATA["Aiemmin tunnetut muut kuin arkeologiset kohteet"]]></anchorNameExpression>
+				</textField>
+				<subreport>
+					<reportElement positionType="Float" x="0" y="190" width="554" height="50" uuid="4f2c796a-d879-4fd5-8328-d81f564d4417">
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					</reportElement>
+					<subreportParameter name="MIP_BACKEND_URL">
+						<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="kohdeIdt">
+						<subreportParameterExpression><![CDATA[$F{uudet_ei_tyhjat_kohteet}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="MIP_MAPSERVER_URL">
+						<subreportParameterExpression><![CDATA[$P{MIP_MAPSERVER_URL}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA["Kohteet.jasper"]]></subreportExpression>
+				</subreport>
+				<textField bookmarkLevel="2">
+					<reportElement positionType="Float" x="0" y="160" width="554" height="30" uuid="1e47659b-781d-4efa-aae4-27a94e143501"/>
+					<textElement>
+						<font size="12" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["3.3. Uudet arkeologiset kohteet"]]></textFieldExpression>
+					<anchorNameExpression><![CDATA["Uudet arkeologiset kohteet"]]></anchorNameExpression>
+				</textField>
+				<textField bookmarkLevel="2">
+					<reportElement positionType="Float" x="0" y="240" width="554" height="30" uuid="1163afc3-63c8-423e-a2c9-8743092c647f"/>
+					<textElement>
+						<font size="12" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["3.4. Uudet muut kuin arkeologiset kohteet"]]></textFieldExpression>
+					<anchorNameExpression><![CDATA["Uudet muut kuin arkeologiset kohteet"]]></anchorNameExpression>
+				</textField>
+				<subreport>
+					<reportElement positionType="Float" x="0" y="270" width="554" height="50" uuid="91cb2f73-a9dc-4367-aa14-f094821a72ca">
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					</reportElement>
+					<subreportParameter name="MIP_BACKEND_URL">
+						<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="kohdeIdt">
+						<subreportParameterExpression><![CDATA[$F{uudet_tyhjat_kohteet}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="MIP_MAPSERVER_URL">
+						<subreportParameterExpression><![CDATA[$P{MIP_MAPSERVER_URL}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA["Kohteet.jasper"]]></subreportExpression>
+				</subreport>
+			</frame>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="30" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+		</band>
+	</pageFooter>
+</jasperReport>

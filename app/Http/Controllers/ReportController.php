@@ -180,6 +180,16 @@ class ReportController extends Controller {
 				break;
 				case 'Tutkimusraportti':
 					$parameters = ReportServer::generateTutkimusraporttiParameters($request->parameters);
+					if($request->parameters['laji'] == 'inventointitutkimus') {
+						$tyyppi = 'Inventointitutkimusraportti';
+					} else if($request->parameters['laji'] == 'koekaivaus-kaivaus-konekaivuun_valvonta') {
+						$tyyppi = 'Tutkimusraportti';
+					} else {
+						MipJson::setGeoJsonFeature();
+						MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+						MipJson::addMessage(Lang::get('Invalid report type'));
+						return MipJson::getJson();
+					}
 					break;
 			default:
 				MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -204,6 +214,8 @@ class ReportController extends Controller {
 		);
 
 		$rr = json_encode($rr);
+
+		//Log::debug($rr);
 
 		$res = $client->request("POST", $url, [
 				'http_errors' => false,
