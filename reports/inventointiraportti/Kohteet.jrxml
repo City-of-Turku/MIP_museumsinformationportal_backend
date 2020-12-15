@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-12-15T23:36:11 -->
+<!-- 2020-12-16T00:01:06 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Kohteet" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="46fb868b-ad4e-4b5e-bfc1-29f32a3381f3">
 	<property name="net.sf.jasperreports.print.create.bookmarks" value="true"/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
@@ -295,7 +295,7 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 		<variableExpression><![CDATA[null]]></variableExpression>
 	</variable>
 	<detail>
-		<band height="750" splitType="Stretch">
+		<band height="331" splitType="Stretch">
 			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 			<frame>
 				<reportElement x="0" y="0" width="554" height="320" uuid="2f60f1f2-3a6a-43ca-b773-4e68f5f369a5">
@@ -330,8 +330,10 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 					<text><![CDATA[Kohteella ei ole sijainti - tietoa]]></text>
 				</staticText>
 			</frame>
+		</band>
+		<band height="420">
 			<textField bookmarkLevel="3">
-				<reportElement x="0" y="330" width="564" height="30" uuid="68e207fb-a151-4887-8558-c58865a48b43">
+				<reportElement x="0" y="0" width="564" height="30" uuid="68e207fb-a151-4887-8558-c58865a48b43">
 					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 				</reportElement>
 				<textElement>
@@ -341,7 +343,7 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 				<anchorNameExpression><![CDATA[$F{kohde_nimi}]]></anchorNameExpression>
 			</textField>
 			<frame>
-				<reportElement positionType="Float" x="3" y="360" width="564" height="20" isRemoveLineWhenBlank="true" uuid="898dbf01-4c65-48da-b524-94c68684b801">
+				<reportElement positionType="Float" x="0" y="30" width="564" height="20" isRemoveLineWhenBlank="true" uuid="898dbf01-4c65-48da-b524-94c68684b801">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 					<printWhenExpression><![CDATA[$F{kohde_nimi}!=null]]></printWhenExpression>
 				</reportElement>
@@ -358,7 +360,7 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 				</staticText>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="3" y="380" width="564" height="20" isRemoveLineWhenBlank="true" uuid="0b27365e-ed0e-4ea2-b84b-3f5ce977baf6">
+				<reportElement positionType="Float" x="0" y="50" width="564" height="20" isRemoveLineWhenBlank="true" uuid="0b27365e-ed0e-4ea2-b84b-3f5ce977baf6">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 					<printWhenExpression><![CDATA[$F{kyla}!=null]]></printWhenExpression>
 				</reportElement>
@@ -375,7 +377,7 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 				</staticText>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="3" y="400" width="564" height="20" isRemoveLineWhenBlank="true" uuid="a18c914a-84e9-4751-a1ad-51d6565f21df">
+				<reportElement positionType="Float" x="0" y="70" width="564" height="20" isRemoveLineWhenBlank="true" uuid="a18c914a-84e9-4751-a1ad-51d6565f21df">
 					<printWhenExpression><![CDATA[$F{laji}!=null]]></printWhenExpression>
 				</reportElement>
 				<staticText>
@@ -391,7 +393,7 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="3" y="420" width="564" height="20" isRemoveLineWhenBlank="true" uuid="2945e43e-9c99-465c-84f4-6d88d46111c3">
+				<reportElement positionType="Float" x="0" y="90" width="564" height="20" isRemoveLineWhenBlank="true" uuid="2945e43e-9c99-465c-84f4-6d88d46111c3">
 					<printWhenExpression><![CDATA[$F{tyyppi}!=null]]></printWhenExpression>
 				</reportElement>
 				<staticText>
@@ -409,7 +411,7 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement key="" positionType="Float" x="3" y="440" width="564" height="20" isRemoveLineWhenBlank="true" uuid="0990884e-9d24-4b99-8ba1-a703691b63cc">
+				<reportElement key="" positionType="Float" x="0" y="110" width="564" height="20" isRemoveLineWhenBlank="true" uuid="0990884e-9d24-4b99-8ba1-a703691b63cc">
 					<printWhenExpression><![CDATA[$F{tarkenne}!=null]]></printWhenExpression>
 				</reportElement>
 				<staticText>
@@ -425,7 +427,7 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="3" y="460" width="564" height="20" isRemoveLineWhenBlank="true" uuid="fb740fb8-e76b-4944-a1b7-2d853151f9f7">
+				<reportElement positionType="Float" x="0" y="130" width="564" height="20" isRemoveLineWhenBlank="true" uuid="fb740fb8-e76b-4944-a1b7-2d853151f9f7">
 					<printWhenExpression><![CDATA[$F{rauhoitusluokka}!=null]]></printWhenExpression>
 				</reportElement>
 				<staticText>
@@ -441,7 +443,7 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="3" y="480" width="565" height="20" isRemoveLineWhenBlank="true" uuid="cf71357e-8093-498f-9dc2-3cd895e96004">
+				<reportElement positionType="Float" x="0" y="150" width="565" height="20" isRemoveLineWhenBlank="true" uuid="cf71357e-8093-498f-9dc2-3cd895e96004">
 					<printWhenExpression><![CDATA[$F{ajoitustarkenne}!=null]]></printWhenExpression>
 				</reportElement>
 				<staticText>
@@ -457,7 +459,7 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="3" y="500" width="564" height="20" isRemoveLineWhenBlank="true" uuid="74adecff-5d80-4998-8be6-f372dc664969">
+				<reportElement positionType="Float" x="0" y="170" width="564" height="20" isRemoveLineWhenBlank="true" uuid="74adecff-5d80-4998-8be6-f372dc664969">
 					<printWhenExpression><![CDATA[$F{lukumaara}!=null]]></printWhenExpression>
 				</reportElement>
 				<staticText>
@@ -473,7 +475,7 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="3" y="520" width="564" height="80" isRemoveLineWhenBlank="true" uuid="0fa10f26-9944-403e-90fd-e541ec28b0f0"/>
+				<reportElement positionType="Float" x="0" y="190" width="564" height="80" isRemoveLineWhenBlank="true" uuid="0fa10f26-9944-403e-90fd-e541ec28b0f0"/>
 				<staticText>
 					<reportElement x="0" y="0" width="138" height="20" uuid="bf69265c-7b00-4370-9b30-d98aea5f64df"/>
 					<textElement>
@@ -508,7 +510,7 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="3" y="600" width="564" height="20" isRemoveLineWhenBlank="true" uuid="d80952f7-d922-430b-91a1-0bd4e5597185">
+				<reportElement positionType="Float" x="0" y="270" width="564" height="20" isRemoveLineWhenBlank="true" uuid="d80952f7-d922-430b-91a1-0bd4e5597185">
 					<printWhenExpression><![CDATA[$F{koordselite}!=null]]></printWhenExpression>
 				</reportElement>
 				<staticText>
@@ -524,7 +526,7 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="3" y="620" width="565" height="20" isRemoveLineWhenBlank="true" uuid="923188bc-2d10-49db-8a54-2778c9502423">
+				<reportElement positionType="Float" x="0" y="290" width="565" height="20" isRemoveLineWhenBlank="true" uuid="923188bc-2d10-49db-8a54-2778c9502423">
 					<printWhenExpression><![CDATA[$F{etaisyystieto}!=null]]></printWhenExpression>
 				</reportElement>
 				<staticText>
@@ -540,7 +542,7 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="3" y="640" width="564" height="20" isRemoveLineWhenBlank="true" uuid="0103b608-492c-4b4f-a267-d3fddabaecd7">
+				<reportElement positionType="Float" x="0" y="310" width="564" height="20" isRemoveLineWhenBlank="true" uuid="0103b608-492c-4b4f-a267-d3fddabaecd7">
 					<printWhenExpression><![CDATA[$F{peruskarttanumero}!=null]]></printWhenExpression>
 				</reportElement>
 				<staticText>
@@ -556,9 +558,9 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="3" y="660" width="564" height="20" isRemoveLineWhenBlank="true" uuid="87dbda34-1d4b-43e3-95e8-4b60fcf9dfc1"/>
+				<reportElement positionType="Float" x="0" y="330" width="564" height="20" isRemoveLineWhenBlank="true" uuid="87dbda34-1d4b-43e3-95e8-4b60fcf9dfc1"/>
 				<staticText>
-					<reportElement x="3" y="0" width="138" height="20" uuid="cc21cdcd-549f-4515-8a43-69d6f6f50df4">
+					<reportElement x="0" y="0" width="138" height="20" uuid="cc21cdcd-549f-4515-8a43-69d6f6f50df4">
 						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 					</reportElement>
 					<textElement>
@@ -567,7 +569,7 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 					<text><![CDATA[Aikaisemmat tutkimukset:]]></text>
 				</staticText>
 				<componentElement>
-					<reportElement x="142" y="0" width="419" height="20" isRemoveLineWhenBlank="true" uuid="50c5515b-88e5-4868-81d5-f465fa4678ce"/>
+					<reportElement x="139" y="0" width="424" height="20" isRemoveLineWhenBlank="true" uuid="50c5515b-88e5-4868-81d5-f465fa4678ce"/>
 					<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
 						<datasetRun subDataset="aiemmat_tutkimukset" uuid="780b9096-effe-407e-9047-2d6658f0d401">
 							<datasetParameter name="kohdeId">
@@ -575,9 +577,9 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 							</datasetParameter>
 							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 						</datasetRun>
-						<jr:listContents height="20" width="419">
+						<jr:listContents height="20" width="424">
 							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-								<reportElement x="0" y="0" width="419" height="20" isRemoveLineWhenBlank="true" uuid="80ab16a1-74d3-4aed-b356-ef2c3f8ff3a1"/>
+								<reportElement x="0" y="0" width="424" height="20" isRemoveLineWhenBlank="true" uuid="80ab16a1-74d3-4aed-b356-ef2c3f8ff3a1"/>
 								<textFieldExpression><![CDATA[$F{tutkimus_nimi} + " " + $F{tutkimuslaji} +" " + $F{kayttaja} +" " + $F{pvm}]]></textFieldExpression>
 							</textField>
 						</jr:listContents>
@@ -585,7 +587,7 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 				</componentElement>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="3" y="690" width="564" height="20" isRemoveLineWhenBlank="true" uuid="a86b0647-9980-4f3b-bf37-aeacc31be55d">
+				<reportElement positionType="Float" x="0" y="360" width="564" height="20" isRemoveLineWhenBlank="true" uuid="a86b0647-9980-4f3b-bf37-aeacc31be55d">
 					<printWhenExpression><![CDATA[$F{taustatiedot}!=null]]></printWhenExpression>
 				</reportElement>
 				<staticText>
@@ -601,7 +603,7 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="3" y="710" width="564" height="20" isRemoveLineWhenBlank="true" uuid="e2f15d9a-f819-45c4-b075-68d6cd2e844a">
+				<reportElement positionType="Float" x="0" y="380" width="564" height="20" isRemoveLineWhenBlank="true" uuid="e2f15d9a-f819-45c4-b075-68d6cd2e844a">
 					<printWhenExpression><![CDATA[$F{havainnot}!=null]]></printWhenExpression>
 				</reportElement>
 				<staticText>
@@ -617,7 +619,7 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="3" y="730" width="564" height="20" isRemoveLineWhenBlank="true" uuid="5aea9297-128e-4ab0-b214-5bd7c9ffc1ab">
+				<reportElement positionType="Float" x="0" y="400" width="564" height="20" isRemoveLineWhenBlank="true" uuid="5aea9297-128e-4ab0-b214-5bd7c9ffc1ab">
 					<printWhenExpression><![CDATA[$F{tulkinta}!=null]]></printWhenExpression>
 				</reportElement>
 				<staticText>
