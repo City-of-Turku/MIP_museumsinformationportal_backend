@@ -42,7 +42,7 @@ class TutkimusraporttiController extends Controller
 			$entity->save();
 			// Päivitetään myös tutkimuksen tiivistelmä vastaamaan tutkimusraportin tiivistelmää
 			$tutkimus = Tutkimus::getSingle($entity->ark_tutkimus_id)->first();
-			if($request->all()['properties']['tiivistelma']) {
+			if(isset($request->all()['properties']['tiivistelma'])) {
 				$tutkimus->tiivistelma = $request->all()['properties']['tiivistelma'];
 				$tutkimus->update();
 			}
