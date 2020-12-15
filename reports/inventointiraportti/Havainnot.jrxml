@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-12-15T00:16:11 -->
+<!-- 2020-12-15T13:15:00 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Havainnot" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="c7fa246a-c218-4a4e-ae0f-c7a326f85204">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
@@ -133,13 +133,122 @@ where tr.id = $P{tutkimusraporttiId}]]>
 		</band>
 	</pageHeader>
 	<detail>
-		<band height="710" splitType="Stretch">
+		<band height="110" splitType="Stretch">
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 				<reportElement x="0" y="0" width="554" height="30" isRemoveLineWhenBlank="true" uuid="37f6faff-f4b8-4e1a-b8fd-1eb18eb35129"/>
 				<textFieldExpression><![CDATA[$F{tutkimus_havainnot}]]></textFieldExpression>
 			</textField>
+			<frame>
+				<reportElement x="0" y="30" width="554" height="80" uuid="97abad99-bf66-4304-b544-60b3bfe1f023"/>
+				<textField bookmarkLevel="2">
+					<reportElement positionType="Float" x="0" y="0" width="554" height="30" uuid="10d98679-efa6-49ea-ac94-7138b3aaa79c">
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					</reportElement>
+					<textElement>
+						<font size="12" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["3.1. Aiemmin tunnetut arkeologiset kohteet"]]></textFieldExpression>
+					<anchorNameExpression><![CDATA["Aiemmin tunnetut arkeologiset kohteet"]]></anchorNameExpression>
+				</textField>
+				<subreport>
+					<reportElement positionType="Float" x="0" y="30" width="554" height="50" uuid="35f4a738-c843-484c-a1f0-7a5edf2a2b45">
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					</reportElement>
+					<subreportParameter name="MIP_BACKEND_URL">
+						<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="kohdeIdt">
+						<subreportParameterExpression><![CDATA[$F{tunnetut_ei_tyhjat_kohteet}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="MIP_MAPSERVER_URL">
+						<subreportParameterExpression><![CDATA[$P{MIP_MAPSERVER_URL}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA["Kohteet.jasper"]]></subreportExpression>
+				</subreport>
+			</frame>
+		</band>
+		<band height="80">
+			<subreport>
+				<reportElement positionType="Float" x="0" y="30" width="554" height="50" uuid="bed3a8d6-bf59-4d49-8d7d-04f4d56a79d8">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<subreportParameter name="MIP_BACKEND_URL">
+					<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="kohdeIdt">
+					<subreportParameterExpression><![CDATA[$F{tunnetut_tyhjat_kohteet}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="MIP_MAPSERVER_URL">
+					<subreportParameterExpression><![CDATA[$P{MIP_MAPSERVER_URL}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA["Kohteet.jasper"]]></subreportExpression>
+			</subreport>
+			<textField bookmarkLevel="2">
+				<reportElement positionType="Float" x="0" y="0" width="554" height="30" uuid="93348881-b7fe-46c7-9ec2-1f9bae6194e9"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["3.2. Aiemmin tunnetut muut kuin arkeologiset kohteet"]]></textFieldExpression>
+				<anchorNameExpression><![CDATA["Aiemmin tunnetut muut kuin arkeologiset kohteet"]]></anchorNameExpression>
+			</textField>
+		</band>
+		<band height="80">
+			<subreport>
+				<reportElement positionType="Float" x="0" y="30" width="554" height="50" uuid="4f2c796a-d879-4fd5-8328-d81f564d4417">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<subreportParameter name="MIP_BACKEND_URL">
+					<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="kohdeIdt">
+					<subreportParameterExpression><![CDATA[$F{uudet_ei_tyhjat_kohteet}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="MIP_MAPSERVER_URL">
+					<subreportParameterExpression><![CDATA[$P{MIP_MAPSERVER_URL}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA["Kohteet.jasper"]]></subreportExpression>
+			</subreport>
+			<textField bookmarkLevel="2">
+				<reportElement positionType="Float" x="0" y="0" width="554" height="30" uuid="1e47659b-781d-4efa-aae4-27a94e143501"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["3.3. Uudet arkeologiset kohteet"]]></textFieldExpression>
+				<anchorNameExpression><![CDATA["Uudet arkeologiset kohteet"]]></anchorNameExpression>
+			</textField>
+		</band>
+		<band height="80">
+			<textField bookmarkLevel="2">
+				<reportElement positionType="Float" x="0" y="0" width="554" height="30" uuid="1163afc3-63c8-423e-a2c9-8743092c647f"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["3.4. Uudet muut kuin arkeologiset kohteet"]]></textFieldExpression>
+				<anchorNameExpression><![CDATA["Uudet muut kuin arkeologiset kohteet"]]></anchorNameExpression>
+			</textField>
+			<subreport>
+				<reportElement positionType="Float" x="0" y="30" width="554" height="50" uuid="91cb2f73-a9dc-4367-aa14-f094821a72ca">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<subreportParameter name="MIP_BACKEND_URL">
+					<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="kohdeIdt">
+					<subreportParameterExpression><![CDATA[$F{uudet_tyhjat_kohteet}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="MIP_MAPSERVER_URL">
+					<subreportParameterExpression><![CDATA[$P{MIP_MAPSERVER_URL}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA["Kohteet.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+		<band height="350">
 			<componentElement>
-				<reportElement positionType="Float" x="0" y="360" width="554" height="350" isRemoveLineWhenBlank="true" uuid="f1616249-91ea-4d4a-a356-e989a97392c7">
+				<reportElement positionType="Float" x="0" y="0" width="554" height="350" isRemoveLineWhenBlank="true" uuid="f1616249-91ea-4d4a-a356-e989a97392c7">
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					<property name="net.sf.jasperreports.export.headertoolbar.table.name" value=""/>
 				</reportElement>
@@ -174,107 +283,6 @@ where tr.id = $P{tutkimusraporttiId}]]>
 					</jr:listContents>
 				</jr:list>
 			</componentElement>
-			<frame>
-				<reportElement x="0" y="30" width="554" height="80" uuid="97abad99-bf66-4304-b544-60b3bfe1f023"/>
-				<textField bookmarkLevel="2">
-					<reportElement positionType="Float" x="0" y="0" width="554" height="30" uuid="10d98679-efa6-49ea-ac94-7138b3aaa79c">
-						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
-					</reportElement>
-					<textElement>
-						<font size="12" isBold="true"/>
-					</textElement>
-					<textFieldExpression><![CDATA["3.1. Aiemmin tunnetut arkeologiset kohteet"]]></textFieldExpression>
-					<anchorNameExpression><![CDATA["Aiemmin tunnetut arkeologiset kohteet"]]></anchorNameExpression>
-				</textField>
-				<subreport>
-					<reportElement positionType="Float" x="0" y="30" width="554" height="50" uuid="35f4a738-c843-484c-a1f0-7a5edf2a2b45">
-						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
-					</reportElement>
-					<subreportParameter name="MIP_BACKEND_URL">
-						<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
-					</subreportParameter>
-					<subreportParameter name="kohdeIdt">
-						<subreportParameterExpression><![CDATA[$F{tunnetut_ei_tyhjat_kohteet}]]></subreportParameterExpression>
-					</subreportParameter>
-					<subreportParameter name="MIP_MAPSERVER_URL">
-						<subreportParameterExpression><![CDATA[$P{MIP_MAPSERVER_URL}]]></subreportParameterExpression>
-					</subreportParameter>
-					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
-					<subreportExpression><![CDATA["Kohteet.jasper"]]></subreportExpression>
-				</subreport>
-				<subreport>
-					<reportElement positionType="Float" x="0" y="110" width="554" height="50" uuid="bed3a8d6-bf59-4d49-8d7d-04f4d56a79d8">
-						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
-					</reportElement>
-					<subreportParameter name="MIP_BACKEND_URL">
-						<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
-					</subreportParameter>
-					<subreportParameter name="kohdeIdt">
-						<subreportParameterExpression><![CDATA[$F{tunnetut_tyhjat_kohteet}]]></subreportParameterExpression>
-					</subreportParameter>
-					<subreportParameter name="MIP_MAPSERVER_URL">
-						<subreportParameterExpression><![CDATA[$P{MIP_MAPSERVER_URL}]]></subreportParameterExpression>
-					</subreportParameter>
-					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
-					<subreportExpression><![CDATA["Kohteet.jasper"]]></subreportExpression>
-				</subreport>
-				<textField bookmarkLevel="2">
-					<reportElement positionType="Float" x="0" y="80" width="554" height="30" uuid="93348881-b7fe-46c7-9ec2-1f9bae6194e9"/>
-					<textElement>
-						<font size="12" isBold="true"/>
-					</textElement>
-					<textFieldExpression><![CDATA["3.2. Aiemmin tunnetut muut kuin arkeologiset kohteet"]]></textFieldExpression>
-					<anchorNameExpression><![CDATA["Aiemmin tunnetut muut kuin arkeologiset kohteet"]]></anchorNameExpression>
-				</textField>
-				<subreport>
-					<reportElement positionType="Float" x="0" y="190" width="554" height="50" uuid="4f2c796a-d879-4fd5-8328-d81f564d4417">
-						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
-					</reportElement>
-					<subreportParameter name="MIP_BACKEND_URL">
-						<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
-					</subreportParameter>
-					<subreportParameter name="kohdeIdt">
-						<subreportParameterExpression><![CDATA[$F{uudet_ei_tyhjat_kohteet}]]></subreportParameterExpression>
-					</subreportParameter>
-					<subreportParameter name="MIP_MAPSERVER_URL">
-						<subreportParameterExpression><![CDATA[$P{MIP_MAPSERVER_URL}]]></subreportParameterExpression>
-					</subreportParameter>
-					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
-					<subreportExpression><![CDATA["Kohteet.jasper"]]></subreportExpression>
-				</subreport>
-				<textField bookmarkLevel="2">
-					<reportElement positionType="Float" x="0" y="160" width="554" height="30" uuid="1e47659b-781d-4efa-aae4-27a94e143501"/>
-					<textElement>
-						<font size="12" isBold="true"/>
-					</textElement>
-					<textFieldExpression><![CDATA["3.3. Uudet arkeologiset kohteet"]]></textFieldExpression>
-					<anchorNameExpression><![CDATA["Uudet arkeologiset kohteet"]]></anchorNameExpression>
-				</textField>
-				<textField bookmarkLevel="2">
-					<reportElement positionType="Float" x="0" y="240" width="554" height="30" uuid="1163afc3-63c8-423e-a2c9-8743092c647f"/>
-					<textElement>
-						<font size="12" isBold="true"/>
-					</textElement>
-					<textFieldExpression><![CDATA["3.4. Uudet muut kuin arkeologiset kohteet"]]></textFieldExpression>
-					<anchorNameExpression><![CDATA["Uudet muut kuin arkeologiset kohteet"]]></anchorNameExpression>
-				</textField>
-				<subreport>
-					<reportElement positionType="Float" x="0" y="270" width="554" height="50" uuid="91cb2f73-a9dc-4367-aa14-f094821a72ca">
-						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
-					</reportElement>
-					<subreportParameter name="MIP_BACKEND_URL">
-						<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
-					</subreportParameter>
-					<subreportParameter name="kohdeIdt">
-						<subreportParameterExpression><![CDATA[$F{uudet_tyhjat_kohteet}]]></subreportParameterExpression>
-					</subreportParameter>
-					<subreportParameter name="MIP_MAPSERVER_URL">
-						<subreportParameterExpression><![CDATA[$P{MIP_MAPSERVER_URL}]]></subreportParameterExpression>
-					</subreportParameter>
-					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
-					<subreportExpression><![CDATA["Kohteet.jasper"]]></subreportExpression>
-				</subreport>
-			</frame>
 		</band>
 	</detail>
 	<pageFooter>

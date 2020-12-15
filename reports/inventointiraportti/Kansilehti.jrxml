@@ -1,19 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-12-15T12:22:14 -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Wave Cover" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="c50b24eb-eb33-413f-8e75-e7e20a5341fd">
-	<property name="com.jaspersoft.studio.unit." value="pixel"/>
-	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
-	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
-	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
-	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
-	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
-	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
-	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
-	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+<!-- 2020-12-15T13:23:35 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Kansilehti" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="7c1e417c-59c6-4b3d-b526-50f7d936b1c3">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
-	<subDataset name="kuva_kansilehti" uuid="dbe1dc2c-51e5-46c4-802f-8399c0abf0ec">
+	<subDataset name="kuva_kansilehti" uuid="0b1b0646-4f6c-48dc-9a37-d3b27cb70755">
 		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
 		<parameter name="tutkimusraporttiId" class="java.lang.Long"/>
@@ -53,10 +44,10 @@ where tr.id = $P{tutkimusraporttiId}]]>
 	<field name="kyla" class="java.lang.String"/>
 	<field name="alkupvm" class="java.sql.Date"/>
 	<field name="loppupvm" class="java.sql.Date"/>
-	<title>
-		<band height="841" splitType="Stretch">
+	<detail>
+		<band height="725" splitType="Stretch">
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="20" y="110" width="557" height="30" isRemoveLineWhenBlank="true" forecolor="#000000" uuid="5bb49d37-ea51-4ca3-a18a-38cb0e66e0ee"/>
+				<reportElement positionType="Float" x="0" y="111" width="557" height="30" isRemoveLineWhenBlank="true" forecolor="#000000" uuid="25457746-5096-4b61-91aa-3f843a1c118f"/>
 				<box leftPadding="20" rightPadding="20"/>
 				<textElement textAlignment="Center" verticalAlignment="Bottom">
 					<font size="16" isBold="true"/>
@@ -64,19 +55,19 @@ where tr.id = $P{tutkimusraporttiId}]]>
 				<textFieldExpression><![CDATA[$F{kunta}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="20" y="652" width="557" height="20" isRemoveLineWhenBlank="true" uuid="38fc9afd-edcb-42f3-b6bc-cd258f6507b3"/>
+				<reportElement positionType="Float" x="0" y="653" width="557" height="20" isRemoveLineWhenBlank="true" uuid="c2f639eb-86fe-4cf9-b78e-ab69ffbf1a44"/>
 				<textElement textAlignment="Right">
 					<font size="14"/>
 				</textElement>
 				<textFieldExpression><![CDATA["Turun museokeskus" + "\n" + $F{etunimi} + " " + $F{sukunimi}]]></textFieldExpression>
 			</textField>
 			<componentElement>
-				<reportElement positionType="Float" x="20" y="240" width="557" height="346" uuid="a32676d4-4e4b-4b79-a9ab-791ec337dc95">
+				<reportElement positionType="Float" x="0" y="241" width="557" height="346" uuid="db81ea6e-8877-434c-b5b8-49f70615e409">
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					<property name="net.sf.jasperreports.export.headertoolbar.table.name" value=""/>
 				</reportElement>
 				<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
-					<datasetRun subDataset="kuva_kansilehti" uuid="70a0849b-f48b-49e9-b01e-76bafb330271">
+					<datasetRun subDataset="kuva_kansilehti" uuid="0a0f4716-28fc-44e8-b6f2-45b4987f166b">
 						<datasetParameter name="MIP_BACKEND_URL">
 							<datasetParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></datasetParameterExpression>
 						</datasetParameter>
@@ -87,7 +78,7 @@ where tr.id = $P{tutkimusraporttiId}]]>
 					</datasetRun>
 					<jr:listContents height="346" width="557">
 						<image hAlign="Center" vAlign="Middle" onErrorType="Blank">
-							<reportElement x="0" y="0" width="557" height="316" uuid="4e204347-ab39-4ffa-a002-3c84f72a38c7"/>
+							<reportElement x="0" y="0" width="557" height="316" uuid="ffe97298-b8e2-48bf-8b37-5b4d3825db68"/>
 							<box>
 								<pen lineColor="#E3E3E3"/>
 								<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -98,21 +89,21 @@ where tr.id = $P{tutkimusraporttiId}]]>
 							<imageExpression><![CDATA[$P{MIP_BACKEND_URL} + "/raportti/ark_kuva/"+$F{id}+"/pieni"]]></imageExpression>
 						</image>
 						<textField>
-							<reportElement x="0" y="316" width="557" height="30" uuid="83008f6a-17b4-4047-b5b5-a6ea8641d5cb"/>
+							<reportElement x="0" y="316" width="557" height="30" uuid="c0ddbb05-95ac-48f8-b313-a824c2b5e873"/>
 							<textFieldExpression><![CDATA[$F{otsake}]]></textFieldExpression>
 						</textField>
 					</jr:listContents>
 				</jr:list>
 			</componentElement>
 			<staticText>
-				<reportElement x="100" y="69" width="400" height="30" uuid="ef191ddd-8b80-4faf-a4ad-ac6fb7fc3838"/>
+				<reportElement x="80" y="70" width="400" height="30" uuid="911361da-d00a-4f45-add5-dce93821b23f"/>
 				<textElement textAlignment="Center">
 					<font size="14"/>
 				</textElement>
 				<text><![CDATA[INVENTOINTIRAPORTTI]]></text>
 			</staticText>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="20" y="140" width="557" height="30" isRemoveLineWhenBlank="true" forecolor="#000000" uuid="e4f0d8bc-7854-4524-b39b-36d32d64af8a"/>
+				<reportElement positionType="Float" x="0" y="141" width="557" height="30" isRemoveLineWhenBlank="true" forecolor="#000000" uuid="0a978dd0-5bc9-426f-92c2-2eb00d04600b"/>
 				<box leftPadding="20" rightPadding="20"/>
 				<textElement textAlignment="Center">
 					<font size="14"/>
@@ -120,7 +111,7 @@ where tr.id = $P{tutkimusraporttiId}]]>
 				<textFieldExpression><![CDATA[$F{kyla}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="20" y="170" width="557" height="20" isRemoveLineWhenBlank="true" forecolor="#000000" uuid="3597face-4c28-4444-8046-1945ab0ad524"/>
+				<reportElement positionType="Float" x="0" y="171" width="557" height="20" isRemoveLineWhenBlank="true" forecolor="#000000" uuid="b0b5613f-7584-4579-90ba-1f3e6aa589ec"/>
 				<box leftPadding="20" rightPadding="20"/>
 				<textElement textAlignment="Center">
 					<font size="14"/>
@@ -128,7 +119,7 @@ where tr.id = $P{tutkimusraporttiId}]]>
 				<textFieldExpression><![CDATA[$F{tutkimus_nimi}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="20" y="190" width="557" height="20" isRemoveLineWhenBlank="true" forecolor="#000000" uuid="84ca7924-f19d-490c-95e4-a2be580c2bac"/>
+				<reportElement positionType="Float" x="0" y="191" width="557" height="20" isRemoveLineWhenBlank="true" forecolor="#000000" uuid="fa41d988-825b-468c-b6a1-addfa2d2fae7"/>
 				<box leftPadding="20" rightPadding="20"/>
 				<textElement textAlignment="Center">
 					<font size="14"/>
@@ -136,5 +127,5 @@ where tr.id = $P{tutkimusraporttiId}]]>
 				<textFieldExpression><![CDATA[DATEFORMAT($F{alkupvm},"dd.MM.yyyy") + " - " + DATEFORMAT($F{loppupvm},"dd.MM.yyyy")]]></textFieldExpression>
 			</textField>
 		</band>
-	</title>
+	</detail>
 </jasperReport>

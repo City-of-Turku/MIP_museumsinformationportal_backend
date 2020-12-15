@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-12-14T23:34:10 -->
+<!-- 2020-12-15T13:05:43 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Kohteet" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="46fb868b-ad4e-4b5e-bfc1-29f32a3381f3">
 	<property name="net.sf.jasperreports.print.create.bookmarks" value="true"/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
@@ -37,6 +37,76 @@ order by k.id]]>
 		<field name="kuvauspvm" class="java.lang.String"/>
 		<field name="kuvaaja" class="java.lang.String"/>
 	</subDataset>
+	<subDataset name="aiemmat_tutkimukset" uuid="071b7d81-4fa7-42ba-9161-06921658df4e">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
+		<parameter name="kohdeId" class="java.lang.Long"/>
+		<queryString language="SQL">
+			<![CDATA[
+select kohde_id, tutkimus_nimi, tutkimuslaji, kayttaja, pvm
+from (
+    --tarkastukset
+    select distinct k.id as kohde_id, k.nimi,
+    t.nimi as tutkimus_nimi, at2.nimi_fi as tutkimuslaji,
+    concat(kay.etunimi, ' ', kay.sukunimi) as kayttaja,
+    date_part('year', coalesce(t.kenttatyo_loppupvm, t.loppupvm, t.kenttatyo_alkupvm, t.alkupvm))::text as pvm
+    from ark_kohde k
+    join ark_kohde_tutkimus akt on akt.ark_kohde_id = k.id
+    join ark_tutkimus t on (t.id = akt.ark_tutkimus_id and t.poistettu is null and t.julkinen = true and t.valmis = true)
+    join ark_tutkimuslaji at2 on (at2.id = t.ark_tutkimuslaji_id and at2.id = 11) -- 11 = tarkastus
+    left join ark_tarkastus tark on tark.ark_tutkimus_id = t.id
+    left join kayttaja kay on kay.id = tark.tarkastaja 
+    union
+    -- muut kuin tarkastukset
+    select distinct k.id as kohde_id, k.nimi,
+    t.nimi as tutkimus_nimi, at2.nimi_fi as tutkimuslaji,
+    kayttaja.kayttajat,
+    date_part('year', coalesce(t.kenttatyo_loppupvm, t.loppupvm, t.kenttatyo_alkupvm, t.alkupvm))::text as pvm
+    from ark_kohde k
+    join ark_kohde_tutkimus akt on akt.ark_kohde_id = k.id
+    join ark_tutkimus t on (t.id = akt.ark_tutkimus_id and t.poistettu is null and t.julkinen = true and t.valmis = true)
+    join ark_tutkimuslaji at2 on (at2.id = t.ark_tutkimuslaji_id and at2.id != 11) -- 11 = tarkastus
+    join (select string_agg(concat(k.etunimi, ' ', k.sukunimi), ', ') as kayttajat, atk.ark_tutkimus_id 
+        from kayttaja k
+        left join ark_tutkimus_kayttaja atk on atk.kayttaja_id = k.id
+        where k.poistettu is null
+        group by atk.ark_tutkimus_id 
+    ) kayttaja on (kayttaja.ark_tutkimus_id = t.id)
+    union
+    -- inventoinnit
+    select distinct k.id as kohde_id, k.nimi,
+    t.nimi as tutkimus_nimi, at2.nimi_fi as tutkimuslaji,
+    kayttaja.kayttajat,
+    date_part('year', coalesce(t.kenttatyo_loppupvm, t.loppupvm, t.kenttatyo_alkupvm, t.alkupvm))::text as pvm
+    from ark_kohde k
+    join ark_tutkimus_inv_kohteet atik on atik.ark_kohde_id = k.id 
+    join ark_tutkimus t on (t.id = atik.ark_tutkimus_id and t.poistettu is null and t.julkinen = true and t.valmis = true) 
+    join ark_tutkimuslaji at2 on at2.id = t.ark_tutkimuslaji_id
+    join (select string_agg(concat(k.etunimi, ' ', k.sukunimi), ', ') as kayttajat, atk.ark_tutkimus_id 
+        from kayttaja k
+        left join ark_tutkimus_kayttaja atk on atk.kayttaja_id = k.id
+        where k.poistettu is null
+        group by atk.ark_tutkimus_id 
+    ) kayttaja on (kayttaja.ark_tutkimus_id = t.id)
+    union
+    -- mjr tutkimukset
+    select distinct k.id, k.nimi, 
+    concat(at2.nimi_fi, ' ', akm.vuosi) as tutkimus_nimi, '' as tutkimuslaji,
+    akm.tutkija as kayttajat, 
+    '' as pvm
+    from ark_kohde k
+    join ark_kohde_mjrtutkimus akm on akm.ark_kohde_id = k.id 
+    join ark_tutkimuslaji at2 on at2.id = akm.ark_tutkimuslaji_id 
+) as tutkimukset
+where tutkimukset.kohde_id = $P{kohdeId}
+order by pvm asc, tutkimus_nimi asc]]>
+		</queryString>
+		<field name="kohde_id" class="java.lang.Long"/>
+		<field name="tutkimus_nimi" class="java.lang.String"/>
+		<field name="tutkimuslaji" class="java.lang.String"/>
+		<field name="kayttaja" class="java.lang.String"/>
+		<field name="pvm" class="java.lang.String"/>
+	</subDataset>
 	<parameter name="kohdeIdtArray" class="java.util.List" nestedType="java.lang.String" isForPrompting="false">
 		<parameterDescription><![CDATA[]]></parameterDescription>
 		<defaultValueExpression><![CDATA[Arrays.asList($P{kohdeIdt}.split(","))]]></defaultValueExpression>
@@ -72,7 +142,9 @@ st_ymin(bbox) as bbox_ymin,
 st_xmax(bbox) as bbox_xmax, 
 st_ymax(bbox) as bbox_ymax,
 sijainti.sijainti_x as e, 
-sijainti.sijainti_y as n
+sijainti.sijainti_y as n,
+kuvat_lkm.lkm as kuvat_lkm,
+alakohteet_lkm.lkm as alakohteet_lkm
 from ark_kohde k
 left join (
     select akk.ark_kohde_id, string_agg(ku.nimi, ', ') as kunta, string_agg(ky.nimi, ', ') as kyla, string_agg(ku.nimi_se, ', ') as kunta_se, string_agg(ky.nimi_se, ', ') as kyla_se
@@ -116,6 +188,18 @@ left join (
     from ark_kohde_sijainti ks
     group by ks.kohde_id
 ) SQ_BBOX on (SQ_BBOX.kohde_id = k.id)
+left join ( 
+    select count(ak.id) as lkm, akk.ark_kohde_id 
+    from ark_kuva ak 
+    left join ark_kuva_kohde akk on akk.ark_kuva_id = ak.id 
+    where ak.poistettu is null
+    group by akk.ark_kohde_id 
+) kuvat_lkm on (kuvat_lkm.ark_kohde_id = k.id)
+left join ( 
+    select count(aka.id) as lkm, aka.ark_kohde_id
+    from ark_kohde_alakohde aka 
+    group by aka.ark_kohde_id 
+) alakohteet_lkm on (alakohteet_lkm.ark_kohde_id = k.id)
 where k.poistettu is null
 AND 
 $X{IN, k.id::text, kohdeIdtArray}]]>
@@ -146,6 +230,8 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 	<field name="bbox_ymax" class="java.lang.Double"/>
 	<field name="e" class="java.lang.Double"/>
 	<field name="n" class="java.lang.Double"/>
+	<field name="kuvat_lkm" class="java.lang.Long"/>
+	<field name="alakohteet_lkm" class="java.lang.Long"/>
 	<variable name="MAP_WIDTH" class="java.lang.Double">
 		<variableExpression><![CDATA[600.0]]></variableExpression>
 	</variable>
@@ -210,10 +296,12 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 		<variableExpression><![CDATA[null]]></variableExpression>
 	</variable>
 	<detail>
-		<band height="400" splitType="Stretch">
+		<band height="345" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 			<frame>
-				<reportElement x="0" y="0" width="554" height="320" uuid="2f60f1f2-3a6a-43ca-b773-4e68f5f369a5">
+				<reportElement x="0" y="0" width="554" height="340" uuid="2f60f1f2-3a6a-43ca-b773-4e68f5f369a5">
 					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>
 				<box>
 					<pen lineWidth="1.0" lineColor="#CCCCCC"/>
@@ -232,6 +320,12 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 					</box>
 					<imageExpression><![CDATA[$V{MAP_URL}]]></imageExpression>
 				</image>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="0" y="320" width="364" height="20" isRemoveLineWhenBlank="true" uuid="24211f46-d0e5-4d27-be51-31ca9f14bcf4">
+						<printWhenExpression><![CDATA[$F{bbox_xmin}!=null]]></printWhenExpression>
+					</reportElement>
+					<textFieldExpression><![CDATA[T($F{kohde_nimi}) + " sijainti."]]></textFieldExpression>
+				</textField>
 				<staticText>
 					<reportElement x="3" y="141" width="550" height="30" uuid="bbc2eb20-c47b-40d2-a99e-8dd8f4e1bb0d">
 						<printWhenExpression><![CDATA[$F{bbox_xmin}==null]]></printWhenExpression>
@@ -243,16 +337,12 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 					<text><![CDATA[Kohteella ei ole sijainti - tietoa]]></text>
 				</staticText>
 			</frame>
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement x="0" y="320" width="364" height="20" isRemoveLineWhenBlank="true" uuid="24211f46-d0e5-4d27-be51-31ca9f14bcf4">
-					<printWhenExpression><![CDATA[$F{bbox_xmin}!=null]]></printWhenExpression>
-				</reportElement>
-				<textFieldExpression><![CDATA[T($F{kohde_nimi}) + " sijainti."]]></textFieldExpression>
-			</textField>
 		</band>
-		<band height="400">
+		<band height="420">
 			<textField bookmarkLevel="3">
-				<reportElement x="0" y="-30" width="595" height="30" uuid="68e207fb-a151-4887-8558-c58865a48b43"/>
+				<reportElement x="0" y="0" width="564" height="30" uuid="68e207fb-a151-4887-8558-c58865a48b43">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
 				<textElement>
 					<font size="12" isBold="true"/>
 				</textElement>
@@ -260,16 +350,16 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 				<anchorNameExpression><![CDATA[$F{kohde_nimi}]]></anchorNameExpression>
 			</textField>
 			<frame>
-				<reportElement positionType="Float" x="0" y="0" width="564" height="20" isRemoveLineWhenBlank="true" uuid="898dbf01-4c65-48da-b524-94c68684b801">
+				<reportElement positionType="Float" x="0" y="30" width="564" height="20" isRemoveLineWhenBlank="true" uuid="898dbf01-4c65-48da-b524-94c68684b801">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 					<printWhenExpression><![CDATA[$F{kohde_nimi}!=null]]></printWhenExpression>
 				</reportElement>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="190" y="0" width="364" height="20" isRemoveLineWhenBlank="true" uuid="92402ebe-b440-4ed9-a04b-3156a484d673"/>
+					<reportElement x="139" y="0" width="424" height="20" isRemoveLineWhenBlank="true" uuid="92402ebe-b440-4ed9-a04b-3156a484d673"/>
 					<textFieldExpression><![CDATA[$F{kohde_nimi}]]></textFieldExpression>
 				</textField>
 				<staticText>
-					<reportElement x="0" y="0" width="190" height="20" uuid="c1783c9e-c832-422b-bb61-8db1cda0dc31"/>
+					<reportElement x="0" y="0" width="138" height="20" uuid="c1783c9e-c832-422b-bb61-8db1cda0dc31"/>
 					<textElement>
 						<font isBold="true"/>
 					</textElement>
@@ -277,16 +367,16 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 				</staticText>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="0" y="20" width="564" height="20" isRemoveLineWhenBlank="true" uuid="0b27365e-ed0e-4ea2-b84b-3f5ce977baf6">
+				<reportElement positionType="Float" x="0" y="50" width="564" height="20" isRemoveLineWhenBlank="true" uuid="0b27365e-ed0e-4ea2-b84b-3f5ce977baf6">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 					<printWhenExpression><![CDATA[$F{kyla}!=null]]></printWhenExpression>
 				</reportElement>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="190" y="0" width="364" height="20" isRemoveLineWhenBlank="true" uuid="8e0d4fce-444d-490e-90ac-8e190b957998"/>
+					<reportElement x="139" y="0" width="424" height="20" isRemoveLineWhenBlank="true" uuid="8e0d4fce-444d-490e-90ac-8e190b957998"/>
 					<textFieldExpression><![CDATA[$F{kyla}]]></textFieldExpression>
 				</textField>
 				<staticText>
-					<reportElement x="0" y="0" width="190" height="20" uuid="42817c94-4022-4cf1-8952-3334afea084c"/>
+					<reportElement x="0" y="0" width="138" height="20" uuid="42817c94-4022-4cf1-8952-3334afea084c"/>
 					<textElement>
 						<font isBold="true"/>
 					</textElement>
@@ -294,245 +384,268 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 				</staticText>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="0" y="40" width="564" height="20" isRemoveLineWhenBlank="true" uuid="a18c914a-84e9-4751-a1ad-51d6565f21df">
+				<reportElement positionType="Float" x="0" y="70" width="564" height="20" isRemoveLineWhenBlank="true" uuid="a18c914a-84e9-4751-a1ad-51d6565f21df">
 					<printWhenExpression><![CDATA[$F{laji}!=null]]></printWhenExpression>
 				</reportElement>
 				<staticText>
-					<reportElement x="0" y="0" width="190" height="20" uuid="7a3f0a20-db7a-4bea-85cc-8560832774e1"/>
+					<reportElement x="0" y="0" width="138" height="20" uuid="7a3f0a20-db7a-4bea-85cc-8560832774e1"/>
 					<textElement>
 						<font isBold="true"/>
 					</textElement>
 					<text><![CDATA[Laji:]]></text>
 				</staticText>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="190" y="0" width="364" height="20" isRemoveLineWhenBlank="true" uuid="77740ada-a797-4076-850b-47ec3de8343e"/>
+					<reportElement x="139" y="0" width="424" height="20" isRemoveLineWhenBlank="true" uuid="77740ada-a797-4076-850b-47ec3de8343e"/>
 					<textFieldExpression><![CDATA[$F{laji}]]></textFieldExpression>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="0" y="60" width="564" height="20" isRemoveLineWhenBlank="true" uuid="2945e43e-9c99-465c-84f4-6d88d46111c3">
+				<reportElement positionType="Float" x="0" y="90" width="564" height="20" isRemoveLineWhenBlank="true" uuid="2945e43e-9c99-465c-84f4-6d88d46111c3">
 					<printWhenExpression><![CDATA[$F{tyyppi}!=null]]></printWhenExpression>
 				</reportElement>
 				<staticText>
-					<reportElement x="0" y="0" width="190" height="20" uuid="aa7a482e-f27f-4908-917c-c3ddb39dafec"/>
+					<reportElement x="0" y="0" width="138" height="20" uuid="aa7a482e-f27f-4908-917c-c3ddb39dafec">
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
 					<textElement>
 						<font isBold="true"/>
 					</textElement>
 					<text><![CDATA[Muinaisjäännöstyyppi:]]></text>
 				</staticText>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="190" y="0" width="364" height="20" isRemoveLineWhenBlank="true" uuid="1f2d9ca1-8c1b-488a-a85c-a8829861a0d8"/>
+					<reportElement x="139" y="0" width="424" height="20" isRemoveLineWhenBlank="true" uuid="1f2d9ca1-8c1b-488a-a85c-a8829861a0d8"/>
 					<textFieldExpression><![CDATA[$F{tyyppi}]]></textFieldExpression>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement key="" positionType="Float" x="0" y="80" width="564" height="20" isRemoveLineWhenBlank="true" uuid="0990884e-9d24-4b99-8ba1-a703691b63cc">
+				<reportElement key="" positionType="Float" x="0" y="110" width="564" height="20" isRemoveLineWhenBlank="true" uuid="0990884e-9d24-4b99-8ba1-a703691b63cc">
 					<printWhenExpression><![CDATA[$F{tarkenne}!=null]]></printWhenExpression>
 				</reportElement>
 				<staticText>
-					<reportElement x="0" y="0" width="190" height="20" uuid="b8b2404e-e95d-4c0e-a266-feb439bba918"/>
+					<reportElement x="0" y="0" width="138" height="20" uuid="b8b2404e-e95d-4c0e-a266-feb439bba918"/>
 					<textElement>
 						<font isBold="true"/>
 					</textElement>
 					<text><![CDATA[Tarkenne:]]></text>
 				</staticText>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="190" y="0" width="364" height="20" isRemoveLineWhenBlank="true" uuid="a42782a2-9130-486d-8732-68199a88ae7e"/>
+					<reportElement x="139" y="0" width="424" height="20" isRemoveLineWhenBlank="true" uuid="a42782a2-9130-486d-8732-68199a88ae7e"/>
 					<textFieldExpression><![CDATA[$F{tarkenne}]]></textFieldExpression>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="0" y="100" width="564" height="20" isRemoveLineWhenBlank="true" uuid="fb740fb8-e76b-4944-a1b7-2d853151f9f7">
+				<reportElement positionType="Float" x="0" y="130" width="564" height="20" isRemoveLineWhenBlank="true" uuid="fb740fb8-e76b-4944-a1b7-2d853151f9f7">
 					<printWhenExpression><![CDATA[$F{rauhoitusluokka}!=null]]></printWhenExpression>
 				</reportElement>
 				<staticText>
-					<reportElement x="0" y="0" width="190" height="20" uuid="9323e454-0bc1-44c7-b99f-0d08fe99bc32"/>
+					<reportElement x="0" y="0" width="138" height="20" uuid="9323e454-0bc1-44c7-b99f-0d08fe99bc32"/>
 					<textElement>
 						<font isBold="true"/>
 					</textElement>
 					<text><![CDATA[Rauhoitusluokka:]]></text>
 				</staticText>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="190" y="0" width="364" height="20" isRemoveLineWhenBlank="true" uuid="976ef39a-016c-41fa-b4dc-99d1d223a498"/>
+					<reportElement x="139" y="0" width="424" height="20" isRemoveLineWhenBlank="true" uuid="976ef39a-016c-41fa-b4dc-99d1d223a498"/>
 					<textFieldExpression><![CDATA[$F{rauhoitusluokka}]]></textFieldExpression>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="0" y="120" width="565" height="20" isRemoveLineWhenBlank="true" uuid="cf71357e-8093-498f-9dc2-3cd895e96004">
+				<reportElement positionType="Float" x="0" y="150" width="565" height="20" isRemoveLineWhenBlank="true" uuid="cf71357e-8093-498f-9dc2-3cd895e96004">
 					<printWhenExpression><![CDATA[$F{ajoitustarkenne}!=null]]></printWhenExpression>
 				</reportElement>
 				<staticText>
-					<reportElement x="0" y="0" width="190" height="20" uuid="a3a7c4ea-0852-4f81-a613-0db47ef6972d"/>
+					<reportElement x="0" y="0" width="138" height="20" uuid="a3a7c4ea-0852-4f81-a613-0db47ef6972d"/>
 					<textElement>
 						<font isBold="true"/>
 					</textElement>
 					<text><![CDATA[Ajoitus:]]></text>
 				</staticText>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="190" y="0" width="364" height="20" isRemoveLineWhenBlank="true" uuid="9aa7abdd-93e8-44ca-96da-f6e35d5f0c53"/>
+					<reportElement x="139" y="0" width="424" height="20" isRemoveLineWhenBlank="true" uuid="9aa7abdd-93e8-44ca-96da-f6e35d5f0c53"/>
 					<textFieldExpression><![CDATA[$F{ajoitustarkenne}]]></textFieldExpression>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="0" y="140" width="564" height="20" isRemoveLineWhenBlank="true" uuid="74adecff-5d80-4998-8be6-f372dc664969">
+				<reportElement positionType="Float" x="0" y="170" width="564" height="20" isRemoveLineWhenBlank="true" uuid="74adecff-5d80-4998-8be6-f372dc664969">
 					<printWhenExpression><![CDATA[$F{lukumaara}!=null]]></printWhenExpression>
 				</reportElement>
 				<staticText>
-					<reportElement x="0" y="0" width="190" height="20" uuid="09964f45-1c75-41f4-bae5-a3a62678da54"/>
+					<reportElement x="0" y="0" width="138" height="20" uuid="09964f45-1c75-41f4-bae5-a3a62678da54"/>
 					<textElement>
 						<font isBold="true"/>
 					</textElement>
 					<text><![CDATA[Lukumäärä:]]></text>
 				</staticText>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="190" y="0" width="364" height="20" isRemoveLineWhenBlank="true" uuid="b9234092-4268-42bd-8ab6-6c5f0d53fb56"/>
+					<reportElement x="139" y="0" width="424" height="20" isRemoveLineWhenBlank="true" uuid="b9234092-4268-42bd-8ab6-6c5f0d53fb56"/>
 					<textFieldExpression><![CDATA[$F{lukumaara}]]></textFieldExpression>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="0" y="160" width="564" height="80" isRemoveLineWhenBlank="true" uuid="0fa10f26-9944-403e-90fd-e541ec28b0f0"/>
+				<reportElement positionType="Float" x="0" y="190" width="564" height="80" isRemoveLineWhenBlank="true" uuid="0fa10f26-9944-403e-90fd-e541ec28b0f0"/>
 				<staticText>
-					<reportElement x="0" y="0" width="190" height="20" uuid="bf69265c-7b00-4370-9b30-d98aea5f64df"/>
+					<reportElement x="0" y="0" width="138" height="20" uuid="bf69265c-7b00-4370-9b30-d98aea5f64df"/>
 					<textElement>
 						<font isBold="true"/>
 					</textElement>
 					<text><![CDATA[Koordinaatit:]]></text>
 				</staticText>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="190" y="0" width="364" height="20" isRemoveLineWhenBlank="true" uuid="f0ba5018-fdee-4a1a-81cf-dbfedc9eb105"/>
+					<reportElement x="139" y="0" width="424" height="20" isRemoveLineWhenBlank="true" uuid="f0ba5018-fdee-4a1a-81cf-dbfedc9eb105"/>
 					<textElement>
 						<font isBold="true"/>
 					</textElement>
 					<textFieldExpression><![CDATA["ETRS TM 35"]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="190" y="20" width="364" height="20" isRemoveLineWhenBlank="true" uuid="ab0e493c-048f-4cd0-9889-427f64a84561"/>
-					<textFieldExpression><![CDATA["N: " + T($F{n})]]></textFieldExpression>
+					<reportElement x="139" y="20" width="424" height="20" isRemoveLineWhenBlank="true" uuid="ab0e493c-048f-4cd0-9889-427f64a84561">
+						<printWhenExpression><![CDATA[$F{n} != null]]></printWhenExpression>
+					</reportElement>
+					<textFieldExpression><![CDATA["N: " + $F{n}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="190" y="40" width="364" height="20" isRemoveLineWhenBlank="true" uuid="90fb96da-f5b9-49b6-aac4-1013d5a4458e"/>
-					<textFieldExpression><![CDATA["E: " + T($F{e})]]></textFieldExpression>
+					<reportElement x="139" y="40" width="424" height="20" isRemoveLineWhenBlank="true" uuid="90fb96da-f5b9-49b6-aac4-1013d5a4458e">
+						<printWhenExpression><![CDATA[$F{e} != null]]></printWhenExpression>
+					</reportElement>
+					<textFieldExpression><![CDATA["E: " + $F{e}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="190" y="60" width="364" height="20" isRemoveLineWhenBlank="true" uuid="d7bcb503-345c-4e1b-b4fd-37e220b57992"/>
-					<textFieldExpression><![CDATA["Z: " + T($F{korkeus_max})]]></textFieldExpression>
+					<reportElement x="139" y="60" width="424" height="20" isRemoveLineWhenBlank="true" uuid="d7bcb503-345c-4e1b-b4fd-37e220b57992">
+						<printWhenExpression><![CDATA[$F{korkeus_max} != null]]></printWhenExpression>
+					</reportElement>
+					<textFieldExpression><![CDATA["Z: " + $F{korkeus_max}]]></textFieldExpression>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="0" y="240" width="564" height="20" isRemoveLineWhenBlank="true" uuid="d80952f7-d922-430b-91a1-0bd4e5597185">
+				<reportElement positionType="Float" x="0" y="270" width="564" height="20" isRemoveLineWhenBlank="true" uuid="d80952f7-d922-430b-91a1-0bd4e5597185">
 					<printWhenExpression><![CDATA[$F{koordselite}!=null]]></printWhenExpression>
 				</reportElement>
 				<staticText>
-					<reportElement x="0" y="0" width="190" height="20" uuid="a0439dfd-2a9d-4b2b-9d35-cf5ceb265f0f"/>
+					<reportElement x="0" y="0" width="138" height="20" uuid="a0439dfd-2a9d-4b2b-9d35-cf5ceb265f0f"/>
 					<textElement>
 						<font isBold="true"/>
 					</textElement>
 					<text><![CDATA[Koord. selite:]]></text>
 				</staticText>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="190" y="0" width="364" height="20" isRemoveLineWhenBlank="true" uuid="ce7f80f9-8a11-4469-869b-603a022e61b0"/>
+					<reportElement x="139" y="0" width="424" height="20" isRemoveLineWhenBlank="true" uuid="ce7f80f9-8a11-4469-869b-603a022e61b0"/>
 					<textFieldExpression><![CDATA[$F{koordselite}]]></textFieldExpression>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="0" y="260" width="565" height="20" isRemoveLineWhenBlank="true" uuid="923188bc-2d10-49db-8a54-2778c9502423">
+				<reportElement positionType="Float" x="0" y="290" width="565" height="20" isRemoveLineWhenBlank="true" uuid="923188bc-2d10-49db-8a54-2778c9502423">
 					<printWhenExpression><![CDATA[$F{etaisyystieto}!=null]]></printWhenExpression>
 				</reportElement>
 				<staticText>
-					<reportElement x="0" y="0" width="190" height="20" uuid="0f2e73fc-01d3-41b9-ac08-9a733b6f673a"/>
+					<reportElement x="0" y="0" width="139" height="20" uuid="0f2e73fc-01d3-41b9-ac08-9a733b6f673a"/>
 					<textElement>
 						<font isBold="true"/>
 					</textElement>
 					<text><![CDATA[Etäisyystieto:]]></text>
 				</staticText>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="190" y="0" width="364" height="20" isRemoveLineWhenBlank="true" uuid="5010128e-26b9-4dcc-b0a8-77ee7b7ce757"/>
+					<reportElement x="139" y="0" width="424" height="20" isRemoveLineWhenBlank="true" uuid="5010128e-26b9-4dcc-b0a8-77ee7b7ce757"/>
 					<textFieldExpression><![CDATA[$F{etaisyystieto}]]></textFieldExpression>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="0" y="280" width="564" height="20" isRemoveLineWhenBlank="true" uuid="0103b608-492c-4b4f-a267-d3fddabaecd7">
+				<reportElement positionType="Float" x="0" y="310" width="564" height="20" isRemoveLineWhenBlank="true" uuid="0103b608-492c-4b4f-a267-d3fddabaecd7">
 					<printWhenExpression><![CDATA[$F{peruskarttanumero}!=null]]></printWhenExpression>
 				</reportElement>
 				<staticText>
-					<reportElement x="0" y="0" width="190" height="20" uuid="3a0bff4a-f413-4b0a-8572-5a69788194f2"/>
+					<reportElement x="0" y="0" width="138" height="20" uuid="3a0bff4a-f413-4b0a-8572-5a69788194f2"/>
 					<textElement>
 						<font isBold="true"/>
 					</textElement>
 					<text><![CDATA[Peruskartta:]]></text>
 				</staticText>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="190" y="0" width="364" height="20" isRemoveLineWhenBlank="true" uuid="95fcf305-4e38-4bbc-929b-9935ada56516"/>
+					<reportElement x="139" y="0" width="424" height="20" isRemoveLineWhenBlank="true" uuid="95fcf305-4e38-4bbc-929b-9935ada56516"/>
 					<textFieldExpression><![CDATA[$F{peruskarttanumero} + " " + T($F{peruskarttanimi})]]></textFieldExpression>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="0" y="300" width="564" height="20" isRemoveLineWhenBlank="true" uuid="87dbda34-1d4b-43e3-95e8-4b60fcf9dfc1"/>
+				<reportElement positionType="Float" x="0" y="330" width="564" height="20" isRemoveLineWhenBlank="true" uuid="87dbda34-1d4b-43e3-95e8-4b60fcf9dfc1"/>
 				<staticText>
-					<reportElement x="0" y="0" width="190" height="20" uuid="cc21cdcd-549f-4515-8a43-69d6f6f50df4"/>
+					<reportElement x="0" y="0" width="138" height="20" uuid="cc21cdcd-549f-4515-8a43-69d6f6f50df4"/>
 					<textElement>
 						<font isBold="true"/>
 					</textElement>
 					<text><![CDATA[Aikaisemmat tutkimukset:]]></text>
 				</staticText>
-				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="190" y="0" width="364" height="20" isRemoveLineWhenBlank="true" uuid="404a084c-ea49-45a5-9fac-bf78c4819ec1"/>
-				</textField>
+				<componentElement>
+					<reportElement x="139" y="0" width="424" height="20" isRemoveLineWhenBlank="true" uuid="50c5515b-88e5-4868-81d5-f465fa4678ce"/>
+					<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+						<datasetRun subDataset="aiemmat_tutkimukset" uuid="780b9096-effe-407e-9047-2d6658f0d401">
+							<datasetParameter name="kohdeId">
+								<datasetParameterExpression><![CDATA[$F{kohde_id}]]></datasetParameterExpression>
+							</datasetParameter>
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+						<jr:listContents height="20" width="424">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="373" height="20" isRemoveLineWhenBlank="true" uuid="80ab16a1-74d3-4aed-b356-ef2c3f8ff3a1"/>
+								<textFieldExpression><![CDATA[IF(FIND($F{tutkimus_nimi},$F{pvm}) == -1, T(TRIM($F{tutkimus_nimi})) + IF($F{kayttaja} != null,", " + $F{kayttaja},"") + IF($F{pvm} !=null, ", "+ $F{pvm},""), T(TRIM($F{tutkimus_nimi})) + IF($F{kayttaja} != null,", " + $F{kayttaja},""))]]></textFieldExpression>
+							</textField>
+						</jr:listContents>
+					</jr:list>
+				</componentElement>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="0" y="330" width="564" height="20" isRemoveLineWhenBlank="true" uuid="a86b0647-9980-4f3b-bf37-aeacc31be55d">
+				<reportElement positionType="Float" x="0" y="360" width="564" height="20" isRemoveLineWhenBlank="true" uuid="a86b0647-9980-4f3b-bf37-aeacc31be55d">
 					<printWhenExpression><![CDATA[$F{taustatiedot}!=null]]></printWhenExpression>
 				</reportElement>
 				<staticText>
-					<reportElement x="0" y="0" width="190" height="20" uuid="3e24ac72-d7c1-4f12-bd61-b148898a62ee"/>
+					<reportElement x="0" y="0" width="138" height="20" uuid="3e24ac72-d7c1-4f12-bd61-b148898a62ee"/>
 					<textElement>
 						<font isBold="true"/>
 					</textElement>
 					<text><![CDATA[Taustatiedot kohteesta:]]></text>
 				</staticText>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="190" y="0" width="364" height="20" isRemoveLineWhenBlank="true" uuid="462f6bab-70a9-4012-ad14-1aed0df995fb"/>
+					<reportElement x="139" y="0" width="424" height="20" isRemoveLineWhenBlank="true" uuid="462f6bab-70a9-4012-ad14-1aed0df995fb"/>
 					<textFieldExpression><![CDATA[$F{taustatiedot}]]></textFieldExpression>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="0" y="350" width="564" height="20" isRemoveLineWhenBlank="true" uuid="e2f15d9a-f819-45c4-b075-68d6cd2e844a">
+				<reportElement positionType="Float" x="0" y="380" width="564" height="20" isRemoveLineWhenBlank="true" uuid="e2f15d9a-f819-45c4-b075-68d6cd2e844a">
 					<printWhenExpression><![CDATA[$F{havainnot}!=null]]></printWhenExpression>
 				</reportElement>
 				<staticText>
-					<reportElement x="0" y="0" width="190" height="20" uuid="bbed151b-abaa-4bd5-8228-0b94f89dac8c"/>
+					<reportElement x="0" y="0" width="138" height="20" uuid="bbed151b-abaa-4bd5-8228-0b94f89dac8c"/>
 					<textElement>
 						<font isBold="true"/>
 					</textElement>
 					<text><![CDATA[Havainnot:]]></text>
 				</staticText>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="190" y="0" width="364" height="20" isRemoveLineWhenBlank="true" uuid="16be4133-9080-431c-bc43-2b98355c5e32"/>
+					<reportElement x="139" y="0" width="424" height="20" isRemoveLineWhenBlank="true" uuid="16be4133-9080-431c-bc43-2b98355c5e32"/>
 					<textFieldExpression><![CDATA[$F{havainnot}]]></textFieldExpression>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="0" y="370" width="564" height="20" isRemoveLineWhenBlank="true" uuid="5aea9297-128e-4ab0-b214-5bd7c9ffc1ab">
+				<reportElement positionType="Float" x="0" y="400" width="564" height="20" isRemoveLineWhenBlank="true" uuid="5aea9297-128e-4ab0-b214-5bd7c9ffc1ab">
 					<printWhenExpression><![CDATA[$F{tulkinta}!=null]]></printWhenExpression>
 				</reportElement>
 				<staticText>
-					<reportElement x="0" y="0" width="190" height="20" uuid="92aa342d-7cc0-4213-82e7-b59302ec3c0e"/>
+					<reportElement x="0" y="0" width="138" height="20" uuid="92aa342d-7cc0-4213-82e7-b59302ec3c0e"/>
 					<textElement>
 						<font isBold="true"/>
 					</textElement>
 					<text><![CDATA[Tulkinta:]]></text>
 				</staticText>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="190" y="0" width="364" height="20" isRemoveLineWhenBlank="true" uuid="122085e7-98bc-4b17-bf89-03be8d5b5544"/>
+					<reportElement x="139" y="0" width="424" height="20" isRemoveLineWhenBlank="true" uuid="122085e7-98bc-4b17-bf89-03be8d5b5544"/>
 					<textFieldExpression><![CDATA[$F{tulkinta}]]></textFieldExpression>
 				</textField>
 			</frame>
 		</band>
 		<band height="363">
 			<componentElement>
-				<reportElement positionType="Float" x="0" y="10" width="554" height="350" uuid="f4adb0e3-57fa-47b2-beb4-380e60cc301c">
+				<reportElement x="0" y="10" width="554" height="350" isRemoveLineWhenBlank="true" uuid="f4adb0e3-57fa-47b2-beb4-380e60cc301c">
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					<property name="net.sf.jasperreports.export.headertoolbar.table.name" value=""/>
+					<printWhenExpression><![CDATA[$F{kuvat_lkm} != null]]></printWhenExpression>
 				</reportElement>
 				<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
 					<datasetRun subDataset="kuvat_kohde" uuid="1fe3e811-2046-4580-8e04-9622fbeb936c">
@@ -566,9 +679,11 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 				</jr:list>
 			</componentElement>
 		</band>
-		<band height="56">
+		<band height="50">
 			<subreport>
-				<reportElement x="0" y="0" width="595" height="50" uuid="1d8822e7-1042-4958-a699-efa8f717d042"/>
+				<reportElement x="0" y="0" width="595" height="50" isRemoveLineWhenBlank="true" uuid="1d8822e7-1042-4958-a699-efa8f717d042">
+					<printWhenExpression><![CDATA[$F{alakohteet_lkm} != null]]></printWhenExpression>
+				</reportElement>
 				<subreportParameter name="kohdeId">
 					<subreportParameterExpression><![CDATA[$F{kohde_id}]]></subreportParameterExpression>
 				</subreportParameter>
