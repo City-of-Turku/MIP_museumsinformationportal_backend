@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-12-15T13:06:56 -->
+<!-- 2020-12-15T23:32:45 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Alakohteet" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="435b7430-f0b0-4430-bff1-69f977403d18">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
 	<property name="net.sf.jasperreports.print.create.bookmarks" value="false"/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
 	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
@@ -165,22 +165,22 @@ where ak.ark_kohde_id = $P{kohdeId}]]>
 		<variableExpression><![CDATA[$V{MAP_SX1}+"%2C"+$V{MAP_SY1}+"%2C"+$V{MAP_SX2}+"%2C"+$V{MAP_SY2}]]></variableExpression>
 	</variable>
 	<variable name="MAP_URL" class="java.lang.String">
-		<variableExpression><![CDATA[$V{MAP_BBOX}==null?null:$P{MIP_MAPSERVER_URL} + "/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&FORMAT=image%2Fpng&TRANSPARENT=true&STYLES&LAYERS=mip%3Amml_taustakartta,mip%3Aark_kohteet&CQL_FILTER=INCLUDE;kohde_id%20%3D%20"+$F{kohde_id}+"%20AND%20on_alakohde%20%3D%20true&SRS=EPSG%3A3067&WIDTH=1605&HEIGHT=960&format_options=dpi%3A270&BBOX="+$V{MAP_BBOX}]]></variableExpression>
+		<variableExpression><![CDATA[$V{MAP_BBOX}==null?null:$P{MIP_MAPSERVER_URL} + "/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&FORMAT=image%2Fpng&TRANSPARENT=true&STYLES&LAYERS=mip%3Amml_taustakartta,mip%3Aark_alakohteet&CQL_FILTER=INCLUDE;alakohde_id%20%3D%20"+$F{alakohde_id}+"&SRS=EPSG%3A3067&WIDTH=1605&HEIGHT=960&format_options=dpi%3A270&BBOX="+$V{MAP_BBOX}]]></variableExpression>
 	</variable>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
 	<detail>
-		<band height="555" splitType="Stretch">
+		<band height="580" splitType="Stretch">
 			<textField>
-				<reportElement x="0" y="345" width="564" height="30" uuid="59860863-a0f9-428e-819a-a69a02160a17"/>
+				<reportElement x="0" y="330" width="564" height="30" uuid="59860863-a0f9-428e-819a-a69a02160a17"/>
 				<textElement>
 					<font size="12" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{alakohde_nimi}]]></textFieldExpression>
 			</textField>
 			<frame>
-				<reportElement x="0" y="0" width="554" height="340" uuid="3198b637-8c8e-4627-b675-c6e31a4fac3d">
+				<reportElement x="0" y="0" width="554" height="320" uuid="3198b637-8c8e-4627-b675-c6e31a4fac3d">
 					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>
@@ -211,16 +211,9 @@ where ak.ark_kohde_id = $P{kohdeId}]]>
 					<textElement textAlignment="Center" verticalAlignment="Middle"/>
 					<text><![CDATA[Alakohteella ei ole sijainti - tietoa]]></text>
 				</staticText>
-				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="0" y="320" width="364" height="20" isRemoveLineWhenBlank="true" uuid="a8cb92ed-da5d-4076-accf-e21020101a0d">
-						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
-						<printWhenExpression><![CDATA[$F{bbox_xmin}!=null]]></printWhenExpression>
-					</reportElement>
-					<textFieldExpression><![CDATA[$F{alakohde_nimi} + " sijainti."]]></textFieldExpression>
-				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="0" y="375" width="564" height="20" uuid="cb36b41d-9492-4cbd-b907-8472917f7601">
+				<reportElement positionType="Float" x="0" y="360" width="564" height="20" uuid="cb36b41d-9492-4cbd-b907-8472917f7601">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 					<printWhenExpression><![CDATA[$F{alakohde_nimi} != null]]></printWhenExpression>
@@ -240,7 +233,7 @@ where ak.ark_kohde_id = $P{kohdeId}]]>
 				</staticText>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="0" y="395" width="564" height="20" isRemoveLineWhenBlank="true" uuid="a0803dec-6313-4c1a-8009-7df7f010c4d8">
+				<reportElement positionType="Float" x="0" y="380" width="564" height="20" isRemoveLineWhenBlank="true" uuid="a0803dec-6313-4c1a-8009-7df7f010c4d8">
 					<printWhenExpression><![CDATA[$F{tyyppi} != null]]></printWhenExpression>
 				</reportElement>
 				<staticText>
@@ -256,7 +249,7 @@ where ak.ark_kohde_id = $P{kohdeId}]]>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="0" y="415" width="564" height="20" isRemoveLineWhenBlank="true" uuid="72eed1be-d083-414b-acee-8e4cf5140af9">
+				<reportElement positionType="Float" x="0" y="400" width="564" height="20" isRemoveLineWhenBlank="true" uuid="72eed1be-d083-414b-acee-8e4cf5140af9">
 					<printWhenExpression><![CDATA[$F{tyyppitarkenne} != null]]></printWhenExpression>
 				</reportElement>
 				<staticText>
@@ -274,7 +267,7 @@ where ak.ark_kohde_id = $P{kohdeId}]]>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="0" y="435" width="564" height="20" isRemoveLineWhenBlank="true" uuid="2f0d3ad3-5929-46f9-95a8-40a382efaff7">
+				<reportElement positionType="Float" x="0" y="420" width="564" height="20" isRemoveLineWhenBlank="true" uuid="2f0d3ad3-5929-46f9-95a8-40a382efaff7">
 					<printWhenExpression><![CDATA[$F{koordselite} != null]]></printWhenExpression>
 				</reportElement>
 				<staticText>
@@ -290,7 +283,7 @@ where ak.ark_kohde_id = $P{kohdeId}]]>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="0" y="455" width="564" height="80" isRemoveLineWhenBlank="true" uuid="aeb9fb36-bc70-4656-b667-b20aa74400ba"/>
+				<reportElement positionType="Float" x="0" y="440" width="564" height="80" isRemoveLineWhenBlank="true" uuid="aeb9fb36-bc70-4656-b667-b20aa74400ba"/>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 					<reportElement x="138" y="40" width="426" height="20" isRemoveLineWhenBlank="true" uuid="abf2a8e5-30ee-46c4-b648-402d332779e6">
 						<printWhenExpression><![CDATA[$F{e} != null]]></printWhenExpression>
@@ -321,11 +314,11 @@ where ak.ark_kohde_id = $P{kohdeId}]]>
 					<reportElement x="138" y="60" width="426" height="20" isRemoveLineWhenBlank="true" uuid="1a25296f-580b-4d38-acac-c18694991a5e">
 						<printWhenExpression><![CDATA[$F{korkeus_max} != null]]></printWhenExpression>
 					</reportElement>
-					<textFieldExpression><![CDATA["Z: " +  T($F{korkeus_max}) + "m mpy"]]></textFieldExpression>
+					<textFieldExpression><![CDATA["Z: " +  $F{korkeus_max} + "m mpy"]]></textFieldExpression>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="0" y="535" width="564" height="20" isRemoveLineWhenBlank="true" uuid="60d295be-8abd-4455-8942-82f8d6c89d89">
+				<reportElement positionType="Float" x="0" y="520" width="564" height="20" isRemoveLineWhenBlank="true" uuid="60d295be-8abd-4455-8942-82f8d6c89d89">
 					<printWhenExpression><![CDATA[$F{kuvaus} != null]]></printWhenExpression>
 				</reportElement>
 				<staticText>

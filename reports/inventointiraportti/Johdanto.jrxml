@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-12-01T12:03:06 -->
+<!-- 2020-12-15T22:15:10 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Johdanto" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="f4dd15b9-83fc-453d-84cb-38a4f4189994">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
 	<property name="net.sf.jasperreports.print.create.bookmarks" value="true"/>
 	<subDataset name="kuvat_johdanto" uuid="4adfba39-e0fe-4cd2-84ba-d5d0180d7818">
 		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
@@ -32,23 +32,18 @@ and atk.kappale = 'johdanto']]>
 	<parameter name="tutkimusraporttiId" class="java.lang.Long"/>
 	<parameter name="MIP_BACKEND_URL" class="java.lang.String"/>
 	<queryString language="SQL">
-		<![CDATA[select * from ark_tutkimusraportti where id = $P{tutkimusraporttiId}]]>
+		<![CDATA[select 
+tr.johdanto, joh_kuvat.lkm
+from ark_tutkimusraportti tr
+left join (select count(atk.id) as lkm, atk.ark_tutkimusraportti_id 
+    from ark_tutkimusraportti_kuva atk 
+    where atk.kappale = 'johdanto'
+    group by ark_tutkimusraportti_id 
+) joh_kuvat on joh_kuvat.ark_tutkimusraportti_id = tr.id
+where id = $P{tutkimusraporttiId}]]>
 	</queryString>
-	<field name="id" class="java.lang.Long"/>
-	<field name="ark_tutkimus_id" class="java.lang.Long"/>
-	<field name="arkisto_ja_rekisteritiedot" class="java.lang.String"/>
 	<field name="johdanto" class="java.lang.String"/>
-	<field name="tutkimus_ja_dokumentointimenetelmat" class="java.lang.String"/>
-	<field name="havainnot" class="java.lang.String"/>
-	<field name="yhteenveto" class="java.lang.String"/>
-	<field name="lahdeluettelo" class="java.lang.String"/>
-	<field name="liitteet" class="java.lang.String"/>
-	<field name="luoja" class="java.lang.Integer"/>
-	<field name="luotu" class="java.sql.Timestamp"/>
-	<field name="muokkaaja" class="java.lang.Integer"/>
-	<field name="muokattu" class="java.sql.Timestamp"/>
-	<field name="poistaja" class="java.lang.Integer"/>
-	<field name="poistettu" class="java.sql.Timestamp"/>
+	<field name="lkm" class="java.lang.Long"/>
 	<pageHeader>
 		<band height="30">
 			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
@@ -77,13 +72,16 @@ and atk.kappale = 'johdanto']]>
 		</band>
 	</pageHeader>
 	<detail>
-		<band height="414" splitType="Stretch">
+		<band height="60" splitType="Stretch">
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 				<reportElement x="0" y="0" width="554" height="60" isRemoveLineWhenBlank="true" uuid="1e4be5fb-e2e0-4185-b218-dae728b97a2c"/>
 				<textFieldExpression><![CDATA[$F{johdanto}]]></textFieldExpression>
 			</textField>
+		</band>
+		<band height="350">
+			<printWhenExpression><![CDATA[$F{lkm} != null]]></printWhenExpression>
 			<componentElement>
-				<reportElement positionType="Float" x="0" y="60" width="554" height="350" isRemoveLineWhenBlank="true" uuid="d6304f20-9004-4e2f-95cd-f3839d4b2e24">
+				<reportElement positionType="Float" x="0" y="0" width="554" height="350" isRemoveLineWhenBlank="true" uuid="d6304f20-9004-4e2f-95cd-f3839d4b2e24">
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					<property name="net.sf.jasperreports.export.headertoolbar.table.name" value=""/>
 				</reportElement>
