@@ -129,7 +129,16 @@ class ReportController extends Controller {
 			     } else if($request->parameters['mode'] == 'poistetut_loydot') {
 			         $tyyppi = 'Poistetutloytoraportti';
 			     }
-			    break;
+					break;
+			case 'Nayteluettelo':
+					$parameters = ReportServer::generateNayteluetteloParameters($request->parameters);
+					break;
+			case 'Karttaluettelo':
+					$parameters = ReportServer::generateKarttaluetteloParameters($request->parameters);
+					break;
+			case 'Valokuvaluettelo':
+					$parameters = ReportServer::generateValokuvaluetteloParameters($request->parameters);
+					break;
 			case 'Loyto_luettelointikortit':
 				$parameters = ReportServer::generateLoytoLuettelointikortitParameters($request->parameters);
 				break;
@@ -215,7 +224,7 @@ class ReportController extends Controller {
 
 		$rr = json_encode($rr);
 
-		//Log::debug($rr);
+		// Log::debug($rr);
 
 		$res = $client->request("POST", $url, [
 				'http_errors' => false,

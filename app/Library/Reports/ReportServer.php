@@ -294,6 +294,52 @@ class ReportServer {
 	    return $parameters;
 	}
 
+	public static function generateNayteluetteloParameters($inputParams) {
+		$parameters = array(
+				array(
+					'name' => 'tutkimusId',
+					'value' => $inputParams['tutkimusId']
+				),
+				array(
+					'name' => 'naytekoodi',
+					'value' => $inputParams['naytekoodi']
+				),
+				array(
+					'name' => 'reportDisplayName',
+					'value' => $inputParams['reportDisplayName']
+				)
+			);
+		return $parameters;
+	}
+
+	public static function generateKarttaluetteloParameters($inputParams) {
+		$parameters = array(
+				array(
+					'name' => 'tutkimusId',
+					'value' => $inputParams['tutkimusId']
+				),
+				array(
+					'name' => 'reportDisplayName',
+					'value' => $inputParams['reportDisplayName']
+				)
+			);
+		return $parameters;
+	}
+
+	public static function generateValokuvaluetteloParameters($inputParams) {
+		$parameters = array(
+				array(
+					'name' => 'tutkimusId',
+					'value' => $inputParams['tutkimusId']
+				),
+				array(
+					'name' => 'reportDisplayName',
+					'value' => $inputParams['reportDisplayName']
+				)
+			);
+		return $parameters;
+	}
+
 	public static function generateLoytoLuettelointikortitParameters($inputParams) {
 		$idStr = implode(",", $inputParams['loyto_idt']);
 		$parameters = array(
