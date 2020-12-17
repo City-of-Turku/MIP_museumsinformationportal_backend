@@ -57,4 +57,3 @@ left join ark_kohdelaji kohdelaji on kohdelaji.id = k.ark_kohdelaji_id
 left join rajaustarkkuus on rajaustarkkuus.id = k.rajaustarkkuus_id
 where k.poistettu is null
 and k.id::text ILIKE '%ark_kohde_id%'::text
-and (on_alakohde::text ilike '%alakohde%'::text OR on_alakohde::text like '%%%'::text)

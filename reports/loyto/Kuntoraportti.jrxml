@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-12-11T10:56:21 -->
+<!-- 2020-12-16T08:47:42 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Kuntoraportti" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="70f50391-5405-497c-af51-13d2fe4d51e5">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="qa"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
@@ -615,11 +615,13 @@ order by id]]>
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="130" y="0" width="424" height="30" uuid="b315c691-c93a-4b49-ac26-2be94582ee77"/>
+					<reportElement x="130" y="0" width="424" height="15" uuid="b315c691-c93a-4b49-ac26-2be94582ee77">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
 					<textElement>
 						<font isBold="false"/>
 					</textElement>
-					<textFieldExpression><![CDATA[$F{kuvaus} +"\n"+"Merkinnät: "+ $F{merkinnat}]]></textFieldExpression>
+					<textFieldExpression><![CDATA[$F{kuvaus}]]></textFieldExpression>
 				</textField>
 				<textField>
 					<reportElement x="0" y="0" width="130" height="30" uuid="94a24ba6-8960-48d6-8bfe-83928df1c36f"/>
@@ -627,6 +629,16 @@ order by id]]>
 						<font isBold="false"/>
 					</textElement>
 					<textFieldExpression><![CDATA["Kuvaus:"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="130" y="15" width="424" height="15" uuid="3f7fc938-3073-4e4c-ad1b-6642fd98658d">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<printWhenExpression><![CDATA[$F{merkinnat} != null]]></printWhenExpression>
+					</reportElement>
+					<textElement>
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Merkinnät: "+ $F{merkinnat}]]></textFieldExpression>
 				</textField>
 			</frame>
 			<frame>

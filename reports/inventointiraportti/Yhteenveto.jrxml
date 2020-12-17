@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-12-01T14:56:00 -->
+<!-- 2020-12-17T14:59:47 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Yhteenveto" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="bd8f5cc0-b60f-43d7-a44a-58825d4a03e3">
 	<property name="net.sf.jasperreports.print.create.bookmarks" value="true"/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
@@ -32,11 +32,17 @@ and atk.kappale = 'havainnot']]>
 	<parameter name="tutkimusraporttiId" class="java.lang.Long"/>
 	<parameter name="MIP_BACKEND_URL" class="java.lang.String"/>
 	<queryString language="SQL">
-		<![CDATA[select tr.yhteenveto 
+		<![CDATA[select tr.yhteenveto, yht_kuvat.lkm
 from ark_tutkimusraportti tr
+left join (select count(atk.id) as lkm, atk.ark_tutkimusraportti_id 
+    from ark_tutkimusraportti_kuva atk 
+    where atk.kappale = 'yhteenveto'
+    group by ark_tutkimusraportti_id 
+) yht_kuvat on yht_kuvat.ark_tutkimusraportti_id = tr.id
 where tr.id = $P{tutkimusraporttiId}]]>
 	</queryString>
 	<field name="yhteenveto" class="java.lang.String"/>
+	<field name="lkm" class="java.lang.Long"/>
 	<pageHeader>
 		<band height="30" splitType="Stretch">
 			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
@@ -65,15 +71,18 @@ where tr.id = $P{tutkimusraporttiId}]]>
 		</band>
 	</pageHeader>
 	<detail>
-		<band height="444" splitType="Stretch">
+		<band height="90" splitType="Stretch">
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 				<reportElement x="0" y="0" width="554" height="90" isRemoveLineWhenBlank="true" uuid="9b832699-5fe6-4d18-90f2-bbd487ab3e6c">
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 				</reportElement>
 				<textFieldExpression><![CDATA[$F{yhteenveto}]]></textFieldExpression>
 			</textField>
+		</band>
+		<band height="350">
+			<printWhenExpression><![CDATA[$F{lkm} != null]]></printWhenExpression>
 			<componentElement>
-				<reportElement positionType="Float" x="0" y="90" width="554" height="350" isRemoveLineWhenBlank="true" uuid="868692f2-3413-4dd7-938f-fff35ec1c08a">
+				<reportElement positionType="Float" x="0" y="0" width="554" height="350" isRemoveLineWhenBlank="true" uuid="868692f2-3413-4dd7-938f-fff35ec1c08a">
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					<property name="net.sf.jasperreports.export.headertoolbar.table.name" value=""/>
 				</reportElement>
@@ -103,7 +112,7 @@ where tr.id = $P{tutkimusraporttiId}]]>
 							<reportElement x="0" y="316" width="554" height="30" isRemoveLineWhenBlank="true" uuid="16bdae7b-d4e0-4ff6-b917-b8415a5f48cd">
 								<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 							</reportElement>
-							<textFieldExpression><![CDATA[$F{otsake} + ". " + $F{kuvaus} + "\n" + $F{kuvaaja} + ", " + $F{kuvauspvm}]]></textFieldExpression>
+							<textFieldExpression><![CDATA[$F{otsake} + ". " + $F{kuvaus} + "\n" + $F{kuvaaja} + ", " + new java.text.SimpleDateFormat("dd.MM.yyyy").format($F{kuvauspvm})]]></textFieldExpression>
 						</textField>
 					</jr:listContents>
 				</jr:list>

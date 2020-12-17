@@ -52,6 +52,7 @@ class TutkimusraporttiController extends Controller
 			TutkimusraporttiKuva::paivita_kuvat($entity->id, $request->input('properties.kuvat_johdanto'), 'johdanto');
 			TutkimusraporttiKuva::paivita_kuvat($entity->id, $request->input('properties.kuvat_havainnot'), 'havainnot');
 			TutkimusraporttiKuva::paivita_kuvat($entity->id, $request->input('properties.kuvat_yhteenveto'), 'yhteenveto');
+			TutkimusraporttiKuva::paivita_kuvat($entity->id, $request->input('properties.kuvat_tutkimus_ja_dokumentointimenetelmat'), 'tutkimus_ja_dokumentointimenetelmat');
 		} catch (Exception $e) {
 			Log::debug("Tutkimusraportti store failed: " . $e);
 			DB::rollback();
@@ -115,6 +116,7 @@ class TutkimusraporttiController extends Controller
 			TutkimusraporttiKuva::paivita_kuvat($entity->id, $request->input('properties.kuvat_johdanto'), 'johdanto');
 			TutkimusraporttiKuva::paivita_kuvat($entity->id, $request->input('properties.kuvat_havainnot'), 'havainnot');
 			TutkimusraporttiKuva::paivita_kuvat($entity->id, $request->input('properties.kuvat_yhteenveto'), 'yhteenveto');
+			TutkimusraporttiKuva::paivita_kuvat($entity->id, $request->input('properties.kuvat_tutkimus_ja_dokumentointimenetelmat'), 'tutkimus_ja_dokumentointimenetelmat');
 
 			DB::commit();
 

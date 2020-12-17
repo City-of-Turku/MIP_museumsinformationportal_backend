@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-12-15T13:05:43 -->
+<!-- 2020-12-17T14:58:50 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Kohteet" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="46fb868b-ad4e-4b5e-bfc1-29f32a3381f3">
 	<property name="net.sf.jasperreports.print.create.bookmarks" value="true"/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
 	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
@@ -42,8 +42,7 @@ order by k.id]]>
 		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
 		<parameter name="kohdeId" class="java.lang.Long"/>
 		<queryString language="SQL">
-			<![CDATA[
-select kohde_id, tutkimus_nimi, tutkimuslaji, kayttaja, pvm
+			<![CDATA[select kohde_id, tutkimus_nimi, tutkimuslaji, kayttaja, pvm
 from (
     --tarkastukset
     select distinct k.id as kohde_id, k.nimi,
@@ -296,10 +295,10 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 		<variableExpression><![CDATA[null]]></variableExpression>
 	</variable>
 	<detail>
-		<band height="345" splitType="Stretch">
+		<band height="331" splitType="Stretch">
 			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 			<frame>
-				<reportElement x="0" y="0" width="554" height="340" uuid="2f60f1f2-3a6a-43ca-b773-4e68f5f369a5">
+				<reportElement x="0" y="0" width="554" height="320" uuid="2f60f1f2-3a6a-43ca-b773-4e68f5f369a5">
 					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>
@@ -320,12 +319,6 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 					</box>
 					<imageExpression><![CDATA[$V{MAP_URL}]]></imageExpression>
 				</image>
-				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="0" y="320" width="364" height="20" isRemoveLineWhenBlank="true" uuid="24211f46-d0e5-4d27-be51-31ca9f14bcf4">
-						<printWhenExpression><![CDATA[$F{bbox_xmin}!=null]]></printWhenExpression>
-					</reportElement>
-					<textFieldExpression><![CDATA[T($F{kohde_nimi}) + " sijainti."]]></textFieldExpression>
-				</textField>
 				<staticText>
 					<reportElement x="3" y="141" width="550" height="30" uuid="bbc2eb20-c47b-40d2-a99e-8dd8f4e1bb0d">
 						<printWhenExpression><![CDATA[$F{bbox_xmin}==null]]></printWhenExpression>
@@ -346,7 +339,7 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 				<textElement>
 					<font size="12" isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{muinaisjaannostunnus} != null ? T($F{kohde_nimi}) +" ("+$F{muinaisjaannostunnus}+")" : T($F{kohde_nimi})]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{muinaisjaannostunnus} != null ? $F{kohde_nimi} +" ("+$F{muinaisjaannostunnus}+")" : $F{kohde_nimi}]]></textFieldExpression>
 				<anchorNameExpression><![CDATA[$F{kohde_nimi}]]></anchorNameExpression>
 			</textField>
 			<frame>
@@ -513,7 +506,7 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 					<reportElement x="139" y="60" width="424" height="20" isRemoveLineWhenBlank="true" uuid="d7bcb503-345c-4e1b-b4fd-37e220b57992">
 						<printWhenExpression><![CDATA[$F{korkeus_max} != null]]></printWhenExpression>
 					</reportElement>
-					<textFieldExpression><![CDATA["Z: " + $F{korkeus_max}]]></textFieldExpression>
+					<textFieldExpression><![CDATA["Z: " + $F{korkeus_max} + "m mpy"]]></textFieldExpression>
 				</textField>
 			</frame>
 			<frame>
@@ -561,13 +554,15 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 				</staticText>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 					<reportElement x="139" y="0" width="424" height="20" isRemoveLineWhenBlank="true" uuid="95fcf305-4e38-4bbc-929b-9935ada56516"/>
-					<textFieldExpression><![CDATA[$F{peruskarttanumero} + " " + T($F{peruskarttanimi})]]></textFieldExpression>
+					<textFieldExpression><![CDATA[$F{peruskarttanumero} + " " + $F{peruskarttanimi}]]></textFieldExpression>
 				</textField>
 			</frame>
 			<frame>
 				<reportElement positionType="Float" x="0" y="330" width="564" height="20" isRemoveLineWhenBlank="true" uuid="87dbda34-1d4b-43e3-95e8-4b60fcf9dfc1"/>
 				<staticText>
-					<reportElement x="0" y="0" width="138" height="20" uuid="cc21cdcd-549f-4515-8a43-69d6f6f50df4"/>
+					<reportElement x="0" y="0" width="138" height="20" uuid="cc21cdcd-549f-4515-8a43-69d6f6f50df4">
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					</reportElement>
 					<textElement>
 						<font isBold="true"/>
 					</textElement>
@@ -575,7 +570,7 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 				</staticText>
 				<componentElement>
 					<reportElement x="139" y="0" width="424" height="20" isRemoveLineWhenBlank="true" uuid="50c5515b-88e5-4868-81d5-f465fa4678ce"/>
-					<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
 						<datasetRun subDataset="aiemmat_tutkimukset" uuid="780b9096-effe-407e-9047-2d6658f0d401">
 							<datasetParameter name="kohdeId">
 								<datasetParameterExpression><![CDATA[$F{kohde_id}]]></datasetParameterExpression>
@@ -584,8 +579,8 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 						</datasetRun>
 						<jr:listContents height="20" width="424">
 							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-								<reportElement x="0" y="0" width="373" height="20" isRemoveLineWhenBlank="true" uuid="80ab16a1-74d3-4aed-b356-ef2c3f8ff3a1"/>
-								<textFieldExpression><![CDATA[IF(FIND($F{tutkimus_nimi},$F{pvm}) == -1, T(TRIM($F{tutkimus_nimi})) + IF($F{kayttaja} != null,", " + $F{kayttaja},"") + IF($F{pvm} !=null, ", "+ $F{pvm},""), T(TRIM($F{tutkimus_nimi})) + IF($F{kayttaja} != null,", " + $F{kayttaja},""))]]></textFieldExpression>
+								<reportElement x="0" y="0" width="424" height="20" isRemoveLineWhenBlank="true" uuid="80ab16a1-74d3-4aed-b356-ef2c3f8ff3a1"/>
+								<textFieldExpression><![CDATA[$F{tutkimus_nimi} + " " + $F{tutkimuslaji} +" " + $F{kayttaja} +" " + $F{pvm}]]></textFieldExpression>
 							</textField>
 						</jr:listContents>
 					</jr:list>
@@ -640,12 +635,12 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 				</textField>
 			</frame>
 		</band>
-		<band height="363">
+		<band height="380">
+			<printWhenExpression><![CDATA[$F{kuvat_lkm} != null]]></printWhenExpression>
 			<componentElement>
 				<reportElement x="0" y="10" width="554" height="350" isRemoveLineWhenBlank="true" uuid="f4adb0e3-57fa-47b2-beb4-380e60cc301c">
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					<property name="net.sf.jasperreports.export.headertoolbar.table.name" value=""/>
-					<printWhenExpression><![CDATA[$F{kuvat_lkm} != null]]></printWhenExpression>
 				</reportElement>
 				<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
 					<datasetRun subDataset="kuvat_kohde" uuid="1fe3e811-2046-4580-8e04-9622fbeb936c">
@@ -673,17 +668,16 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 							<reportElement x="0" y="316" width="554" height="30" isRemoveLineWhenBlank="true" uuid="3abb29c8-c126-4592-9499-7352d2f61aa0">
 								<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 							</reportElement>
-							<textFieldExpression><![CDATA[$F{otsake} + ". " + $F{kuvaus} + "\n" + $F{kuvaaja} + ", " + $F{kuvauspvm}]]></textFieldExpression>
+							<textFieldExpression><![CDATA[$F{otsake} + ". " + $F{kuvaus} + "\n" + $F{kuvaaja} + ", " + new java.text.SimpleDateFormat("dd.MM.yyyy").format($F{kuvauspvm})]]></textFieldExpression>
 						</textField>
 					</jr:listContents>
 				</jr:list>
 			</componentElement>
 		</band>
 		<band height="50">
+			<printWhenExpression><![CDATA[$F{alakohteet_lkm} != null]]></printWhenExpression>
 			<subreport>
-				<reportElement x="0" y="0" width="595" height="50" isRemoveLineWhenBlank="true" uuid="1d8822e7-1042-4958-a699-efa8f717d042">
-					<printWhenExpression><![CDATA[$F{alakohteet_lkm} != null]]></printWhenExpression>
-				</reportElement>
+				<reportElement x="0" y="0" width="595" height="50" isRemoveLineWhenBlank="true" uuid="1d8822e7-1042-4958-a699-efa8f717d042"/>
 				<subreportParameter name="kohdeId">
 					<subreportParameterExpression><![CDATA[$F{kohde_id}]]></subreportParameterExpression>
 				</subreportParameter>

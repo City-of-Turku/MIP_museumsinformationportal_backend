@@ -198,7 +198,7 @@
           <ogc:Filter>
             <ogc:PropertyIsEqualTo>
               <ogc:PropertyName>tutkimuslaji</ogc:PropertyName>
-              <ogc:Literal>Inventointi</ogc:Literal>
+              <ogc:Literal>Arkeologinen inventointi</ogc:Literal>
             </ogc:PropertyIsEqualTo>
           </ogc:Filter>
           <PointSymbolizer>
@@ -226,7 +226,7 @@
           <ogc:Filter>
             <ogc:PropertyIsEqualTo>
               <ogc:PropertyName>tutkimuslaji</ogc:PropertyName>
-              <ogc:Literal>Inventointi</ogc:Literal>
+              <ogc:Literal>Arkeologinen inventointi</ogc:Literal>
             </ogc:PropertyIsEqualTo>
           </ogc:Filter>
           <PolygonSymbolizer>
