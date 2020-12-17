@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-12-17T14:36:08 -->
+<!-- 2020-12-17T14:54:16 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Nayteluettelo" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="7417a2e2-63d4-404b-adb6-0f467eb458ef">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
@@ -110,7 +110,7 @@ order by yksikko, juokseva]]>
 						<textFieldExpression><![CDATA["Ajoitusnäyteluettelo " + $F{paanumero}+":"]]></textFieldExpression>
 					</textField>
 					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-						<reportElement positionType="Float" isPrintRepeatedValues="false" mode="Opaque" x="0" y="0" width="554" height="20" isRemoveLineWhenBlank="true" backcolor="#CCCCCC" uuid="fdd28d84-fea7-4ffd-a1ca-7640297bfb75">
+						<reportElement positionType="Float" isPrintRepeatedValues="false" mode="Opaque" x="0" y="0" width="555" height="20" isRemoveLineWhenBlank="true" backcolor="#CCCCCC" uuid="fdd28d84-fea7-4ffd-a1ca-7640297bfb75">
 							<printWhenExpression><![CDATA[$P{naytekoodi}.equals("LN")]]></printWhenExpression>
 						</reportElement>
 						<textElement>
