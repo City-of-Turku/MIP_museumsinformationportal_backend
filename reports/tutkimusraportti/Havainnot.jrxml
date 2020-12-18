@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-12-17T15:00:48 -->
+<!-- 2020-12-17T15:41:11 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Havainnot" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="c7fa246a-c218-4a4e-ae0f-c7a326f85204">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
@@ -137,7 +137,7 @@ where tr.id = $P{tutkimusraporttiId}]]>
 							<reportElement x="0" y="316" width="554" height="30" isRemoveLineWhenBlank="true" uuid="504943fe-077e-4ef6-b708-c3e6ea2b16d3">
 								<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 							</reportElement>
-							<textFieldExpression><![CDATA[$F{otsake} + ". " + $F{kuvaus} + "\n" + $F{kuvaaja} + ", "  + new java.text.SimpleDateFormat("dd.MM.yyyy").format($F{kuvauspvm})]]></textFieldExpression>
+							<textFieldExpression><![CDATA[$F{otsake} + ". " + $F{kuvaus} + "\n" + $F{kuvaaja} ]]></textFieldExpression>
 						</textField>
 					</jr:listContents>
 				</jr:list>

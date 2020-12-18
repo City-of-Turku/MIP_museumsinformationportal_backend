@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-12-17T15:02:22 -->
+<!-- 2020-12-17T21:54:44 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Yksikot" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="435b7430-f0b0-4430-bff1-69f977403d18">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
 	<property name="net.sf.jasperreports.print.create.bookmarks" value="false"/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
 	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
@@ -85,13 +85,13 @@ order by jarjestys]]>
 		<band splitType="Stretch"/>
 	</background>
 	<detail>
-		<band height="616" splitType="Stretch">
+		<band height="592" splitType="Stretch">
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="0" y="140" width="594" height="40" isRemoveLineWhenBlank="true" uuid="c225b724-eda2-4609-904a-6c82d42f7ff0"/>
+				<reportElement positionType="Float" x="0" y="115" width="594" height="25" isRemoveLineWhenBlank="true" uuid="c225b724-eda2-4609-904a-6c82d42f7ff0"/>
 				<textFieldExpression><![CDATA[$F{kuvaus}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="0" y="210" width="594" height="50" isRemoveLineWhenBlank="true" uuid="c7369119-3f5c-451d-a51e-998d69e41640"/>
+				<reportElement positionType="Float" x="0" y="165" width="594" height="25" isRemoveLineWhenBlank="true" uuid="c7369119-3f5c-451d-a51e-998d69e41640"/>
 				<textFieldExpression><![CDATA[$F{tulkinta}]]></textFieldExpression>
 			</textField>
 			<textField>
@@ -102,11 +102,11 @@ order by jarjestys]]>
 				<textFieldExpression><![CDATA[$F{yksikkotunnus}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement x="180" y="30" width="414" height="20" isRemoveLineWhenBlank="true" uuid="61c32fc2-0904-46ef-9e65-c01084c76a63"/>
+				<reportElement x="160" y="30" width="434" height="20" isRemoveLineWhenBlank="true" uuid="61c32fc2-0904-46ef-9e65-c01084c76a63"/>
 				<textFieldExpression><![CDATA[$F{paamaalaji}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="0" y="30" width="140" height="20" isRemoveLineWhenBlank="true" uuid="f9d21d6a-1c05-4c97-a124-334eda227a07">
+				<reportElement x="0" y="30" width="160" height="20" isRemoveLineWhenBlank="true" uuid="f9d21d6a-1c05-4c97-a124-334eda227a07">
 					<printWhenExpression><![CDATA[$F{paamaalaji} != null]]></printWhenExpression>
 				</reportElement>
 				<textElement>
@@ -115,11 +115,11 @@ order by jarjestys]]>
 				<text><![CDATA[Päämaalaji]]></text>
 			</staticText>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="180" y="50" width="414" height="20" isRemoveLineWhenBlank="true" uuid="b676bc58-24d3-44dd-a250-de7153a2aa0f"/>
+				<reportElement positionType="Float" x="160" y="50" width="434" height="20" isRemoveLineWhenBlank="true" uuid="b676bc58-24d3-44dd-a250-de7153a2aa0f"/>
 				<textFieldExpression><![CDATA[$F{paasekoitteet}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement positionType="Float" x="0" y="50" width="140" height="20" isRemoveLineWhenBlank="true" uuid="085e57b2-42f9-4509-af8d-c355daaeae58">
+				<reportElement positionType="Float" x="0" y="50" width="160" height="20" isRemoveLineWhenBlank="true" uuid="085e57b2-42f9-4509-af8d-c355daaeae58">
 					<printWhenExpression><![CDATA[$F{paasekoitteet} != null]]></printWhenExpression>
 				</reportElement>
 				<textElement>
@@ -128,11 +128,11 @@ order by jarjestys]]>
 				<text><![CDATA[Pääsekoite]]></text>
 			</staticText>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="180" y="70" width="414" height="20" isRemoveLineWhenBlank="true" uuid="7212b272-cd3b-42a2-bc79-32431a452878"/>
+				<reportElement positionType="Float" x="160" y="70" width="434" height="20" isRemoveLineWhenBlank="true" uuid="7212b272-cd3b-42a2-bc79-32431a452878"/>
 				<textFieldExpression><![CDATA[$F{muut_maalajit}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement positionType="Float" x="0" y="70" width="140" height="20" isRemoveLineWhenBlank="true" uuid="25326d19-07e9-4730-b670-dd871af275f3">
+				<reportElement positionType="Float" x="0" y="70" width="160" height="20" isRemoveLineWhenBlank="true" uuid="25326d19-07e9-4730-b670-dd871af275f3">
 					<printWhenExpression><![CDATA[$F{muut_maalajit} != null]]></printWhenExpression>
 				</reportElement>
 				<textElement>
@@ -141,7 +141,8 @@ order by jarjestys]]>
 				<text><![CDATA[Kerroksessa esiintyy lisäksi]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="Float" x="0" y="120" width="100" height="20" isRemoveLineWhenBlank="true" uuid="39cbf0c1-633a-4666-99f5-b881b4b4fa7d">
+				<reportElement positionType="Float" x="0" y="100" width="100" height="15" isRemoveLineWhenBlank="true" uuid="39cbf0c1-633a-4666-99f5-b881b4b4fa7d">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 					<printWhenExpression><![CDATA[$F{kuvaus} != null]]></printWhenExpression>
 				</reportElement>
 				<textElement>
@@ -150,7 +151,8 @@ order by jarjestys]]>
 				<text><![CDATA[Kuvaus]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="Float" x="0" y="190" width="100" height="20" isRemoveLineWhenBlank="true" uuid="ae5c0631-3441-4bd4-a306-c8877fadac83">
+				<reportElement positionType="Float" x="0" y="150" width="100" height="15" isRemoveLineWhenBlank="true" uuid="ae5c0631-3441-4bd4-a306-c8877fadac83">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 					<printWhenExpression><![CDATA[$F{tulkinta} != null]]></printWhenExpression>
 				</reportElement>
 				<textElement>
@@ -159,7 +161,7 @@ order by jarjestys]]>
 				<text><![CDATA[Tulkinta]]></text>
 			</staticText>
 			<componentElement>
-				<reportElement positionType="Float" x="20" y="260" width="554" height="350" isRemoveLineWhenBlank="true" uuid="dcd52419-764f-470e-b786-8b932b6e2ae1">
+				<reportElement positionType="Float" x="20" y="230" width="554" height="350" isRemoveLineWhenBlank="true" uuid="dcd52419-764f-470e-b786-8b932b6e2ae1">
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					<property name="net.sf.jasperreports.export.headertoolbar.table.name" value=""/>
 				</reportElement>
@@ -189,17 +191,13 @@ order by jarjestys]]>
 							<reportElement x="0" y="316" width="554" height="30" isRemoveLineWhenBlank="true" uuid="a96360c9-6c5d-4f9d-ac92-23d9d7b4f7c2">
 								<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 							</reportElement>
-							<textFieldExpression><![CDATA[$F{otsake} + ". " + $F{kuvaus} + "\n" + $F{kuvaaja} + ", "  + new java.text.SimpleDateFormat("dd.MM.yyyy").format($F{kuvauspvm})]]></textFieldExpression>
+							<textFieldExpression><![CDATA[$F{otsake} + ". " + $F{kuvaus} + "\n" + $F{kuvaaja}]]></textFieldExpression>
 						</textField>
 					</jr:listContents>
 				</jr:list>
 			</componentElement>
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="180" y="90" width="414" height="20" isRemoveLineWhenBlank="true" uuid="367f0db4-f1fc-4dea-aef1-b91ac03fc52e"/>
-				<textFieldExpression><![CDATA[$F{ajoitus}]]></textFieldExpression>
-			</textField>
 			<staticText>
-				<reportElement positionType="Float" x="0" y="90" width="140" height="20" isRemoveLineWhenBlank="true" uuid="66bb4b8e-d71b-44ca-a74e-3d95f5f8546c">
+				<reportElement positionType="Float" x="0" y="200" width="160" height="20" isRemoveLineWhenBlank="true" uuid="4aefb77a-65db-43a6-a974-b18155c13513">
 					<printWhenExpression><![CDATA[$F{ajoitus} != null]]></printWhenExpression>
 				</reportElement>
 				<textElement>
@@ -207,6 +205,10 @@ order by jarjestys]]>
 				</textElement>
 				<text><![CDATA[Ajoitus]]></text>
 			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="160" y="200" width="435" height="20" isRemoveLineWhenBlank="true" uuid="7ab852b7-6d72-490e-afb6-f848a297f0aa"/>
+				<textFieldExpression><![CDATA[$F{ajoitus}]]></textFieldExpression>
+			</textField>
 		</band>
 	</detail>
 </jasperReport>

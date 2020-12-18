@@ -449,8 +449,7 @@ class TutkimusController extends Controller
             'tutkimuslaji.id'	    => 'required|numeric',
             'nimi'					=> 'required|string',
             'postinumero'		    => 'numeric',
-            'rahoittaja'		    => 'string|max:1000',
-            'tiivistelma'		    => 'string|max:1000'
+            'rahoittaja'		    => 'string|max:1000'
         ]);
 
         if ($validator->fails()) {
@@ -562,8 +561,7 @@ class TutkimusController extends Controller
             'tutkimuslaji.id'	    => 'required|numeric',
             'nimi'					=> 'required|string',
             'postinumero'		    => 'numeric',
-            'rahoittaja'		    => 'nullable|string|max:1000',
-            'tiivistelma'		    => 'nullable|string|max:1000'
+            'rahoittaja'		    => 'nullable|string|max:1000'
         ]);
 
         if ($validator->fails()) {

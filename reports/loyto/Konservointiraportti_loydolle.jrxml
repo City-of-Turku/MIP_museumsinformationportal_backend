@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-12-09T08:49:00 -->
+<!-- 2020-12-18T10:18:42 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Konservointiraportti_loydolle" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="70f50391-5405-497c-af51-13d2fe4d51e5">
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="net.sf.jasperreports.export.docx.frames.as.nested.tables" value=""/>
 	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
@@ -165,6 +165,7 @@ order by ktt.alkaa]]>
 		<queryString language="SQL">
 			<![CDATA[select 
 akk.kasittelytunnus, 
+akk.kuvaus,
 akk2.paivamaara, 
 akk2.kasittelytoimenpide, 
 akk2.huomiot,
@@ -178,6 +179,7 @@ AND $X{IN, akl.id::text, kons_toimenpiteetDSArray}
 order by akk.kasittelytunnus asc, akk2.paivamaara desc]]>
 		</queryString>
 		<field name="kasittelytunnus" class="java.lang.String"/>
+		<field name="kuvaus" class="java.lang.String"/>
 		<field name="paivamaara" class="java.sql.Date"/>
 		<field name="kasittelytoimenpide" class="java.lang.String"/>
 		<field name="huomiot" class="java.lang.String"/>
@@ -359,7 +361,7 @@ and k.poistettu is null]]>
 		<band splitType="Stretch"/>
 	</background>
 	<title>
-		<band height="54">
+		<band height="50">
 			<textField>
 				<reportElement x="50" y="0" width="430" height="30" uuid="689c90f6-d7d6-4ee3-9637-d2383b09fa85"/>
 				<textElement textAlignment="Center">
@@ -377,7 +379,7 @@ and k.poistettu is null]]>
 		</band>
 	</title>
 	<detail>
-		<band height="438" splitType="Stretch">
+		<band height="441" splitType="Stretch">
 			<componentElement>
 				<reportElement x="380" y="0" width="170" height="210" uuid="30afffe4-a3c5-4568-b7f5-645b99569bb8">
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
@@ -415,7 +417,7 @@ and k.poistettu is null]]>
 					<textElement>
 						<font isBold="true"/>
 					</textElement>
-					<textFieldExpression><![CDATA["Löydön perustiedot:"]]></textFieldExpression>
+					<textFieldExpression><![CDATA["Löydön perustiedot"]]></textFieldExpression>
 				</textField>
 				<textField>
 					<reportElement x="0" y="20" width="130" height="20" uuid="b47b7244-95eb-4574-85fa-e200712569b9"/>
@@ -424,14 +426,14 @@ and k.poistettu is null]]>
 					</textElement>
 					<textFieldExpression><![CDATA["Luettelointinumero:"]]></textFieldExpression>
 				</textField>
-				<textField isBlankWhenNull="true">
-					<reportElement positionType="FixRelativeToBottom" x="130" y="20" width="250" height="20" uuid="3aa24ab5-120d-4fe4-906f-5ef45b6ab4ce"/>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="130" y="20" width="250" height="20" uuid="3aa24ab5-120d-4fe4-906f-5ef45b6ab4ce"/>
 					<textElement>
 						<font isBold="true"/>
 					</textElement>
 					<textFieldExpression><![CDATA[$F{luettelointinumero}]]></textFieldExpression>
 				</textField>
-				<textField isBlankWhenNull="true">
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 					<reportElement x="130" y="40" width="250" height="20" uuid="8cf8dc66-34b3-4664-8720-7eb5688cf865"/>
 					<textElement>
 						<font isBold="false"/>
@@ -554,7 +556,7 @@ and k.poistettu is null]]>
 				</frame>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="0" y="250" width="550" height="180" uuid="5ab559f9-0e44-43e3-942e-add1e1c5521f"/>
+				<reportElement positionType="Float" x="0" y="255" width="550" height="180" uuid="5ab559f9-0e44-43e3-942e-add1e1c5521f"/>
 				<textField>
 					<reportElement x="0" y="0" width="130" height="20" uuid="9e82adb8-1d94-4aa4-8965-8d2e96db2613"/>
 					<textElement>
@@ -563,7 +565,7 @@ and k.poistettu is null]]>
 					<textFieldExpression><![CDATA["Kuntomääritys:"]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="180" y="20" width="370" height="20" uuid="ae3b3c7a-9e1b-4530-9a6c-8a3b4464b06f">
+					<reportElement positionType="Float" x="180" y="20" width="370" height="20" isRemoveLineWhenBlank="true" uuid="ae3b3c7a-9e1b-4530-9a6c-8a3b4464b06f">
 						<printWhenExpression><![CDATA[$F{paino_ennen} != null]]></printWhenExpression>
 					</reportElement>
 					<textElement>
@@ -572,21 +574,25 @@ and k.poistettu is null]]>
 					<textFieldExpression><![CDATA[$F{paino_ennen} + " " + $F{paino_ennen_yksikko}]]></textFieldExpression>
 				</textField>
 				<textField>
-					<reportElement x="10" y="20" width="170" height="20" uuid="4d35d0aa-f554-4a49-bc40-e17e85f8abc6"/>
+					<reportElement positionType="Float" x="10" y="20" width="170" height="20" isRemoveLineWhenBlank="true" uuid="4d35d0aa-f554-4a49-bc40-e17e85f8abc6">
+						<printWhenExpression><![CDATA[$F{paino_ennen} != null]]></printWhenExpression>
+					</reportElement>
 					<textElement>
 						<font isBold="false"/>
 					</textElement>
 					<textFieldExpression><![CDATA["Paino ennen konservointia:"]]></textFieldExpression>
 				</textField>
 				<textField>
-					<reportElement x="10" y="40" width="170" height="20" uuid="47804403-6ae7-47b6-a363-8c3fde4fc4d6"/>
+					<reportElement positionType="Float" x="10" y="40" width="170" height="20" isRemoveLineWhenBlank="true" uuid="47804403-6ae7-47b6-a363-8c3fde4fc4d6">
+						<printWhenExpression><![CDATA[$F{paino_jalkeen} != null]]></printWhenExpression>
+					</reportElement>
 					<textElement>
 						<font isBold="false"/>
 					</textElement>
 					<textFieldExpression><![CDATA["Paino konservoinnin jälkeen:"]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="180" y="40" width="370" height="20" uuid="8f021743-a66e-4848-9c58-c8fd0cbf90e9">
+					<reportElement positionType="Float" x="180" y="40" width="370" height="20" isRemoveLineWhenBlank="true" uuid="8f021743-a66e-4848-9c58-c8fd0cbf90e9">
 						<printWhenExpression><![CDATA[$F{paino_jalkeen} != null]]></printWhenExpression>
 					</reportElement>
 					<textElement>
@@ -595,42 +601,54 @@ and k.poistettu is null]]>
 					<textFieldExpression><![CDATA[$F{paino_jalkeen} + " " + $F{paino_jalkeen_yksikko}]]></textFieldExpression>
 				</textField>
 				<textField>
-					<reportElement x="10" y="60" width="170" height="20" uuid="a3a477c5-e0bb-4088-b08b-5c9adcc5d93a"/>
+					<reportElement positionType="Float" x="10" y="60" width="170" height="20" isRemoveLineWhenBlank="true" uuid="a3a477c5-e0bb-4088-b08b-5c9adcc5d93a">
+						<printWhenExpression><![CDATA[$F{kunto} != null]]></printWhenExpression>
+					</reportElement>
 					<textElement>
 						<font isBold="false"/>
 					</textElement>
 					<textFieldExpression><![CDATA["Kunto ennen konservointia:"]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="10" y="80" width="539" height="20" isRemoveLineWhenBlank="true" uuid="e68b9ce8-fb41-4f9d-b4b0-147389212e20"/>
+					<reportElement positionType="Float" x="10" y="80" width="539" height="20" isRemoveLineWhenBlank="true" uuid="e68b9ce8-fb41-4f9d-b4b0-147389212e20">
+						<printWhenExpression><![CDATA[$F{kunto} != null]]></printWhenExpression>
+					</reportElement>
 					<textElement>
 						<font isBold="false"/>
 					</textElement>
 					<textFieldExpression><![CDATA[$F{kunto}]]></textFieldExpression>
 				</textField>
 				<textField>
-					<reportElement positionType="Float" x="10" y="100" width="170" height="20" uuid="4a413367-f7c8-484f-bd22-c2392e5084e5"/>
+					<reportElement positionType="Float" x="10" y="100" width="170" height="20" isRemoveLineWhenBlank="true" uuid="4a413367-f7c8-484f-bd22-c2392e5084e5">
+						<printWhenExpression><![CDATA[$F{sailytysolosuhteet} != null]]></printWhenExpression>
+					</reportElement>
 					<textElement>
 						<font isBold="false"/>
 					</textElement>
 					<textFieldExpression><![CDATA["Säilytysolosuhteet: "]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement positionType="Float" x="10" y="120" width="539" height="20" isRemoveLineWhenBlank="true" uuid="a83441d7-1bc3-44da-aaad-d3a37cab7f6b"/>
+					<reportElement positionType="Float" x="10" y="120" width="539" height="20" isRemoveLineWhenBlank="true" uuid="a83441d7-1bc3-44da-aaad-d3a37cab7f6b">
+						<printWhenExpression><![CDATA[$F{sailytysolosuhteet} != null]]></printWhenExpression>
+					</reportElement>
 					<textElement>
 						<font isBold="false"/>
 					</textElement>
 					<textFieldExpression><![CDATA[$F{sailytysolosuhteet}]]></textFieldExpression>
 				</textField>
 				<textField>
-					<reportElement positionType="Float" x="10" y="140" width="170" height="20" uuid="694b80df-aa45-4298-bdc4-58bc0b50e229"/>
+					<reportElement positionType="Float" x="10" y="140" width="170" height="20" isRemoveLineWhenBlank="true" uuid="694b80df-aa45-4298-bdc4-58bc0b50e229">
+						<printWhenExpression><![CDATA[$F{konservointi_lisatiedot} != null]]></printWhenExpression>
+					</reportElement>
 					<textElement>
 						<font isBold="false"/>
 					</textElement>
 					<textFieldExpression><![CDATA["Lisätiedot: "]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement positionType="Float" x="10" y="160" width="539" height="20" isRemoveLineWhenBlank="true" uuid="d04b7992-d219-429c-a072-0c161e785ad6"/>
+					<reportElement positionType="Float" x="10" y="160" width="539" height="20" isRemoveLineWhenBlank="true" uuid="d04b7992-d219-429c-a072-0c161e785ad6">
+						<printWhenExpression><![CDATA[$F{konservointi_lisatiedot} != null]]></printWhenExpression>
+					</reportElement>
 					<textElement>
 						<font isBold="false"/>
 					</textElement>
@@ -647,7 +665,7 @@ and k.poistettu is null]]>
 					<textFieldExpression><![CDATA["Liitteet: "]]></textFieldExpression>
 				</textField>
 				<componentElement>
-					<reportElement x="10" y="20" width="540" height="20" uuid="720e9c5f-816b-41ab-b37d-c256e9fa3061">
+					<reportElement x="10" y="20" width="540" height="20" isRemoveLineWhenBlank="true" uuid="720e9c5f-816b-41ab-b37d-c256e9fa3061">
 						<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
 					</reportElement>
 					<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
@@ -884,86 +902,101 @@ and k.poistettu is null]]>
 							</datasetParameter>
 							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 						</datasetRun>
-						<jr:column width="90" uuid="b810bd71-51ed-41b4-873f-fc2cddf51984">
-							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
-							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
-							<jr:groupHeader groupName="kasittelytunnus">
-								<jr:cell style="Table 1_CH" height="30" rowSpan="1">
-									<textField>
-										<reportElement x="0" y="0" width="90" height="30" isRemoveLineWhenBlank="true" uuid="513abeae-c5bf-4d4c-9733-af3b02b589e6"/>
-										<textElement textAlignment="Center" verticalAlignment="Middle">
-											<font isBold="true"/>
-										</textElement>
-										<textFieldExpression><![CDATA[$F{kasittelytunnus}]]></textFieldExpression>
-									</textField>
-								</jr:cell>
-							</jr:groupHeader>
-							<jr:detailCell style="Table 1_TD" height="30"/>
-						</jr:column>
-						<jr:column width="110" uuid="d516e25b-4910-42ad-bd3c-54848c314afb">
-							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
-							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+						<jr:columnGroup width="549" uuid="3d68147c-98c1-4254-9f95-cee829d68b32">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [4]"/>
 							<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
-							<jr:groupHeader groupName="kasittelytunnus">
+							<jr:groupFooter groupName="kasittelytunnus">
 								<jr:cell style="Table 1_CH" height="30" rowSpan="1">
 									<property name="com.jaspersoft.studio.unit.height" value="px"/>
-									<staticText>
-										<reportElement x="0" y="0" width="110" height="30" uuid="1a3ad523-d1c7-4e6e-b44b-6155b2782d16">
-											<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement mode="Opaque" x="0" y="0" width="549" height="30" isRemoveLineWhenBlank="true" backcolor="#F5F5F5" uuid="b9c81c6d-b514-46f7-b0ef-5c7325b75ed8">
+											<printWhenExpression><![CDATA[$F{kuvaus} != null]]></printWhenExpression>
 										</reportElement>
-										<textElement textAlignment="Center" verticalAlignment="Middle"/>
-										<text><![CDATA[Päivämäärä]]></text>
-									</staticText>
+										<textFieldExpression><![CDATA["Käsittelyn kuvaus: " + $F{kuvaus}]]></textFieldExpression>
+									</textField>
 								</jr:cell>
-							</jr:groupHeader>
-							<jr:detailCell style="Table 1_TD" height="30">
-								<textField isStretchWithOverflow="true" pattern="dd.MM.yyyy" isBlankWhenNull="true">
-									<reportElement x="0" y="0" width="110" height="30" uuid="f2d3bf4f-dca6-430a-9d29-041d789b9728"/>
-									<textElement textAlignment="Center" verticalAlignment="Middle"/>
-									<textFieldExpression><![CDATA[$F{paivamaara}]]></textFieldExpression>
-								</textField>
-							</jr:detailCell>
-						</jr:column>
-						<jr:column width="170" uuid="adb78048-93f6-493d-92ed-53ec6dfde541">
-							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
-							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
-							<jr:groupHeader groupName="kasittelytunnus">
-								<jr:cell style="Table 1_CH" height="30" rowSpan="1">
-									<staticText>
-										<reportElement x="0" y="0" width="170" height="30" uuid="b3992089-5225-4120-8851-685adc9f13c4"/>
+							</jr:groupFooter>
+							<jr:column width="90" uuid="b810bd71-51ed-41b4-873f-fc2cddf51984">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+								<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+								<jr:groupHeader groupName="kasittelytunnus">
+									<jr:cell style="Table 1_CH" height="30" rowSpan="1">
+										<textField>
+											<reportElement x="0" y="0" width="90" height="30" isRemoveLineWhenBlank="true" uuid="513abeae-c5bf-4d4c-9733-af3b02b589e6"/>
+											<textElement textAlignment="Center" verticalAlignment="Middle">
+												<font isBold="true"/>
+											</textElement>
+											<textFieldExpression><![CDATA[$F{kasittelytunnus}]]></textFieldExpression>
+										</textField>
+									</jr:cell>
+								</jr:groupHeader>
+								<jr:detailCell style="Table 1_TD" height="30"/>
+							</jr:column>
+							<jr:column width="110" uuid="d516e25b-4910-42ad-bd3c-54848c314afb">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+								<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+								<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+								<jr:groupHeader groupName="kasittelytunnus">
+									<jr:cell style="Table 1_CH" height="30" rowSpan="1">
+										<property name="com.jaspersoft.studio.unit.height" value="px"/>
+										<staticText>
+											<reportElement x="0" y="0" width="110" height="30" uuid="1a3ad523-d1c7-4e6e-b44b-6155b2782d16">
+												<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+											</reportElement>
+											<textElement textAlignment="Center" verticalAlignment="Middle"/>
+											<text><![CDATA[Päivämäärä]]></text>
+										</staticText>
+									</jr:cell>
+								</jr:groupHeader>
+								<jr:detailCell style="Table 1_TD" height="30">
+									<textField isStretchWithOverflow="true" pattern="dd.MM.yyyy" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="110" height="30" uuid="f2d3bf4f-dca6-430a-9d29-041d789b9728"/>
 										<textElement textAlignment="Center" verticalAlignment="Middle"/>
-										<text><![CDATA[Käsittelytoimenpide]]></text>
-									</staticText>
-								</jr:cell>
-							</jr:groupHeader>
-							<jr:detailCell style="Table 1_TD" height="30">
-								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-									<reportElement x="0" y="0" width="170" height="30" uuid="799fc2de-0696-4c3b-b1a1-33d4a00fdfd1"/>
-									<textElement textAlignment="Center" verticalAlignment="Middle"/>
-									<textFieldExpression><![CDATA[$F{kasittelytoimenpide}]]></textFieldExpression>
-								</textField>
-							</jr:detailCell>
-						</jr:column>
-						<jr:column width="179" uuid="6e22401e-99e3-4f01-9ed7-b97fc78e8416">
-							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
-							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
-							<jr:groupHeader groupName="kasittelytunnus">
-								<jr:cell style="Table 1_CH" height="30" rowSpan="1">
-									<staticText>
-										<reportElement x="0" y="0" width="179" height="30" uuid="e635ff2c-2a8b-4f0c-bcdb-5aaacd313a20"/>
+										<textFieldExpression><![CDATA[$F{paivamaara}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+							<jr:column width="170" uuid="adb78048-93f6-493d-92ed-53ec6dfde541">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
+								<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+								<jr:groupHeader groupName="kasittelytunnus">
+									<jr:cell style="Table 1_CH" height="30" rowSpan="1">
+										<staticText>
+											<reportElement x="0" y="0" width="170" height="30" uuid="b3992089-5225-4120-8851-685adc9f13c4"/>
+											<textElement textAlignment="Center" verticalAlignment="Middle"/>
+											<text><![CDATA[Käsittelytoimenpide]]></text>
+										</staticText>
+									</jr:cell>
+								</jr:groupHeader>
+								<jr:detailCell style="Table 1_TD" height="30">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="170" height="30" uuid="799fc2de-0696-4c3b-b1a1-33d4a00fdfd1"/>
 										<textElement textAlignment="Center" verticalAlignment="Middle"/>
-										<text><![CDATA[Huomiot]]></text>
-									</staticText>
-								</jr:cell>
-							</jr:groupHeader>
-							<jr:detailCell style="Table 1_TD" height="30">
-								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-									<reportElement x="0" y="0" width="179" height="30" uuid="48f7a2b4-66fa-4423-9d08-451cfe454b8c"/>
-									<textElement textAlignment="Center" verticalAlignment="Middle"/>
-									<textFieldExpression><![CDATA[$F{huomiot}]]></textFieldExpression>
-								</textField>
-							</jr:detailCell>
-						</jr:column>
+										<textFieldExpression><![CDATA[$F{kasittelytoimenpide}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+							<jr:column width="179" uuid="6e22401e-99e3-4f01-9ed7-b97fc78e8416">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
+								<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+								<jr:groupHeader groupName="kasittelytunnus">
+									<jr:cell style="Table 1_CH" height="30" rowSpan="1">
+										<staticText>
+											<reportElement x="0" y="0" width="179" height="30" uuid="e635ff2c-2a8b-4f0c-bcdb-5aaacd313a20"/>
+											<textElement textAlignment="Center" verticalAlignment="Middle"/>
+											<text><![CDATA[Huomiot]]></text>
+										</staticText>
+									</jr:cell>
+								</jr:groupHeader>
+								<jr:detailCell style="Table 1_TD" height="30">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="179" height="30" uuid="48f7a2b4-66fa-4423-9d08-451cfe454b8c"/>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<textFieldExpression><![CDATA[$F{huomiot}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+						</jr:columnGroup>
 					</jr:table>
 				</componentElement>
 			</frame>
