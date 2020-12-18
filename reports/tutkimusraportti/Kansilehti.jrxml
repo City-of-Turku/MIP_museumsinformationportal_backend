@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-12-17T14:27:20 -->
+<!-- 2020-12-17T21:16:03 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Kansilehti" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="7c1e417c-59c6-4b3d-b526-50f7d936b1c3">
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<subDataset name="kuva_kansilehti" uuid="0b1b0646-4f6c-48dc-9a37-d3b27cb70755">
 		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
@@ -14,7 +14,7 @@
 from ark_kuva k
 left join ark_tutkimusraportti_kuva atk on atk.ark_kuva_id = k.id
 left join ark_tutkimusraportti tr on tr.id = atk.ark_tutkimusraportti_id 
-where tr.id = 1
+where tr.id = $P{tutkimusraporttiId}
 and atk.kappale = 'kansilehti']]>
 		</queryString>
 		<field name="id" class="java.lang.Long"/>

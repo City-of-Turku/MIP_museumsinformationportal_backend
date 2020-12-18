@@ -816,6 +816,12 @@ class FinnaService
 		$kohde = self::getKohde($tutkimus['id']);
 		$kohdenimi = null;
 
+		if(!$kuntanimi) {
+			if(isset($kohde) && isset($kohde['kunnatkylat']) && sizeof($kohde['kunnatkylat']) > 0 && isset($kohde['kunnatkylat'][0]['kunta']['nimi'])) {
+				$kuntanimi = $kohde['kunnatkylat'][0]['kunta']['nimi'];
+			}
+		}
+
 		if ($kohde && $kohde['nimi']) {
 			$kohdenimi = $kohde['nimi'];
 		}
