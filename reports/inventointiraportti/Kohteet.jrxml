@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-12-17T14:58:50 -->
+<!-- 2020-12-18T12:19:17 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Kohteet" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="46fb868b-ad4e-4b5e-bfc1-29f32a3381f3">
 	<property name="net.sf.jasperreports.print.create.bookmarks" value="true"/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
@@ -668,7 +668,7 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 							<reportElement x="0" y="316" width="554" height="30" isRemoveLineWhenBlank="true" uuid="3abb29c8-c126-4592-9499-7352d2f61aa0">
 								<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 							</reportElement>
-							<textFieldExpression><![CDATA[$F{otsake} + ". " + $F{kuvaus} + "\n" + $F{kuvaaja} + ", " + new java.text.SimpleDateFormat("dd.MM.yyyy").format($F{kuvauspvm})]]></textFieldExpression>
+							<textFieldExpression><![CDATA[$F{otsake} + ". " + $F{kuvaus} + "\n" + $F{kuvaaja}]]></textFieldExpression>
 						</textField>
 					</jr:listContents>
 				</jr:list>
