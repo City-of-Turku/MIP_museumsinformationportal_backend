@@ -638,7 +638,9 @@ class FinnaService
 
 		// Trimmataan lopusta turhat välimerkit ja lisätään piste.
 		$text = trim($text, "., ");
-		$text .= ".";
+		if(strlen($text) > 0) {
+			$text .= ".";
+		}
 
 		$writer->startElement('lido:displayObjectMeasurements');
 		$writer->text($text);
@@ -715,12 +717,12 @@ class FinnaService
 	{
 		$ajoitusText = '';
 		if ($loyto['alkuvuosi']) {
-			$ajoitusText = $loyto['alkuvuosi'] . $loyto['alkuvuosi_ajanlasku'];
+			$ajoitusText = $loyto['alkuvuosi'];
 		}
 		if ($loyto['paatosvuosi']) {
-			$ajoitusText .= ' - ' . $loyto['paatosvuosi'] . $loyto['paatosvuosi_ajanlasku'] . '. ';
+			$ajoitusText .= '-' . $loyto['paatosvuosi'];
 		} else if ($ajoitusText != '') {
-			$ajoitusText .= '. ';
+			$ajoitusText .= ' ';
 		}
 		if ($loyto['ajoitus_kuvaus']) {
 			$ajoitusText .= $loyto['ajoitus_kuvaus'];
