@@ -715,24 +715,14 @@ class FinnaService
 
 	private static function writeEventWrap($writer, $loyto)
 	{
+		// Finnaan riittää pelkästään ajoituksen vuosiluvut.
 		$ajoitusText = '';
 		if ($loyto['alkuvuosi']) {
 			$ajoitusText = $loyto['alkuvuosi'];
 		}
 		if ($loyto['paatosvuosi']) {
 			$ajoitusText .= '-' . $loyto['paatosvuosi'];
-		} else if ($ajoitusText != '') {
-			$ajoitusText .= ' ';
 		}
-		if ($loyto['ajoitus_kuvaus']) {
-			$ajoitusText .= $loyto['ajoitus_kuvaus'];
-		}
-		if ($loyto['ajoituksen_perusteet']) {
-			$ajoitusText .= $loyto['ajoituksen_perusteet'];
-		}
-		// Trimmataan lopusta tyhjät välimerkit pois - tämä aiheuttaa ongelman Finnan päässä
-		$ajoitusText = trim($ajoitusText, "., ");
-		$ajoitusText .= ".";
 
 		$writer->startElement('lido:eventWrap');
 		$writer->startElement('lido:eventSet');
