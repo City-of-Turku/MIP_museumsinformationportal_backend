@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-11-30T15:00:25 -->
+<!-- 2021-01-07T15:20:25 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Lahdeluettelo" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="42cdd721-9220-4ad2-bce6-c7f5f0b989de">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
@@ -28,7 +28,7 @@ where tr.id = $P{tutkimusraporttiId}]]>
 			<textField evaluationTime="Master">
 				<reportElement x="480" y="0" width="30" height="30" uuid="13d4ae3f-78da-41b3-ac9f-86bd92a26410"/>
 				<textElement textAlignment="Right"/>
-				<textFieldExpression><![CDATA[$V{MASTER_CURRENT_PAGE}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$V{MASTER_CURRENT_PAGE}-4]]></textFieldExpression>
 				<anchorNameExpression><![CDATA["5. Lähdeluettelo"]]></anchorNameExpression>
 			</textField>
 			<textField evaluationTime="Master">
@@ -36,7 +36,7 @@ where tr.id = $P{tutkimusraporttiId}]]>
 					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 				</reportElement>
 				<textElement textAlignment="Left"/>
-				<textFieldExpression><![CDATA[" / " + $V{MASTER_TOTAL_PAGES}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[" / " + ($V{MASTER_TOTAL_PAGES}-4)]]></textFieldExpression>
 				<anchorNameExpression><![CDATA["5. Lähdeluettelo"]]></anchorNameExpression>
 			</textField>
 		</band>
