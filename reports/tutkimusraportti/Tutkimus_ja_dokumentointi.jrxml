@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-12-17T15:39:16 -->
+<!-- 2021-01-08T15:15:19 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Tutkimus_ja_dokumentointi" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="462ff0df-0ca5-470b-95a4-57e8b6ee5ad6">
 	<property name="net.sf.jasperreports.print.create.bookmarks" value="true"/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
@@ -52,12 +52,12 @@ and atk.kappale = 'tutkimus_ja_dokumentointimenetelmat']]>
 					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 				</reportElement>
 				<textElement textAlignment="Left"/>
-				<textFieldExpression><![CDATA[" / " + $V{MASTER_TOTAL_PAGES}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[" / " + ($V{MASTER_TOTAL_PAGES} -4)]]></textFieldExpression>
 			</textField>
 			<textField evaluationTime="Master">
 				<reportElement x="480" y="0" width="30" height="30" uuid="a139fc87-fa87-4405-85fd-7fb292191b81"/>
 				<textElement textAlignment="Right"/>
-				<textFieldExpression><![CDATA[$V{MASTER_CURRENT_PAGE}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$V{MASTER_CURRENT_PAGE}-4]]></textFieldExpression>
 			</textField>
 		</band>
 	</pageHeader>
@@ -83,7 +83,7 @@ and atk.kappale = 'tutkimus_ja_dokumentointimenetelmat']]>
 						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 					</datasetRun>
 					<jr:listContents height="350" width="554">
-						<image hAlign="Center" vAlign="Middle" onErrorType="Blank">
+						<image hAlign="Left" vAlign="Middle" onErrorType="Blank">
 							<reportElement x="0" y="0" width="554" height="316" uuid="89b68d7d-176b-4679-8a78-b569ad68e268"/>
 							<box>
 								<pen lineColor="#E3E3E3"/>
