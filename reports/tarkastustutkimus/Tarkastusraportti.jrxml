@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-05-11T10:50:44 -->
+<!-- 2021-01-11T15:05:49 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Tarkastusraportti" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isTitleNewPage="true" uuid="dae58e2e-402a-450d-828f-128d65f1de0d">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MIP kehitys"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="qa"/>
 	<style name="Base" isDefault="true" hTextAlign="Left" vTextAlign="Top" fontSize="10" isPdfEmbedded="false"/>
 	<parameter name="tutkimusId" class="java.lang.Integer">
 		<parameterDescription><![CDATA[Tutkimuksen ID]]></parameterDescription>
@@ -108,7 +108,7 @@ left join (
 	select ark_kuva.ark_tutkimus_id, ark_kuva.id as kuva_id
 	from ark_kuva
 	where ark_kuva.id in (
-		select min(id) from ark_kuva where ark_kuva.luettelointinumero is not null group by ark_tutkimus_id
+		select min(id) from ark_kuva group by ark_tutkimus_id
 	) and ark_kuva.poistettu is null
 ) ark_kuva on ark_kuva.ark_tutkimus_id = tu.id
 left join (
@@ -1178,9 +1178,7 @@ where tu.id = $P{tutkimusId}]]>
 		</band>
 		<band height="70">
 			<subreport isUsingCache="false" runToBottom="false">
-				<reportElement positionType="Float" x="0" y="30" width="554" height="30" isRemoveLineWhenBlank="true" uuid="95fb5e20-4bcb-4a6d-accb-b2216535d2f5">
-					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
-				</reportElement>
+				<reportElement positionType="Float" x="0" y="30" width="554" height="30" isRemoveLineWhenBlank="true" uuid="95fb5e20-4bcb-4a6d-accb-b2216535d2f5"/>
 				<subreportParameter name="tutkimusId">
 					<subreportParameterExpression><![CDATA[$P{tutkimusId}]]></subreportParameterExpression>
 				</subreportParameter>
@@ -1191,7 +1189,9 @@ where tu.id = $P{tutkimusId}]]>
 				<subreportExpression><![CDATA["Tarkastus_kuvat.jasper"]]></subreportExpression>
 			</subreport>
 			<staticText>
-				<reportElement x="0" y="0" width="555" height="20" uuid="9f8a43fc-8946-4233-8920-dd26689ff977"/>
+				<reportElement x="0" y="0" width="555" height="20" isRemoveLineWhenBlank="true" uuid="9f8a43fc-8946-4233-8920-dd26689ff977">
+					<printWhenExpression><![CDATA[$F{kuva_id} != null]]></printWhenExpression>
+				</reportElement>
 				<textElement>
 					<font size="14" isBold="true"/>
 				</textElement>
