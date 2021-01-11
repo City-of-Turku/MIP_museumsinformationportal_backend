@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-12-09T23:26:35 -->
+<!-- 2021-01-08T15:12:25 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Tutkimusalueet" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="46fb868b-ad4e-4b5e-bfc1-29f32a3381f3">
 	<property name="net.sf.jasperreports.print.create.bookmarks" value="true"/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
@@ -35,17 +35,18 @@ order by jarjestys, ta.nimi, ta.id]]>
 	<field name="yhteenveto" class="java.lang.String"/>
 	<field name="jarjestys" class="java.math.BigDecimal"/>
 	<detail>
-		<band height="251" splitType="Stretch">
+		<band height="321" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement x="0" y="50" width="595" height="50" isRemoveLineWhenBlank="true" uuid="cb9c1cf8-58b1-47be-a6b5-87cf0f035199"/>
+				<reportElement positionType="Float" x="0" y="120" width="595" height="50" isRemoveLineWhenBlank="true" uuid="cb9c1cf8-58b1-47be-a6b5-87cf0f035199"/>
 				<textFieldExpression><![CDATA[$F{tutkimusalue_havainnot}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" x="0" y="180" width="595" height="57" isRemoveLineWhenBlank="true" uuid="a8c083fe-d957-4c29-ba42-622dbf73e0c8"/>
+				<reportElement positionType="Float" x="0" y="250" width="595" height="57" isRemoveLineWhenBlank="true" uuid="a8c083fe-d957-4c29-ba42-622dbf73e0c8"/>
 				<textFieldExpression><![CDATA[$F{yhteenveto}]]></textFieldExpression>
 			</textField>
 			<subreport>
-				<reportElement positionType="Float" x="0" y="104" width="595" height="45" isRemoveLineWhenBlank="true" uuid="fa1007f6-1d8e-4976-831e-197ff92f651e"/>
+				<reportElement positionType="Float" x="0" y="174" width="595" height="45" isRemoveLineWhenBlank="true" uuid="fa1007f6-1d8e-4976-831e-197ff92f651e"/>
 				<subreportParameter name="tutkimusalueId">
 					<subreportParameterExpression><![CDATA[$F{tutkimusalue_id}]]></subreportParameterExpression>
 				</subreportParameter>
@@ -64,19 +65,30 @@ order by jarjestys, ta.nimi, ta.id]]>
 				<anchorNameExpression><![CDATA[$F{nimi}]]></anchorNameExpression>
 			</textField>
 			<staticText>
-				<reportElement positionType="Float" x="0" y="30" width="100" height="20" uuid="6961e12f-43bc-47f9-ac18-5e5cfab1a7da"/>
+				<reportElement positionType="Float" x="0" y="100" width="100" height="20" uuid="6961e12f-43bc-47f9-ac18-5e5cfab1a7da"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Havainnot]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="Float" x="0" y="160" width="100" height="20" uuid="dca546ff-cb9c-4613-92da-d8158e5c4c03"/>
+				<reportElement positionType="Float" x="0" y="230" width="100" height="20" uuid="dca546ff-cb9c-4613-92da-d8158e5c4c03"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Yhteenveto]]></text>
 			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="30" width="170" height="20" uuid="32bbe187-3ed9-429d-be7d-8f1c133b32ce"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Sijainnin kuvaus]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="0" y="50" width="595" height="50" isRemoveLineWhenBlank="true" uuid="e7425d7d-6015-467a-83b1-b7c4ef48bf79"/>
+				<textFieldExpression><![CDATA[$F{sijaintikuvaus}]]></textFieldExpression>
+			</textField>
 		</band>
 	</detail>
 </jasperReport>

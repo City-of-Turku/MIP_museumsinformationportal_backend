@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-12-15T23:31:36 -->
+<!-- 2021-01-07T15:11:55 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Kartta" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="319f9071-711f-4a25-bc1f-dbfcc37bf8e3">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="qa"/>
 	<parameter name="tutkimusraporttiId" class="java.lang.Long"/>
 	<parameter name="MIP_BACKEND_URL" class="java.lang.String"/>
 	<parameter name="MIP_MAPSERVER_URL" class="java.lang.String"/>
@@ -126,8 +126,9 @@ limit 1]]>
 					<pen lineWidth="1.0" lineColor="#CCCCCC"/>
 				</box>
 				<image hAlign="Center" isUsingCache="false" onErrorType="Blank" evaluationTime="Report">
-					<reportElement key="" stretchType="ContainerHeight" x="9" y="0" width="535" height="320" uuid="0fc3ce27-56d0-46a0-9389-51f1b4f25ef5">
+					<reportElement key="" stretchType="ContainerHeight" x="9" y="0" width="535" height="319" uuid="0fc3ce27-56d0-46a0-9389-51f1b4f25ef5">
 						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 						<printWhenExpression><![CDATA[$F{bbox_xmin}!=null]]></printWhenExpression>
 					</reportElement>
 					<box>

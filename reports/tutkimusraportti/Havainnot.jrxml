@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-12-17T15:41:11 -->
+<!-- 2021-01-08T15:15:57 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Havainnot" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="c7fa246a-c218-4a4e-ae0f-c7a326f85204">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
@@ -58,14 +58,14 @@ where tr.id = $P{tutkimusraporttiId}]]>
 					<printWhenExpression><![CDATA[$V{PAGE_NUMBER} == 1l]]></printWhenExpression>
 				</reportElement>
 				<textElement textAlignment="Left"/>
-				<textFieldExpression><![CDATA[" / " + $V{MASTER_TOTAL_PAGES}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[" / " + ($V{MASTER_TOTAL_PAGES} -4)]]></textFieldExpression>
 			</textField>
 			<textField evaluationTime="Master">
 				<reportElement x="480" y="0" width="30" height="30" uuid="f830ae43-b4e5-4b23-a7bc-8f8f4f2590e4">
 					<printWhenExpression><![CDATA[$V{PAGE_NUMBER} == 1l]]></printWhenExpression>
 				</reportElement>
 				<textElement textAlignment="Right"/>
-				<textFieldExpression><![CDATA[$V{MASTER_CURRENT_PAGE}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$V{MASTER_CURRENT_PAGE}-4]]></textFieldExpression>
 			</textField>
 		</band>
 	</title>
@@ -78,14 +78,14 @@ where tr.id = $P{tutkimusraporttiId}]]>
 					<printWhenExpression><![CDATA[$V{PAGE_NUMBER} != 1l]]></printWhenExpression>
 				</reportElement>
 				<textElement textAlignment="Left"/>
-				<textFieldExpression><![CDATA[" / " + $V{MASTER_TOTAL_PAGES}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[" / " + ($V{MASTER_TOTAL_PAGES} -4)]]></textFieldExpression>
 			</textField>
 			<textField evaluationTime="Master" isBlankWhenNull="true">
 				<reportElement x="480" y="0" width="30" height="30" isRemoveLineWhenBlank="true" uuid="9b99ab2d-827d-4a87-9746-fe800451127e">
 					<printWhenExpression><![CDATA[$V{PAGE_NUMBER} != 1l]]></printWhenExpression>
 				</reportElement>
 				<textElement textAlignment="Right"/>
-				<textFieldExpression><![CDATA[$V{MASTER_CURRENT_PAGE}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$V{MASTER_CURRENT_PAGE}-4]]></textFieldExpression>
 			</textField>
 		</band>
 	</pageHeader>
@@ -122,7 +122,7 @@ where tr.id = $P{tutkimusraporttiId}]]>
 						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 					</datasetRun>
 					<jr:listContents height="350" width="554">
-						<image hAlign="Center" vAlign="Middle" onErrorType="Blank">
+						<image hAlign="Left" vAlign="Middle" onErrorType="Blank">
 							<reportElement x="0" y="0" width="554" height="316" uuid="d8d800b2-7d8a-446d-81b7-9188c08c63dd"/>
 							<box>
 								<pen lineColor="#E3E3E3"/>
@@ -137,7 +137,7 @@ where tr.id = $P{tutkimusraporttiId}]]>
 							<reportElement x="0" y="316" width="554" height="30" isRemoveLineWhenBlank="true" uuid="504943fe-077e-4ef6-b708-c3e6ea2b16d3">
 								<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 							</reportElement>
-							<textFieldExpression><![CDATA[$F{otsake} + ". " + $F{kuvaus} + "\n" + $F{kuvaaja} ]]></textFieldExpression>
+							<textFieldExpression><![CDATA[$F{otsake} + ". " + $F{kuvaus} + "\n" + $F{kuvaaja}]]></textFieldExpression>
 						</textField>
 					</jr:listContents>
 				</jr:list>

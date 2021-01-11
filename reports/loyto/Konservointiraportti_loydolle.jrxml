@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-12-18T10:18:42 -->
+<!-- 2021-01-11T08:39:29 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Konservointiraportti_loydolle" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="70f50391-5405-497c-af51-13d2fe4d51e5">
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="qa"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="net.sf.jasperreports.export.docx.frames.as.nested.tables" value=""/>
 	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
@@ -176,7 +176,7 @@ left join ark_kons_loyto akl on akl.ark_kons_kasittely_id = akk.id
 left join ark_loyto l on l.id = akl.ark_loyto_id 
 where l.id = $P{loytoId}
 AND $X{IN, akl.id::text, kons_toimenpiteetDSArray}
-order by akk.kasittelytunnus asc, akk2.paivamaara desc]]>
+order by akk2.paivamaara, akk2.id]]>
 		</queryString>
 		<field name="kasittelytunnus" class="java.lang.String"/>
 		<field name="kuvaus" class="java.lang.String"/>

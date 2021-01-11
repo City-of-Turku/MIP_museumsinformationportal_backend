@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-12-17T10:28:59 -->
+<!-- 2021-01-11T08:46:32 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Karttaluettelo" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="7417a2e2-63d4-404b-adb6-0f467eb458ef">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="qa"/>
 	<parameter name="tutkimusId" class="java.lang.Long"/>
 	<queryString language="SQL">
 		<![CDATA[select k.karttanumero, kt.tyyppi, kt.numero, k.kuvaus, akk.koko, am.mittakaava, t.nimi as tutkimus_nimi, k2.nimi as kohde_nimi
@@ -107,7 +107,7 @@ order by kt.numero, k.karttanumero]]>
 				<textFieldExpression><![CDATA[$F{kuvaus}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement x="475" y="0" width="40" height="20" isRemoveLineWhenBlank="true" uuid="d063b5b9-6402-46a4-a082-3ae971037773"/>
+				<reportElement x="485" y="0" width="30" height="20" isRemoveLineWhenBlank="true" uuid="d063b5b9-6402-46a4-a082-3ae971037773"/>
 				<textFieldExpression><![CDATA[$F{koko}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
@@ -119,15 +119,18 @@ order by kt.numero, k.karttanumero]]>
 		</band>
 	</detail>
 	<pageFooter>
-		<band height="31" splitType="Stretch">
+		<band height="30" splitType="Stretch">
 			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 			<textField isStretchWithOverflow="true" evaluationTime="Master" isBlankWhenNull="true">
-				<reportElement x="515" y="1" width="40" height="30" isRemoveLineWhenBlank="true" uuid="8fbcc15d-bebb-4791-a601-064cec58fdde"/>
+				<reportElement x="515" y="1" width="40" height="28" isRemoveLineWhenBlank="true" uuid="8fbcc15d-bebb-4791-a601-064cec58fdde">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
 				<textFieldExpression><![CDATA["/"+$V{MASTER_TOTAL_PAGES}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement x="485" y="1" width="30" height="30" isRemoveLineWhenBlank="true" uuid="cec63b15-a38e-43d3-968c-c8a67f1007e6">
+				<reportElement x="485" y="1" width="30" height="28" isRemoveLineWhenBlank="true" uuid="cec63b15-a38e-43d3-968c-c8a67f1007e6">
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>
 				<textElement textAlignment="Right"/>
 				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>

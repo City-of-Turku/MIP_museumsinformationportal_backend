@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-12-17T15:37:46 -->
+<!-- 2021-01-07T15:20:25 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Havainnot" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="c7fa246a-c218-4a4e-ae0f-c7a326f85204">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
 	<property name="net.sf.jasperreports.print.create.bookmarks" value="true"/>
 	<subDataset name="kuvat_havainnot" uuid="e672699f-76cf-4257-ac21-9e3bf26f861c">
 		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
@@ -108,14 +108,14 @@ where tr.id = $P{tutkimusraporttiId}]]>
 					<printWhenExpression><![CDATA[$V{PAGE_NUMBER} == 1l]]></printWhenExpression>
 				</reportElement>
 				<textElement textAlignment="Left"/>
-				<textFieldExpression><![CDATA[" / " + $V{MASTER_TOTAL_PAGES}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[" / " + ($V{MASTER_TOTAL_PAGES}-4)]]></textFieldExpression>
 			</textField>
 			<textField evaluationTime="Master">
 				<reportElement x="480" y="0" width="30" height="30" uuid="f830ae43-b4e5-4b23-a7bc-8f8f4f2590e4">
 					<printWhenExpression><![CDATA[$V{PAGE_NUMBER} == 1l]]></printWhenExpression>
 				</reportElement>
 				<textElement textAlignment="Right"/>
-				<textFieldExpression><![CDATA[$V{MASTER_CURRENT_PAGE}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$V{MASTER_CURRENT_PAGE}-4]]></textFieldExpression>
 			</textField>
 		</band>
 	</title>
@@ -128,14 +128,14 @@ where tr.id = $P{tutkimusraporttiId}]]>
 					<printWhenExpression><![CDATA[$V{PAGE_NUMBER} != 1l]]></printWhenExpression>
 				</reportElement>
 				<textElement textAlignment="Left"/>
-				<textFieldExpression><![CDATA[" / " + $V{MASTER_TOTAL_PAGES}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[" / " + ($V{MASTER_TOTAL_PAGES}-4)]]></textFieldExpression>
 			</textField>
 			<textField evaluationTime="Master" isBlankWhenNull="true">
 				<reportElement x="480" y="0" width="30" height="30" isRemoveLineWhenBlank="true" uuid="9b99ab2d-827d-4a87-9746-fe800451127e">
 					<printWhenExpression><![CDATA[$V{PAGE_NUMBER} != 1l]]></printWhenExpression>
 				</reportElement>
 				<textElement textAlignment="Right"/>
-				<textFieldExpression><![CDATA[$V{MASTER_CURRENT_PAGE}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$V{MASTER_CURRENT_PAGE}-4]]></textFieldExpression>
 			</textField>
 		</band>
 	</pageHeader>
@@ -149,7 +149,7 @@ where tr.id = $P{tutkimusraporttiId}]]>
 		</band>
 		<band height="110">
 			<textField bookmarkLevel="2">
-				<reportElement positionType="Float" x="0" y="0" width="554" height="30" uuid="10d98679-efa6-49ea-ac94-7138b3aaa79c">
+				<reportElement positionType="Float" isPrintRepeatedValues="false" x="0" y="0" width="554" height="30" isRemoveLineWhenBlank="true" uuid="10d98679-efa6-49ea-ac94-7138b3aaa79c">
 					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
 				</reportElement>
 				<textElement>
@@ -171,6 +171,9 @@ where tr.id = $P{tutkimusraporttiId}]]>
 				<subreportParameter name="MIP_MAPSERVER_URL">
 					<subreportParameterExpression><![CDATA[$P{MIP_MAPSERVER_URL}]]></subreportParameterExpression>
 				</subreportParameter>
+				<subreportParameter name="tutkimusId">
+					<subreportParameterExpression><![CDATA[$F{tutkimus_id}]]></subreportParameterExpression>
+				</subreportParameter>
 				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 				<subreportExpression><![CDATA["Kohteet.jasper"]]></subreportExpression>
 			</subreport>
@@ -190,16 +193,19 @@ where tr.id = $P{tutkimusraporttiId}]]>
 				<subreportParameter name="MIP_MAPSERVER_URL">
 					<subreportParameterExpression><![CDATA[$P{MIP_MAPSERVER_URL}]]></subreportParameterExpression>
 				</subreportParameter>
+				<subreportParameter name="tutkimusId">
+					<subreportParameterExpression><![CDATA[$F{tutkimus_id}]]></subreportParameterExpression>
+				</subreportParameter>
 				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 				<subreportExpression><![CDATA["Kohteet.jasper"]]></subreportExpression>
 			</subreport>
 			<textField bookmarkLevel="2">
-				<reportElement positionType="Float" x="0" y="0" width="554" height="30" uuid="93348881-b7fe-46c7-9ec2-1f9bae6194e9"/>
+				<reportElement positionType="Float" x="0" y="0" width="554" height="30" isRemoveLineWhenBlank="true" uuid="93348881-b7fe-46c7-9ec2-1f9bae6194e9"/>
 				<textElement>
 					<font size="12" isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA["3.2. Aiemmin tunnetut muut kuin arkeologiset kohteet"]]></textFieldExpression>
-				<anchorNameExpression><![CDATA["Aiemmin tunnetut muut kuin arkeologiset kohteet"]]></anchorNameExpression>
+				<textFieldExpression><![CDATA["3.2. Aiemmin tunnetut muut kohteet"]]></textFieldExpression>
+				<anchorNameExpression><![CDATA["Aiemmin tunnetut muut kohteet"]]></anchorNameExpression>
 			</textField>
 		</band>
 		<band height="110">
@@ -217,6 +223,9 @@ where tr.id = $P{tutkimusraporttiId}]]>
 				<subreportParameter name="MIP_MAPSERVER_URL">
 					<subreportParameterExpression><![CDATA[$P{MIP_MAPSERVER_URL}]]></subreportParameterExpression>
 				</subreportParameter>
+				<subreportParameter name="tutkimusId">
+					<subreportParameterExpression><![CDATA[$F{tutkimus_id}]]></subreportParameterExpression>
+				</subreportParameter>
 				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 				<subreportExpression><![CDATA["Kohteet.jasper"]]></subreportExpression>
 			</subreport>
@@ -232,12 +241,12 @@ where tr.id = $P{tutkimusraporttiId}]]>
 		<band height="110">
 			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 			<textField bookmarkLevel="2">
-				<reportElement positionType="Float" x="0" y="0" width="554" height="30" uuid="1163afc3-63c8-423e-a2c9-8743092c647f"/>
+				<reportElement positionType="Float" isPrintRepeatedValues="false" x="0" y="0" width="554" height="30" isRemoveLineWhenBlank="true" uuid="1163afc3-63c8-423e-a2c9-8743092c647f"/>
 				<textElement>
 					<font size="12" isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA["3.4. Uudet muut kuin arkeologiset kohteet"]]></textFieldExpression>
-				<anchorNameExpression><![CDATA["Uudet muut kuin arkeologiset kohteet"]]></anchorNameExpression>
+				<textFieldExpression><![CDATA["3.4. Uudet muut kohteet"]]></textFieldExpression>
+				<anchorNameExpression><![CDATA["Uudet muut kohteet"]]></anchorNameExpression>
 			</textField>
 			<subreport>
 				<reportElement positionType="Float" isPrintRepeatedValues="false" x="0" y="30" width="554" height="50" isRemoveLineWhenBlank="true" uuid="91cb2f73-a9dc-4367-aa14-f094821a72ca">
@@ -251,6 +260,9 @@ where tr.id = $P{tutkimusraporttiId}]]>
 				</subreportParameter>
 				<subreportParameter name="MIP_MAPSERVER_URL">
 					<subreportParameterExpression><![CDATA[$P{MIP_MAPSERVER_URL}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="tutkimusId">
+					<subreportParameterExpression><![CDATA[$F{tutkimus_id}]]></subreportParameterExpression>
 				</subreportParameter>
 				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 				<subreportExpression><![CDATA["Kohteet.jasper"]]></subreportExpression>
@@ -274,7 +286,7 @@ where tr.id = $P{tutkimusraporttiId}]]>
 						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 					</datasetRun>
 					<jr:listContents height="350" width="554">
-						<image hAlign="Center" vAlign="Middle" onErrorType="Blank">
+						<image hAlign="Left" vAlign="Middle" onErrorType="Blank">
 							<reportElement x="0" y="0" width="554" height="316" uuid="d8d800b2-7d8a-446d-81b7-9188c08c63dd"/>
 							<box>
 								<pen lineColor="#E3E3E3"/>
