@@ -128,7 +128,11 @@ class ReportController extends Controller {
 			         $tyyppi = 'Loytoraportti';
 			     } else if($request->parameters['mode'] == 'poistetut_loydot') {
 			         $tyyppi = 'Poistetutloytoraportti';
-			     }
+			     } else if($request->parameters['mode'] == 'loyto_alueittain') {
+							$tyyppi = 'Loytoraportti_alueittain';
+					 } else if($request->parameters['mode'] == 'poistetut_loydot_alueittain') {
+							$tyyppi = 'Poistetutloytoraportti_alueittain';
+					 }
 					break;
 			case 'Nayteluettelo':
 					$parameters = ReportServer::generateNayteluetteloParameters($request->parameters);
@@ -224,7 +228,7 @@ class ReportController extends Controller {
 
 		$rr = json_encode($rr);
 
-		// Log::debug($rr);
+		//Log::debug($rr);
 
 		$res = $client->request("POST", $url, [
 				'http_errors' => false,
@@ -235,6 +239,7 @@ class ReportController extends Controller {
 		if ($res->getStatusCode()!="200") {
 			MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
 			MipJson::addMessage(Lang::get('raportti.create_report_failed') . " " . $res->getStatusCode()." ".$res->getReasonPhrase());
+			Log::error(Lang::get('raportti.create_report_failed') . " " . $res->getStatusCode()." ".$res->getReasonPhrase());
 
 			return MipJson::getJson();
 		}
