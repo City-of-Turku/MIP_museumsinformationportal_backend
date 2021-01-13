@@ -213,12 +213,18 @@ class ArkKuvaController extends Controller {
                 foreach($entity->kuvayksikot as $ky) {
                     array_push($tmpYksikot, $ky->yksikko);
                 }
+                $tmpKohteet = [];
+                foreach($entity->kuvakohteet as $kk) {
+                    array_push($tmpKohteet, $kk->kohde);
+                }
                 $entity->loydot = $tmpLoydot;
                 $entity->naytteet = $tmpNaytteet;
                 $entity->yksikot = $tmpYksikot;
+                $entity->kohteet = $tmpKohteet;
                 unset($entity->kuvaloydot);
                 unset($entity->kuvanaytteet);
                 unset($entity->kuvayksikot);
+                unset($entity->kuvakohteet);
 
                 // Deserialisoidaan JSON string kannasta
                 $entity->migraatiodata = json_decode($entity->migraatiodata, true);
@@ -536,6 +542,7 @@ class ArkKuvaController extends Controller {
             ArkKuva::linkita_loydot($entity->id, $request->loydot);
             ArkKuva::linkita_naytteet($entity->id, $request->naytteet);
             ArkKuva::linkita_yksikot($entity->id, $request->yksikot);
+            ArkKuva::linkita_kohteet($entity->id, $request->kohteet);
 
             MipJson::setGeoJsonFeature();
             MipJson::addMessage(Lang::get('kuva.save_success'));
@@ -613,6 +620,7 @@ class ArkKuvaController extends Controller {
              ArkKuva::linkita_loydot($entity->id, []);
              ArkKuva::linkita_naytteet($entity->id, []);
              ArkKuva::linkita_yksikot($entity->id, []);
+             ArkKuva::linkita_kohteet($entity->id, []);
 
              // Poistetaan mahdollinen kohde, tutkimus tai tutkimusalue kuva.
              // Poisto tehdään näin koska yhdistelmä PK tyylin modelissa ei tunnu laravel toimivan, kuten normi Id PK mallissa.
