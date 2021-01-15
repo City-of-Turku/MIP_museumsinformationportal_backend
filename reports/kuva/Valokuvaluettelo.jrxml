@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2021-01-08T16:18:56 -->
+<!-- 2021-01-15T09:54:35 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Valokuvaluettelo" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="7417a2e2-63d4-404b-adb6-0f467eb458ef">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="qa"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
 	<parameter name="tutkimusId" class="java.lang.Long"/>
 	<queryString language="SQL">
 		<![CDATA[select k.luettelointinumero, k.kuvaus, k.kuvaussuunta, k.kuvaaja, t.nimi as tutkimus_nimi, kuva_lkm.lkm, k2.nimi as kohde_nimi, k.kuvauspvm, t.digikuva_paanumero
@@ -45,7 +45,7 @@ order by luettelointinumero]]>
 					<textElement>
 						<font size="14"/>
 					</textElement>
-					<textFieldExpression><![CDATA[$F{kohde_nimi} + "; " + $F{tutkimus_nimi}]]></textFieldExpression>
+					<textFieldExpression><![CDATA[$F{kohde_nimi} != null ? $F{kohde_nimi} + "; " + $F{tutkimus_nimi} : $F{tutkimus_nimi}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 					<reportElement mode="Opaque" x="0" y="20" width="380" height="20" backcolor="#CCCCCC" uuid="c6f3141b-05ad-431b-abaa-3bda6dccc8bc"/>
