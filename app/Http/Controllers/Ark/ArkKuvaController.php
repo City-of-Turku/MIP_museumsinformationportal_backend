@@ -883,21 +883,25 @@ class ArkKuvaController extends Controller {
         $thumb_extension = 'jpg';
         //Large
         $img = Image::make($file_fullname)->encode('jpg');
+        $img->orientate();
         $img_large = ArkKuva::createThumbnail($img, intval(explode(",",config('app.image_thumb_large'))[0]));
         $img_large->save($file_path.$file_name."_LARGE.".$thumb_extension);
 
         //Medium
         $img = Image::make($file_fullname)->encode('jpg');
+        $img->orientate();
         $img_medium = ArkKuva::createThumbnail($img, intval(explode(",",config('app.image_thumb_medium'))[0]));
         $img_medium->save($file_path.$file_name."_MEDIUM.".$thumb_extension);
 
         //Small
         $img = Image::make($file_fullname)->encode('jpg');
+        $img->orientate();
         $img_small = ArkKuva::createThumbnail($img, intval(explode(",",config('app.image_thumb_small'))[0]));
         $img_small->save($file_path.$file_name."_SMALL.".$thumb_extension);
 
         //Tiny
         $img = Image::make($file_fullname)->encode('jpg');
+        $img->orientate();
         $img_tiny = ArkKuva::createThumbnail($img, intval(explode(",",config('app.image_thumb_tiny'))[0]));
         $img_tiny->save($file_path.$file_name."_TINY.".$thumb_extension);
     }
