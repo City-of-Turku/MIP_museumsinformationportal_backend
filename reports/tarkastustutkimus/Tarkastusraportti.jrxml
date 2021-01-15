@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2021-01-11T15:05:49 -->
+<!-- 2021-01-15T12:21:09 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Tarkastusraportti" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isTitleNewPage="true" uuid="dae58e2e-402a-450d-828f-128d65f1de0d">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
@@ -108,8 +108,8 @@ left join (
 	select ark_kuva.ark_tutkimus_id, ark_kuva.id as kuva_id
 	from ark_kuva
 	where ark_kuva.id in (
-		select min(id) from ark_kuva group by ark_tutkimus_id
-	) and ark_kuva.poistettu is null
+		select min(id) from ark_kuva where ark_kuva.poistettu is null group by ark_tutkimus_id
+	)
 ) ark_kuva on ark_kuva.ark_tutkimus_id = tu.id
 left join (
 	select ks.kohde_id, ST_X(ST_CENTROID(ST_TRANSFORM(ks.sijainti, 3067))) as sijainti_x, ST_Y(ST_CENTROID(ST_TRANSFORM(ks.sijainti, 3067))) as sijainti_y 
@@ -239,7 +239,7 @@ where tu.id = $P{tutkimusId}]]>
 		<variableExpression><![CDATA[$V{MAP_SX1}+"%2C"+$V{MAP_SY1}+"%2C"+$V{MAP_SX2}+"%2C"+$V{MAP_SY2}]]></variableExpression>
 	</variable>
 	<variable name="MAP_URL" class="java.lang.String">
-		<variableExpression><![CDATA[$V{MAP_BBOX}==null?null:$P{MIP_MAPSERVER_URL} + "/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&FORMAT=image%2Fpng&TRANSPARENT=true&STYLES&LAYERS=mip%3Amml_taustakartta,mip%3Aark_kohteet&CQL_FILTER=INCLUDE;kohde_id%20%3D%20"+$F{kohde_id}+"&SRS=EPSG%3A3067&WIDTH=1605&HEIGHT=960&format_options=dpi%3A270&BBOX="+$V{MAP_BBOX}]]></variableExpression>
+		<variableExpression><![CDATA[$V{MAP_BBOX}==null?null:$P{MIP_MAPSERVER_URL} + "/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&FORMAT=image%2Fpng&TRANSPARENT=true&STYLES&LAYERS=mip%3Amml_maastokartta,mip%3Aark_kohteet&CQL_FILTER=INCLUDE;kohde_id%20%3D%20"+$F{kohde_id}+"&SRS=EPSG%3A3067&WIDTH=1605&HEIGHT=960&format_options=dpi%3A270&BBOX="+$V{MAP_BBOX}]]></variableExpression>
 	</variable>
 	<variable name="MAP_URL2" class="java.lang.String">
 		<variableExpression><![CDATA[null]]></variableExpression>

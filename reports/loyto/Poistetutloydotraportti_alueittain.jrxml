@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2021-01-12T10:56:32 -->
+<!-- 2021-01-14T11:09:59 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Poistetutloydotraportti_alueittain" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="dea69c35-0e8e-453e-972c-f915cdff87f9">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
@@ -55,7 +55,7 @@ left join ark_tutkimusalue_yksikko on ark_tutkimusalue_yksikko.ark_tutkimusalue_
 left join ark_loyto on (ark_loyto.ark_tutkimusalue_yksikko_id = ark_tutkimusalue_yksikko.id or ark_loyto.ark_tutkimusalue_id = ark_tutkimusalue.id)
 left join ark_loyto_tyyppi on ark_loyto.ark_loyto_tyyppi_id = ark_loyto_tyyppi.id
 left join ark_loyto_materiaalikoodi on ark_loyto.ark_loyto_materiaalikoodi_id = ark_loyto_materiaalikoodi.id
-left join ( select ark_loyto_materiaalit.ark_loyto_id, string_agg(distinct ark_loyto_materiaali.nimi_fi, ', ') as muut_materiaalit
+left join ( select ark_loyto_materiaalit.ark_loyto_id, string_agg(distinct trim(ark_loyto_materiaali.nimi_fi), ', ') as muut_materiaalit
 	from ark_loyto_materiaalit
 	join ark_loyto_materiaali on ark_loyto_materiaalit.ark_loyto_materiaali_id = ark_loyto_materiaali.id	
 	group by ark_loyto_materiaalit.ark_loyto_id
@@ -130,7 +130,7 @@ order by tutkimusalue_nimi, materiaali_koodi, luettelointinumero1 asc, luetteloi
 		<variableExpression><![CDATA[$F{tutkimusid}]]></variableExpression>
 	</variable>
 	<title>
-		<band height="48">
+		<band height="40">
 			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 			<textField isBlankWhenNull="false">
 				<reportElement positionType="Float" mode="Opaque" x="0" y="20" width="555" height="20" backcolor="#CCCCCC" uuid="56f6fc35-3fdb-4df6-9c21-a8aa4be241fb">
@@ -156,11 +156,12 @@ order by tutkimusalue_nimi, materiaali_koodi, luettelointinumero1 asc, luetteloi
 		</band>
 	</title>
 	<detail>
-		<band height="100" splitType="Stretch">
+		<band height="81" splitType="Stretch">
 			<frame>
-				<reportElement positionType="Float" x="20" y="30" width="534" height="70" isRemoveLineWhenBlank="true" uuid="95999519-0217-4f8b-8ce4-259adefbb57c">
+				<reportElement positionType="Float" isPrintRepeatedValues="false" x="0" y="30" width="555" height="50" isRemoveLineWhenBlank="true" uuid="95999519-0217-4f8b-8ce4-259adefbb57c">
 					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 				</reportElement>
 				<box topPadding="0" leftPadding="0" bottomPadding="0" rightPadding="0">
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -179,17 +180,18 @@ order by tutkimusalue_nimi, materiaali_koodi, luettelointinumero1 asc, luetteloi
 					<textFieldExpression><![CDATA[$F{luettelointinumero}.contains("TMK") && $F{luettelointinumero3} != null ? $F{luettelointinumero2} + ":" + $F{luettelointinumero3} : $F{luettelointinumero}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement positionType="Float" x="100" y="0" width="334" height="16" isRemoveLineWhenBlank="true" uuid="dbea8fe8-6880-4e07-a7ce-e934938e19cb">
+					<reportElement positionType="Float" x="100" y="0" width="355" height="16" isRemoveLineWhenBlank="true" uuid="dbea8fe8-6880-4e07-a7ce-e934938e19cb">
 						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					</reportElement>
 					<textElement>
 						<font fontName="SansSerif" size="10"/>
 					</textElement>
-					<textFieldExpression><![CDATA[$F{tyyppi} + ". " + $F{muut_tyypit}]]></textFieldExpression>
+					<textFieldExpression><![CDATA[$F{muut_tyypit}.length() == 0 ? $F{tyyppi} + ". " : $F{tyyppi} + ", " + $F{muut_tyypit} + "."]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement positionType="Float" x="434" y="0" width="40" height="16" isRemoveLineWhenBlank="true" uuid="d3c2bd04-eae5-4a42-9a2a-dd1e775d8cc5">
+					<reportElement positionType="Float" x="455" y="0" width="40" height="16" isRemoveLineWhenBlank="true" uuid="d3c2bd04-eae5-4a42-9a2a-dd1e775d8cc5">
 						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 						<printWhenExpression><![CDATA[$F{kappalemaara} != null]]></printWhenExpression>
@@ -200,7 +202,7 @@ order by tutkimusalue_nimi, materiaali_koodi, luettelointinumero1 asc, luetteloi
 					<textFieldExpression><![CDATA[$F{kappalemaara} + " kpl"]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement positionType="Float" x="474" y="0" width="60" height="16" isRemoveLineWhenBlank="true" uuid="fcbad6c9-7db5-499f-b672-311019c7c8d2">
+					<reportElement positionType="Float" x="495" y="0" width="60" height="16" isRemoveLineWhenBlank="true" uuid="fcbad6c9-7db5-499f-b672-311019c7c8d2">
 						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 						<printWhenExpression><![CDATA[$F{paino} != null]]></printWhenExpression>
@@ -211,18 +213,20 @@ order by tutkimusalue_nimi, materiaali_koodi, luettelointinumero1 asc, luetteloi
 					<textFieldExpression><![CDATA[$F{paino} + " " + $F{painoyksikko}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement positionType="Float" x="100" y="17" width="334" height="16" isRemoveLineWhenBlank="true" uuid="d81acea5-9308-4ec9-916e-38de46dc2976">
+					<reportElement positionType="Float" x="100" y="17" width="355" height="16" isRemoveLineWhenBlank="true" uuid="d81acea5-9308-4ec9-916e-38de46dc2976">
 						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 						<printWhenExpression><![CDATA[$F{ensisijainen_materiaali}.toString().length() > 0l || $F{muut_materiaalit}.toString().length() > 0l]]></printWhenExpression>
 					</reportElement>
 					<textElement>
 						<font fontName="SansSerif" size="10"/>
 					</textElement>
-					<textFieldExpression><![CDATA[$F{ensisijainen_materiaali} + " " + $F{muut_materiaalit}]]></textFieldExpression>
+					<textFieldExpression><![CDATA[$F{muut_materiaalit}.length() == 0 ? $F{ensisijainen_materiaali} + ". " : $F{ensisijainen_materiaali} + ". " + $F{muut_materiaalit} + "."]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement positionType="Float" x="100" y="34" width="334" height="16" isRemoveLineWhenBlank="true" uuid="f50430d3-e4ba-4c7a-8e76-e88999da82ec">
+					<reportElement positionType="Float" x="100" y="34" width="355" height="16" isRemoveLineWhenBlank="true" uuid="f50430d3-e4ba-4c7a-8e76-e88999da82ec">
 						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					</reportElement>
 					<textElement>
 						<font fontName="SansSerif" size="10"/>
@@ -230,8 +234,9 @@ order by tutkimusalue_nimi, materiaali_koodi, luettelointinumero1 asc, luetteloi
 					<textFieldExpression><![CDATA[$F{kuvaus}]]></textFieldExpression>
 				</textField>
 				<frame>
-					<reportElement positionType="Float" x="100" y="50" width="334" height="16" isRemoveLineWhenBlank="true" uuid="ff4588ee-00af-4052-928e-31298aa22643">
+					<reportElement positionType="Float" isPrintRepeatedValues="false" x="100" y="50" width="355" height="112" isRemoveLineWhenBlank="true" uuid="ff4588ee-00af-4052-928e-31298aa22643">
 						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					</reportElement>
 					<box topPadding="0" leftPadding="0" bottomPadding="0" rightPadding="0">
 						<pen lineColor="#D61713"/>
@@ -241,7 +246,8 @@ order by tutkimusalue_nimi, materiaali_koodi, luettelointinumero1 asc, luetteloi
 						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					</box>
 					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-						<reportElement positionType="Float" x="0" y="0" width="334" height="16" isRemoveLineWhenBlank="true" uuid="79bdba38-f40b-439b-8db6-5cfceac9a033">
+						<reportElement positionType="Float" x="0" y="0" width="355" height="16" isRemoveLineWhenBlank="true" uuid="79bdba38-f40b-439b-8db6-5cfceac9a033">
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 							<printWhenExpression><![CDATA[$F{pituus}.toString().length() > 0l]]></printWhenExpression>
 						</reportElement>
 						<textElement>
@@ -250,8 +256,9 @@ order by tutkimusalue_nimi, materiaali_koodi, luettelointinumero1 asc, luetteloi
 						<textFieldExpression><![CDATA["Pit. " + $F{pituus} + " " + $F{pituusyksikko}]]></textFieldExpression>
 					</textField>
 					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-						<reportElement positionType="Float" x="0" y="16" width="334" height="16" isRemoveLineWhenBlank="true" uuid="7512e145-032b-4c78-a94e-338595a7e6bf">
+						<reportElement positionType="Float" x="0" y="16" width="355" height="16" isRemoveLineWhenBlank="true" uuid="7512e145-032b-4c78-a94e-338595a7e6bf">
 							<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 							<printWhenExpression><![CDATA[$F{leveys}.toString().length() > 0l]]></printWhenExpression>
 						</reportElement>
 						<textElement>
@@ -260,8 +267,9 @@ order by tutkimusalue_nimi, materiaali_koodi, luettelointinumero1 asc, luetteloi
 						<textFieldExpression><![CDATA["Lev. " + $F{leveys} + " " + $F{leveysyksikko}]]></textFieldExpression>
 					</textField>
 					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-						<reportElement positionType="Float" x="0" y="32" width="334" height="16" isRemoveLineWhenBlank="true" uuid="39cdbad2-67ef-4db9-8e7a-694a7c5454f4">
+						<reportElement positionType="Float" x="0" y="32" width="355" height="16" isRemoveLineWhenBlank="true" uuid="39cdbad2-67ef-4db9-8e7a-694a7c5454f4">
 							<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 							<printWhenExpression><![CDATA[$F{korkeus}.toString().length() > 0l]]></printWhenExpression>
 						</reportElement>
 						<textElement>
@@ -270,7 +278,8 @@ order by tutkimusalue_nimi, materiaali_koodi, luettelointinumero1 asc, luetteloi
 						<textFieldExpression><![CDATA["Kork. " + $F{korkeus} + " " + $F{korkeusyksikko}]]></textFieldExpression>
 					</textField>
 					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-						<reportElement positionType="Float" x="0" y="48" width="334" height="16" isRemoveLineWhenBlank="true" uuid="c778b994-b131-4c70-b0ee-62ce1a3d2330">
+						<reportElement positionType="Float" x="0" y="48" width="355" height="16" isRemoveLineWhenBlank="true" uuid="c778b994-b131-4c70-b0ee-62ce1a3d2330">
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 							<printWhenExpression><![CDATA[$F{halkaisija}.toString().length() > 0l]]></printWhenExpression>
 						</reportElement>
 						<textElement>
@@ -279,7 +288,8 @@ order by tutkimusalue_nimi, materiaali_koodi, luettelointinumero1 asc, luetteloi
 						<textFieldExpression><![CDATA["Halk. " + $F{halkaisija} + " " + $F{halkaisijayksikko}]]></textFieldExpression>
 					</textField>
 					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-						<reportElement positionType="Float" x="0" y="64" width="334" height="16" isRemoveLineWhenBlank="true" uuid="ec8708ea-516c-4a39-a12f-eb1a2efeb555">
+						<reportElement positionType="Float" x="0" y="64" width="355" height="16" isRemoveLineWhenBlank="true" uuid="ec8708ea-516c-4a39-a12f-eb1a2efeb555">
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 							<printWhenExpression><![CDATA[$F{paksuus}.toString().length() > 0l]]></printWhenExpression>
 						</reportElement>
 						<textElement>
@@ -288,7 +298,8 @@ order by tutkimusalue_nimi, materiaali_koodi, luettelointinumero1 asc, luetteloi
 						<textFieldExpression><![CDATA["Paks. " + $F{paksuus} + " " + $F{paksuusyksikko}]]></textFieldExpression>
 					</textField>
 					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-						<reportElement positionType="Float" x="0" y="80" width="334" height="16" isRemoveLineWhenBlank="true" uuid="2b6a69ce-dc0c-4c28-adcb-176c7dcfc021">
+						<reportElement positionType="Float" x="0" y="80" width="355" height="16" isRemoveLineWhenBlank="true" uuid="2b6a69ce-dc0c-4c28-adcb-176c7dcfc021">
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 							<printWhenExpression><![CDATA[$F{muut_mitat}.toString().length() > 0l]]></printWhenExpression>
 						</reportElement>
 						<textElement>
@@ -297,7 +308,8 @@ order by tutkimusalue_nimi, materiaali_koodi, luettelointinumero1 asc, luetteloi
 						<textFieldExpression><![CDATA["Muut mitat: " + $F{muut_mitat}]]></textFieldExpression>
 					</textField>
 					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-						<reportElement positionType="Float" x="0" y="96" width="334" height="16" isRemoveLineWhenBlank="true" uuid="fe16a268-32a7-4505-8dd3-2e65bbd0e12f">
+						<reportElement positionType="Float" x="0" y="96" width="355" height="16" isRemoveLineWhenBlank="true" uuid="fe16a268-32a7-4505-8dd3-2e65bbd0e12f">
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 							<printWhenExpression><![CDATA[$F{tapahtuma_kuvaus}.length() > 0]]></printWhenExpression>
 						</reportElement>
 						<textElement>
@@ -308,7 +320,7 @@ order by tutkimusalue_nimi, materiaali_koodi, luettelointinumero1 asc, luetteloi
 				</frame>
 			</frame>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement isPrintRepeatedValues="false" x="20" y="0" width="534" height="30" isRemoveLineWhenBlank="true" uuid="cfc5716d-784d-437c-b319-c110b9a3be00"/>
+				<reportElement isPrintRepeatedValues="false" x="0" y="0" width="554" height="30" isRemoveLineWhenBlank="true" uuid="cfc5716d-784d-437c-b319-c110b9a3be00"/>
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font size="12" isBold="true"/>
 				</textElement>
@@ -317,25 +329,28 @@ order by tutkimusalue_nimi, materiaali_koodi, luettelointinumero1 asc, luetteloi
 		</band>
 	</detail>
 	<pageFooter>
-		<band height="20" splitType="Stretch">
-			<staticText>
-				<reportElement x="0" y="0" width="150" height="20" uuid="f7a78235-52df-44e6-bbf7-d612b77cf8ba"/>
-				<text><![CDATA[Museon informaatioportaali]]></text>
-			</staticText>
-			<textField pattern="dd.MM.yyyy">
-				<reportElement x="150" y="0" width="110" height="20" uuid="fb58b816-0573-4ecd-b810-377c2606e07a">
+		<band height="29" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="485" y="1" width="30" height="28" isRemoveLineWhenBlank="true" uuid="e85f2913-127a-4de1-814c-e33c014c9930">
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
-				</reportElement>
-				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
-			</textField>
-			<textField evaluationTime="Master">
-				<reportElement x="376" y="0" width="178" height="20" uuid="b1e8311d-3da7-4c86-a215-80a02dcd5dbf">
-					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>
 				<textElement textAlignment="Right"/>
-				<textFieldExpression><![CDATA["Sivu " + $V{MASTER_CURRENT_PAGE} + " / " + $V{MASTER_TOTAL_PAGES}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
 			</textField>
+			<textField isStretchWithOverflow="true" evaluationTime="Master" isBlankWhenNull="true">
+				<reportElement x="515" y="1" width="40" height="28" isRemoveLineWhenBlank="true" uuid="b8fdb77e-9ad8-40f8-a42b-57350ddf829f">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textFieldExpression><![CDATA["/"+$V{MASTER_TOTAL_PAGES}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="0" width="555" height="1" uuid="fa820e0f-e047-461d-915e-ba0eb83d624c">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+			</line>
 		</band>
 	</pageFooter>
 </jasperReport>

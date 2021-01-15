@@ -349,6 +349,24 @@ class ArkKuva extends Model {
 	        }
 	    }
 	}
+	//Poistetaan vanhat linkatut kohteet ja lisätään uudet jotka tulee $kohteet-listassa
+	public static function linkita_kohteet($kuva_id, $kohteet) {
+		if(!is_null($kohteet)) {
+				DB::table('ark_kuva_kohde')->where('ark_kuva_id', $kuva_id)->delete();
+
+				foreach($kohteet as $kohde) {
+						$maxJarjestys = DB::table('ark_kuva_kohde')->where('ark_kohde_id', '=', $kohde["id"])->max('jarjestys')+1;
+
+						$ky = new ArkKuvaKohde();
+						$ky->ark_kuva_id = $kuva_id;
+						$ky->ark_kohde_id = $kohde["id"];
+						$ky->jarjestys = $maxJarjestys;
+						$ky->luoja = Auth::user()->id;
+
+						$ky->save();
+				}
+		}
+}
 
 	public static function isLuettelointinumeroUnique($ln, $nykyisenKuvanId) {
 	    $q = DB::select(DB::raw('select count(k.id)
