@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2021-01-15T09:28:39 -->
+<!-- 2021-01-15T12:05:21 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Tarkastus_kuvat" columnCount="2" printOrder="Horizontal" pageWidth="595" pageHeight="842" whenNoDataType="NoPages" columnWidth="280" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="24ef708e-d68e-45e3-8906-64b1a61d514a">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
@@ -28,13 +28,9 @@ ak.kuvauspvm,
 ak.kuvaaja,
 ak.tekijanoikeuslauseke
 FROM ark_kuva ak
-left join ark_kuva_kohde kk on kk.ark_kuva_id = ak.id
-left join ark_kohde k on k.id = kk.ark_kohde_id 
-left join ark_kohde_tutkimus kt on kt.ark_kohde_id = k.id 
-where (kt.ark_tutkimus_id = $P{tutkimusId} or ak.ark_tutkimus_id = $P{tutkimusId})
+where ak.ark_tutkimus_id = $P{tutkimusId} 
 and ak.poistettu is null
-order by ak.id
-]]>
+order by ak.id]]>
 	</queryString>
 	<field name="otsake" class="java.lang.String"/>
 	<field name="kuva_id" class="java.lang.Long"/>
