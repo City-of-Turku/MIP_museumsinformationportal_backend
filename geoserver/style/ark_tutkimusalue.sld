@@ -56,7 +56,7 @@
                 <Mark>
                   <WellKnownName>shape://backslash</WellKnownName>
                   <Stroke>
-                    <CssParameter name="stroke">#28561F</CssParameter>
+                    <CssParameter name="stroke">#FF0000</CssParameter>
                     <CssParameter name="stroke-width">1</CssParameter>
                   </Stroke>
                 </Mark>
@@ -64,7 +64,7 @@
              </GraphicFill>
             </Fill>
             <Stroke>
-              <CssParameter name="stroke">#FFD250</CssParameter>
+              <CssParameter name="stroke">#FF0000</CssParameter>
               <CssParameter name="stroke-width">1</CssParameter>
             </Stroke>
           </PolygonSymbolizer>
@@ -117,7 +117,7 @@
                 <Mark>
                   <WellKnownName>shape://slash</WellKnownName>
                   <Stroke>
-                    <CssParameter name="stroke">#646000</CssParameter>
+                    <CssParameter name="stroke">#FF0000</CssParameter>
                     <CssParameter name="stroke-width">1</CssParameter>
                   </Stroke>
                 </Mark>
@@ -125,7 +125,7 @@
              </GraphicFill>
             </Fill>
             <Stroke>
-              <CssParameter name="stroke">#FFD250</CssParameter>
+              <CssParameter name="stroke">#FF0000</CssParameter>
               <CssParameter name="stroke-width">1</CssParameter>
             </Stroke>
           </PolygonSymbolizer>
@@ -178,7 +178,7 @@
                 <Mark>
                   <WellKnownName>shape://backslash</WellKnownName>
                   <Stroke>
-                    <CssParameter name="stroke">#000000</CssParameter>
+                    <CssParameter name="stroke">#FF0000</CssParameter>
                     <CssParameter name="stroke-width">1</CssParameter>
                   </Stroke>
                 </Mark>
@@ -186,7 +186,7 @@
              </GraphicFill>
             </Fill>
             <Stroke>
-              <CssParameter name="stroke">#FFD250</CssParameter>
+              <CssParameter name="stroke">#FF0000</CssParameter>
               <CssParameter name="stroke-width">1</CssParameter>
             </Stroke>
           </PolygonSymbolizer>
@@ -239,7 +239,7 @@
                 <Mark>
                   <WellKnownName>shape://backslash</WellKnownName>
                   <Stroke>
-                    <CssParameter name="stroke">#171757</CssParameter>
+                    <CssParameter name="stroke">#FF0000</CssParameter>
                     <CssParameter name="stroke-width">1</CssParameter>
                   </Stroke>
                 </Mark>
@@ -247,7 +247,7 @@
              </GraphicFill>
             </Fill>
             <Stroke>
-              <CssParameter name="stroke">#FFD250</CssParameter>
+              <CssParameter name="stroke">#FF0000</CssParameter>
               <CssParameter name="stroke-width">1</CssParameter>
             </Stroke>
           </PolygonSymbolizer>
@@ -300,7 +300,7 @@
                 <Mark>
                   <WellKnownName>shape://backslash</WellKnownName>
                   <Stroke>
-                    <CssParameter name="stroke">#640505</CssParameter>
+                    <CssParameter name="stroke">#FF0000</CssParameter>
                     <CssParameter name="stroke-width">1</CssParameter>
                   </Stroke>
                 </Mark>
@@ -308,7 +308,7 @@
              </GraphicFill>
             </Fill>
             <Stroke>
-              <CssParameter name="stroke">#FFD250</CssParameter>
+              <CssParameter name="stroke">#FF0000</CssParameter>
               <CssParameter name="stroke-width">1</CssParameter>
             </Stroke>
           </PolygonSymbolizer>
@@ -361,7 +361,7 @@
                 <Mark>
                   <WellKnownName>shape://backslash</WellKnownName>
                   <Stroke>
-                    <CssParameter name="stroke">#603E10</CssParameter>
+                    <CssParameter name="stroke">#FF0000</CssParameter>
                     <CssParameter name="stroke-width">1</CssParameter>
                   </Stroke>
                 </Mark>
@@ -369,7 +369,7 @@
              </GraphicFill>
             </Fill>
             <Stroke>
-              <CssParameter name="stroke">#FFD250</CssParameter>
+              <CssParameter name="stroke">#FF0000</CssParameter>
               <CssParameter name="stroke-width">1</CssParameter>
             </Stroke>
           </PolygonSymbolizer>
