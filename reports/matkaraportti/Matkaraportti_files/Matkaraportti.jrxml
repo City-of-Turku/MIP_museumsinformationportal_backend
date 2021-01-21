@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2021-01-20T21:16:17 -->
+<!-- 2021-01-21T10:24:20 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Matkaraportti" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isTitleNewPage="true" uuid="b9966973-2cf8-4148-a562-c10b45f317ea">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="qa"/>
@@ -223,15 +223,17 @@ order by matkaraportinsyy.nimi_fi]]>
 				<textFieldExpression><![CDATA[$F{kyla_nimi}]]></textFieldExpression>
 			</textField>
 			<frame>
-				<reportElement x="0" y="70" width="554" height="320" uuid="e3e24cf4-1c52-486c-aee4-4eca3e17825e">
+				<reportElement x="1" y="70" width="553" height="320" uuid="e3e24cf4-1c52-486c-aee4-4eca3e17825e">
 					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 				</reportElement>
 				<box>
 					<pen lineWidth="1.0" lineColor="#CCCCCC"/>
 				</box>
 				<image hAlign="Center" isUsingCache="false" onErrorType="Blank" evaluationTime="Report">
-					<reportElement key="" stretchType="ContainerHeight" x="9" y="0" width="535" height="320" uuid="dae6cf56-d35f-40f5-8646-d56c3b69d0cd">
+					<reportElement key="" stretchType="ContainerHeight" x="9" y="0" width="535" height="319" uuid="dae6cf56-d35f-40f5-8646-d56c3b69d0cd">
 						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 						<printWhenExpression><![CDATA[$F{bbox_xmin}!=null]]></printWhenExpression>
 					</reportElement>
 					<box>
@@ -262,7 +264,7 @@ order by matkaraportinsyy.nimi_fi]]>
 				<text><![CDATA[Matkapäivä]]></text>
 			</staticText>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement x="310" y="25" width="71" height="25" uuid="a0fade13-3e11-4ec3-af80-bde63baed930"/>
+				<reportElement x="310" y="25" width="50" height="25" uuid="a0fade13-3e11-4ec3-af80-bde63baed930"/>
 				<textFieldExpression><![CDATA[$F{palstanumero}]]></textFieldExpression>
 			</textField>
 			<staticText>
