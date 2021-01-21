@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2021-01-15T09:54:35 -->
+<!-- 2021-01-21T15:53:46 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Valokuvaluettelo" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="7417a2e2-63d4-404b-adb6-0f467eb458ef">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="qa"/>
 	<parameter name="tutkimusId" class="java.lang.Long"/>
 	<queryString language="SQL">
-		<![CDATA[select k.luettelointinumero, k.kuvaus, k.kuvaussuunta, k.kuvaaja, t.nimi as tutkimus_nimi, kuva_lkm.lkm, k2.nimi as kohde_nimi, k.kuvauspvm, t.digikuva_paanumero
+		<![CDATA[select k.luettelointinumero, k.kuvaus, k.kuvaussuunta, k.kuvaaja, t.nimi as tutkimus_nimi, kuva_lkm.lkm, k2.nimi as kohde_nimi, k.kuvauspvm, t.digikuva_paanumero,
+split_part(k.luettelointinumero, ':', 1) as paanumero, -- taman mukaan ei tarvi jarjestaa - kaikilla sama
+NULLIF(regexp_replace(split_part(k.luettelointinumero, ':', 2), '\D', '', 'g'), '')::numeric as valinumero,
+NULLIF(regexp_replace(split_part(k.luettelointinumero, ':', 3), '\D', '', 'g'), '')::numeric as juokseva
 from ark_kuva k
 left join ark_tutkimus t on t.id = k.ark_tutkimus_id 
 left join ark_kohde_tutkimus akt on akt.ark_tutkimus_id = t.id
@@ -19,7 +22,9 @@ left join (
 where k.ark_tutkimus_id = $P{tutkimusId}
 and k.poistettu is null
 and luettelointinumero is not null
-order by luettelointinumero]]>
+order by valinumero, juokseva
+
+]]>
 	</queryString>
 	<field name="luettelointinumero" class="java.lang.String"/>
 	<field name="kuvaus" class="java.lang.String"/>
@@ -30,6 +35,9 @@ order by luettelointinumero]]>
 	<field name="kohde_nimi" class="java.lang.String"/>
 	<field name="kuvauspvm" class="java.sql.Timestamp"/>
 	<field name="digikuva_paanumero" class="java.lang.String"/>
+	<field name="paanumero" class="java.lang.String"/>
+	<field name="valinumero" class="java.math.BigDecimal"/>
+	<field name="juokseva" class="java.math.BigDecimal"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
