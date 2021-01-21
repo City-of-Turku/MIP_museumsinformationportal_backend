@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2018-01-10T13:10:27 -->
+<!-- 2021-01-20T21:17:08 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Matkaraportti_kooste" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="334a4b8b-a48c-4b5a-8c8d-99592a37c3a1">
 	<property name="net.sf.jasperreports.export.xls.collapse.row.span" value="true"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="qa"/>
 	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
 		<box>
 			<pen lineWidth="0.5" lineColor="#000000"/>
@@ -221,7 +222,7 @@ order by mr.matkapvm, ku.nimi, ky.nimi ASC]]>
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>
-				<imageExpression><![CDATA["VS_MaakuntaMuseo_logo_FI.png"]]></imageExpression>
+				<imageExpression><![CDATA["logo.png"]]></imageExpression>
 			</image>
 			<staticText>
 				<reportElement x="0" y="0" width="280" height="30" uuid="daf582a0-dce2-49ec-8350-87af52b44e8a"/>

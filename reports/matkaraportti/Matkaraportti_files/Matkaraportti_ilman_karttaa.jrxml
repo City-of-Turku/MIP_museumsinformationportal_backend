@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2017-12-13T14:54:04 -->
+<!-- 2021-01-20T21:15:56 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Matkaraportti_ilman_karttaa" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="b9966973-2cf8-4148-a562-c10b45f317ea">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Mipdev5"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="qa"/>
 	<subDataset name="Matkaraportti-syyt" uuid="17b417fd-e048-41a7-98ed-8f84f6369f0b">
 		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 		<parameter name="matkaraportti_id" class="java.lang.Integer">
@@ -107,8 +107,8 @@ order by matkaraportinsyy.nimi_fi]]>
 				<text><![CDATA[Matkaraportti]]></text>
 			</staticText>
 			<image scaleImage="RetainShape" hAlign="Right" vAlign="Middle">
-				<reportElement x="381" y="-20" width="194" height="90" uuid="ba764178-6b92-46bd-a407-d45282fb368b"/>
-				<imageExpression><![CDATA["VS_MaakuntaMuseo_logo_FI.png"]]></imageExpression>
+				<reportElement x="359" y="0" width="194" height="40" uuid="ba764178-6b92-46bd-a407-d45282fb368b"/>
+				<imageExpression><![CDATA["logo.png"]]></imageExpression>
 			</image>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 				<reportElement x="230" y="40" width="140" height="20" uuid="949a8268-0c39-400f-9119-a171c6a52baf"/>

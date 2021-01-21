@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2021-01-15T12:21:09 -->
+<!-- 2021-01-20T21:19:47 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Tarkastusraportti" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isTitleNewPage="true" uuid="dae58e2e-402a-450d-828f-128d65f1de0d">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
@@ -259,9 +259,9 @@ where tu.id = $P{tutkimusId}]]>
 				</box>
 				<imageExpression><![CDATA[$P{MIP_BACKEND_URL} + "/raportti/ark_kuva/"+$F{kuva_id}+"/pieni"]]></imageExpression>
 			</image>
-			<image scaleImage="RetainShape" hAlign="Right" vAlign="Middle">
+			<image scaleImage="RetainShape" hAlign="Center" vAlign="Middle">
 				<reportElement x="183" y="2" width="194" height="90" uuid="fa65392d-cf8a-4191-869d-b0ae949544a1"/>
-				<imageExpression><![CDATA["VS_MaakuntaMuseo_logo_FI.png"]]></imageExpression>
+				<imageExpression><![CDATA["logo.png"]]></imageExpression>
 			</image>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 				<reportElement x="1" y="94" width="554" height="50" uuid="3e349808-7091-4a53-97cc-fe844249a566"/>
@@ -893,14 +893,14 @@ where tu.id = $P{tutkimusId}]]>
 					<pen lineWidth="0.5"/>
 				</box>
 				<staticText>
-					<reportElement x="1" y="0" width="158" height="30" uuid="667ff73e-0921-4477-a2d3-2493ef582295"/>
+					<reportElement x="1" y="0" width="139" height="30" uuid="667ff73e-0921-4477-a2d3-2493ef582295"/>
 					<textElement>
 						<font isBold="true"/>
 					</textElement>
-					<text><![CDATA[Arkeologisen kohteen tarkempi kuvaus ja rajaus:]]></text>
+					<text><![CDATA[Kohteen kuvaus, rajaus ja yleiset havainnot:]]></text>
 				</staticText>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement x="160" y="0" width="394" height="30" uuid="49628c7f-1c1a-498a-9b60-41768758e029">
+					<reportElement x="140" y="0" width="414" height="30" uuid="49628c7f-1c1a-498a-9b60-41768758e029">
 						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 					</reportElement>
 					<textFieldExpression><![CDATA[$F{kohteen_kuvaus}]]></textFieldExpression>

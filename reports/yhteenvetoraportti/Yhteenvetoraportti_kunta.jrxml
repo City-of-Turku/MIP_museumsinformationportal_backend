@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2019-05-16T16:08:24 -->
+<!-- 2021-01-20T21:21:32 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Yhteenvetoraportti_kunta" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isTitleNewPage="true" uuid="065dfbd7-d3f0-44b2-a9cc-0b1e1995f468">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="mipdev5 "/>
@@ -83,9 +83,9 @@
 	<field name="inventointiprojekti_nimi" class="java.lang.String"/>
 	<title>
 		<band height="788">
-			<image>
+			<image hAlign="Center">
 				<reportElement x="185" y="80" width="190" height="70" uuid="efb08d1a-5a45-415f-8966-639e1f03d81b"/>
-				<imageExpression><![CDATA["VS_MaakuntaMuseo_logo_FI.png"]]></imageExpression>
+				<imageExpression><![CDATA["logo.png"]]></imageExpression>
 			</image>
 			<textField>
 				<reportElement x="10" y="170" width="534" height="30" uuid="28d869fd-9277-4a2f-bef5-8df2e7a461e5">

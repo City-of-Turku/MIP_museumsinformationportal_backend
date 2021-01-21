@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2021-01-08T15:26:18 -->
+<!-- 2021-01-20T09:40:42 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Yksikot" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="435b7430-f0b0-4430-bff1-69f977403d18">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
@@ -142,7 +142,7 @@ order by jarjestys]]>
 				<textFieldExpression><![CDATA[$F{muut_maalajit}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement positionType="Float" x="0" y="70" width="160" height="20" isRemoveLineWhenBlank="true" uuid="25326d19-07e9-4730-b670-dd871af275f3">
+				<reportElement positionType="Float" x="0" y="70" width="160" height="30" isRemoveLineWhenBlank="true" uuid="25326d19-07e9-4730-b670-dd871af275f3">
 					<printWhenExpression><![CDATA[$F{muut_maalajit} != null]]></printWhenExpression>
 				</reportElement>
 				<textElement>
