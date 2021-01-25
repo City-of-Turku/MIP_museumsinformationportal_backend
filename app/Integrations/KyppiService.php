@@ -563,7 +563,6 @@ class KyppiService{
             DB::rollback();
 
             Log::error('KyppiService tallennaKohde virhe: ' .$e->getTraceAsString());
-
             return false;
         }
     }

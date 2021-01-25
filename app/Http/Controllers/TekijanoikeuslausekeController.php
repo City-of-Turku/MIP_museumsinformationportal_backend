@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\Validator;
 use Exception;
 
 class TekijanoikeuslausekeController extends Controller {
-
 	/**
 	 * Display a listing of the resource.
 	 *
@@ -36,7 +35,6 @@ class TekijanoikeuslausekeController extends Controller {
 			'jarjestys'			=> 'string',
 			'jarjestys_suunta'	=> 'string',
 		]);
-
 		if ($validator->fails()) {
 			MipJson::setGeoJsonFeature();
 			MipJson::addMessage(Lang::get('validation.custom.user_input_validation_failed'));
@@ -46,7 +44,6 @@ class TekijanoikeuslausekeController extends Controller {
 		}
 		else {
 			try {
-
 				/*
 				 * Initialize the variables that needs to be "reformatted"
 				 */
@@ -54,7 +51,6 @@ class TekijanoikeuslausekeController extends Controller {
 				$riveja = (isset($request->rivit) && is_numeric($request->rivit)) ? $request->rivit : 100;
 				$jarjestys_kentta = (isset($request->jarjestys)) ? $request->jarjestys : "id";
 				$jarjestys_suunta = (isset($request->jarjestys_suunta)) ? ($request->jarjestys_suunta == "laskeva" ? "desc" : "asc") : "asc";
-
 				/*
 				 * By default, initialize the query to get ALL entities
 				 */
@@ -104,7 +100,6 @@ class TekijanoikeuslausekeController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function store(Request $request) {
-
 		/*
 		 * Role check
 		 */
@@ -114,12 +109,10 @@ class TekijanoikeuslausekeController extends Controller {
 	        MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
 	        return MipJson::getJson();
 	    }
-
 		$validator = Validator::make($request->all(), [
 			'lauseke'		=> 'required|string',
 		    'otsikko'       => 'required|string'
 		]);
-
 		if ($validator->fails()) {
 			MipJson::setGeoJsonFeature();
 			MipJson::addMessage(Lang::get('validation.custom.user_input_validation_failed'));
@@ -158,7 +151,6 @@ class TekijanoikeuslausekeController extends Controller {
 		}
 		return MipJson::getJson();
 	}
-
 	/**
 	 * Update the specified resource in storage.
 	 *
@@ -167,7 +159,6 @@ class TekijanoikeuslausekeController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function update(Request $request, $id) {
-
 		/*
 		 * Role check
 		 */
@@ -232,7 +223,6 @@ class TekijanoikeuslausekeController extends Controller {
 		}
 		return MipJson::getJson();
 	}
-
 	/**
 	 * Remove the specified resource from storage.
 	 *
@@ -264,7 +254,6 @@ class TekijanoikeuslausekeController extends Controller {
 		try {
 			DB::beginTransaction();
 			Utils::setDBUser();
-
 			$author_field = Tekijanoikeuslauseke::DELETED_BY;
 			$when_field = Tekijanoikeuslauseke::DELETED_AT;
 			$entity->$author_field = Auth::user()->id;

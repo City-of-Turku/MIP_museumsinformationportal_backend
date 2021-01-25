@@ -444,9 +444,9 @@ class TutkimusalueYksikkoController extends Controller
                         YksikkoTyovaihe::paivita_yksikko_tyovaiheet($yksikko->id, $request->input('properties.tyovaiheet'));
                         YksikkoPaasekoitteet::paivita_paasekoitteet($yksikko->id, $request->input('properties.paasekoitteet'));
                         YksikkoMuutMaalajit::paivita_muut_maalajit($yksikko->id, $request->input('properties.muut_maalajit'));
-                        
+
                         YksikkoStratigrafia::tallennaStratigrafia($yksikko->id, $request->input('properties.suhteet'));
-                        
+
                         // Muistiinpanokenttien arvot kopioidaan pohjaksi varsinaisiin kenttiin
                         if(!$request->input('kaivaus_valmis')){
                             self::kopioiMuistiinpanot($yksikko);
@@ -466,7 +466,7 @@ class TutkimusalueYksikkoController extends Controller
 
                     // Päivitys onnistui
                     DB::commit();
-                    
+
                     MipJson::addMessage(Lang::get('tutkimus.save_success'));
                     MipJson::setGeoJsonFeature(null, $yksikko);
                     MipJson::setResponseStatus(Response::HTTP_OK);

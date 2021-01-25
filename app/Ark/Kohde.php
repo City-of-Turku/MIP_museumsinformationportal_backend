@@ -412,7 +412,6 @@ class Kohde extends Model {
 	}
 
 
-
 	public function vanhatKunnat() {
 	    return $this->hasMany('App\Ark\KohdeVanhaKunta', 'ark_kohde_id');
 	}

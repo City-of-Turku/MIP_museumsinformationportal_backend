@@ -159,7 +159,6 @@ class Loyto extends Model
              */
             // Log::debug("Yksikko_id ja materiaalikoodi_id löytyy");
             $yksikko = TutkimusalueYksikko::getSingle($yksikko_id)->first();
-
             $tutkimusId = $yksikko->tutkimusalue->tutkimus->id;
 
             // Haetaan saman tutkimuksen MAX alanumero materiaalikoodilla, yksikkotyypillä ja yksikon numerolla.

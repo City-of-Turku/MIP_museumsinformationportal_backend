@@ -90,7 +90,6 @@ class Tutkimusalue extends Model
         //if ($jarjestys_kentta == "nimi") {
         //    return $query->orderBy("ark_tutkimusalue.nimi", $jarjestys_suunta);
         //}
-
         //todo muut kentät jos on
 
         return $query->orderBy("ark_tutkimusalue.nimi", "asc");

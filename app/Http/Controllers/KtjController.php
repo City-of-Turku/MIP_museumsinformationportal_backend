@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Validator;
 use Exception;
 
 class KtjController extends Controller {
-
 	/**
 	 * Method to query KIINTEISTO data from MML web services with given point in map
 	 *
@@ -24,7 +23,6 @@ class KtjController extends Controller {
 	 * @since 1.0
 	 */
 	public function queryKiinteisto(Request $request) {
-
 		/*
 		 * Role check
 		 */
@@ -62,7 +60,6 @@ class KtjController extends Controller {
 			MipJson::initGeoJsonFeatureCollection(count($kiinteistot), count($kiinteistot));
 
 			foreach ($kiinteistot as $index => $kiinteisto) {
-
 				$kiint_tiedot = MMLQueries::getKiinteistoTiedotREST($kiinteisto['kiinteistotunnus']);
 
 				$kiinteisto['nimi'] = $kiint_tiedot['nimi'];
@@ -70,7 +67,6 @@ class KtjController extends Controller {
 				$kiinteisto['kuntanimi_fi'] = $kiint_tiedot['kuntanimi_fi'];
 				$kiinteisto['kuntanimi_se'] = $kiint_tiedot['kuntanimi_se'];
 				$kiinteisto['omistajat'] = $kiint_tiedot['omistajat'];
-
 				MipJson::addGeoJsonFeatureCollectionFeaturePoint(null, $kiinteisto);
 			} // foreach
 
@@ -86,7 +82,6 @@ class KtjController extends Controller {
 
 		return MipJson::getJson();
 	}
-
 	/**
 	 * Kiinteistöjen ja rakennusten haku polygonin mukaan
 	 */
@@ -117,7 +112,6 @@ class KtjController extends Controller {
 					$r['rakennustunnus'] = $rakennus['rakennustunnus'];
 					$r['postinumero'] = $rakennus['postinumero'];
 					$r['kunta'] = $rakennus['kuntanimiFin'];
-
 					if(array_key_exists('osoitteet', $rakennus)){
 					    $r['osoitteet'] = $rakennus['osoitteet'];
 					}
@@ -154,7 +148,6 @@ class KtjController extends Controller {
 	 * @since 1.0
 	 */
 	public function queryRakennus(Request $request) {
-
 		/*
 		 * Role check
 		 */
@@ -224,7 +217,6 @@ class KtjController extends Controller {
 	 * @since 1.0
 	 */
 	public function queryOsoite(Request $request) {
-
 		/*
 		 * Role check
 		 */
@@ -238,7 +230,6 @@ class KtjController extends Controller {
 		$validator = Validator::make($request->all(), [
 				"kiinteistotunnus"			=> "string"
 		]);
-
 		if ($validator->fails()) {
 			MipJson::addMessage(Lang::get('validation.custom.user_input_validation_failed'));
 			foreach($validator->errors()->all() as $error) {
@@ -296,7 +287,6 @@ class KtjController extends Controller {
 	 * @since 1.0
 	 */
 	public function queryNimisto(Request $request) {
-
 		/*
 		 * Role check
 		 */

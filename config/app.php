@@ -251,7 +251,6 @@ return [
     'old_image_thumb_small_name' => env("OLD_IMAGE_THUMB_SMALL_NAME"),
     'old_image_thumb_medium_name' => env("OLD_IMAGE_THUMB_MEDIUM_NAME"),
     'old_image_thumb_large_name' => env("OLD_IMAGE_THUMB_LARGE_NAME"),
-
     'image_thumb_large' => env("IMAGE_THUMB_LARGE"),
     'image_thumb_medium' => env("IMAGE_THUMB_MEDIUM"),
     'image_thumb_small' => env("IMAGE_THUMB_SMALL"),

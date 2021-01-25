@@ -865,7 +865,6 @@ class KuvaController extends Controller {
 	   				    foreach($request->idt as $id) {
 	   				        $img = KuvaSuunnittelija::whereImageIdAndSuunnittelijaId($id, $request->input('entiteetti_id'))->first();
 	   				        $img->updateJarjestys($order, $img->kuva_id, $img->suunnittelija_id);
-
 	   				        //Set the first kuva to public and others as not public
 	   				        if($order == 1){
 	   				            $kuva = Kuva::getSingle($id)->first();
@@ -876,7 +875,6 @@ class KuvaController extends Controller {
 	   				            $kuva->julkinen = false;
 	   				            $kuva->update();
 	   				        }
-
 	   				        $order++;
 	   				    }
 	   				    break;

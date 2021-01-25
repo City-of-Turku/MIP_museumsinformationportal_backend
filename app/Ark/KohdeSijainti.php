@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 
 class KohdeSijainti extends Model {
-
 	protected $table = "ark_kohde_sijainti";
 	protected $fillable = array('id', 'kohde_id', 'sijainti', 'tuhoutunut');
 	protected $appends = array('geometry', 'type', 'properties');
@@ -43,7 +42,6 @@ class KohdeSijainti extends Model {
 			if(substr($coordinates, -1) == ')') {
 				$coordinates = rtrim($coordinates, ')');
 			}
-
 			//Parit on eroteltuna välilyönneillä, erotetaan parit omiksi arrayksi. Muutetaan string numeroksi
 			$pair = explode(" ", $coordinates);
 			$pair[0] = (float)$pair[0];
@@ -79,7 +77,6 @@ class KohdeSijainti extends Model {
 		$ret = array('type' => $type, 'coordinates' => $coordinates);
 		return $ret;
 	}
-
 	public static function paivita_kohde_sijainnit($kohde_id, $sijainnit) {
 		if(!is_null($sijainnit)) {
 			//Poistetaan vanhat ja lisätään uudet

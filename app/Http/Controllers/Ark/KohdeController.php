@@ -332,7 +332,6 @@ class KohdeController extends Controller {
                 }
 
                 $properties = clone($kohde);
-
                 unset($properties['ark_kohdelaji_id']);
                 unset($properties['rauhoitusluokka_id']);
                 unset($properties['alkuperaisyys_id']);
@@ -791,7 +790,9 @@ class KohdeController extends Controller {
             $kohdeDto->id = $kohde->id;
             $kohdeDto->nimi = $kohde->nimi;
             $kohdeDto->muinaisjaannostunnus = $kohde->muinaisjaannostunnus;
-            $kohdeDto->laji = $kohde->laji->nimi_fi;
+            if($kohde->laji && $kohde->laji->nimi_fi) {
+                $kohdeDto->laji = $kohde->laji->nimi_fi;
+            }
             $kohdeDto->sijainnit = $kohde->sijainnit;
 
             if(count($kohde->tyypit) == 0){

@@ -179,39 +179,39 @@ class KyppiController extends Controller{
                         // Haetaan kypista luotu muinaisjäännös uudelleen, jotta saadaan myös julkinen url.
                         // Nykyisellään Kyppi ei palauta kuin suppeat tiedot LisaaMuinaisjaannos palvelun käyttäjille.
                         $xml = $kyppiService->haeMuinaisjaannosSoap($muinaisjaannostunnus, false);
-                        
+
                         if(empty($xml)){
                             MipJson::setGeoJsonFeature(null, null);
                             MipJson::addMessage('Tietoja ei loytynyt muinaisjaannosrekisterista tunnuksella: ' .$muinaisjaannostunnus);
                             MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
                             return MipJson::getJson();
                         }
-                        
+
                         $dom = new \DOMDocument('1.0', 'utf-8');
                         $dom->preserveWhiteSpace = false;
-                        
+
                         $dom->loadXML($xml);
                         $muinaisjaannos = $dom->getElementsByTagName( 'muinaisjaannos' )->item(0);
-                        
+
                         if(empty($muinaisjaannos)){
                             MipJson::setGeoJsonFeature(null, null);
                             MipJson::addMessage('Tietoja ei loytynyt muinaisjaannosrekisterista tunnuksella: ' .$muinaisjaannostunnus);
                             MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
                             return MipJson::getJson();
                         }
-                        
+
                         // Hae arvot domista
                         foreach ($muinaisjaannos->childNodes as $item) {
-                            
+
                             if($item->nodeName == 'muinaisjaannostunnus'){
                                 $kohde->muinaisjaannostunnus = $item->nodeValue;
                             }
-                            
+
                             if($item->nodeName == 'julkinenurl'){
                                 $kohde->julkinenurl = $item->nodeValue;
                             }
                         }
-                        
+
                         // Tallennus Mippiin
                         DB::beginTransaction();
                         Utils::setDBUser();

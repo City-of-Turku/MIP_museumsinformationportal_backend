@@ -276,7 +276,6 @@ class TutkimusController extends Controller
      * Haetaan tutkimus
      */
     public function show($id) {
-
     	if(!is_numeric($id)) {
     		MipJson::setGeoJsonFeature();
     		MipJson::addMessage(Lang::get('validation.custom.user_input_validation_failed'));
@@ -388,7 +387,6 @@ class TutkimusController extends Controller
                 // Lisätään kohteelta palautettavat tiedot
                 if( !empty($kohde) ){
                     $properties->setAttribute('kohde' ,$kohde);
-
 
                     if( !empty($kohde->kunnatkylat[0]->kunta) ){
                         $properties->setAttribute('kohde_kunta' ,$kohde->kunnatkylat[0]->kunta);

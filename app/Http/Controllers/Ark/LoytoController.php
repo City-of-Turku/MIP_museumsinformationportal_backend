@@ -923,7 +923,6 @@ class LoytoController extends Controller
 
         try {
             $vanhaLuettelointiNro = $loyto->luettelointinumero;
-
             $loyto->fill($request->all()['properties']);
 
             // Pitää olla Turun museokeskus, jotta voidaan vaihtaa luettelointinumeroita
@@ -938,7 +937,6 @@ class LoytoController extends Controller
             if($vaihto){
                 // Kaivaustutkimuksen löytö esim: TMK12345:KA271:1
                 if($request->input('properties.yksikko')){
-
                     // Juokseva alanumero per yksikkö ja materiaalikoodi
                     $alanumero = $loyto::getAlanumero($request->input('properties.ark_tutkimusalue_yksikko_id'), $request->input('properties.materiaalikoodi.id'), null, null);
                     $loyto->alanumero = $alanumero;
@@ -947,13 +945,11 @@ class LoytoController extends Controller
                         . $request->input('properties.materiaalikoodi.koodi')
                         . $request->input('properties.yksikko.yksikon_numero') . ':'
                         . (string)$alanumero;
-
                 } else if(!$request->input('properties.yksikko')){
                     // Irtolöytö tai tarkastustutkimus esim: TMK222:1 (alkuosa + löydön päänumero + alanumero)
                     if($request->input('properties.tutkimusalue.ark_tutkimus_id') && $request->input('properties.ark_tutkimusalue_id')) {
                         $alanumero = $loyto::getAlanumero(null, null, $request->input('properties.tutkimusalue.ark_tutkimus_id'), $request->input('properties.ark_tutkimusalue_id'));
                         $loyto->alanumero = $alanumero;
-
                         $loyto->luettelointinumero = $alkuosa . $request->input('properties.tutkimusalue.tutkimus.loyto_paanumero'). ':' . (string)$alanumero;
                     }
                 }
@@ -1071,7 +1067,6 @@ class LoytoController extends Controller
 
         // Haetaan löydön tilalle tapahtuma id
         $tilaTapahtuma = LoytoTilaTapahtuma::haeLoydonTilaIdMukaan($request->input('properties.loydon_tila.id'));
-
         $uusiTapahtuma = self::uusiTapahtuma($loyto);
 
         $uusiTapahtuma->ark_loyto_tapahtuma_id = $tilaTapahtuma->ark_loyto_tapahtuma_id;
@@ -1101,7 +1096,6 @@ class LoytoController extends Controller
             $uusiTapahtuma->vakituinen_sailytystila_id = $request->input('properties.sailytystila.id');
             $uusiTapahtuma->vakituinen_hyllypaikka = $request->input('properties.vakituinen_hyllypaikka');
         }
-
         // Log::debug("Uusi tapahtuma:");
         // Log::debug($uusiTapahtuma);
 

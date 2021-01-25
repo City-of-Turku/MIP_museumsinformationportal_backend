@@ -79,7 +79,6 @@ class MipGis {
 	 */
 	public static function getPointJsonValue($geometryValue) {
 		$result = DB::selectOne("SELECT ST_AsGeoJson(ST_transform('".$geometryValue."'::geometry, ".Config::get('app.json_srid').")) as json ");
-
 		// TODO: remove transform (EPSG:3067 -> EPSG:4326)
 		// TODO: test if it works...
 		//$result = DB::selectOne("SELECT ST_AsGeoJson('".$geometryValue."'::geometry) as json ");
@@ -153,7 +152,6 @@ class MipGis {
 	 * @since 1.0
 	 */
 	public static function getGeometryFieldBoundingBoxQueryWhereString($fieldName, $bbox) {
-
 		/*
 		 * RE-Format the given bounding box format.
 		 * We read the "bounding box" from user in format: lon lat,lon lat
@@ -218,7 +216,6 @@ class MipGis {
 	 * @since 1.0
 	 */
 	public static function getGeometryFieldBoundingBoxQueryWhereStringFromAreaAndPoint($areaField, $pointField, $bbox) {
-
 		/*
 		 * RE-Format the given bounding box format.
 		 * We read the "bounding box" from user in format: lon lat,lon lat
@@ -226,13 +223,11 @@ class MipGis {
 		 * --> So we will make it valid here.
 		 */
 		$bbox = str_replace(" ", ",", $bbox);
-
 		$ret = " ( ";
 		$ret .= $areaField." && ST_Transform(ST_MakeEnvelope(".$bbox.", ".Config::get('app.json_srid')."), ".Config::get('app.db_srid').") ";
 		$ret .= " OR ";
 		$ret .= $pointField." && ST_Transform(ST_MakeEnvelope(".$bbox.", ".Config::get('app.json_srid')."), ".Config::get('app.db_srid').") ";
 		$ret .= " ) ";
-
 		return $ret;
 		// TODO: remove transform (EPSG:3067 -> EPSG:4326)
 		// TODO: test if it works...
@@ -253,12 +248,10 @@ class MipGis {
 	 */
 	public static function getGeometryFieldOrderByBoundingBoxCenterString($fieldName, $bbox) {
 		return "ST_Transform(".$fieldName.", ".Config::get('app.db_srid').") <-> ST_Transform(ST_GeomFromText('POINT(".self::calculateBboxCenter($bbox).")', ".Config::get('app.json_srid')."), ".Config::get('app.db_srid').") ASC ";
-
 		// TODO: remove transform (EPSG:3067 -> EPSG:4326)
 		// TODO: test if it works...
 		//return $fieldName." <-> ST_GeomFromText('POINT(".self::calculateBboxCenter($bbox).")', ".Config::get('app.db_srid').") ASC ";
 	}
-
 	/**
 	 * Method to build sql query string to order results by the given bounding box center point.
 	 * The closest entities are returned first
@@ -273,7 +266,6 @@ class MipGis {
 	public static function getGeometryFieldOrderByBoundingBoxAreaAndPointCenterString($areaField, $pointField, $bbox) {
 		return "ST_Transform(".$areaField.", ".Config::get('app.db_srid').") <-> ST_Transform(ST_GeomFromText('POINT(".self::calculateBboxCenter($bbox).")', ".Config::get('app.json_srid')."), ".Config::get('app.db_srid').") ASC, ".
 				"ST_Transform(".$pointField.", ".Config::get('app.db_srid').") <-> ST_Transform(ST_GeomFromText('POINT(".self::calculateBboxCenter($bbox).")', ".Config::get('app.json_srid')."), ".Config::get('app.db_srid').") ASC ";
-
 		// TODO: remove transform (EPSG:3067 -> EPSG:4326)
 		// TODO: test if it works...
 		//return $areaField." <-> ST_GeomFromText('POINT(".self::calculateBboxCenter($bbox).")', ".Config::get('app.json_srid').") ASC, ".
@@ -310,7 +302,6 @@ class MipGis {
 		}
 		// atleast 4 pairs must be given, also there must be even (pair) amount of coordinates
 		if(count($pairs)%2 != 0 || count($pairs) < 4) {
-
 			MipJson::addMessage(Lang::get('validation.custom.user_input_validation_failed'));
 			MipJson::addMessage(Lang::get('alue.coordinate_validation_failed_4pairs_required'));
 			MipJson::setResponseStatus(Response::HTTP_BAD_REQUEST);
@@ -365,7 +356,6 @@ class MipGis {
 		}
 		return "";
 	}
-
 	/**
 	 * In: Point array, e.g. [$lat, $lon]
 	 * Out: String, e.g. "$lat $lon"
@@ -393,7 +383,6 @@ class MipGis {
 		}
 		return $geom;
 	}
-
 	public static function convertTextToGeom($geomType, $geomAsText) {
 		if($geomType == 'Point') {
 			$statement = "select ST_GeomFromText('".$geomType ."(".$geomAsText.")', 3067)";

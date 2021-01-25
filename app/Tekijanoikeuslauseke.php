@@ -17,7 +17,6 @@ class Tekijanoikeuslauseke extends Model {
 	 * @var array
 	 */
 	protected $hidden = [];
-
 	/**
 	 * The attributes that are mass assignable.
 	 *
@@ -28,7 +27,6 @@ class Tekijanoikeuslauseke extends Model {
 			'osio',
 	        'otsikko'
 	];
-
 	/**
 	 * By default, Eloquent will maintain the created_at and updated_at columns on your database table automatically.
 	 * Simply add these timestamp columns to your table and Eloquent will take care of the rest.
@@ -67,7 +65,6 @@ class Tekijanoikeuslauseke extends Model {
 	 */
 	public static function getAll($order_field, $order_direction) {
 		$qry = self::select('tekijanoikeuslauseke.*');
-
 		if (is_null($order_direction) || $order_direction=="") {
 			$order_direction = "asc";
 		}
@@ -80,7 +77,6 @@ class Tekijanoikeuslauseke extends Model {
 		//default
 		return $qry->orderBy('tekijanoikeuslauseke.id', $order_direction);
 	}
-
 	/**
 	 * Method to get single entity from db with given ID
 	 *

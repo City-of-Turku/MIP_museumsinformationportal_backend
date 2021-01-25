@@ -57,7 +57,6 @@ class Tutkimus extends Model
     		return self::select('ark_tutkimus.*');
     	}
     }
-
     /**
      * Sama metodi kuin staattinen getAllForKatselija, mutta voidaan käyttää
      * yhdessä eri hakuehtojen kanssa esimerkiksi TutkimusControllerissa.

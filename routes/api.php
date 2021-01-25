@@ -23,7 +23,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 /*
  * Login route
  */
-
 Route::post('/kayttaja/kirjaudu/', 'Auth\AuthController@login');
 Route::post("/kayttaja/{kayttajatunnus}/salasana_unohtunut/",	"KayttajaController@restorePassword"); // restore forgotten password for given username
 

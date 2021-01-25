@@ -19,7 +19,7 @@ class AlakohdeSijainti extends Model {
 
 	public function getPropertiesAttribute() {
 		$alakohde = DB::select(DB::raw('select ark_kohde_alakohde.nimi, ark_kohde.ark_kohdelaji_id from ark_kohde_alakohde left join ark_kohde on ark_kohde.id = ark_kohde_alakohde.ark_kohde_id  where ark_kohde_alakohde.id = '.$this->ark_kohde_alakohde_id));
-		return array('nimi' => $alakohde[0]->nimi, 'ark_kohdelaji_id' => $alakohde[0]->ark_kohdelaji_id);		
+		return array('nimi' => $alakohde[0]->nimi, 'ark_kohdelaji_id' => $alakohde[0]->ark_kohdelaji_id);
 	}
 
 
