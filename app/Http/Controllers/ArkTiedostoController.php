@@ -124,7 +124,7 @@ class ArkTiedostoController extends Controller {
 			) )->get ();
 
 			if (count ( $entities ) <= 0) {
-				MipJson::setGeoJsonFeature ();
+				MipJson::initGeoJsonFeatureCollection(count($entities), $total_rows);
 				MipJson::addMessage ( Lang::get ( 'tiedosto.search_not_found' ) );
 				return MipJson::getJson ();
 			}
@@ -188,7 +188,11 @@ class ArkTiedostoController extends Controller {
 		} else if (isset ( $request->mode ) && $request->mode === 'lisaa_kohde' && isset ( $request->entiteetti_tyyppi ) && $request->entiteetti_tyyppi == 15) {
 			// Luetaan kohteen sijainnit tiedostosta.
 			return self::lisaaKohdeTiedostosta ( $request );
-		} else {
+		} else if (isset ( $request->mode ) && $request->mode === 'lisaa_koordinaatit' && isset ( $request->entiteetti_tyyppi ) && ($request->entiteetti_tyyppi == 18 || $request->entiteetti_tyyppi == 17)) {
+		    // Luetaan koordinaatit tiedostosta.
+		    return self::lisaaKoordinaatitTiedostosta ( $request );
+		}
+		else {
 			if(!Kayttaja::hasArkTutkimusSubPermission('arkeologia.ark_tiedosto.luonti', $request->input('ark_tutkimus_id'))) {
                 MipJson::setGeoJsonFeature();
                 MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
@@ -335,6 +339,196 @@ class ArkTiedostoController extends Controller {
 		}
 		return MipJson::getJson ();
 	}
+
+	private static function lisaaKoordinaatitTiedostosta(Request $request) {
+	    /*
+	     * Role check
+	     * HUOM! Tässä lisätään tutkimusalueita, mutta entiteetti_id on silti tutkimuksen. Tämä johtuu siitä, että tutkimusalueet lisätään
+	     * ko. tutkimukseen.
+	     */
+
+	    if (!Kayttaja::hasArkTutkimusSubPermission('arkeologia.ark_tutkimusalue.luonti', $request->input('entiteetti_id'))) {
+	        MipJson::setGeoJsonFeature ();
+	        MipJson::setResponseStatus ( Response::HTTP_FORBIDDEN );
+	        MipJson::addMessage ( Lang::get ( 'validation.custom.permission_denied' ) );
+	        return MipJson::getJson ();
+	    }
+
+	    $file = $request->file ( 'tiedosto' );
+	    $entityType = $request->get ( 'entiteetti_tyyppi' );
+	    $tableName = '';
+	    if ($entityType == 17)
+	        $tableName = 'ark_loyto';
+	    else if ($entityType == 18)
+            $tableName = 'ark_nayte';
+
+	    //Luetaan yksittäinen .dxf tai .csv tiedosto
+        if (!is_array ( $file )) {
+            $file = $request->file ( 'tiedosto' );
+            $file_extension = $file->getClientOriginalExtension ();
+            try {
+                $json = GeomFileReader::readGeometriesFromFile ('coordinate_'. $file_extension, $file);
+            } catch ( Exception $e ) {
+                if ($e->getCode () == '7' || $e->getCode () == '8' || $e->getCode () == '1') {
+                    MipJson::setResponseStatus ( Response::HTTP_BAD_REQUEST );
+                    $errorMessage = $e->getMessage ();
+                } else {
+                    MipJson::setResponseStatus ( Response::HTTP_INTERNAL_SERVER_ERROR );
+                    $errorMessage = $e->getMessage();
+                }
+
+                MipJson::setGeoJsonFeature ();
+                MipJson::addMessage ( $errorMessage );
+
+                return MipJson::getJson ();
+            }
+            $jsonData = json_decode($json);
+            $geometries = $jsonData[0]->geometry;
+
+            DB::beginTransaction ();
+            Utils::setDBUser ();
+            try {
+                $rowsUpdated = 0;
+                $rowsNotFound = [];
+                foreach($geometries as $point) {
+                    $rowAdded = DB::table($tableName)
+                    ->where('luettelointinumero', $point->name)
+                    ->update(array('koordinaatti_e' => round($point->lat, 3), 'koordinaatti_n' => round($point->lon, 3), 'koordinaatti_z' => round($point->ele, 3)));
+
+                    if ($rowAdded == 1)
+                        $rowsUpdated++;
+                    else
+                        array_push($rowsNotFound, $point->name);
+
+                }
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollback();
+            }
+            $jsonData[0]->rowsUpdated = $rowsUpdated;
+            $jsonData[0]->rowsNotFound = $rowsNotFound;
+        }
+        // Jos $file on array, luetaan shapefile. Arrayn koon tulee olla 3 ja sisältää shp, shx, dbf -tiedostot.
+        // Ei tueta prj tiedoston lataamista.
+	    else if (is_array ( $file ) && sizeof ( $file ) == 3) {
+	        // Otetaan tiedostot ja niiden tiedot käsittelyyn
+	        $file1 = $file [0];
+	        $file2 = $file [1];
+	        $file3 = $file [2];
+
+	        // Tiedostopäätteet
+	        $file1_extension = $file1->getClientOriginalExtension ();
+	        $file2_extension = $file2->getClientOriginalExtension ();
+	        $file3_extension = $file3->getClientOriginalExtension ();
+
+	        // Alkuperäiset nimet
+	        $file1_originalname = $file1->getClientOriginalName ();
+	        $file2_originalname = $file2->getClientOriginalName ();
+	        $file3_originalname = $file3->getClientOriginalName ();
+
+	        // Annetaan tiedostoille uusi nimi.
+	        // 1. tiedosto saa random nimen, kaksi muuta saavat saman nimen.
+	        // Shapefilen lukukirjastolle annetaan tiedostopolku ja nimi, tämän takia nimien tulee olla kaikille sama
+	        // Tiedostopäätteet ovat eri, ei tapahdu ylikirjoittamista.
+	        $file1_name = Str::random ( 32 ); // .".".$file_extension;
+	        $file2_name = $file1_name;
+	        $file3_name = $file1_name;
+
+	        /*
+	         * Alla olevissa ei välttämättä ole kauheasti järkeä, mutta ei ole keretty tutkimaan onko niillä jotain muuta tekoa,
+	         * sen takia kulkevat mukana mipin alkuperäisestä toteutuksesta otettuna.
+	         */
+
+	        // Asetetaan basepath
+	        $file1_basepath = storage_path () . "/" . config ( 'app.attachment_upload_path' );
+	        $file2_basepath = storage_path () . "/" . config ( 'app.attachment_upload_path' );
+	        $file3_basepath = storage_path () . "/" . config ( 'app.attachment_upload_path' );
+
+	        // Asetetaan subpath
+	        $file1_subpath = Carbon::now ()->format ( "Y/m/" );
+	        $file2_subpath = $file1_subpath;
+	        $file3_subpath = $file1_subpath;
+
+	        // Asetetaan path
+	        $file1_path = $file1_basepath . $file1_subpath;
+	        $file2_path = $file1_path;
+	        $file3_path = $file1_path;
+
+	        // Asetetaan fullname
+	        $file1_fullname = $file1_path . $file1_name . "." . $file1_extension;
+	        $file2_fullname = $file1_path . $file1_name . "." . $file2_extension;
+	        $file3_fullname = $file1_path . $file1_name . "." . $file3_extension;
+
+	        // KäyttäjäID
+	        $user_id = JWTAuth::toUser ( JWTAuth::getToken () )->id;
+
+	        /*
+	         * Create the directory if it does not exist
+	         */
+	        if (! File::exists ( $file1_path )) {
+	            File::makeDirectory ( $file1_path, 0775, true );
+	        }
+
+	        // Make sure the name is unique
+	        // Jos tiedostonimi ei ole uniikki, annetaan sille uusi nimi. Samalla annetaan uusi nimi myös 2. ja 3. tiedostoille.
+	        while ( File::exists ( $file1_path . "/" . $file1_name . "." . "$file1_extension" ) ) {
+	            $file1_name = Str::random ( 32 );
+	            $file2_name = $file1_name;
+	            $file3_name = $file1_name;
+	        }
+
+	        /*
+	         * Move the uploaded file to its final destination
+	         */
+	        $file1->move ( $file1_path, $file1_name . "." . $file1_extension );
+	        $file2->move ( $file2_path, $file2_name . "." . $file2_extension );
+	        $file3->move ( $file3_path, $file3_name . "." . $file3_extension );
+	        // TODO: Liitteiden tallennus kantaan
+	        try {
+	            // Lopulta hoidetaan tiedoston parsiminen ja palautetaan json
+	            $json = GeomFileReader::readGeometriesFromFile ( 'CoordinateSHP', $file1_path . $file1_name );
+	        } catch ( Exception $e ) {
+	            if ($e->getCode () == '7' || $e->getCode () == '8' || $e->getCode () == '1') {
+	                MipJson::setResponseStatus ( Response::HTTP_BAD_REQUEST );
+	                $errorMessage = $e->getMessage ();
+	            } else {
+	                $errorMessage = Lang::get ( 'tiedosto.unknown_error' ) . ": " . $e->getMessage ();
+	                MipJson::setResponseStatus ( Response::HTTP_INTERNAL_SERVER_ERROR );
+	            }
+
+	            MipJson::setGeoJsonFeature ();
+	            MipJson::addMessage ( $errorMessage );
+
+	            return MipJson::getJson ();
+	        }
+	        $jsonData = json_decode($json);
+
+	        DB::beginTransaction ();
+	        Utils::setDBUser ();
+	        try {
+	            $rowsUpdated = 0;
+	            $rowsNotFound = [];
+	            foreach(json_decode($json) as $point) {
+	                $coordinates = $point->geometry->coordinates;
+	                $rowAdded = DB::table($tableName)
+	                ->where('luettelointinumero', $point->properties->Text)
+	                ->update(array('koordinaatti_e' => round($coordinates[1], 3), 'koordinaatti_n' => round($coordinates[0], 3), 'koordinaatti_z' => round($coordinates[2], 3)));
+
+	                if ($rowAdded == 1)
+	                    $rowsUpdated++;
+                    else
+                        array_push($rowsNotFound, $point->name);
+	            }
+	            DB::commit();
+	        } catch (\Exception $e) {
+	            DB::rollback();
+	        }
+	        $jsonData[0]->rowsUpdated = $rowsUpdated;
+	        $jsonData[0]->rowsNotFound = $rowsNotFound;
+	    }
+	    return json_encode($jsonData);
+	}
+
 	private static function lisaaTutkimusalueTiedostosta(Request $request) {
 		/**
 		 * Tutkimusalueiden parsintaa - muilta osin ei toteutettu mitään.

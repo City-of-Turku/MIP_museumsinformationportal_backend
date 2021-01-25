@@ -1,4 +1,7 @@
 {
+    "name": "mip_backend",
+    "license": "GPL-3.0",
+    "description": "Museon informaatioportaali backend",
     "private": true,
     "scripts": {
         "dev": "npm run development",

@@ -232,18 +232,18 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-       
+
         //'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
     	//'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
     	'Image' => Intervention\Image\Facades\Image::class,
-    
+
     ],
-    
-    
+
+
     'json_srid' => env("JSON_SRID"),
     'db_srid' => env("DB_SRID"),
     'solr_addr' => env("SOLR_ADDR"),
-    
+
     'image_server' => env('IMAGE_SERVER'),
     'image_server_baseurl' => env("IMAGE_SERVER_BASEURL"),
     'image_upload_path' => env("IMAGE_UPLOAD_PATH"),
@@ -251,68 +251,77 @@ return [
     'old_image_thumb_small_name' => env("OLD_IMAGE_THUMB_SMALL_NAME"),
     'old_image_thumb_medium_name' => env("OLD_IMAGE_THUMB_MEDIUM_NAME"),
     'old_image_thumb_large_name' => env("OLD_IMAGE_THUMB_LARGE_NAME"),
-    
     'image_thumb_large' => env("IMAGE_THUMB_LARGE"),
     'image_thumb_medium' => env("IMAGE_THUMB_MEDIUM"),
     'image_thumb_small' => env("IMAGE_THUMB_SMALL"),
     'image_thumb_tiny' => env("IMAGE_THUMB_TINY"),
-    
+
     'max_image_size' => env('MAX_IMAGE_SIZE'),
     'max_file_size'	=> env('MAX_FILE_SIZE'),
-    
+
     'attachment_server' => env('ATTACHMENT_SERVER'),
     'attachment_server_baseurl' => env('ATTACHMENT_SERVER_BASEURL'),
     'attachment_upload_path' => env('ATTACHMENT_UPLOAD_PATH'),
-    
+
     'mml_wmts_username' => env('MML_WMTS_USERNAME'),
     'mml_wmts_password' => env('MML_WMTS_PASSWORD'),
-    
+
     'mml_kiinteistotiedot_url' => env('MML_KIINTEISTOTIEDOT_URL'),
     'mml_kiinteistotiedot_username' => env('MML_KIINTEISTOTIEDOT_USERNAME'),
     'mml_kiinteistotiedot_password' => env('MML_KIINTEISTOTIEDOT_PASSWORD'),
-    
+
     'mml_lainhuutotiedot_rest_url' => env('MML_LAINHUUTOTIEDOT_REST_URL'),
     'mml_lainhuutotiedot_rest_username' => env('MML_LAINHUUTOTIEDOT_REST_USERNAME'),
     'mml_lainhuutotiedot_rest_password' => env('MML_LAINHUUTOTIEDOT_REST_PASSWORD'),
-    
+
     'mml_rakennustiedot_url' => env('MML_RAKENNUSTIEDOT_URL'),
     'mml_rakennustiedot_username' => env('MML_RAKENNUSTIEDOT_USERNAME'),
     'mml_rakennustiedot_password' => env('MML_RAKENNUSTIEDOT_PASSWORD'),
     'mml_nimisto_url' => env('MML_NIMISTO_URL'),
     'mml_maasto_url' => env('MML_MAASTO_URL'),
-    
+
     'report_server_url' => env('REPORT_SERVER_URL'),
     'report_server_user' => env('REPORT_SERVER_USER'),
     'report_server_password' => env('REPORT_SERVER_PASSWORD'),
-    
+
     'mml_maastokartat_url' => env('MML_MAASTOKARTAT_URL'),
     'mml_kiinteistokartat_url' => env('MML_KIINTEISTOKARTAT_URL'),
     'mml_teemakartat_url' => env('MML_TEEMAKARTAT_URL'),
-    
+
     'geoserver_url' => env('GEOSERVER_URL'),
     'geoserver_username' => env('GEOSERVER_USERNAME'),
     'geoserver_password' => env('GEOSERVER_PASSWORD'),
     'geoserver_namespace' => env('GEOSERVER_NAMESPACE'),
     'geoserver_workspace' => env('GEOSERVER_WORKSPACE'),
     'geoserver_datastore' => env('GEOSERVER_DATASTORE'),
-    
+
     'geoserver_reporturl' => env('GEOSERVER_REPORTURL'),
     'mip_backend_url' => env('MIP_BACKEND_URL'),
-    
+
     'kohde_raportti_url' => env('KOHDE_RAPORTTI_URL'),
     'alue_raportti_url' => env('ALUE_RAPORTTI_URL'),
     'kiinteisto_raportti_url' => env('KIINTEISTO_RAPORTTI_URL'),
     'mip_reportserver_url' => env('MIP_REPORTSERVER_URL'),
-    
+
     'mip_kayttoohje_url' => env('MIP_KAYTTOOHJE_URL'),
     'mip_releasenotes_url' => env('MIP_RELEASENOTES_URL'),
-    
-    'kyppi_hae_muinaisjaannos_uri' => env('KYPPI_HAE_MUINAISJAANNOS_URI'),
-    'kyppi_hae_muinaisjaannokset_uri' => env('KYPPI_HAE_MUINAISJAANNOKSET_URI'),
+
     'kyppi_username' => env('KYPPI_USERNAME'),
     'kyppi_password' => env('KYPPI_PASSWORD'),
     'kyppi_muinaisjaannos_uri' => env('KYPPI_MUINAISJAANNOS_URI'),
     'kyppi_muinaisjaannos_endpoint' => env('KYPPI_MUINAISJAANNOS_ENDPOINT'),
-    'kyppi_is_debug' => env('KYPPI_IS_DEBUG')
+    'kyppi_haku_maakunnat' => env('KYPPI_HAKU_MAAKUNNAT'),
+    'kyppi_haku_kunnat' => env('KYPPI_HAKU_KUNNAT'),
+    'kyppi_admin_email' => env('KYPPI_ADMIN_EMAIL'),
+
+    'finna_admin_email' => env('FINNA_ADMIN_EMAIL'),
+    'finna_hakumaara' => env('FINNA_HAKUMAARA'),
+    'finna_identifier' => env('FINNA_IDENTIFIER'),
+    'finna_organisation' => env('FINNA_ORGANISATION'),
+    'finna_arkeologinen_kokoelma' => env('FINNA_ARKEOLOGINEN_KOKOELMA'),
+    'finna_kokoelma' => env('FINNA_KOKOELMA'),
+    'finna_museo_url' => env('FINNA_MUSEO_URL'),
+    'finna_repository_name' => env('FINNA_REPOSITORY_NAME'),
+    'finna_repository_identifier' => env('FINNA_REPOSITORY_IDENTIFIER')
 
 ];

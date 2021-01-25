@@ -10,7 +10,9 @@ use App\Rak\Kiinteisto;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -28,9 +30,7 @@ class ReportController extends Controller {
 	 */
 	public static function index($userid) {
 
-		//TODO: error handling?
-
-		$url = config('app.mip_reportserver_url') . "reportRequests/$userid";
+	  $url = config('app.mip_reportserver_url') . "reportRequests/$userid";
 
 		$client = new Client();
 		$res = $client->request("GET", $url);
@@ -52,8 +52,6 @@ class ReportController extends Controller {
 	}
 
 	public static function createReportRequest(Request $request) {
-
-		//TODO: error handling?
 
 		$validator = Validator::make($request->all(), [
 				'kayttajaId'		=> 'required|numeric',
@@ -130,8 +128,21 @@ class ReportController extends Controller {
 			         $tyyppi = 'Loytoraportti';
 			     } else if($request->parameters['mode'] == 'poistetut_loydot') {
 			         $tyyppi = 'Poistetutloytoraportti';
-			     }
-			    break;
+			     } else if($request->parameters['mode'] == 'loyto_alueittain') {
+							$tyyppi = 'Loytoraportti_alueittain';
+					 } else if($request->parameters['mode'] == 'poistetut_loydot_alueittain') {
+							$tyyppi = 'Poistetutloytoraportti_alueittain';
+					 }
+					break;
+			case 'Nayteluettelo':
+					$parameters = ReportServer::generateNayteluetteloParameters($request->parameters);
+					break;
+			case 'Karttaluettelo':
+					$parameters = ReportServer::generateKarttaluetteloParameters($request->parameters);
+					break;
+			case 'Valokuvaluettelo':
+					$parameters = ReportServer::generateValokuvaluetteloParameters($request->parameters);
+					break;
 			case 'Loyto_luettelointikortit':
 				$parameters = ReportServer::generateLoytoLuettelointikortitParameters($request->parameters);
 				break;
@@ -158,6 +169,41 @@ class ReportController extends Controller {
 			    $parameters = ReportServer::generateTarkastusraporttiParameters($request->parameters);
 			    $tyyppi = 'Tarkastusraportti';
 			    break;
+			case 'Loyto_konservointiraportti':
+			    // Ainoastaan tutkijat ja pääkäyttäjät voivat tehdä ko. raportin
+			    if(Auth::user()->ark_rooli != 'tutkija' && Auth::user()->ark_rooli != 'pääkäyttäjä') {
+			        MipJson::setGeoJsonFeature();
+			        MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+			        MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+			        return MipJson::getJson();
+			    }
+
+			    $parameters = ReportServer::generateLoytoKonservointiraporttiParameters($request->parameters);
+					break;
+			case 'Kuntoraportti':
+				// Ainoastaan tutkijat ja pääkäyttäjät voivat tehdä ko. raportin
+				if(Auth::user()->ark_rooli != 'tutkija' && Auth::user()->ark_rooli != 'pääkäyttäjä') {
+						MipJson::setGeoJsonFeature();
+						MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+						MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+						return MipJson::getJson();
+				}
+
+				$parameters = ReportServer::generateKuntoraporttiParameters($request->parameters);
+				break;
+				case 'Tutkimusraportti':
+					$parameters = ReportServer::generateTutkimusraporttiParameters($request->parameters);
+					if($request->parameters['laji'] == 'inventointitutkimus') {
+						$tyyppi = 'Inventointitutkimusraportti';
+					} else if($request->parameters['laji'] == 'koekaivaus-kaivaus-konekaivuun_valvonta') {
+						$tyyppi = 'Tutkimusraportti';
+					} else {
+						MipJson::setGeoJsonFeature();
+						MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+						MipJson::addMessage(Lang::get('Invalid report type'));
+						return MipJson::getJson();
+					}
+					break;
 			default:
 				MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
 				MipJson::addMessage(Lang::get('raportti.invalid_report_type'));
@@ -182,16 +228,18 @@ class ReportController extends Controller {
 
 		$rr = json_encode($rr);
 
+		//Log::debug($rr);
+
 		$res = $client->request("POST", $url, [
 				'http_errors' => false,
 				'headers' => ['Content-Type' => 'application/json'],
 				"body" => $rr
 		]);
 
-
 		if ($res->getStatusCode()!="200") {
 			MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
 			MipJson::addMessage(Lang::get('raportti.create_report_failed') . " " . $res->getStatusCode()." ".$res->getReasonPhrase());
+			Log::error(Lang::get('raportti.create_report_failed') . " " . $res->getStatusCode()." ".$res->getReasonPhrase());
 
 			return MipJson::getJson();
 		}
@@ -200,8 +248,6 @@ class ReportController extends Controller {
 	}
 
 	public static function deleteReportRequest($reportId) {
-
-		//TODO: error handling?
 
 		$url = config('app.mip_reportserver_url') . "reportRequest/$reportId";
 		$client = new Client();
@@ -219,8 +265,6 @@ class ReportController extends Controller {
 
 	public static function getReportRequestStatus($reportId) {
 
-		//TODO: error handling?
-
 		$url = config('app.mip_reportserver_url') . "reportRequest/$reportId";
 		$client = new Client();
 		$res = $client->request("GET", $url);
@@ -236,8 +280,6 @@ class ReportController extends Controller {
 	}
 
 	public static function downloadReport($reportId, Request $request) {
-
-		//TODO: error handling?
 
 		$url = config('app.mip_reportserver_url') . "reportRequest/$reportId/download";
 		//echo $report;

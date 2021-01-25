@@ -38,6 +38,15 @@ class GeomFileReader {
             case 'dxf':
             	$features = GeomFileReader::readDXF($file, $features);
                 break;
+            case 'coordinate_dxf':
+                $features = GeomFileReader::readCoordinateDXF($file, $features);
+                break;
+            case 'coordinate_csv':
+                $features = GeomFileReader::readCoordinateCSV($file, $features);
+                break;
+            /*case 'CoordinateSHP': //Tämä ei toimi, viimeinen rivi jää lukematta.
+                $features = GeomFileReader::readCoordinateShapefile($file, $features);
+            break;*/
             default:
                 throw new Exception(Lang::get('tiedosto.invalid_file_type'), 1);
             break;
@@ -462,6 +471,201 @@ class GeomFileReader {
             fclose($handle);
         }
 
+        return $features;
+    }
+
+    public static function readCoordinateDXF($file, $features) {
+        if (($handle = fopen($file, "r")) !== FALSE) {
+            /*
+             * Arrayt jotka sisältävät sanat joilla halutut alueet aloitetaan ja lopetetaan.
+             * Case insensitive, vertailussa käytetään lowercasea.
+             * Eri tiedostoista löydetty alla olevat termit tähän mennessä.
+             */
+            $startStrings = array('POLYLINE', 'POINT');
+            $endStrings = array('SEQEND', 'ENDSEC');
+
+            /*
+             * Merkit joilla tietyt tietueet erotetaan.
+             * http://images.autodesk.com/adsk/files/autocad_2012_pdf_dxf-reference_enu.pdf
+             */
+            $latIndicator = '10';
+            $lonIndicator = '20';
+            $elevationIndicator = '30';
+            $nameIndicator = '1';
+
+            /*
+             * Edellisen rivin sisältö. Otetaan talteen, jos edellinen rivi on sisältänyt
+             * esim $latIndicator tiedetään, että nykyinen rivi sisältää silloin koordinaatin
+             */
+            $previousLine = '';
+
+            /*
+             * Muuttuja $doWrite asetetaan TRUEksi kun lohkon aloittava merkki löydetään.
+             * Asetetaan FALSEksi kun lohkon lopetusmerkki tulee vastaan.
+             */
+            $doWrite = false;
+
+            /*
+             * WKT-muotoinen string johon kerätään yhden lohkon koordinaatit
+             */
+            $name = '';
+            /*
+             * Luetaan csv sisältö rivi kerrallaan
+             * Aina kun vastaan tulee sana "PLINE", pushataan tuo arrayhyn.
+             * Kaikki sen jälkeen vastaan tulevat rivit menevät tuon alle koordinaattehin,
+             * kunnes vastaan tulee sana " PEN" ja homma aloitetaan alusta.
+             */
+            $geometries = [];
+            $geo = json_decode('{}');
+            while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                //UTF8 encode - äöå aiheuttaa muuten ongelmia
+                $data = array_map("utf8_encode", $data);
+                //Arrayn ainoa elementti stringiksi
+                $data = $data[0];
+                //Jos rivi sisältää halutun aloitusmerkin, aloitetaan kirjoittaminen
+                if(!$doWrite && GeomFileReader::lineContainsKeyword($data, $startStrings)) {
+                    $doWrite = true;
+                    //Otetaan talteen ja käytetään nimenä.
+                    //$name = $data;
+                    $previousLine = $data;
+                    $geo = json_decode('{}');
+                } else if($doWrite && GeomFileReader::lineContainsKeyword($data, $endStrings)) {
+                    $previousLine = $data;
+                    //Rivi sisälsi lopetusmerkin, lopetetaan tallentaminen.
+                    $doWrite = false;
+                    $feature = array ('type' => 'Feature', 'properties' => array('name' => $name),
+                        'geometry' =>  $geometries
+                    );
+                    array_push($features, $feature);
+
+                } else {
+                    /*
+                     * Rivi ei sisällä aloitus- tai lopetusmerkkiä.
+                     * Jos aloitusmerkin jälkeen ollaan edetty ja vielä ei ole tullut vastaan lopetusmerkkiä ($doWrite on tällöin true),
+                     * otetaan rivit (sisältävät koordinaatteja) talteen.
+                     */
+                    if($doWrite) {
+                        if($previousLine == $elevationIndicator) {
+                            if($data != '0.000000') { //TODO: Fiksattava, ei voi olla kovakoodattu
+                                $previousLine = $data;
+                                $geo->ele = trim($data);
+                            }
+                            $previousLine = $data;
+                        } else if($previousLine == $latIndicator) {
+                            if($data != '0.000000') {//TODO: Fiksattava, ei voi olla kovakoodattu
+                                $geo->lat = trim($data);
+                            }
+                            $previousLine = $data;
+                        } else if($previousLine == $lonIndicator) {
+                            if($data != '0.000000') {//TODO: Fiksattava, ei voi olla kovakoodattu
+                                $geo->lon = trim($data);
+                            }
+                            $previousLine = $data;
+                        } else if($previousLine == $nameIndicator) {
+                            $name = $data;
+                            $previousLine = $data;
+                            $geo->name = trim($data);
+                            array_push($geometries, $geo);
+                            $geo = json_decode('{}');
+                        } else {
+                            $previousLine = $data;
+                        }
+
+                    }
+                }
+            }
+            fclose($handle);
+        }
+
+        return $features;
+    }
+
+    private static function readCoordinateCSV($file, $features) {
+        if (($handle = fopen($file, "r")) !== FALSE) {
+            $geometries = array();
+
+            $latIndicator = '0';
+            $lonIndicator = '1';
+            $elevationIndicator = '2';
+            $minColCount = 4; //X, Y, Z ja Text sarakkeet pitää vähintään olla
+
+            $data = fgetcsv($handle, 1000, ",");
+            if (count($data) < $minColCount){
+                throw new Exception(Lang::get('tiedosto.invalid_csv_file'));
+            }
+            $nameIndicator = count($data) - 1;
+            while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                $data = array_map("utf8_encode", $data); //UTF8 encode - äöå aiheuttaa muuten ongelmia
+                $geo = json_decode('{}');
+
+                if ($data[$nameIndicator] == "" || $data[$nameIndicator] == "Text"){
+                    continue;
+                }
+
+                $geo->lat = trim($data[$latIndicator]);
+                $geo->lon = trim($data[$lonIndicator]);
+                $geo->ele = trim($data[$elevationIndicator]);
+                $geo->name = trim($data[$nameIndicator]);
+                array_push($geometries, $geo);
+            }
+            $feature = array ('type' => 'Feature', 'geometry' =>  $geometries);
+            array_push($features, $feature);
+            fclose($handle);
+        }
+        return $features;
+    }
+
+    private static function readCoordinateShapefile($file, $features) {
+        try {
+            // Open shapefile
+            $ShapeFile = new ShapeFile($file);
+            // Sets default return format
+            $ShapeFile->setDefaultGeometryFormat(ShapeFile::GEOMETRY_WKT);
+            $totalRecords = $ShapeFile->getTotRecords();
+            for($i = 1; $i<= $totalRecords; ++$i) {
+                $record = $ShapeFile->getRecord();
+                //Skipataan deletoidut recordit (mitä ikinä tarkoittaakaan)...
+                if ($record['dbf']['_deleted']) continue;
+
+                /*
+                 * Geometria-osuus
+                 */
+                //Luetaan koordinaatit
+                $geometry = $record['shp'];
+                //Vaihdetaan päittäin, koska lon ja lat ovat eripäin kuin PostGis vaatii
+                $flippedGeometry = MipGis::flipCoords($geometry);
+                //Muutetaan geojsoniksi
+                $asGeoJson = MipGis::asGeoJson($flippedGeometry);
+                //Dekoodataan, jotta tässä vaiheessa ei käsitellä pelkkää stringiä
+                $geometry = json_decode($asGeoJson);
+
+                /*
+                 * Properties-osuus - tulee suoraan objektina
+                 */
+                $properties = $record['dbf'];
+                /*
+                 * Tehdään tiedoista feature
+                 */
+                $feature = array ('type' => 'Feature', 'properties' => $properties,
+                    'geometry' =>  $geometry
+                );
+                //Lisätään feature palautettavaan arrayhyn
+                array_push($features, $feature);
+            }
+        } catch (ShapeFileException $e) {
+            if($e->getCode() == 32) {//Polygon not valid
+                //Jos vielä on recordeja jäljellä, siirrytään seuraavaan
+                //if($i < $totalRecords) {
+                //    $ShapeFile->setCurrentRecord($ShapeFile->getCurrentRecord() + 1);
+                //}
+                throw new Exception(Lang::get('tiedosto.polygon_not_valid') . " - $geometry", 8);
+            } else {
+                $errorMessage = $e->getMessage();
+                $errorCode = $e->getCode();
+                throw new Exception($errorMessage, $errorCode);
+            }
+        }
+        //Palautetaan json-enkoodattuna featuret
         return $features;
     }
 

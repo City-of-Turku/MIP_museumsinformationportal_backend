@@ -18,7 +18,7 @@ class Tutkimusalue extends Model
     protected $table = "ark_tutkimusalue";
 
     protected $fillable = array(
-        'ark_tutkimus_id', 'nimi', 'sijaintikuvaus', 'muistiinpanot', 'havainnot'
+        'ark_tutkimus_id', 'nimi', 'sijaintikuvaus', 'muistiinpanot', 'havainnot', 'yhteenveto'
     );
 
     /**
@@ -43,7 +43,8 @@ class Tutkimusalue extends Model
      */
     public static function getSingle($id) {
     	return self::select('ark_tutkimusalue.*',
-    			DB::raw(MipGis::getGeometryFieldQueryString("sijainti", "sijainti")))->where('id', '=', $id);
+    			DB::raw(MipGis::getGeometryFieldQueryString("sijainti", "sijainti")),
+    	        DB::raw(MipGis::getGeometryFieldQueryString("sijainti_piste", "sijainti_piste")))->where('id', '=', $id);
     }
 
     /**
@@ -82,14 +83,13 @@ class Tutkimusalue extends Model
     public function scopeWithOrderBy($query, $jarjestys_kentta, $jarjestys_suunta) {
         /* TODO: Tech upgrade: Parameteri-ongelma.
          * 1. Kommentoitu pois if-lohko
-         * 2. Muutettu return riviltä $jarjestys:suunta -> asc. 
-         *  Jostain syystä $query, $jarjestys_kentta ja $jarjestys_suunta 
+         * 2. Muutettu return riviltä $jarjestys:suunta -> asc.
+         *  Jostain syystä $query, $jarjestys_kentta ja $jarjestys_suunta
          *  parametrit menevät sekaisin ja 2. ensimmäistä ovat $queryä.
          */
         //if ($jarjestys_kentta == "nimi") {
         //    return $query->orderBy("ark_tutkimusalue.nimi", $jarjestys_suunta);
         //}
-        
         //todo muut kentät jos on
 
         return $query->orderBy("ark_tutkimusalue.nimi", "asc");

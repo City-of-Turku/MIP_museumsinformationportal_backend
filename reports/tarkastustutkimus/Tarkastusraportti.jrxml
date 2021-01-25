@@ -1,0 +1,1235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
+<!-- 2021-01-20T21:19:47 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Tarkastusraportti" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isTitleNewPage="true" uuid="dae58e2e-402a-450d-828f-128d65f1de0d">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="qa"/>
+	<style name="Base" isDefault="true" hTextAlign="Left" vTextAlign="Top" fontSize="10" isPdfEmbedded="false"/>
+	<parameter name="tutkimusId" class="java.lang.Integer">
+		<parameterDescription><![CDATA[Tutkimuksen ID]]></parameterDescription>
+	</parameter>
+	<parameter name="MIP_BACKEND_URL" class="java.lang.String"/>
+	<parameter name="MIP_MAPSERVER_URL" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[select 
+--tutkimus
+tu.id as tutkimus_id,
+tu.nimi as tutkimus_nimi,
+--tarkastus
+ta.id as tarkastus_id, 
+--kohde
+k.id as kohde_id,
+kkk.kunta,
+kkk.kyla,
+k.muinaisjaannostunnus,
+k.nimi,
+k.muutnimet,
+kohdeajoitus.ajoitustarkenne,
+kohdetyyppi.tyyppi,
+kohdetyyppi.tarkenne,
+--TODO: kohteen laajuus ja laajuuden arviointiperuste???
+k.lukumaara,
+kohdelaji.nimi_fi as kohdelaji,
+k.etaisyystieto,
+--TODO: sijaintikuvaus???
+sijainti.sijainti_x, sijainti.sijainti_y,
+k.korkeus_min, 
+k.korkeus_max,
+k.koordselite,
+k.peruskarttanimi,
+k.peruskarttanumero,
+--kiinteistotunnus
+kohde_kiinteisto.kiinteistotunnus,
+--tarkastaja
+tarkastaja.etunimi || ' ' || tarkastaja.sukunimi as tarkastaja,
+tarkastaja.sahkoposti as tarkastaja_email,
+tu.kenttatyo_alkupvm, 
+tu.kenttatyo_loppupvm,
+--tarkastuksen tiedot
+ta.aiemmat_tiedot,
+ta.aiemmat_loydot,
+ta.tarkastusloydot,
+ta.tarkastusolosuhteet,
+ta.liitteet,
+ta.muuta,
+ta.tarkastuksen_syy,
+ta.ymparisto_maasto,
+ta.kohteen_kuvaus, --tarkempi kuvaus ja rajaus
+ta.muut_tiedot,
+ta.kohteen_kunto,
+ta.hoitotarve,
+ta.suoja_alueeksi,
+ta.maankayttohankkeet,
+ta.sailymisen_asiat,
+ta.kohteen_tiedon_maara,
+ark_kuva.kuva_id,
+st_xmin(bbox) as bbox_xmin, 
+st_ymin(bbox) as bbox_ymin, 
+st_xmax(bbox) as bbox_xmax, 
+st_ymax(bbox) as bbox_ymax,
+tutkimusalueet.havainnot,
+rajaustarkkuus.nimi_fi as rajaustarkkuus
+from ark_tutkimus tu
+left join ark_tarkastus ta on ta.ark_tutkimus_id = tu.id
+left join kayttaja as tarkastaja on tarkastaja.id = ta.tarkastaja
+left join ark_kohde_tutkimus ktu on ktu.ark_tutkimus_id = tu.id
+left join ark_kohde k on k.id = ktu.ark_kohde_id
+left join (
+    select akk.ark_kohde_id, string_agg(ku.nimi, ', ') as kunta, string_agg(ky.nimi, ', ') as kyla, string_agg(ku.nimi_se, ', ') as kunta_se, string_agg(ky.nimi_se, ', ') as kyla_se
+    from ark_kohde_kuntakyla akk
+    left join kunta ku on akk.kunta_id = ku.id
+    left join kyla ky on akk.kyla_id = ky.id
+    group by akk.ark_kohde_id
+) kkk on (kkk.ark_kohde_id = k.id)
+left join (
+	select kt.ark_kohde_id, string_agg(tyyppi.nimi_fi, ', ') as tyyppi, string_agg(tyyppi.nimi_se, ', ') as tyyppi_se, string_agg(tark.nimi_fi, ', ') as tarkenne, string_agg(tark.nimi_se, ', ') as tarkenne_se
+	from ark_kohde_tyyppi kt
+	left join ark_kohdetyyppi tyyppi on tyyppi.id = kt.tyyppi_id
+	left join ark_kohdetyyppitarkenne tark on tark.id = kt.tyyppitarkenne_id
+	group by kt.ark_kohde_id
+) kohdetyyppi on (kohdetyyppi.ark_kohde_id = k.id)
+left join (
+	select ka.ark_kohde_id, string_agg(ajoitus.nimi_fi || ' - ' || tark.nimi_fi, ', ') as ajoitustarkenne, string_agg(ajoitus.nimi_se || ' - ' || tark.nimi_se, ', ') as ajoitustarkenne_se
+	from ark_kohde_ajoitus ka
+	left join ajoitus on ajoitus.id = ka.ajoitus_id
+	left join ajoitustarkenne tark on tark.id = ka.ajoitustarkenne_id
+	group by ka.ark_kohde_id
+) kohdeajoitus on (kohdeajoitus.ark_kohde_id = k.id)
+left join ark_kohdelaji kohdelaji on kohdelaji.id = k.ark_kohdelaji_id
+left join (
+	select kkr.ark_kohde_id, kkr.kiinteistotunnus
+	from ark_kohde_kiinteistorakennus kkr
+	where kkr.id in (
+		select min(id) from ark_kohde_kiinteistorakennus group by ark_kohde_id
+	)
+) kohde_kiinteisto on kohde_kiinteisto.ark_kohde_id = k.id
+left join (
+	select ark_kuva.ark_tutkimus_id, ark_kuva.id as kuva_id
+	from ark_kuva
+	where ark_kuva.id in (
+		select min(id) from ark_kuva where ark_kuva.poistettu is null group by ark_tutkimus_id
+	)
+) ark_kuva on ark_kuva.ark_tutkimus_id = tu.id
+left join (
+	select ks.kohde_id, ST_X(ST_CENTROID(ST_TRANSFORM(ks.sijainti, 3067))) as sijainti_x, ST_Y(ST_CENTROID(ST_TRANSFORM(ks.sijainti, 3067))) as sijainti_y 
+	from ark_kohde_sijainti ks
+	where ks.id in (
+		select min(id) from ark_kohde_sijainti group by kohde_id
+	)
+) sijainti on (sijainti.kohde_id = k.id)
+left join (
+    select ks.kohde_id, ST_EXTENT(ks.sijainti) as bbox
+	from ark_kohde_sijainti ks
+	group by ks.kohde_id
+) SQ_BBOX on (SQ_BBOX.kohde_id = k.id)
+left join (
+	select ark_tutkimusalue.ark_tutkimus_id, string_agg(ark_tutkimusalue.nimi || ': ' || ark_tutkimusalue.havainnot, '<br>') as havainnot
+	from ark_tutkimusalue
+	group by ark_tutkimusalue.ark_tutkimus_id
+) tutkimusalueet on tutkimusalueet.ark_tutkimus_id = tu.id
+left join rajaustarkkuus on rajaustarkkuus.id = k.rajaustarkkuus_id
+where tu.id = $P{tutkimusId}]]>
+	</queryString>
+	<field name="tutkimus_id" class="java.lang.Integer"/>
+	<field name="tutkimus_nimi" class="java.lang.String"/>
+	<field name="tarkastus_id" class="java.lang.Integer"/>
+	<field name="kohde_id" class="java.lang.Integer"/>
+	<field name="kunta" class="java.lang.String"/>
+	<field name="kyla" class="java.lang.String"/>
+	<field name="muinaisjaannostunnus" class="java.lang.String"/>
+	<field name="nimi" class="java.lang.String"/>
+	<field name="muutnimet" class="java.lang.String"/>
+	<field name="ajoitustarkenne" class="java.lang.String"/>
+	<field name="tyyppi" class="java.lang.String"/>
+	<field name="tarkenne" class="java.lang.String"/>
+	<field name="lukumaara" class="java.lang.String"/>
+	<field name="kohdelaji" class="java.lang.String"/>
+	<field name="etaisyystieto" class="java.lang.String"/>
+	<field name="korkeus_min" class="java.lang.String"/>
+	<field name="korkeus_max" class="java.lang.String"/>
+	<field name="koordselite" class="java.lang.String"/>
+	<field name="peruskarttanimi" class="java.lang.String"/>
+	<field name="peruskarttanumero" class="java.lang.String"/>
+	<field name="kiinteistotunnus" class="java.lang.String"/>
+	<field name="tarkastaja" class="java.lang.String"/>
+	<field name="tarkastaja_email" class="java.lang.String"/>
+	<field name="kenttatyo_alkupvm" class="java.lang.String"/>
+	<field name="kenttatyo_loppupvm" class="java.lang.String"/>
+	<field name="aiemmat_tiedot" class="java.lang.String"/>
+	<field name="aiemmat_loydot" class="java.lang.String"/>
+	<field name="tarkastusloydot" class="java.lang.String"/>
+	<field name="tarkastusolosuhteet" class="java.lang.String"/>
+	<field name="liitteet" class="java.lang.String"/>
+	<field name="muuta" class="java.lang.String"/>
+	<field name="tarkastuksen_syy" class="java.lang.String"/>
+	<field name="ymparisto_maasto" class="java.lang.String"/>
+	<field name="kohteen_kuvaus" class="java.lang.String"/>
+	<field name="muut_tiedot" class="java.lang.String"/>
+	<field name="kohteen_kunto" class="java.lang.String"/>
+	<field name="hoitotarve" class="java.lang.String"/>
+	<field name="suoja_alueeksi" class="java.lang.String"/>
+	<field name="maankayttohankkeet" class="java.lang.String"/>
+	<field name="sailymisen_asiat" class="java.lang.String"/>
+	<field name="kohteen_tiedon_maara" class="java.lang.String"/>
+	<field name="kuva_id" class="java.lang.Integer"/>
+	<field name="sijainti_x" class="java.lang.Double"/>
+	<field name="sijainti_y" class="java.lang.Double"/>
+	<field name="bbox_xmin" class="java.lang.Double"/>
+	<field name="bbox_ymin" class="java.lang.Double"/>
+	<field name="bbox_xmax" class="java.lang.Double"/>
+	<field name="bbox_ymax" class="java.lang.Double"/>
+	<field name="havainnot" class="java.lang.String"/>
+	<field name="rajaustarkkuus" class="java.lang.String"/>
+	<variable name="MAP_WIDTH" class="java.lang.Double">
+		<variableExpression><![CDATA[600.0]]></variableExpression>
+	</variable>
+	<variable name="MAP_HEIGHT" class="java.lang.Double">
+		<variableExpression><![CDATA[359.0]]></variableExpression>
+	</variable>
+	<variable name="ow" class="java.lang.Double">
+		<variableExpression><![CDATA[($F{bbox_xmax}-$F{bbox_xmin}) + 40]]></variableExpression>
+	</variable>
+	<variable name="oh" class="java.lang.Double">
+		<variableExpression><![CDATA[($F{bbox_ymax}-$F{bbox_ymin}) + 24]]></variableExpression>
+	</variable>
+	<variable name="w" class="java.lang.Double">
+		<variableExpression><![CDATA[$V{ow} < 500.0 ? 500.0 : $V{ow}]]></variableExpression>
+	</variable>
+	<variable name="h" class="java.lang.Double">
+		<variableExpression><![CDATA[$V{oh} < 299.0 ? 299.0 : $V{oh}]]></variableExpression>
+	</variable>
+	<variable name="scale_y" class="java.lang.Double">
+		<variableExpression><![CDATA[$V{MAP_HEIGHT}/($V{h})]]></variableExpression>
+	</variable>
+	<variable name="scale_x" class="java.lang.Double">
+		<variableExpression><![CDATA[$V{MAP_WIDTH}/($V{w})]]></variableExpression>
+	</variable>
+	<variable name="xc" class="java.lang.Double">
+		<variableExpression><![CDATA[($F{bbox_xmax}+$F{bbox_xmin})/2.0]]></variableExpression>
+	</variable>
+	<variable name="yc" class="java.lang.Double">
+		<variableExpression><![CDATA[($F{bbox_ymax}+$F{bbox_ymin})/2.0]]></variableExpression>
+	</variable>
+	<variable name="x1" class="java.lang.Double">
+		<variableExpression><![CDATA[$V{scale_x}<=$V{scale_y}?$V{xc} - $V{w}/2.0:$V{xc} - $V{MAP_WIDTH}/$V{MAP_HEIGHT}*$V{h}/2.0]]></variableExpression>
+	</variable>
+	<variable name="x2" class="java.lang.Double">
+		<variableExpression><![CDATA[$V{scale_x}<=$V{scale_y}?$V{xc} + $V{w}/2.0:$V{xc} + $V{MAP_WIDTH}/$V{MAP_HEIGHT}*$V{h}/2.0]]></variableExpression>
+	</variable>
+	<variable name="y1" class="java.lang.Double">
+		<variableExpression><![CDATA[$V{scale_x}>=$V{scale_y}?$V{yc} - $V{h}/2.0:$V{yc} - $V{MAP_HEIGHT}/$V{MAP_WIDTH}*$V{w}/2.0]]></variableExpression>
+	</variable>
+	<variable name="y2" class="java.lang.Double">
+		<variableExpression><![CDATA[$V{scale_x}>=$V{scale_y}?$V{yc} + $V{h}/2.0:$V{yc} + $V{MAP_HEIGHT}/$V{MAP_WIDTH}*$V{w}/2.0]]></variableExpression>
+	</variable>
+	<variable name="MAP_SX1" class="java.lang.String">
+		<variableExpression><![CDATA[$V{x1}==null?null:new DecimalFormat("00.#######").format($V{x1}).replace( ',', '.')]]></variableExpression>
+	</variable>
+	<variable name="MAP_SX2" class="java.lang.String">
+		<variableExpression><![CDATA[$V{x2}==null?null:new DecimalFormat("00.#######").format($V{x2}).replace( ',', '.')]]></variableExpression>
+	</variable>
+	<variable name="MAP_SY1" class="java.lang.String">
+		<variableExpression><![CDATA[$V{y1}==null?null:new DecimalFormat("00.#######").format($V{y1}).replace( ',', '.')]]></variableExpression>
+	</variable>
+	<variable name="MAP_SY2" class="java.lang.String">
+		<variableExpression><![CDATA[$V{y2}==null?null:new DecimalFormat("00.#######").format($V{y2}).replace( ',', '.')]]></variableExpression>
+	</variable>
+	<variable name="MAP_BBOX" class="java.lang.String">
+		<variableExpression><![CDATA[$V{MAP_SX1}+"%2C"+$V{MAP_SY1}+"%2C"+$V{MAP_SX2}+"%2C"+$V{MAP_SY2}]]></variableExpression>
+	</variable>
+	<variable name="MAP_URL" class="java.lang.String">
+		<variableExpression><![CDATA[$V{MAP_BBOX}==null?null:$P{MIP_MAPSERVER_URL} + "/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&FORMAT=image%2Fpng&TRANSPARENT=true&STYLES&LAYERS=mip%3Amml_maastokartta,mip%3Aark_kohteet&CQL_FILTER=INCLUDE;kohde_id%20%3D%20"+$F{kohde_id}+"&SRS=EPSG%3A3067&WIDTH=1605&HEIGHT=960&format_options=dpi%3A270&BBOX="+$V{MAP_BBOX}]]></variableExpression>
+	</variable>
+	<variable name="MAP_URL2" class="java.lang.String">
+		<variableExpression><![CDATA[null]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="660">
+			<image hAlign="Center" vAlign="Middle" onErrorType="Blank" evaluationTime="Report">
+				<reportElement x="1" y="194" width="554" height="380" uuid="028fc432-6fc9-444b-a260-41e27f36bda8">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.0" lineColor="#CCCCCC"/>
+				</box>
+				<imageExpression><![CDATA[$P{MIP_BACKEND_URL} + "/raportti/ark_kuva/"+$F{kuva_id}+"/pieni"]]></imageExpression>
+			</image>
+			<image scaleImage="RetainShape" hAlign="Center" vAlign="Middle">
+				<reportElement x="183" y="2" width="194" height="90" uuid="fa65392d-cf8a-4191-869d-b0ae949544a1"/>
+				<imageExpression><![CDATA["logo.png"]]></imageExpression>
+			</image>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="1" y="94" width="554" height="50" uuid="3e349808-7091-4a53-97cc-fe844249a566"/>
+				<textElement textAlignment="Center">
+					<font size="26"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nimi}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd.MM.yyyy">
+				<reportElement x="208" y="610" width="144" height="20" uuid="ebcfc656-b958-4998-877d-82bb78fdc42d">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="209" y="630" width="143" height="20" uuid="abb3de8d-de0a-457e-95c8-1789bd086aff"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tarkastaja}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="1" y="144" width="553" height="36" uuid="c24e54d8-a3e7-4498-b915-4ac31bf5c528"/>
+				<textElement textAlignment="Center">
+					<font size="16"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tutkimus_nimi}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="34" splitType="Stretch">
+			<staticText>
+				<reportElement x="278" y="4" width="274" height="26" uuid="745c652e-b321-4fce-affb-d6a4808104b0"/>
+				<text><![CDATA[ARKEOLOGISEN KOHTEEN TARKASTUS]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<detail>
+		<band height="295" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="554" height="20" uuid="87cbb172-037d-49fe-a313-3f0d2a902d96"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[1. PERUSTIEDOT]]></text>
+			</staticText>
+			<frame>
+				<reportElement x="0" y="20" width="277" height="20" uuid="294ee921-b6c1-4a12-89f5-a886eca5dff3">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="57" height="20" uuid="f27a3f7c-0f39-4c53-a54b-55548c39dfa0"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Kunta:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="58" y="0" width="219" height="20" uuid="0c9bfea0-2b00-4343-9d51-ff36c5f82475"/>
+					<textFieldExpression><![CDATA[$F{kunta}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="277" y="20" width="277" height="20" uuid="c32b4d61-4953-4fea-8976-36bf4a5245ac">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="179" height="20" uuid="e88a3af0-8de3-4204-a32f-97e3a6b6ed4b"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Muinaisjäännösrekisteritunnus:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="180" y="0" width="97" height="20" uuid="1c822731-80e6-40d3-ab04-31246d93bc3d">
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<textFieldExpression><![CDATA[$F{muinaisjaannostunnus}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="40" width="554" height="20" uuid="c51cc372-11b9-4993-9e8f-8f2a07b5c6a2">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="57" height="20" uuid="f24f44cb-6202-49c3-a08f-4f09b929d08b"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Nimi:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="58" y="0" width="496" height="20" uuid="4b92684f-e0fa-4161-b544-a3a19bbae2fe"/>
+					<textFieldExpression><![CDATA[$F{nimi}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="60" width="277" height="20" uuid="e02d49a3-0247-446e-b998-43b737333b32">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="119" height="20" uuid="a5134b61-c8e8-4c37-9da7-376457ffdc8b"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Kohteen tyyppi:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="120" y="0" width="157" height="20" uuid="e59e5a03-2633-473a-a0a8-b7607fb8e3c8"/>
+					<textFieldExpression><![CDATA[$F{tyyppi}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="277" y="60" width="277" height="20" uuid="cba8ea82-50e8-4925-a4bb-0479029cb3ef">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="122" height="20" uuid="7905bfbc-49a1-467e-a7b4-8c3b7f5d8571"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Tyypin tarkenne:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="123" y="0" width="154" height="20" uuid="9ffca1fe-11ed-478e-ac2b-6c34ba0c110a"/>
+					<textFieldExpression><![CDATA[$F{tarkenne}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="277" y="80" width="277" height="20" uuid="da7627ea-bb7b-4a1a-aa34-dd5c6e492ddb">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="88" height="20" uuid="d95877c9-7335-411d-834a-9ef64808cf7f"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Lukumäärä:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="89" y="0" width="188" height="20" uuid="fbabcec8-e7c6-4606-b1c4-6a3c147208f4"/>
+					<textFieldExpression><![CDATA[$F{lukumaara}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="100" width="554" height="20" uuid="f162414d-83e1-4b20-bd4f-778c3c2e3709">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="199" height="20" uuid="b59ebc5b-65dc-48e5-87b4-72d105c2525b"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Laajuuden arviointiperuste:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="200" y="0" width="354" height="20" uuid="b2b4ad3a-678d-4423-a40c-6601cf1219d7"/>
+					<textFieldExpression><![CDATA[$F{rajaustarkkuus}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="80" width="277" height="20" uuid="8e1d25de-8cc1-4302-a4cb-3085c6002fb9">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="57" height="20" uuid="5404138e-b60d-491d-9a8f-d0f70f0a0f75"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Ajoitus:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="58" y="0" width="219" height="20" uuid="406e8143-3927-4c2e-a043-4f06f137fba9"/>
+					<textFieldExpression><![CDATA[$F{ajoitustarkenne}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="120" width="554" height="20" uuid="2429ea32-388d-4b07-84c3-a7d6108cfc96">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="29" height="20" uuid="08e66724-0f39-4741-ab52-4683e084fd14"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Laji:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="30" y="0" width="524" height="20" uuid="7c0e4d2c-1363-4896-aeb3-69526b0f7351"/>
+					<textFieldExpression><![CDATA[$F{kohdelaji}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="140" width="554" height="20" uuid="f1408dec-9213-481f-8188-3fa9cb6c69cc">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="179" height="20" uuid="4132d054-05c5-4a28-8480-74063571c92b"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Suunta ja etäisyys kirkosta:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="183" y="0" width="371" height="20" uuid="5be65d9b-2fea-48b6-9cd3-905f320633e0"/>
+					<textFieldExpression><![CDATA[$F{etaisyystieto}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="160" width="554" height="20" uuid="3a04d326-c0e9-430b-b933-8663c4e221bf">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="119" height="20" uuid="30e7edde-0349-42c1-ab7a-d0d20a28a3d9">
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<box>
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Sijaintikoordinaatit:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="120" y="0" width="150" height="20" uuid="35d06de3-f708-4851-8058-df5946eec4c9">
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.5"/>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textFieldExpression><![CDATA["N: " + $F{sijainti_y}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="270" y="0" width="139" height="20" uuid="99935233-fd48-4e30-b439-892bff7d0638"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textFieldExpression><![CDATA["E: " + $F{sijainti_x}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="410" y="1" width="142" height="18" uuid="3f3a2dc4-6716-49ba-b64f-2fb8e6d44323"/>
+					<textFieldExpression><![CDATA["Korkeus m mpy: " + ($F{korkeus_min} == null ? "" : $F{korkeus_min}) + ($F{korkeus_max} == null ? " " : " - ") + ($F{korkeus_max} == null ? "" : $F{korkeus_max})]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="180" width="554" height="20" uuid="bd95ae3b-35c0-4fab-ada4-3799f8a5a195">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="149" height="20" uuid="f8f72934-af3d-4ed3-ad6b-251db9e3baed"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Koordinaattien tarkenne: ]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="150" y="0" width="404" height="20" uuid="bcc51a01-1552-45e2-b0de-16ede4e0ad32"/>
+					<textFieldExpression><![CDATA[$F{koordselite}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="200" width="554" height="20" uuid="4afc1d61-d6cf-4d50-aa81-5ae0741b1317">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="79" height="20" uuid="2ce70967-3a3b-4881-a863-afe1b74ae684"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Peruskartta:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="80" y="0" width="474" height="20" uuid="8b5cf1fc-a54f-435c-b696-0678beedd755"/>
+					<textFieldExpression><![CDATA[$F{peruskarttanimi} + " " + $F{peruskarttanumero}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="220" width="277" height="20" uuid="547f2690-bc8d-4284-b30d-505e78c96ca4">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="79" height="20" uuid="7fa28536-3770-4c02-875d-1cc2a153bee6"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Rekisterikylä:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="80" y="0" width="197" height="20" uuid="47599bda-11c9-4bae-a533-ff205926ca98"/>
+					<textFieldExpression><![CDATA[$F{kyla}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="277" y="220" width="277" height="20" uuid="ab833bde-b443-4de4-8c43-a6075d2af0e1">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="98" height="20" uuid="109e4c9f-b8a8-4d12-93ce-2fa1446767c0"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Kiinteistötunnus:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="99" y="0" width="178" height="20" uuid="3a86d379-e47a-4807-961c-69fc0c40df9b"/>
+					<textFieldExpression><![CDATA[$F{kiinteistotunnus}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="240" width="277" height="20" uuid="ebe0705d-e6b9-4afd-8a0e-90b35bf29682">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="69" height="20" uuid="beaae7cf-d4c9-43e1-a6e8-8dfeacd53ed6"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Tarkastaja:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="70" y="0" width="207" height="20" uuid="e0c738bd-3e62-431e-bfe4-e118483dec6b"/>
+					<textFieldExpression><![CDATA[$F{tarkastaja}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="277" y="240" width="277" height="20" uuid="037156cd-4a42-4038-b352-b36c4a53b36b">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="88" height="20" uuid="ddd05dd2-17cd-4a2a-bb0a-59f65fb1800d"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Tarkastusaika:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+					<reportElement x="90" y="0" width="187" height="20" uuid="18721390-a0f7-42e3-bb4b-0e5b80c654ba">
+						<printWhenExpression><![CDATA[$F{kenttatyo_alkupvm} != null && $F{kenttatyo_loppupvm} != null]]></printWhenExpression>
+					</reportElement>
+					<textFieldExpression><![CDATA[($F{kenttatyo_alkupvm} != null && $F{kenttatyo_loppupvm} != null ? $F{kenttatyo_alkupvm}.substring(8,10)+"."+$F{kenttatyo_alkupvm}.substring(5,7)+"."+$F{kenttatyo_alkupvm}.substring(0,4) +" - " + $F{kenttatyo_loppupvm}.substring(8,10)+"."+$F{kenttatyo_loppupvm}.substring(5,7)+"."+$F{kenttatyo_loppupvm}.substring(0,4): "")]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+					<reportElement x="90" y="0" width="187" height="20" uuid="e64642fc-3ad7-417e-86b5-4ce1924dc21c">
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+						<printWhenExpression><![CDATA[$F{kenttatyo_alkupvm} != null]]></printWhenExpression>
+					</reportElement>
+					<textFieldExpression><![CDATA[($F{kenttatyo_alkupvm} != null && ($F{kenttatyo_loppupvm} == null || $F{kenttatyo_loppupvm}.length() < 3) ? $F{kenttatyo_alkupvm}.substring(8,10)+"."+$F{kenttatyo_alkupvm}.substring(5,7)+"."+$F{kenttatyo_alkupvm}.substring(0,4) : "")]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+					<reportElement x="90" y="0" width="187" height="20" uuid="01d325dc-4f19-4d73-806b-222d942ccea2">
+						<printWhenExpression><![CDATA[$F{kenttatyo_loppupvm} != null]]></printWhenExpression>
+					</reportElement>
+					<textFieldExpression><![CDATA[($F{kenttatyo_loppupvm} != null && ($F{kenttatyo_alkupvm} == null || $F{kenttatyo_alkupvm}.length() < 3) ? $F{kenttatyo_loppupvm}.substring(8,10)+"."+$F{kenttatyo_loppupvm}.substring(5,7)+"."+$F{kenttatyo_loppupvm}.substring(0,4) : "")]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="260" width="554" height="20" uuid="dd33ff1f-bdcc-431f-8473-bc42489195bf">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="159" height="20" uuid="0590ba46-759e-420c-bd61-080c5665f74f"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Tarkastajan yhteystiedot:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="160" y="0" width="394" height="20" uuid="14567cc6-4c92-4641-b2c5-a4fc147f70cf">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<textFieldExpression><![CDATA[$F{tarkastaja_email}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+		<band height="149">
+			<staticText>
+				<reportElement x="0" y="0" width="554" height="20" uuid="3611920d-c4a2-4e72-8550-a24724188de3"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[2. TAUSTATIEDOT]]></text>
+			</staticText>
+			<frame>
+				<reportElement x="0" y="20" width="555" height="20" uuid="9dfad63b-a46a-40dc-b320-dafe0494a7c1">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="100" height="20" uuid="9788ea5f-04ca-4968-a278-b31d04582cd6"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Aiemmat tiedot:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="101" y="0" width="454" height="20" uuid="d18c37c5-38c1-4306-9ed5-c73d6969215a"/>
+					<textFieldExpression><![CDATA[$F{aiemmat_tiedot}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="40" width="555" height="20" uuid="ba24eeb0-bb06-4733-8fcf-72991d12cdf7">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="100" height="20" uuid="b6c7a039-d848-4f44-a5ab-bf3128ec5f43"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Aiemmat löydöt:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="101" y="0" width="454" height="20" uuid="67dbbfa3-0e52-40f4-98f6-66eb77d628e5"/>
+					<textFieldExpression><![CDATA[$F{aiemmat_loydot}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="60" width="555" height="20" uuid="0e019f50-9f57-4827-8e67-dd952a4aaef3">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="100" height="20" uuid="635413bd-faa3-4a6d-a0f8-43a76b0a8e9a"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Tarkastuslöydöt:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="101" y="0" width="454" height="20" uuid="67c0a25b-d907-4060-9505-5944b4a80491"/>
+					<textFieldExpression><![CDATA[$F{tarkastusloydot}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="80" width="555" height="20" uuid="f223c749-8af5-45b6-834b-8d073e35c087">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="128" height="20" uuid="e5777b97-be1f-4f0b-88f5-b9c53a1147da"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Tarkastusolosuhteet:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="129" y="0" width="424" height="20" uuid="f84606e0-1642-4bf3-8082-9d8a076256e3"/>
+					<textFieldExpression><![CDATA[$F{tarkastusolosuhteet}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="100" width="555" height="20" uuid="2f1e18ed-9939-47d7-aef2-2844d994302c">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="56" height="20" uuid="bae96bc0-a2d3-4eae-a4d9-fb2620f199de"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Liitteet:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="58" y="0" width="496" height="20" uuid="f45bfe12-6962-4d1e-8b1b-503cef1ef86f"/>
+					<textFieldExpression><![CDATA[$F{liitteet}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="120" width="555" height="20" uuid="8750f968-d7f2-44ab-b236-7bab33bca73a">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="56" height="20" uuid="7cec8af4-393f-436f-8ad1-91179b2e5b26"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Muuta:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="57" y="0" width="497" height="20" uuid="daada5bd-8faf-4229-8e3c-918ef5e07fd5"/>
+					<textFieldExpression><![CDATA[$F{muuta}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+		<band height="146">
+			<staticText>
+				<reportElement x="0" y="0" width="554" height="20" uuid="c98f73c3-38bc-4c45-971a-f4d33eff1ab3"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[3. TARKASTUSHAVAINNOT]]></text>
+			</staticText>
+			<frame>
+				<reportElement x="0" y="20" width="555" height="20" uuid="d2f73f7f-9464-439b-80c9-26e2f8be4575">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="118" height="20" uuid="78c59821-64e2-41c7-97de-2c5ee75fe1d5"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Tarkastuksen syy:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="119" y="0" width="436" height="20" uuid="fe13b075-47fb-4782-b6ae-d8e8ad0efd2f"/>
+					<textFieldExpression><![CDATA[$F{tarkastuksen_syy}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="40" width="555" height="20" uuid="702f8485-2701-4427-8ebc-83d497043099">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="128" height="20" uuid="86c1644a-887a-4c75-8efd-aa2ae5799a14"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Ympäristö ja maasto:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="129" y="0" width="424" height="20" uuid="08c5bd37-50c3-4dbe-880f-e84ef2ee7e8e"/>
+					<textFieldExpression><![CDATA[$F{ymparisto_maasto}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="60" width="555" height="30" uuid="e65b243b-9c38-471c-a8f2-0a96847494ee">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="139" height="30" uuid="667ff73e-0921-4477-a2d3-2493ef582295"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Kohteen kuvaus, rajaus ja yleiset havainnot:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="140" y="0" width="414" height="30" uuid="49628c7f-1c1a-498a-9b60-41768758e029">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<textFieldExpression><![CDATA[$F{kohteen_kuvaus}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="90" width="555" height="20" uuid="435f1e5a-a3b7-4639-b38c-fb7d9fe5e177">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="68" height="20" uuid="7894e252-d1b3-4ad2-a044-d230fc693683"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Havainnot:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="70" y="0" width="484" height="20" uuid="64ef926a-cd44-4605-86e7-3c68f03fa422">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<textElement markup="none"/>
+					<textFieldExpression><![CDATA[$F{havainnot}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="110" width="555" height="20" uuid="edb759fd-2888-4be4-a4b8-b242a59d7b7c">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="78" height="20" uuid="1d7f8440-0dda-4b7b-b41f-9e6957c132d4"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Muuta tietoa:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="80" y="0" width="474" height="20" uuid="1c875d38-3b97-4db6-a0c6-2093193940d8">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<textFieldExpression><![CDATA[$F{muut_tiedot}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+		<band height="196">
+			<staticText>
+				<reportElement x="0" y="0" width="554" height="20" uuid="a69f7c7f-3be7-43ca-9992-b8eb98ba0af1"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[4. SUOJELUTIEDOT]]></text>
+			</staticText>
+			<frame>
+				<reportElement x="0" y="20" width="555" height="20" uuid="c440e16a-91d9-4798-b963-473a9d7e65d4">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="68" height="20" uuid="f96f9bd4-9d8a-4fa3-a6c8-7db7b8d099a5"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Kunto:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="69" y="0" width="486" height="20" uuid="66ebc786-2b1f-476a-9d7d-ba11d45f3be3">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<textFieldExpression><![CDATA[$F{kohteen_kunto}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="40" width="555" height="20" uuid="97b907d4-b73b-4d9a-b2dc-0bfa1690da86">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="88" height="20" uuid="52f283a0-d074-42f7-a2aa-18d8676416f1"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Hoidon tarve:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="90" y="0" width="464" height="20" uuid="a653fa2e-a3d6-43e8-b492-9744f1cd9cd1">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<textFieldExpression><![CDATA[$F{hoitotarve}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="60" width="555" height="30" uuid="42cc0ad7-9122-4a5f-9b90-764f5067a0c7">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="100" height="30" uuid="7fed0bce-2ad0-4c35-999a-76c07c3db111"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Ehdotus suoja-alueeksi:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="101" y="0" width="454" height="30" uuid="f3661a5a-7ea7-497b-9a89-927da7aa19ad">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<textFieldExpression><![CDATA[$F{suoja_alueeksi}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="90" width="555" height="30" uuid="f116d308-59a0-4e79-ad03-6816fd25d489">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="128" height="30" uuid="1c149b15-97d8-4dc7-9ab6-b2fd1dda7d99"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Tiedossa olevat maankäyttöhankkeet:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="129" y="0" width="426" height="30" uuid="49777348-26a7-4657-95a9-ebcdf7cee0ea">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<textFieldExpression><![CDATA[$F{maankayttohankkeet}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="120" width="555" height="30" uuid="a4ed50fc-521f-40e0-b01a-c9a841dbf7a1">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="138" height="30" uuid="ac57f458-b9a4-4c1c-a7eb-4c36c4664bd9"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Muut säilymiseen vaikuttavat asiat:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="140" y="0" width="414" height="30" uuid="5c8c2361-4adb-4fa2-9384-097de85cead6">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<textFieldExpression><![CDATA[$F{sailymisen_asiat}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="150" width="555" height="30" uuid="02336f86-451a-4c86-a46e-acf17ad051b4">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="168" height="30" uuid="37c15ff7-6b8c-41f5-b20d-ba4d5b0430bb"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Kohteesta käytettävissä olevan tiedon määrä ja laatu:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="170" y="0" width="382" height="30" uuid="c4fdabac-7354-42b9-ac22-2830dbdd29f1">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<textFieldExpression><![CDATA[$F{kohteen_tiedon_maara}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+		<band height="92">
+			<staticText>
+				<reportElement x="0" y="0" width="555" height="20" uuid="aac36a56-f6fe-4255-a537-8b3af0c28ea5"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[5. PÄIVÄYS JA RAPORTIN LAATIJAN ALLEKIRJOITUS]]></text>
+			</staticText>
+			<frame>
+				<reportElement x="0" y="20" width="555" height="21" uuid="6fc6c48e-9378-4dee-a9a3-2ee1b3d3d871">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="68" height="20" uuid="4a70c12f-f43c-4325-9b31-f97d00f5c0b6"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Päiväys:]]></text>
+				</staticText>
+				<textField pattern="dd.MM.yyyy">
+					<reportElement x="69" y="1" width="144" height="20" uuid="cbc21eb4-3adc-4726-b79c-d921fbd1dac3">
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					</reportElement>
+					<textElement textAlignment="Center">
+						<font size="10"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement x="0" y="41" width="555" height="38" uuid="a0316c8b-9c1a-4c6e-ade0-bbd43d111452">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<staticText>
+					<reportElement x="1" y="0" width="68" height="20" uuid="165a1cdf-1d08-4c1e-b094-8caeb938d3dc"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Allekirjoitus:]]></text>
+				</staticText>
+			</frame>
+		</band>
+		<band height="320">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<frame>
+				<reportElement x="1" y="0" width="554" height="320" uuid="ec27b98f-8162-418b-b3da-f5ea2d70826e">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0" lineColor="#CCCCCC"/>
+				</box>
+				<image hAlign="Center" isUsingCache="false" onErrorType="Blank" evaluationTime="Report">
+					<reportElement key="" stretchType="ContainerHeight" x="9" y="0" width="535" height="320" uuid="e1994b0f-6b67-4551-b2bb-4111bfc9274b">
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+						<printWhenExpression><![CDATA[$F{bbox_xmin}!=null]]></printWhenExpression>
+					</reportElement>
+					<box>
+						<pen lineColor="#CCCCCC"/>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<imageExpression><![CDATA[$V{MAP_URL}]]></imageExpression>
+				</image>
+				<staticText>
+					<reportElement x="3" y="141" width="550" height="30" uuid="a5468c19-1762-41cd-a925-9e00c9bcea10">
+						<printWhenExpression><![CDATA[$F{bbox_xmin}==null]]></printWhenExpression>
+					</reportElement>
+					<box>
+						<pen lineColor="#CCCCCC"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<text><![CDATA[Kohteella ei ole sijainti - tietoa]]></text>
+				</staticText>
+			</frame>
+		</band>
+		<band height="70">
+			<subreport isUsingCache="false" runToBottom="false">
+				<reportElement positionType="Float" x="0" y="30" width="554" height="30" isRemoveLineWhenBlank="true" uuid="95fb5e20-4bcb-4a6d-accb-b2216535d2f5"/>
+				<subreportParameter name="tutkimusId">
+					<subreportParameterExpression><![CDATA[$P{tutkimusId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="MIP_BACKEND_URL">
+					<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA["Tarkastus_kuvat.jasper"]]></subreportExpression>
+			</subreport>
+			<staticText>
+				<reportElement x="0" y="0" width="555" height="20" isRemoveLineWhenBlank="true" uuid="9f8a43fc-8946-4233-8920-dd26689ff977">
+					<printWhenExpression><![CDATA[$F{kuva_id} != null]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[LIITE: KUVAT]]></text>
+			</staticText>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="30" splitType="Stretch">
+			<textField evaluationTime="Master">
+				<reportElement x="376" y="3" width="138" height="20" uuid="6644f853-0ff1-4628-a6f9-d276f398c315"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Sivu " + $V{MASTER_CURRENT_PAGE} + " / "]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Master">
+				<reportElement x="514" y="3" width="40" height="20" uuid="3ecf62ce-8165-4353-8ea7-0062356771dd"/>
+				<textElement textAlignment="Left"/>
+				<textFieldExpression><![CDATA[$V{MASTER_TOTAL_PAGES}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="0" width="150" height="20" uuid="ccf0374c-60c8-4d55-b9d7-3ea15f24768a">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[Museon Informaatioportaali]]></text>
+			</staticText>
+			<textField pattern="dd.MM.yyyy">
+				<reportElement x="150" y="0" width="110" height="20" uuid="cb79223f-2a3f-46ae-8162-f0d79ab09b76">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>

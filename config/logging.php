@@ -53,12 +53,19 @@ return [
             'level' => 'debug',
             'days' => 14,
         ],
-        
+
         'frontend' => [
-            'driver' => 'single',
+            'driver' => 'daily',
             'path' => storage_path('logs/frontend.log'),
             'level' => 'debug',
         ],
+
+        'finna' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/finna.log'),
+            'level' => 'debug',
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),

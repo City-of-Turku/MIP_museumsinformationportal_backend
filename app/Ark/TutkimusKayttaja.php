@@ -16,7 +16,7 @@ class TutkimusKayttaja extends Model
     protected $table = "ark_tutkimus_kayttaja";
 
     protected $fillable = array(
-        'ark_tutkimus_id', 'kayttaja_id'
+        'ark_tutkimus_id', 'kayttaja_id', 'organisaatio'
     );
 
     /*

@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Ark;
 
+use App\Ark\ArkKuva;
 use App\Kayttaja;
 use App\Utils;
 use App\Ark\Kohde;
 use App\Ark\KohdeTutkimus;
+use App\Ark\Loyto;
+use App\Ark\Nayte;
 use App\Ark\Tutkimus;
 use App\Ark\TutkimusKayttaja;
 use App\Ark\TutkimusKiinteistoRakennus;
@@ -23,6 +26,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Validator;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Tutkimusten käsittelyt
@@ -35,7 +39,6 @@ class TutkimusController extends Controller
      * @param Request $request
      */
     public function index(Request $request) {
-
         /*
          * Käyttöoikeustarkistukset Tutkimus.php luokassa
          */
@@ -49,7 +52,7 @@ class TutkimusController extends Controller
     		return MipJson::getJson();
     	}
 
-        try {
+         try {
             // Hakuparametrit
             $rivi = (isset($request->rivi) && is_numeric($request->rivi)) ? $request->rivi : 0;
             $riveja = (isset($request->rivit) && is_numeric($request->rivit)) ? $request->rivit : 100;
@@ -74,7 +77,7 @@ class TutkimusController extends Controller
                 'valokuvaKokoelmalaji',
                 'nayteKokoelmalaji',
                 'kiinteistotrakennukset',
-                'tutkimuskayttajat.kayttaja'
+                'tutkimuskayttajat'
             ));
 
             // Haku tutkimustyypillä
@@ -89,7 +92,7 @@ class TutkimusController extends Controller
 
             // Tutkimuksen nimen mukaan
             if($request->tutkimuksen_nimi) {
-                $tutkimukset->where('nimi', 'ILIKE', "%".$request->tutkimuksen_nimi."%");
+                $tutkimukset->where('ark_tutkimus.nimi', 'ILIKE', "%".$request->tutkimuksen_nimi."%");
             }
 
             // Löydön päänumeron mukaan
@@ -194,7 +197,21 @@ class TutkimusController extends Controller
                 }
             }
 
-            $tutkimukset->withOrderBy($jarjestys_kentta, $jarjestys_suunta);
+
+            if($request->showTutkimusalueFeatures) {
+                $tutkimukset = $tutkimukset->with('tutkimusalueet');
+            }
+
+            // Aluerajaus tarkoittaa bounding boxia
+            if($request->aluerajaus) {
+                $tutkimukset->withBoundingBox($request->aluerajaus);
+            }
+            // Polygonrajaus tarkoittaa vapaamuotoista piirrettyä geometriaa jonka mukaan rajataan
+            if($request->polygonrajaus) {
+                $tutkimukset->withPolygon($request->polygonrajaus);
+            }
+
+            $tutkimukset->withOrderBy($jarjestys_kentta, $jarjestys_suunta, $request->aluerajaus);
 
             // Rivien määrän laskenta
             $total_rows = Utils::getCount($tutkimukset);
@@ -203,7 +220,8 @@ class TutkimusController extends Controller
             $tutkimukset->withLimit($rivi, $riveja);
 
             // Execute the query
-            $tutkimukset = $tutkimukset->get();
+            // HUOM: ilman ark_tutkimus samannimiset kentät ylikirjoittuvat joinien mukana
+            $tutkimukset = $tutkimukset->get('ark_tutkimus.*');
 
             // Tutkimukseen liitetyiltä käyttäjiltä kaivetaan organisaatiot.
             $i = 0;
@@ -211,10 +229,10 @@ class TutkimusController extends Controller
                 // Tutkimusten organisaatiot palautetaan erikseen hakuja varten
                 $organisaatiot = [];
                 foreach ($tutkimus->tutkimuskayttajat as $tk){
-                    if($tk->kayttaja) {
+                    if($tk->organisaatio) {
                         // Jos sama organisaatio monella tutkimuksen käyttäjällä vain uniikit näytetään
-                        if(!in_array($tk->kayttaja->organisaatio, $organisaatiot, true)){
-                            array_push($organisaatiot, $tk->kayttaja->organisaatio);
+                        if(!in_array($tk->organisaatio, $organisaatiot, true)){
+                            array_push($organisaatiot, $tk->organisaatio);
                         }
                     }
                 }
@@ -231,6 +249,13 @@ class TutkimusController extends Controller
                 $i++;
             }
 
+            // Jos pyynnössä on mukana tutkimusalueiden näyttäminen, liitetään ne mukaan (geojson-muodossa)
+            if($request->showTutkimusalueFeatures) {
+                foreach ($tutkimukset as $t) {
+                   $this->replaceTutkimusalueetWithFeatures($t, true);
+                }
+            }
+
             MipJson::initGeoJsonFeatureCollection(count($tutkimukset), $total_rows);
 
             foreach ($tutkimukset as $tutkimus) {
@@ -238,11 +263,11 @@ class TutkimusController extends Controller
             }
             MipJson::addMessage(Lang::get('tutkimus.search_success'));
 
-        } catch (Exception $e) {
-            MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
-            MipJson::addMessage(Lang::get('tutkimus.search_failed'));
-        }
-
+         } catch (Exception $e) {
+             Log::error($e);
+             MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+             MipJson::addMessage(Lang::get('tutkimus.search_failed'));
+         }
 
         return MipJson::getJson();
     }
@@ -276,7 +301,8 @@ class TutkimusController extends Controller
                 if( !empty($kohdeTutkimus) ){
                     $kohde = Kohde::getSingle($kohdeTutkimus->ark_kohde_id)->with(array (
                         'kunnatkylat.kunta',
-                        'kunnatkylat.kyla'))->first();
+                        'kunnatkylat.kyla',
+                        'kiinteistotrakennukset'))->first();
                 }
 
                 // Hae tutkimus
@@ -294,16 +320,65 @@ class TutkimusController extends Controller
                     'kiinteistotrakennukset.osoitteet',
                     'luoja',
                     'muokkaaja',
-                    'tutkimuskayttajat.kayttaja',
+                    'tutkimuskayttajat',
                     'kunnatkylat.kunta',
                     'kunnatkylat.kyla',
-                    'tarkastus.tarkastaja'
+                    'tarkastus.tarkastaja',
+                    'inventointiKohteet.sijainnit',
+                    'inventointiKohteet.laji',
+                    'inventointiKohteet.tyypit.tyyppi'
                 ))->first();
 
                 if(!$tutkimus) {
                     MipJson::setGeoJsonFeature();
                     MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
                     MipJson::addMessage(Lang::get('tutkimus.search_not_found'));
+                }
+
+                // Inventointi-tutkimukselle palautetaan tutkimuskäyttäjälle asetettu organisaatio sekä inventoinnin kohteet.
+                if($tutkimus && $tutkimus->ark_tutkimuslaji_id == 5) {
+                    foreach ($tutkimus->tutkimuskayttajat as $tk){
+                        $tkayttaja = TutkimusKayttaja::getSingleByTutkimusIdAndUserId($tutkimus->id, $tk->id)->first();
+                        if(!empty($tkayttaja->organisaatio)){
+                            $tk->inv_tutkija_organisaatio = $tkayttaja->organisaatio;
+                        }
+                    }
+
+                    // Palautetaan vain tarvittavat kohteen tiedot
+                    $invKohteet = array();
+                    foreach ($tutkimus->inventointiKohteet as $invKohde){
+                        //Log::debug(print_r($invKohde->nimi, true));
+                        // Täsmennetään palautettavia tietoja vähän
+                        $lajiNimi = $invKohde->laji->nimi_fi;
+                        unset($invKohde->laji);
+                        $invKohde->laji = $lajiNimi;
+
+                        if(count($invKohde->tyypit) == 0){
+                            $invKohde->tyyppi = 'Ei määritelty';
+                        } else {
+                            $invKohde->tyyppi = $invKohde->tyypit[0]->tyyppi->nimi_fi;
+                        }
+
+                        // Haetaan mukaan inventoinnin tehnyt käyttäjä
+                        if($invKohde->pivot && $invKohde->pivot->inventoija_id) {
+                            $inventoija = Kayttaja::where('id', '=', $invKohde->pivot->inventoija_id)->first();
+                            $inventoijaNimi = '';
+                            if($inventoija && $inventoija->etunimi && $inventoija->sukunimi) {
+                                $inventoijaNimi = $inventoija->sukunimi . " " . $inventoija->etunimi;
+                            }
+                            $invKohde->pivot->inventoija = $inventoijaNimi;
+                        }
+
+                        // Tehdään UI yhdenmukainen properties formaatti
+                        $kohdeReply = array(
+                            'properties' => $invKohde
+                        );
+                        $invKohteet[] = $kohdeReply;
+                    }
+                    if(!empty($invKohteet)){
+                        unset($tutkimus->inventointiKohteet);
+                        $tutkimus->inventointiKohteet = $invKohteet;
+                    }
                 }
 
                 // Muodostetaan propparit
@@ -333,54 +408,18 @@ class TutkimusController extends Controller
                  * Tutkimusalueita ei yleensä ole monia, joten ei aiheuta ongelmia suorituskyvyllisesti.
                  * TODO: Siirretään parempaan paikkaan kun on aikaa.
                  */
-
-                $tutkimusalueFeatures = array();
-                foreach($properties->tutkimusalueet as $ta) {
-                	if($ta->sijainti) {
-                		$s = DB::select(DB::raw("select ST_AsText(ST_transform(ark_tutkimusalue.sijainti, ".Config::get('app.json_srid').")) from ark_tutkimusalue where ark_tutkimusalue.id = :id", ["id" => $ta->id]), [$ta->id]);
-                		$splittedGeom = explode('(', $s[0]->st_astext);
-                		$coordinates = $splittedGeom[2]; //Polygon muodossa koordinatit ovat 2. paikassa.
-
-                		//Poistetaan lopusta ) merkki
-                		if(substr($coordinates, -1) == ')') {
-                			$coordinates = rtrim($coordinates, ')');
-                		}
-
-                		//Erotellaan koordinaattiparit arrayksi
-                		$coordinates = explode(',', $coordinates);
-                		$pairs = [];
-
-                		//Jokaiselle parille muutetaan koordinaatit arrayksi ja muutetaan string numeroksi
-                		foreach($coordinates as $coord) {
-                			$coord = explode(' ', $coord);
-                			$coord[0] = (float)$coord[0];
-                			$coord[1] = (float)$coord[1];
-
-                			array_push($pairs, $coord);
-                		}
-
-                		$coordinates = [$pairs];
-                		$geometry = array('type' => 'Polygon', 'coordinates' => $coordinates);
-                		$feature  = array('type' => 'Feature', 'properties' => $ta, 'geometry' => $geometry);
-                	} else {
-                		$feature = array('type' => 'Feature', 'properties' => $ta, 'geometry' => null);
-                	}
-
-                	array_push($tutkimusalueFeatures, $feature);
-                }
-                //Poistetaan "plainit" vanhat tutkimusalueet ja lisätään uudet featuretyyppiset tutkimusalueet tähän paikkaan
-                unset($properties->tutkimusalueet);
-                $properties->tutkimusalueet=$tutkimusalueFeatures;
+                $this->replaceTutkimusalueetWithFeatures($properties);
 
                 MipJson::setGeoJsonFeature(null, $properties);
 
                 MipJson::addMessage(Lang::get('tutkimus.search_success'));
             }
-            catch(QueryException $e) {
-                MipJson::setGeoJsonFeature();
-                MipJson::addMessage(Lang::get('tutkimus.search_failed'));
-                MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
-            }
+             catch(QueryException $e) {
+                 Log::error($e);
+                 MipJson::setGeoJsonFeature();
+                 MipJson::addMessage(Lang::get('tutkimus.search_failed'));
+                 MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+             }
 
         return MipJson::getJson();
     }
@@ -408,8 +447,7 @@ class TutkimusController extends Controller
             'tutkimuslaji.id'	    => 'required|numeric',
             'nimi'					=> 'required|string',
             'postinumero'		    => 'numeric',
-            'rahoittaja'		    => 'string|max:1000',
-            'tiivistelma'		    => 'string|max:1000'
+            'rahoittaja'		    => 'string|max:1000'
         ]);
 
         if ($validator->fails()) {
@@ -521,8 +559,7 @@ class TutkimusController extends Controller
             'tutkimuslaji.id'	    => 'required|numeric',
             'nimi'					=> 'required|string',
             'postinumero'		    => 'numeric',
-            'rahoittaja'		    => 'nullable|string|max:1000',
-            'tiivistelma'		    => 'nullable|string|max:1000'
+            'rahoittaja'		    => 'nullable|string|max:1000'
         ]);
 
         if ($validator->fails()) {
@@ -542,6 +579,12 @@ class TutkimusController extends Controller
                     MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
                 }
                 else {
+
+                    // Otetaan talteen alkuperäinen valmis ja julkinen arvot ja jos nämä
+                    // ovat muuttuneet, päivitetään myös löytöjen aikaleimat
+                    $origJulkinen = $tutkimus->julkinen;
+                    $origValmis = $tutkimus->valmis;
+
                     DB::beginTransaction();
                     Utils::setDBUser();
 
@@ -594,6 +637,11 @@ class TutkimusController extends Controller
                             $tarkastus->update();
                         }
 
+                        // Päivitetään löytöjen aikaleima, jotta esimerkiksi Finnan haravointi huomaa muuttuneet
+                        if($origJulkinen != $tutkimus->julkinen || $origValmis != $tutkimus->valmis) {
+                            $loydot = Loyto::getAll()->withTutkimusId($tutkimus->id);
+                            $loydot->update(['muokattu' => \Carbon\Carbon::now(), 'muokkaaja' => -1]);
+                        }
                     } catch(Exception $e) {
                         DB::rollback();
                         throw $e;
@@ -733,6 +781,12 @@ class TutkimusController extends Controller
                     $tk = new TutkimusKayttaja();
                     $tk->kayttaja_id = $request->input('lisattavat')[$i]['id'];
                     $tk->ark_tutkimus_id = $id;
+
+                    // Inventointi-tutkimuksella annetaan erikseen organisaatio
+                    if($tutkimus->ark_tutkimuslaji_id == 5) {
+                        $tk->organisaatio = $request->input('lisattavat')[$i]['inv_tutkija_organisaatio'];
+                    }
+
                     $tk->luoja = Auth::user()->id;
                     $tk->save();
                 }
@@ -757,5 +811,165 @@ class TutkimusController extends Controller
         }
 
         return MipJson::getJson();
+    }
+
+
+    /*
+     * Hakee käyttäjän aktiiviset inventointitutkimukset. ark_tutkimuslaji_id = 5
+     * Aktiivinen: tutkimusaika on tällä hetkellä, valmis = false
+     */
+    public function getAktiivisetInventointitutkimukset() {
+        /*
+         * Käyttöoikeus
+         */
+        if(!Kayttaja::hasPermission('arkeologia.ark_kohde.katselu')) {
+            MipJson::setGeoJsonFeature();
+            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+            return MipJson::getJson();
+        }
+
+        $kayttaja = Auth::user();
+
+        // Haetaan tutkimukset joissa käyttäjä on liitettynä
+        $tutkimukset = Tutkimus::getAktiivisetInventointitutkimukset($kayttaja->id);
+
+        //Set the amount of selected rows
+        $total_rows = count($tutkimukset);
+        MipJson::initGeoJsonFeatureCollection($total_rows, $total_rows);
+
+        foreach ($tutkimukset as $tutkimus) {
+            MipJson::addGeoJsonFeatureCollectionFeaturePoint(null, $tutkimus);
+        }
+
+        return MipJson::getJson ();
+    }
+
+    /*
+     * Hakee tutkimukseen liittyvien löytöjen ja näytteiden lukumäärät
+     * ja digikuvien ensimmäisen ja viimeisen luettelointinumeron.
+     * Tiloja Poistettu löytöluettelosta ja poistettu kokoelmasta ei huomioida.
+     */
+    public function lukumaarat($id) {
+        /*
+         * Käyttöoikeus
+         */
+        if(!Kayttaja::hasArkTutkimusSubPermission('arkeologia.ark_tutkimus.katselu', $id)) {
+            MipJson::setGeoJsonFeature();
+            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+            return MipJson::getJson();
+        }
+        try {
+            $tutkimus = Tutkimus::getSingle($id)->select('id', 'nimi')->first();
+
+            $loydotCount = Loyto::getAll()->where('loydon_tila_id', '!=', 9)
+                ->where('loydon_tila_id', '!=', 5)->withTutkimusId($id)->count();
+
+            $naytteetCount = Nayte::getAll()->where('ark_nayte_tila_id', '!=', 3)
+                ->where('ark_nayte_tila_id', '!=', 7)->withTutkimusId($id)->count();
+
+            $digikuvatAlku = ArkKuva::getAll()->withTutkimusId($id)->whereNotNull('luettelointinumero')->orderBy('ark_kuva.id', 'asc')->select('ark_kuva.id', 'luettelointinumero')->first();
+            $digikuvatLoppu = ArkKuva::getAll()->withTutkimusId($id)->whereNotNull('luettelointinumero')->orderBy('ark_kuva.id', 'desc')->select('ark_kuva.id', 'luettelointinumero')->first();
+
+            $tutkimus->loydotCount = $loydotCount;
+            $tutkimus->naytteetCount = $naytteetCount;
+            $tutkimus->digikuvatAlku = $digikuvatAlku->luettelointinumero;
+            $tutkimus->digikuvatLoppu = $digikuvatLoppu->luettelointinumero;
+
+            // Muodostetaan propparit
+            $properties = clone($tutkimus);
+
+            MipJson::setGeoJsonFeature(null, $properties);
+            MipJson::addMessage(Lang::get('tutkimus.search_success'));
+
+        } catch(Exception $e) {
+            Log::debug($e);
+            MipJson::setGeoJsonFeature();
+            MipJson::setMessages(array(Lang::get('tutkimus.search_failed'),$e->getMessage()));
+            MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return MipJson::getJson ();
+    }
+
+    private function replaceTutkimusalueetWithFeatures($properties, $showOnlyWithCoordinates=false) {
+        $tutkimusalueFeatures = array();
+        foreach($properties->tutkimusalueet as $ta) {
+            // Joko piste-sijanti tai alue
+            if($ta->sijainti || $ta->sijainti_piste) {
+                $s = DB::select(DB::raw("select ST_AsText(ST_transform(ark_tutkimusalue.sijainti_piste, ".Config::get('app.json_srid').")) from ark_tutkimusalue where ark_tutkimusalue.id = :id", ["id" => $ta->id]), [$ta->id]);
+                $splittedGeom = explode('(', $s[0]->st_astext);
+
+                $sAlue = DB::select(DB::raw("select ST_AsText(ST_transform(ark_tutkimusalue.sijainti, ".Config::get('app.json_srid').")) from ark_tutkimusalue where ark_tutkimusalue.id = :id", ["id" => $ta->id]), [$ta->id]);
+                $splittedArea = explode('(', $sAlue[0]->st_astext);
+
+                if('POINT' == $splittedGeom[0]){
+                    $coordinates = $splittedGeom[1]; // Point positio
+
+                    //Poistetaan lopusta ) merkki
+                    if(substr($coordinates, -1) == ')') {
+                        $coordinates = rtrim($coordinates, ')');
+                    }
+                    //Erotellaan koordinaattiparit arrayksi
+                    $coordinates = explode(',', $coordinates);
+                    $pairs = [];
+                    foreach($coordinates as $coord) {
+                        $coord = explode(' ', $coord);
+                        array_push($pairs, (float)$coord[0]);
+                        array_push($pairs, (float)$coord[1]);
+                    }
+
+                    $coordinates = $pairs;
+                    // Asetetaan tutkimuksen vaadittavat tiedot kartalla näyttämistä varten
+                    $ta->tutkimus = array('nimi' => $properties->nimi, 'tyyppi' => $properties->tutkimuslaji);
+                    $geometry = array('type' => 'Point', 'coordinates' => $coordinates);
+                } else {
+                    if(empty($splittedArea[2])){
+                        Log::error('Virheellinen polygon, ta id: ' . $ta->id);
+                        $coordinates = null;
+                        $geometry = null;
+                    } else{
+                        $coordinates = $splittedArea[2]; //Polygon muodossa koordinatit ovat 2. paikassa.
+
+                        //Poistetaan lopusta ) merkki
+                        if(substr($coordinates, -1) == ')') {
+                            $coordinates = rtrim($coordinates, ')');
+                        }
+
+                        //Erotellaan koordinaattiparit arrayksi
+                        $coordinates = explode(',', $coordinates);
+                        $pairs = [];
+
+                        //Jokaiselle parille muutetaan koordinaatit arrayksi ja muutetaan string numeroksi
+                        foreach($coordinates as $coord) {
+                            $coord = explode(' ', $coord);
+                            $coord[0] = (float)$coord[0];
+                            $coord[1] = (float)$coord[1];
+
+                            array_push($pairs, $coord);
+                        }
+
+                        $coordinates = [$pairs];
+
+                        // Asetetaan tutkimuksen vaadittavat tiedot kartalla näyttämistä varten
+                        $ta->tutkimus = array('nimi' => $properties->nimi, 'tyyppi' => $properties->tutkimuslaji);
+                        $geometry = array('type' => 'Polygon', 'coordinates' => $coordinates);
+                    }
+                }
+
+                $feature  = array('type' => 'Feature', 'properties' => $ta, 'geometry' => $geometry);
+
+                array_push($tutkimusalueFeatures, $feature);
+            } else {
+                if($showOnlyWithCoordinates == false) {
+                    $feature = array('type' => 'Feature', 'properties' => $ta, 'geometry' => null);
+                    array_push($tutkimusalueFeatures, $feature);
+                }
+            }
+        }
+        //Poistetaan "plainit" vanhat tutkimusalueet ja lisätään uudet featuretyyppiset tutkimusalueet tähän paikkaan
+        unset($properties->tutkimusalueet);
+        $properties->tutkimusalueet=$tutkimusalueFeatures;
     }
 }

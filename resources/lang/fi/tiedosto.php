@@ -11,5 +11,6 @@ return [
 	'input_file_geometry_contains_non_closed_rings' => 'Tiedosto sisältää virheellisiä geometrioita. Polygonien pitää olla suljettuja ja alueiden nimet uniikkeja.',
 	'invalid_file_type' => 'Virheellinen tiedostomuoto.',
 	'polygon_not_valid' => 'Polygon ei ole validi.',
-	'unknown_error'		=> 'Tuntematon virhe'
+	'unknown_error'		=> 'Tuntematon virhe',
+    'invalid_csv_file' => 'Virheellinen tiedosto. X, Y, Z ja Text sarakkeet tulee olla.'
 ];

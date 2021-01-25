@@ -2,10 +2,13 @@
 
 namespace App\Ark;
 
+use App\Library\Gis\MipGis;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use App\Kayttaja;
 /**
  * Tutkimus.
  *
@@ -21,7 +24,7 @@ class Tutkimus extends Model
         'loyto_paanumero', 'nayte_paanumero', 'digikuva_paanumero', 'mustavalko_paanumero', 'dia_paanumero', 'valmis', 'julkinen',
         'katuosoite', 'katunumero', 'postinumero', 'kl_koodi', 'tiivistelma', 'ark_loyto_kokoelmalaji_id',
         'ark_raportti_kokoelmalaji_id', 'ark_kartta_kokoelmalaji_id', 'ark_valokuva_kokoelmalaji_id', 'ark_nayte_kokoelmalaji_id',
-        'muokattu', 'muokkaaja', 'lisatiedot', 'kenttatyojohtaja'
+        'muokattu', 'muokkaaja', 'lisatiedot', 'kenttatyojohtaja', 'toimeksiantaja', 'kuvaus', 'km_paanumerot_ja_diaarnum'
     );
 
     /*
@@ -54,7 +57,6 @@ class Tutkimus extends Model
     		return self::select('ark_tutkimus.*');
     	}
     }
-    
     /**
      * Sama metodi kuin staattinen getAllForKatselija, mutta voidaan käyttää
      * yhdessä eri hakuehtojen kanssa esimerkiksi TutkimusControllerissa.
@@ -141,13 +143,38 @@ class Tutkimus extends Model
         return $query->whereIn('ark_tutkimus.id', function($q) use ($keyword) {
             $q->select('ark_tutkimus_id')
             ->from('ark_tutkimus_kayttaja')
-            ->where('kayttaja_id', '=', $keyword);
+            ->where('kayttaja_id', '=', $keyword)
+            ->whereNull('poistettu');
         });
     }
 
     // Rivimäärän rajoitus
     public function scopeWithLimit($query, $start_row, $row_count) {
         return $query->skip($start_row)->take($row_count);
+    }
+
+    /**
+     * Limit results to only for area of given bounding box
+     *
+     * @param  $query
+     * @param String $bbox The bounding box value (21.900000 60.910000,22.000000 61.000000)
+     * @author
+     * @version 1.0
+     * @since 1.0
+     */
+    public function scopeWithBoundingBox($query, $bbox) {
+    //Log::debug("withBoundingBox");
+    //Log::debug($bbox);
+
+        $query->leftJoin('ark_tutkimusalue', 'ark_tutkimus.id', '=', 'ark_tutkimusalue.ark_tutkimus_id');
+        $query->whereNull('ark_tutkimusalue.poistettu');
+        return $query->whereRaw(MipGis::getGeometryFieldBoundingBoxQueryWhereStringFromAreaAndPoint("ark_tutkimusalue.sijainti", "ark_tutkimusalue.sijainti_piste", $bbox));
+    }
+
+    public function scopeWithPolygon($query, $polygon) {
+        $query->leftJoin('ark_tutkimusalue', 'ark_tutkimus.id', '=', 'ark_tutkimusalue.ark_tutkimus_id');
+        $query->whereNull('ark_tutkimusalue.poistettu');
+        return $query->whereRaw(MipGis::getGeometryFieldPolygonQueryWhereString($polygon, "ark_tutkimusalue.sijainti", "ark_tutkimusalue.sijainti_piste"));
     }
 
     /**
@@ -206,15 +233,34 @@ class Tutkimus extends Model
         return $this->hasOne('App\Ark\Tarkastus', 'ark_tutkimus_id');
     }
 
+    public function inventointiKohteet() {
+        return $this->belongsToMany('App\Ark\Kohde' ,'ark_tutkimus_inv_kohteet' ,'ark_tutkimus_id' ,'ark_kohde_id')->withPivot('inventointipaiva', 'inventoija_id');
+    }
+
+    public function tutkimusraportti() {
+        return $this->hasOne('App\Ark\Tutkimusraportti', 'ark_tutkimus_id');
+    }
+
+    // Toimiikohan ihan???
+    public function kohde() {
+        return $this->hasOne('App\Ark\Kohde', 'id');
+    }
+
     /**
      * Suodatusjärjestys
      */
-    public function scopeWithOrderBy($query, $jarjestys_kentta, $jarjestys_suunta) {
+    public function scopeWithOrderBy($query, $jarjestys_kentta, $jarjestys_suunta, $bbox=null) {
         if ($jarjestys_kentta == "nimi") {
             return $query->orderBy("ark_tutkimus.nimi", $jarjestys_suunta);
-        }elseif($jarjestys_kentta == "alkuvuosi") {
+        } elseif($jarjestys_kentta == "alkuvuosi") {
             return $query->orderBy("ark_tutkimus.kenttatyo_alkupvm", $jarjestys_suunta);
         }
+
+        // Sijainti ei ole sijainti-kentässä, vaan ark_tutkimusalue_sijainti taulussa (mahdollisesti useita rivejä)
+        if ($jarjestys_kentta == "bbox_center" && !is_null($bbox)) {
+            return $query->orderByRaw(MipGis::getGeometryFieldOrderByBoundingBoxAreaAndPointCenterString("ark_tutkimusalue.sijainti", "ark_tutkimusalue.sijainti_piste", $bbox));
+        }
+
         //todo muut kentät
 
         return $query->orderBy("ark_tutkimus.nimi", $jarjestys_suunta);
@@ -267,8 +313,34 @@ class Tutkimus extends Model
             return 0;
         }
     }
-    
+
     public function files() {
         return $this->belongsToMany('App\Ark\ArkTiedosto', 'ark_tiedosto_tutkimus', 'ark_tutkimus_id');
+    }
+
+    // Jos käyttäjän rooli on katselija (=inventoija) haetaan pelkästään tutkimukset joissa hän on käyttäjänä
+    // Muille haetaan kaikki aktiiviset tutkimukset.
+    public static function getAktiivisetInventointitutkimukset($user_id) {
+        $kayttaja = Kayttaja::where('id', '=', $user_id)->first();
+        $tutkimukset = null;
+        if($kayttaja->ark_rooli == 'katselija') {
+            $tutkimukset = self::select('ark_tutkimus.*')
+            ->withTutkija($user_id)
+            ->withTutkimuslajit(5)
+            ->where('ark_tutkimus.valmis', '=', 0)->get();
+        } else {
+            $tutkimukset = self::select('ark_tutkimus.*')
+            ->withTutkimuslajit(5)
+            ->where('ark_tutkimus.valmis', '=', 0)->get();
+        }
+        // Filtteröidään tutkimukset, joiden tutkimusaika ei ole tällä hetkellä
+        $aktiivisetTutkimukset = array();
+        $currentDate = date('Y-m-d');
+        foreach($tutkimukset as $tutkimus) {
+            if($tutkimus->valmis == false && $tutkimus->alkupvm <= $currentDate && ($tutkimus->loppupvm >= $currentDate || $tutkimus->loppupvm == null)) {
+                array_push($aktiivisetTutkimukset, $tutkimus);
+            }
+        }
+        return $aktiivisetTutkimukset;
     }
 }

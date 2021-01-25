@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
+<!-- 2021-01-08T12:20:50 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Inventointitutkimusraportti" pageWidth="595" pageHeight="842" sectionType="Part" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="30" bottomMargin="30" uuid="d2716064-8ae4-40cf-a575-33afba400e3a">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="qa"/>
+	<property name="net.sf.jasperreports.print.create.bookmarks" value="true"/>
+	<property name="com.jaspersoft.studio.book.group.cover.header" value="Cover and Table of Contents"/>
+	<property name="com.jaspersoft.studio.book.group.cover.footer" value="Backcover"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<parameter name="tutkimusraporttiId" class="java.lang.Long"/>
+	<parameter name="MIP_BACKEND_URL" class="java.lang.String"/>
+	<parameter name="MIP_MAPSERVER_URL" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select tr.id 
+from ark_tutkimusraportti tr
+left join ark_tutkimus t on t.id = tr.ark_tutkimus_id
+where tr.id = $P{tutkimusraporttiId}
+and tr.poistettu is null
+and t.poistettu is null]]>
+	</queryString>
+	<field name="id" class="java.lang.Long"/>
+	<detail>
+		<part uuid="222c91e6-4b28-43f2-8a59-d51e7c6b2be7">
+			<p:subreportPart xmlns:p="http://jasperreports.sourceforge.net/jasperreports/parts" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/parts http://jasperreports.sourceforge.net/xsd/parts.xsd">
+				<subreportParameter name="REPORT_CONNECTION">
+					<subreportParameterExpression><![CDATA[$P{REPORT_CONNECTION}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="tutkimusraporttiId">
+					<subreportParameterExpression><![CDATA[$P{tutkimusraporttiId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="MIP_BACKEND_URL">
+					<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="MIP_MAPSERVER_URL">
+					<subreportParameterExpression><![CDATA[$P{MIP_MAPSERVER_URL}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportExpression><![CDATA["Kansilehti.jasper"]]></subreportExpression>
+			</p:subreportPart>
+		</part>
+		<part uuid="86219e4f-8f4e-48fe-82f9-83a9743bd3c5">
+			<p:subreportPart xmlns:p="http://jasperreports.sourceforge.net/jasperreports/parts" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/parts http://jasperreports.sourceforge.net/xsd/parts.xsd">
+				<subreportParameter name="REPORT_CONNECTION">
+					<subreportParameterExpression><![CDATA[$P{REPORT_CONNECTION}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="tutkimusraporttiId">
+					<subreportParameterExpression><![CDATA[$P{tutkimusraporttiId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportExpression><![CDATA["Arkisto_rekisteritiedot.jasper"]]></subreportExpression>
+			</p:subreportPart>
+		</part>
+		<part uuid="f42ddd5a-226b-4a99-bfa7-4c30665b5627">
+			<p:subreportPart xmlns:p="http://jasperreports.sourceforge.net/jasperreports/parts" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/parts http://jasperreports.sourceforge.net/xsd/parts.xsd">
+				<subreportParameter name="REPORT_CONNECTION">
+					<subreportParameterExpression><![CDATA[$P{REPORT_CONNECTION}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="tutkimusraporttiId">
+					<subreportParameterExpression><![CDATA[$P{tutkimusraporttiId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportExpression><![CDATA["Tiivistelma.jasper"]]></subreportExpression>
+			</p:subreportPart>
+		</part>
+		<part uuid="d12dd685-a596-4d3e-8c00-796f7abd71d4">
+			<p:subreportPart xmlns:p="http://jasperreports.sourceforge.net/jasperreports/parts" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/parts http://jasperreports.sourceforge.net/xsd/parts.xsd">
+				<subreportParameter name="REPORT_CONNECTION">
+					<subreportParameterExpression><![CDATA[$P{REPORT_CONNECTION}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="tutkimusraporttiId">
+					<subreportParameterExpression><![CDATA[$P{tutkimusraporttiId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="MIP_BACKEND_URL">
+					<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="MIP_MAPSERVER_URL">
+					<subreportParameterExpression><![CDATA[$P{MIP_MAPSERVER_URL}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportExpression><![CDATA["Kartta.jasper"]]></subreportExpression>
+			</p:subreportPart>
+		</part>
+		<part evaluationTime="Report" uuid="56ab525c-754f-4f48-a52c-7cc23934be3d">
+			<property name="net.sf.jasperreports.bookmarks.data.source.parameter" value="REPORT_DATA_SOURCE"/>
+			<p:subreportPart xmlns:p="http://jasperreports.sourceforge.net/jasperreports/parts" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/parts http://jasperreports.sourceforge.net/xsd/parts.xsd" usingCache="false">
+				<subreportParameter name="REPORT_CONNECTION">
+					<subreportParameterExpression><![CDATA[$P{REPORT_CONNECTION}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="REPORT_DATA_SOURCE">
+					<subreportParameterExpression><![CDATA[$P{REPORT_DATA_SOURCE}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportExpression><![CDATA["Inventointitutkimusraportti_toc.jasper"]]></subreportExpression>
+			</p:subreportPart>
+		</part>
+		<part uuid="6f561d45-6296-4101-b334-e2cd722a1293">
+			<p:subreportPart xmlns:p="http://jasperreports.sourceforge.net/jasperreports/parts" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/parts http://jasperreports.sourceforge.net/xsd/parts.xsd">
+				<subreportParameter name="REPORT_CONNECTION">
+					<subreportParameterExpression><![CDATA[$P{REPORT_CONNECTION}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="tutkimusraporttiId">
+					<subreportParameterExpression><![CDATA[$P{tutkimusraporttiId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="MIP_BACKEND_URL">
+					<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportExpression><![CDATA["Johdanto.jasper"]]></subreportExpression>
+			</p:subreportPart>
+		</part>
+		<part uuid="3cb46433-3f59-47a4-a4b3-91e0b1c81ec5">
+			<p:subreportPart xmlns:p="http://jasperreports.sourceforge.net/jasperreports/parts" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/parts http://jasperreports.sourceforge.net/xsd/parts.xsd">
+				<subreportParameter name="REPORT_CONNECTION">
+					<subreportParameterExpression><![CDATA[$P{REPORT_CONNECTION}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="tutkimusraporttiId">
+					<subreportParameterExpression><![CDATA[$P{tutkimusraporttiId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="MIP_BACKEND_URL">
+					<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportExpression><![CDATA["Tutkimus_ja_dokumentointi.jasper"]]></subreportExpression>
+			</p:subreportPart>
+		</part>
+		<part uuid="6b241cb0-2f13-4619-a5ab-5c4e34250649">
+			<p:subreportPart xmlns:p="http://jasperreports.sourceforge.net/jasperreports/parts" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/parts http://jasperreports.sourceforge.net/xsd/parts.xsd">
+				<subreportParameter name="REPORT_CONNECTION">
+					<subreportParameterExpression><![CDATA[$P{REPORT_CONNECTION}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="tutkimusraporttiId">
+					<subreportParameterExpression><![CDATA[$P{tutkimusraporttiId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="MIP_BACKEND_URL">
+					<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="MIP_MAPSERVER_URL">
+					<subreportParameterExpression><![CDATA[$P{MIP_MAPSERVER_URL}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportExpression><![CDATA["Havainnot.jasper"]]></subreportExpression>
+			</p:subreportPart>
+		</part>
+		<part uuid="fb705c2d-fd8b-414d-a058-10370b1f44e9">
+			<p:subreportPart xmlns:p="http://jasperreports.sourceforge.net/jasperreports/parts" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/parts http://jasperreports.sourceforge.net/xsd/parts.xsd">
+				<subreportParameter name="REPORT_CONNECTION">
+					<subreportParameterExpression><![CDATA[$P{REPORT_CONNECTION}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="tutkimusraporttiId">
+					<subreportParameterExpression><![CDATA[$P{tutkimusraporttiId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="MIP_BACKEND_URL">
+					<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportExpression><![CDATA["Yhteenveto.jasper"]]></subreportExpression>
+			</p:subreportPart>
+		</part>
+		<part uuid="23e760f8-4e6a-4729-8018-f6f9db4831f9">
+			<p:subreportPart xmlns:p="http://jasperreports.sourceforge.net/jasperreports/parts" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/parts http://jasperreports.sourceforge.net/xsd/parts.xsd">
+				<subreportParameter name="REPORT_CONNECTION">
+					<subreportParameterExpression><![CDATA[$P{REPORT_CONNECTION}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="tutkimusraporttiId">
+					<subreportParameterExpression><![CDATA[$P{tutkimusraporttiId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportExpression><![CDATA["Lahdeluettelo.jasper"]]></subreportExpression>
+			</p:subreportPart>
+		</part>
+		<part uuid="1a9a7dbe-2283-4cbe-8c40-f1f7e26acafa">
+			<p:subreportPart xmlns:p="http://jasperreports.sourceforge.net/jasperreports/parts" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/parts http://jasperreports.sourceforge.net/xsd/parts.xsd">
+				<subreportParameter name="REPORT_CONNECTION">
+					<subreportParameterExpression><![CDATA[$P{REPORT_CONNECTION}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="tutkimusraporttiId">
+					<subreportParameterExpression><![CDATA[$P{tutkimusraporttiId}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportExpression><![CDATA["Liitteet.jasper"]]></subreportExpression>
+			</p:subreportPart>
+		</part>
+	</detail>
+</jasperReport>

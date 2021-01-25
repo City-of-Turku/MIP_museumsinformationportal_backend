@@ -103,7 +103,7 @@ class TiedostoController extends Controller {
 
 
     			if(count($entities) <= 0) {
-    				MipJson::setGeoJsonFeature();
+    				MipJson::initGeoJsonFeatureCollection(count($entities), $total_rows);
     				MipJson::addMessage(Lang::get('tiedosto.search_not_found'));
     			}
     			else  {
@@ -148,7 +148,7 @@ class TiedostoController extends Controller {
 
     	$validator = Validator::make($request->all(), [
     			"tiedosto"			=> "required|max:" . $maxFileSize,
-    			'otsikko'			=> 'required',
+    			//'otsikko'			=> 'required', // 10270 Ei vaadittu kun tallennetaan, mutta päivitettäessä kyllä
     			'kuvaus'			=> 'nullable|string',
     			'entiteetti_tyyppi' => 'required|numeric|exists:entiteetti_tyyppi,id',
     			'entiteetti_id'		=> 'required|numeric'

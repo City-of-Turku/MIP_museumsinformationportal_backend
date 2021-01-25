@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
+<!-- 2021-01-07T15:20:25 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Lahdeluettelo" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="42cdd721-9220-4ad2-bce6-c7f5f0b989de">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
+	<property name="net.sf.jasperreports.print.create.bookmarks" value="true"/>
+	<parameter name="tutkimusraporttiId" class="java.lang.Long"/>
+	<queryString language="SQL">
+		<![CDATA[select tr.lahdeluettelo
+from ark_tutkimusraportti tr
+where tr.id = $P{tutkimusraporttiId}]]>
+	</queryString>
+	<field name="lahdeluettelo" class="java.lang.String"/>
+	<pageHeader>
+		<band height="30" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<textField bookmarkLevel="1">
+				<reportElement x="0" y="0" width="480" height="30" uuid="a69f3eb7-e7b9-4edd-9cf5-a2992b05941e">
+					<printWhenExpression><![CDATA[$V{PAGE_NUMBER} == 1l]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["5. Lähdeluettelo"]]></textFieldExpression>
+				<anchorNameExpression><![CDATA["5. Lähdeluettelo"]]></anchorNameExpression>
+			</textField>
+			<textField evaluationTime="Master">
+				<reportElement x="480" y="0" width="30" height="30" uuid="13d4ae3f-78da-41b3-ac9f-86bd92a26410"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$V{MASTER_CURRENT_PAGE}-4]]></textFieldExpression>
+				<anchorNameExpression><![CDATA["5. Lähdeluettelo"]]></anchorNameExpression>
+			</textField>
+			<textField evaluationTime="Master">
+				<reportElement x="510" y="0" width="44" height="30" uuid="11344aaf-2992-433e-94ec-590e0807535d">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left"/>
+				<textFieldExpression><![CDATA[" / " + ($V{MASTER_TOTAL_PAGES}-4)]]></textFieldExpression>
+				<anchorNameExpression><![CDATA["5. Lähdeluettelo"]]></anchorNameExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<detail>
+		<band height="76" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="0" y="0" width="554" height="76" isRemoveLineWhenBlank="true" uuid="39e79a1b-0a68-4120-9080-c4936b9bee57"/>
+				<textFieldExpression><![CDATA[$F{lahdeluettelo}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="30" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+		</band>
+	</pageFooter>
+</jasperReport>

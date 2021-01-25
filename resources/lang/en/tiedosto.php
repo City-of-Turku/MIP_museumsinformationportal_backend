@@ -11,5 +11,6 @@ return [
 	'input_file_geometry_contains_non_closed_rings' => 'The input file contains non-closed rings. Polygons must be closed and area names unique.',
 	'invalid_file_type' => 'Invalid file type.',
 	'polygon_not_valid' => 'Polygon is not valid.',
-	'unknown_error'		=> 'Unknown error'
+    'unknown_error'		=> 'Unknown error',
+    'invalid_csv_file' => 'Invalid CSV file. X, Y, Z ja Text columns are needed.'
 ];

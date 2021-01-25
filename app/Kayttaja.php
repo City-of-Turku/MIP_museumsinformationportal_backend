@@ -11,7 +11,7 @@ use App\Ark\Rontgenkuva;
 use App\Ark\Tutkimus;
 use App\Ark\Tutkimusalue;
 use App\Ark\TutkimusalueYksikko;
-use App\Ark\Yksikko;
+use App\Ark\TutkimusKayttaja;
 use App\Rak\Kuva;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
@@ -20,7 +20,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Tymon\JWTAuth\Contracts\JWTSubject;
-use Exception;
 
 class Kayttaja extends Model implements JWTSubject, Authenticatable {
 
@@ -555,17 +554,23 @@ class Kayttaja extends Model implements JWTSubject, Authenticatable {
 
 		//Käyttäjällä on ainakin katseluoikeudet tutkimukseen, koska tutkimus on löytynyt
 		$permissions['katselu'] = true;
-		//Tarkastetaan, onko käyttäjällä oikeudet muokata tutkimukseen liittyviä tietoja.
-		//Käyttäjällä on oikeus muokata tutkimukseen liittyviä tietoja, JOS tutkimus ei ole vielä valmis
-		if($tutkimus->valmis == true) {
-			$permissions['luonti'] = false;
-			$permissions['muokkaus'] = false;
-			$permissions['poisto'] = false;
-		} else {
-			$permissions['luonti'] = true;
-			$permissions['muokkaus'] = true;
-			$permissions['poisto'] = true;
-		}
+
+		/*
+		 * US10291
+		 * Tutkimukseen liitetty katselija saa aina muokata tietoja, jos hän kuuluu tutkimuksen käyttäjiin
+		 */
+			$tutkimusKayttaja = TutkimusKayttaja::getSingleByTutkimusIdAndUserId($tutkimus->id, Auth::user()->id)->first();
+			if($tutkimusKayttaja && $tutkimusKayttaja->id) {
+				$permissions['luonti'] = true;
+				$permissions['muokkaus'] = true;
+				$permissions['poisto'] = true;
+			} else {
+				$permissions['luonti'] = false;
+				$permissions['muokkaus'] = false;
+				$permissions['poisto'] = false;
+
+			}
+
 		return $permissions;
 	}
 
@@ -662,7 +667,7 @@ class Kayttaja extends Model implements JWTSubject, Authenticatable {
 			} else if($entity == 'ark_tiedosto') {
 			    //Tarkistetaan mihin tiedosto liittyy
 			    //Toimenpiteelle ja käsittelylle annetaan oikeudet roolin mukaan
-			    $tiedosto = ArkTiedosto::find($id);
+					$tiedosto = ArkTiedosto::getSingle($id)->with(array('loyto', 'nayte', 'tiedostotutkimus', 'toimenpide', 'kasittely'))->first();
 			    //Löytö
 			    $tiedostoloyto = $tiedosto->loyto;
 			    if($tiedostoloyto){
@@ -678,7 +683,7 @@ class Kayttaja extends Model implements JWTSubject, Authenticatable {
 			        return $permissions;
 			    }
 			    //Tutkimus
-			    $tiedostotutkimus = $tiedosto->tutkimus;
+			    $tiedostotutkimus = $tiedosto->tiedostotutkimus;
 			    if ($tiedostotutkimus) {
 			        $tutkimus = self::getArkTutkimus($tiedostotutkimus->ark_tutkimus_id);
 			        $permissions = self::getArkTutkimusPermissions($tutkimus);
@@ -705,31 +710,31 @@ class Kayttaja extends Model implements JWTSubject, Authenticatable {
 			        }
 			    }
 
-                //Haetaan mihin tiedosto liittyy
-                //Tällä hetkellä voi olla ark_rontgenkuva, mutta tulevaisuudessa myös ark_loyto, ark_nayte, ark_tutkimus, ark_kohde
-                $rontgenkuva = ArkTiedosto::joinrontgenkuva($id)->first();
-                $loyto = Rontgenkuva::joinloyto($rontgenkuva->id)->first();
-                $nayte = null;
-                $yksikko = null;
-                $tutkimusalue = null;
-                if($loyto) {
-                    if($loyto['ark_tutkimusalue_id']) { //CASE irtolöytö
-                        $tutkimusalue = Tutkimusalue::getSingle($loyto['ark_tutkimusalue_id'])->first();
-                    } else {
-                        $yksikko = TutkimusalueYksikko::getSingle($loyto['ark_tutkimusalue_yksikko_id'])->first();
-                        $tutkimusalue = $yksikko->tutkimusalue()->first();
-                    }
-                } else {//näyte
-                    $nayte = Rontgenkuva::joinnayte($id)->first();
-                    if($nayte['ark_tutkimusalue_id']) { //CASE irtolöytö
-                        $tutkimusalue = Tutkimusalue::getSingle($nayte['ark_tutkimusalue_id'])->first();
-                    } else {
-                        $yksikko = TutkimusalueYksikko::getSingle($nayte['ark_tutkimusalue_yksikko_id'])->first();
-                        $tutkimusalue = $yksikko->tutkimusalue()->first();
-                    }
-                }
-                $tutkimus = self::getArkTutkimus($tutkimusalue->ark_tutkimus_id);
-                $permissions = self::getArkTutkimusPermissions($tutkimus);
+					//Haetaan mihin tiedosto liittyy
+					//Tällä hetkellä voi olla ark_rontgenkuva, mutta tulevaisuudessa myös ark_loyto, ark_nayte, ark_tutkimus, ark_kohde
+					$rontgenkuva = ArkTiedosto::joinrontgenkuva($id)->first();
+					$loyto = Rontgenkuva::joinloyto($rontgenkuva->id)->first();
+					$nayte = null;
+					$yksikko = null;
+					$tutkimusalue = null;
+					if($loyto) {
+							if($loyto['ark_tutkimusalue_id']) { //CASE irtolöytö
+									$tutkimusalue = Tutkimusalue::getSingle($loyto['ark_tutkimusalue_id'])->first();
+							} else {
+									$yksikko = TutkimusalueYksikko::getSingle($loyto['ark_tutkimusalue_yksikko_id'])->first();
+									$tutkimusalue = $yksikko->tutkimusalue()->first();
+							}
+					} else {//näyte
+							$nayte = Rontgenkuva::joinnayte($id)->first();
+							if($nayte['ark_tutkimusalue_id']) { //CASE irtolöytö
+									$tutkimusalue = Tutkimusalue::getSingle($nayte['ark_tutkimusalue_id'])->first();
+							} else {
+									$yksikko = TutkimusalueYksikko::getSingle($nayte['ark_tutkimusalue_yksikko_id'])->first();
+									$tutkimusalue = $yksikko->tutkimusalue()->first();
+							}
+					}
+					$tutkimus = self::getArkTutkimus($tutkimusalue->ark_tutkimus_id);
+					$permissions = self::getArkTutkimusPermissions($tutkimus);
 			}
 			else { //Ei tunnettu entiteettityyppi, silloin ei ole myöskään oikeuksia
 				$permissions = self::noPermissions();

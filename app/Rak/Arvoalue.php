@@ -350,7 +350,7 @@ class Arvoalue extends Model {
 	}
 
 	/**
-	 * Limit redults to only for area of given bounding box
+	 * Limit results to only for area of given bounding box
 	 *
 	 * @param  $query
 	 * @param String $bbox The bounding box value (21.900000 60.910000,22.000000 61.000000)

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Ark;
 
 use App\Kayttaja;
 use App\Utils;
+use App\Ark\TutkimusInvKohteet;
 use App\Ark\Tutkimusalue;
 use App\Http\Controllers\Controller;
 use App\Library\Gis\MipGis;
@@ -14,6 +15,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Exception;
 
@@ -58,8 +60,8 @@ class TutkimusalueController extends Controller
 
         try {
             // Hakuparametrit
-            $rivi = (isset($request->rivi) && is_numeric($request->rivi)) ? $request->rivi : 0;
-            $riveja = (isset($request->rivit) && is_numeric($request->rivit)) ? $request->rivit : 100;
+            //$rivi = (isset($request->rivi) && is_numeric($request->rivi)) ? $request->rivi : 0;
+            //$riveja = (isset($request->rivit) && is_numeric($request->rivit)) ? $request->rivit : 100;
             $jarjestys_kentta = (isset($request->jarjestys)) ? $request->jarjestys : "nimi";
             $jarjestys_suunta = (isset($request->jarjestys_suunta)) ? ($request->jarjestys_suunta == "laskeva" ? "desc" : "asc") : "asc";
             $tutkimusalueet = Tutkimusalue::getAll()->with(
@@ -96,11 +98,11 @@ class TutkimusalueController extends Controller
                 MipJson::addGeoJsonFeatureCollectionFeaturePoint(null, $ta);
 
             }
-            MipJson::addMessage(Lang::get('tutkimus.search_success'));
+            MipJson::addMessage(Lang::get('tutkimusalue.search_success'));
 
         } catch (Exception $e) {
             MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
-            MipJson::addMessage(Lang::get('tutkimus.search_failed'));
+            MipJson::addMessage(Lang::get('tutkimusalue.search_failed'));
         }
 
 
@@ -142,25 +144,37 @@ class TutkimusalueController extends Controller
                 if(!$tutkimusalue) {
                     MipJson::setGeoJsonFeature();
                     MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
-                    MipJson::addMessage(Lang::get('tutkimus.search_not_found'));
+                    MipJson::addMessage(Lang::get('tutkimusalue.search_not_found'));
                     return MipJson::getJson();
                 }
 
                 // Muodostetaan propparit
                 $properties = clone($tutkimusalue);
+                unset($properties['sijainti']);
+                unset($properties['sijainti_piste']);
+
+                if(!is_null($tutkimusalue->sijainti)){
+                    MipJson::setGeoJsonFeature(json_decode($tutkimusalue->sijainti), $properties);
+                }
+
+                if(!is_null($tutkimusalue->sijainti_piste)){
+                    MipJson::setGeoJsonFeature(json_decode($tutkimusalue->sijainti_piste), $properties);
+                }
+
+                if(is_null($tutkimusalue->sijainti) && is_null($tutkimusalue->sijainti_piste)){
+                    MipJson::setGeoJsonFeature(null, $properties);
+                }
 
                 // Muistiinpanoja ei näytetä katselijalle
                 if(Auth::user()->ark_rooli != 'tutkija' && Auth::user()->ark_rooli != 'pääkäyttäjä') {
                     unset($properties['muistiinpanot']);
                 }
 
-                MipJson::setGeoJsonFeature(json_decode($tutkimusalue->sijainti), $properties);
-
-                MipJson::addMessage(Lang::get('tutkimus.search_success'));
+                MipJson::addMessage(Lang::get('tutkimusalue.search_success'));
             }
             catch(QueryException $e) {
                 MipJson::setGeoJsonFeature();
-                MipJson::addMessage(Lang::get('tutkimus.search_failed'));
+                MipJson::addMessage(Lang::get('tutkimusalue.search_failed'));
                 MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
             }
         }
@@ -209,49 +223,51 @@ class TutkimusalueController extends Controller
             try {
 
                 $tutkimusalue = new Tutkimusalue($request->all()['properties']);
+                // Joko point tai polygon
+                if(isset($request->all()['properties']['sijainti'])) {
+                    $geom_alue = MipGis::getAreaGeometryValue($request->all()['properties']['sijainti']);
+                    $tutkimusalue->sijainti = $geom_alue;
+                } else if(isset($request->sijainti_piste)) {
+                    $geom_piste = MipGis::getPointGeometryValue($request->all()['properties']['sijainti_piste']);
+                    $tutkimusalue->sijainti_piste = $geom_piste;
+                }
 
-                if(isset($request->all()['geometry']['type'])){
-	                if($request->all()['geometry']['type'] == 'Point') {
-	                	$geom = MipGis::getPointGeometryValue($request->all()['geometry']['coordinates'][0] . " ".  $request->all()['geometry']['coordinates'][1]);
-	                	$tutkimusalue->sijainti = $geom;
-	                } else if($request->all()['geometry']['type'] == 'Polygon') {
-	                	$coordsAsText = MipGis::extractPolygonPoints($request->all()['geometry']);
-	                	$geom = MipGis::getAreaGeometryValue($coordsAsText);
-	                	$tutkimusalue->sijainti = $geom;
-	                }
+                // Inventointi-tutkimuksen kohteiden päivitys
+                if(isset($request->all()['properties']['kohteet'])) {
+                    TutkimusInvKohteet::paivita_kohteet($tutkimusalue->ark_tutkimus_id, $request->all()['properties']['kohteet']);
                 }
 
                 $tutkimusalue->luoja = Auth::user()->id;
                 $tutkimusalue->save();
 
-            } catch(Exception $e) {
-                DB::rollback();
-                MipJson::setGeoJsonFeature();
-                MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
-                MipJson::addMessage(Lang::get('tutkimus.save_failed'));
-            }
+             } catch(Exception $e) {
+                 DB::rollback();
+                 MipJson::setGeoJsonFeature();
+                 MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+                 MipJson::addMessage(Lang::get('tutkimusalue.save_failed'));
+                 return MipJson::getJson();
+             }
 
             // Onnistunut case
             DB::commit();
 
-            MipJson::addMessage(Lang::get('tutkimus.save_success'));
+            MipJson::addMessage(Lang::get('tutkimusalue.save_success'));
             MipJson::setGeoJsonFeature(null, array("id" => $tutkimusalue->id));
             MipJson::setResponseStatus(Response::HTTP_OK);
 
-        } catch(Exception $e) {
-            MipJson::setGeoJsonFeature();
-            MipJson::setMessages(array(Lang::get('tutkimus.save_failed'),$e->getMessage()));
-            MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+         } catch(Exception $e) {
+             MipJson::setGeoJsonFeature();
+             MipJson::setMessages(array(Lang::get('tutkimusalue.save_failed'),$e->getMessage()));
+             MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+         }
 
         return MipJson::getJson();
     }
 
     /**
-     * Tutkimuksen päivitys
+     * Tutkimusalueen päivitys
      */
     public function update(Request $request, $id) {
-
         /*
          * Käyttöoikeus
          */
@@ -283,7 +299,7 @@ class TutkimusalueController extends Controller
 
                 if(!$tutkimusalue){
                     MipJson::setGeoJsonFeature();
-                    MipJson::addMessage(Lang::get('tutkimus.search_not_found'));
+                    MipJson::addMessage(Lang::get('tutkimusalue.search_not_found'));
                     MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
                 }
                 else {
@@ -305,6 +321,46 @@ class TutkimusalueController extends Controller
                             }
                         } else {
                             $tutkimusalue->fill($request->all()['properties']);
+
+                            // Asetetaan piste tai alue-sijainti, tai tyhjennetään jos poistettu.
+                            // Alue
+                            if(isset($request->all()['properties']['sijainti'])) {
+                                $geom_alue = MipGis::getAreaGeometryValue($request->all()['properties']['sijainti']);
+                                $tutkimusalue->sijainti = $geom_alue;
+                            } else {
+                                // pistesijainti poistettu
+                                $tutkimusalue->sijainti = null;
+                            }
+                            // Piste
+                            if(isset($request->all()['properties']['sijainti_piste'])) {
+                                $geom_piste = MipGis::getPointGeometryValue($request->all()['properties']['sijainti_piste']);
+                                $tutkimusalue->sijainti_piste = $geom_piste;
+                            } else {
+                                // sijainti alue poistettu
+                                $tutkimusalue->sijainti_piste = null;
+                            }
+
+                            // Inventointi-tutkimuksen kohteiden päivitys
+                            if(isset($request->all()['properties']['kohteet'])) {
+
+                                // Jos TutkimusInventointiKohteet jotka nyt tulevat eroavat aikaisemmista, päivitetään ne
+                                $existingInvKohteet = TutkimusInvKohteet::byTutkimusId($tutkimusalue->ark_tutkimus_id)->get();
+                                $isDifferent = false;
+                                $existingIdList = [];
+                                $incomingIdList = [];
+                                foreach($existingInvKohteet as $ek) {
+                                    array_push($existingIdList, $ek->ark_kohde_id);
+                                }
+                                foreach($request->all()['properties']['kohteet'] as $ik) {
+                                    array_push($incomingIdList, $ik['kohde_id']);
+                                }
+
+                                if($incomingIdList != $existingIdList) {
+                                    TutkimusInvKohteet::paivita_kohteet($tutkimusalue->ark_tutkimus_id, $request->all()['properties']['kohteet']);
+                                }
+
+                            }
+
                         }
                         $author_field = Tutkimusalue::UPDATED_BY;
                         $tutkimusalue->$author_field = Auth::user()->id;
@@ -319,8 +375,9 @@ class TutkimusalueController extends Controller
                     // Päivitys onnistui
                     DB::commit();
 
-                    MipJson::addMessage(Lang::get('tutkimus.save_success'));
+                    MipJson::addMessage(Lang::get('tutkimusalue.save_success'));
                     MipJson::setGeoJsonFeature(null, array("id" => $tutkimusalue->id));
+
                     MipJson::setResponseStatus(Response::HTTP_OK);
                 }
             }
@@ -331,7 +388,7 @@ class TutkimusalueController extends Controller
             }
             catch (Exception $e) {
                 MipJson::setGeoJsonFeature();
-                MipJson::setMessages(array(Lang::get('tutkimus.update_failed'), $e->getMessage()));
+                MipJson::setMessages(array(Lang::get('tutkimusalue.update_failed'), $e->getMessage()));
                 MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
             }
         }
@@ -339,7 +396,7 @@ class TutkimusalueController extends Controller
     }
 
     /**
-     * Poista tutkimus. Asetetaan poistettu aikaleima ja poistaja, ei deletoida riviä.
+     * Poista tutkimusalue. Asetetaan poistettu aikaleima ja poistaja, ei deletoida riviä.
      */
     public function destroy($id) {
 
@@ -357,7 +414,7 @@ class TutkimusalueController extends Controller
         if(!$tutkimusalue) {
             // return: not found
             MipJson::setGeoJsonFeature();
-            MipJson::addMessage(Lang::get('tutkimus.search_not_found'));
+            MipJson::addMessage(Lang::get('tutkimusalue.search_not_found'));
             MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
             return MipJson::getJson();
         }
@@ -376,14 +433,14 @@ class TutkimusalueController extends Controller
 
             DB::commit();
 
-            MipJson::addMessage(Lang::get('tutkimus.delete_success'));
+            MipJson::addMessage(Lang::get('tutkimusalue.delete_success'));
             MipJson::setGeoJsonFeature(null, array("id" => $tutkimusalue->id));
 
         } catch(Exception $e) {
             DB::rollback();
 
             MipJson::setGeoJsonFeature();
-            MipJson::setMessages(array(Lang::get('tutkimus.delete_failed'),$e->getMessage()));
+            MipJson::setMessages(array(Lang::get('tutkimusalue.delete_failed'),$e->getMessage()));
             MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 

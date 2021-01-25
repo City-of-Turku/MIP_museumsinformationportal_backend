@@ -4,9 +4,11 @@ namespace App\Ark;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Ark\TutkimusalueYksikko;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Löydön model
@@ -24,7 +26,8 @@ class Loyto extends Model
         'halkaisijayksikko', 'paksuus', 'paksuusyksikko', 'muut_mitat', 'tulkinta', 'alkuvuosi', 'alkuvuosi_ajanlasku', 'paatosvuosi',
         'paatosvuosi_ajanlasku', 'ajoitus_kuvaus', 'ajoituksen_perusteet', 'tutkimukset_lahteet', 'lisatiedot', 'loydon_tila_id', 'konservointi',
         'loytopaivamaara', 'kappalemaara_arvio', 'ark_tutkimusalue_id', 'vakituinen_sailytystila_id', 'vakituinen_hyllypaikka', 'tilapainen_sijainti',
-        'paino_ennen', 'paino_ennen_yksikko', 'paino_jalkeen', 'paino_jalkeen_yksikko', 'kunto', 'kunto_paivamaara', 'sailytysolosuhteet', 'konservointi_lisatiedot'
+        'paino_ennen', 'paino_ennen_yksikko', 'paino_jalkeen', 'paino_jalkeen_yksikko', 'kunto', 'kunto_paivamaara', 'sailytysolosuhteet', 'konservointi_lisatiedot',
+        'siirtyy_finnaan', 'sisaiset_lisatiedot'
     );
 
     /**
@@ -96,6 +99,32 @@ class Loyto extends Model
 
     }
 
+    /*
+     * Haetaan löydöt jotka kuuluvat
+     *  tutkimuksiin jotka ovat
+     *      julkisia ja valmiita
+     *  ja joiden
+     *      'siirtyy_finnaan' on true
+     *  tai jotka
+     *      on jo aikaisemmin siirretty finnaan
+     */
+    public static function getAllForFinna() {
+        return self::select("ark_loyto.*")
+        ->leftjoin('ark_tutkimusalue_yksikko', 'ark_loyto.ark_tutkimusalue_yksikko_id', '=', 'ark_tutkimusalue_yksikko.id')
+        ->join('ark_tutkimusalue', function($join) { //Joinitaan mukaan irtolöytötutkimukset myös, suoraan löytö->tutkimusalue->
+            $join->on('ark_tutkimusalue_yksikko.ark_tutkimusalue_id', '=', 'ark_tutkimusalue.id')
+            ->orOn('ark_loyto.ark_tutkimusalue_id', '=', 'ark_tutkimusalue.id');
+        })
+        ->join('ark_tutkimus', 'ark_tutkimusalue.ark_tutkimus_id', '=', 'ark_tutkimus.id')
+        ->where(function($q) {
+            $q->whereExists(function($q) {
+                 // haetaan mukaan löydöt jotka on jo aikaisemmin siirtynyt finnaan, jotta ne voidaan asettaa poistetuiksi (jos ne on poistettu ensimmäisen siirron jälkeen)
+                $q->select(DB::raw(1))->from('finna_log')->whereColumn('finna_log.ark_loyto_id', 'ark_loyto.id');
+                // sekä otetaan mukaan muutoin ainoastaan valmiiden ja julkisten tutkimusten löydöt, joiden siirtyy_finnaan on true
+            })->orWhere('ark_tutkimus.valmis', '=', true)->where('ark_tutkimus.julkinen', '=', true)->where('ark_loyto.siirtyy_finnaan', '=', true);
+        });
+    }
+
     /**
      * Haku id listan mukaan
      */
@@ -122,15 +151,14 @@ class Loyto extends Model
              *  seuraava lisättävä löytö tulee saamaan XXXX:100:6 numeroksi.
              *
              * Myös yksikkötunnukset ilman loppunumeroa toimivat.
-             * 
-             * Otetaan yksiköltä joka tässä on kyseessä tyyppi ja yksikon_numero, 
+             *
+             * Otetaan yksiköltä joka tässä on kyseessä tyyppi ja yksikon_numero,
              * jonka jälkeen voidaan näitä hyödyntämällä hakea seuraava vapaa juokseva alanumero.
              * Vaikka yksikön perässä oleva kirjain olisi eri, niin yksikon_numero on
              * kuitenkin sama kaikille (esim. M80a, M80b, M80c).
              */
             // Log::debug("Yksikko_id ja materiaalikoodi_id löytyy");
             $yksikko = TutkimusalueYksikko::getSingle($yksikko_id)->first();
-            
             $tutkimusId = $yksikko->tutkimusalue->tutkimus->id;
 
             // Haetaan saman tutkimuksen MAX alanumero materiaalikoodilla, yksikkotyypillä ja yksikon numerolla.
@@ -414,6 +442,20 @@ class Loyto extends Model
         ->where('ark_tutkimusalue.id', '=', $keyword);
     }
 
+    /*
+     * If parameters are not given, default to
+     * FROM: 1970, TO: now()
+     */
+    public function scopeWithDate($query, $from=null, $to=null) {
+        $from = $from == null ? new Carbon('1970-01-01T00:00:00Z') : $from;
+        $to = $to  == null ? Carbon::now() : $to;
+        return $query->whereBetween('ark_loyto.luotu', [$from, $to])->orWhereBetween('ark_loyto.muokattu', [$from, $to])->orWhereBetween('ark_loyto.poistettu', [$from, $to]);
+    }
+
+    public function scopeWithSiirtyyFinnaan($query, $keyword) {
+        return $query->where('ark_loyto.siirtyy_finnaan', '=', $keyword);
+    }
+
     /**
      * Relaatiot
      */
@@ -500,6 +542,10 @@ class Loyto extends Model
         return $this->belongsTo('App\Ark\ArkSailytystila', 'vakituinen_sailytystila_id');
     }
 
+    public function kuntoraportit() {
+        return $this->hasMany('App\Ark\ArkKuntoraportti', 'ark_loyto_id', 'id');
+    }
+
     /**
      * Joinaa tutkimuksen, tutkimusalueen ja yksikön löytöön.
      */
@@ -517,4 +563,10 @@ class Loyto extends Model
     public function files() {
         return $this->belongsToMany('App\Ark\ArkTiedosto', 'ark_tiedosto_loyto', 'ark_loyto_id');
     }
+
+
+    public function finnaLog() {
+        return $this->hasOne('App\Ark\ArkFinnaLog', 'ark_loyto_id', 'id');
+    }
+
 }

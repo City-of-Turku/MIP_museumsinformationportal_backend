@@ -3,6 +3,7 @@
 namespace App\Ark;
 
 use App\Utils;
+use App\Library\Gis\MipGis;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
@@ -107,11 +108,21 @@ class Kohde extends Model {
 		return $qry;
 	}
 
+	/**
+	 * Hakee kohteet polygonin sisältä.
+	 * @param String $polygon LatLon string array.
+	 */
+	public static function haeAlueenKohteet($polygon) {
+
+	    return Kohde::select("ark_kohde.*")->leftJoin('ark_kohde_sijainti', 'ark_kohde.id', '=', 'ark_kohde_sijainti.kohde_id')
+	    ->whereRaw(MipGis::getGeometryFieldPolygonQueryWhereString($polygon, "ark_kohde_sijainti.sijainti", "ark_kohde_sijainti.sijainti"));
+	}
+
 	public function scopeWithOrderBy($query, $bbox=null, $order_field=null, $order_direction=null) {
-		//TODO: Sijainti ei ole sijainti-kentässä, vaan ark_kohde_sijainti taulussa (mahdollisesti useita rivejä)
-		//if ($order_field == "bbox_center" && !is_null($bbox)) {
-		//	return $query->orderByRaw(MipGis::getGeometryFieldOrderByBoundingBoxCenterString("sijainti", $bbox));
-		//}
+		// Sijainti ei ole sijainti-kentässä, vaan ark_kohde_sijainti taulussa (mahdollisesti useita rivejä)
+		if ($order_field == "bbox_center" && !is_null($bbox)) {
+			return $query->orderByRaw(MipGis::getGeometryFieldOrderByBoundingBoxCenterString("ark_kohde_sijainti.sijainti", $bbox));
+		}
 
 		$order_table = "ark_kohde";
 
@@ -303,6 +314,25 @@ class Kohde extends Model {
 	}
 
 	/**
+	 * Limit results to only for area of given bounding box
+	 *
+	 * @param  $query
+	 * @param String $bbox The bounding box value (21.900000 60.910000,22.000000 61.000000)
+	 * @author
+	 * @version 1.0
+	 * @since 1.0
+	 */
+	public function scopeWithBoundingBox($query, $bbox) {
+	    $query->leftJoin('ark_kohde_sijainti', 'ark_kohde.id', '=', 'ark_kohde_sijainti.kohde_id');
+	    return $query->whereRaw(MipGis::getGeometryFieldBoundingBoxQueryWhereStringFromAreaAndPoint("ark_kohde_sijainti.sijainti", "ark_kohde_sijainti.sijainti", $bbox));
+	}
+
+	public function scopeWithPolygon($query, $polygon) {
+	    $query->leftJoin('ark_kohde_sijainti', 'ark_kohde.id', '=', 'ark_kohde_sijainti.kohde_id');
+	    return $query->whereRaw(MipGis::getGeometryFieldPolygonQueryWhereString($polygon, "ark_kohde_sijainti.sijainti", "ark_kohde_sijainti.sijainti"));
+	}
+
+	/**
 	 * Define relationships
 	 */
 
@@ -381,13 +411,6 @@ class Kohde extends Model {
 	   return $this->hasMany('App\Ark\KohdeMjrTutkimus', 'ark_kohde_id');
 	}
 
-	/**
-	 * Kohteen tutkimukset
-	 */
-	public function tutkimukset() {
-	    //return $this->hasMany('App\Ark\KohdeTutkimus', 'ark_kohde_id');
-	    return $this->belongsToMany('App\Ark\Tutkimus' ,'ark_kohde_tutkimus' ,'ark_kohde_id', 'ark_tutkimus_id');
-	}
 
 	public function vanhatKunnat() {
 	    return $this->hasMany('App\Ark\KohdeVanhaKunta', 'ark_kohde_id');
@@ -415,4 +438,17 @@ class Kohde extends Model {
 	public function files() {
 	    return $this->belongsToMany('App\Ark\ArkTiedosto', 'ark_tiedosto_kohde', 'ark_kohde_id');
 	}
+
+	/**
+	 * Kohteen tutkimukset
+	 */
+	public function tutkimukset() {
+	    //return $this->hasMany('App\Ark\KohdeTutkimus', 'ark_kohde_id');
+	    return $this->belongsToMany('App\Ark\Tutkimus' ,'ark_kohde_tutkimus' ,'ark_kohde_id', 'ark_tutkimus_id');
+	}
+
+	public function inventointiTutkimukset() {
+	    return $this->belongsToMany('App\Ark\Tutkimus' ,'ark_tutkimus_inv_kohteet' ,'ark_kohde_id' ,'ark_tutkimus_id')->withPivot('inventointipaiva', 'inventoija_id');
+	}
+
 }

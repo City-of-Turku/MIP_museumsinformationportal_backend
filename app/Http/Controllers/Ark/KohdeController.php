@@ -14,6 +14,8 @@ use App\Ark\KohdeSijainti;
 use App\Ark\KohdeSuojelutieto;
 use App\Ark\KohdeTyyppi;
 use App\Ark\KohdeVanhaKunta;
+use App\Ark\Tutkimus;
+use App\Ark\TutkimusInvKohteet;
 use App\Http\Controllers\Controller;
 use App\Integrations\KyppiService;
 use App\Library\String\MipJson;
@@ -66,9 +68,9 @@ class KohdeController extends Controller {
             MipJson::setResponseStatus(Response::HTTP_BAD_REQUEST);
             return MipJson::getJson();
         }
+        //DB::enableQueryLog();
 
-
-        try {
+         try {
             /*
              * By default return ALL items from db (with LIMIT and ORDER options)
              */
@@ -110,7 +112,8 @@ class KohdeController extends Controller {
     				},
    				'laji',
    				'sijainnit',
-   				'kiinteistotrakennukset'
+   				'kiinteistotrakennukset',
+   				'inventointitutkimukset.tutkimuskayttajat'
             ));
 
             if($request->kunta) {
@@ -152,6 +155,30 @@ class KohdeController extends Controller {
             if ($request->kiinteistotunnus) {
             	$kohteet->withKiinteistotunnus($request->kiinteistotunnus);
             }
+            // Inventointi-tutkimusten filtteröinti pivot tyyliin.
+            if($request->tutkimuksen_nimi) {
+                $nimi = $request->tutkimuksen_nimi;
+                $kohteet = $kohteet->whereHas('inventointiTutkimukset', function($q) use($nimi) {
+                    $q->where('ark_tutkimus.nimi', 'ILIKE', "%" . $nimi . "%");
+                });
+            }
+            // Inventoijan mukaan filtteröinti ( inventoija on ark_tutkimus_inv_kohteet taulussa inventoijana )
+            if($request->inventoija) {
+                $kayttajaId = $request->inventoija;
+                $kohteet = $kohteet->whereHas('inventointiTutkimukset', function($query) use($kayttajaId) {
+                    $query->where('inventoija_id', '=', $kayttajaId);
+                });
+                /* HUOM Tämä hakee pelkästään tutkimuksen käyttäjistä.
+                $kohteet = $kohteet->whereHas('inventointiTutkimukset', function($query) use($kayttajaId) {
+                    $query->whereIn('ark_tutkimus.id', function($q) use ($kayttajaId) {
+                        $q->select('ark_tutkimus_id')
+                        ->from('ark_tutkimus_kayttaja')
+                        ->where('kayttaja_id', '=', $kayttajaId)
+                        ->whereNull('poistettu');
+                    });
+                });
+                */
+            }
             /*
              *   Kohde tyhjä. Oletuksena ei haeta tyhjiä.
              *  1 = ei, 2 = kyllä, 3 = kaikki
@@ -177,6 +204,14 @@ class KohdeController extends Controller {
             if ($request->kyppitilat) {
                 $kohteet->withKyppitilat($request->kyppitilat);
             }
+            // Aluerajaus tarkoittaa bounding boxia
+            if($request->aluerajaus) {
+                $kohteet->withBoundingBox($request->aluerajaus);
+            }
+            // Polygonrajaus tarkoittaa vapaamuotoista piirrettyä geometriaa jonka mukaan rajataan
+            if($request->polygonrajaus) {
+                $kohteet->withPolygon($request->polygonrajaus);
+            }
 
             $kohteet->withOrderBy($request->aluerajaus, $jarjestys_kentta, $jarjestys_suunta);
 
@@ -188,6 +223,7 @@ class KohdeController extends Controller {
 
             // Execute the query
             $kohteet = $kohteet->get();
+            //Log::debug(print_r(DB::getQueryLog(), true));
 
             MipJson::initGeoJsonFeatureCollection(count($kohteet), $total_rows);
 
@@ -198,18 +234,32 @@ class KohdeController extends Controller {
                    unset($kohde->tarkastus_muistiinpano);
                 }
 
-                $properties = clone($kohde);
+                // Jos on inventointitutkimuksia, fiksataan inventoijan nimi mukaan
+                foreach ($kohde->inventointitutkimukset as $it){
+
+                    if($it->pivot && $it->pivot->inventoija_id) {
+                        $inventoija = Kayttaja::where('id', '=', $it->pivot->inventoija_id)->first();
+                        $inventoijaNimi = '';
+                        if($inventoija && $inventoija->etunimi && $inventoija->sukunimi) {
+                            $inventoijaNimi = $inventoija->sukunimi . " " . $inventoija->etunimi;
+                        }
+                        $it->pivot->inventoija = $inventoijaNimi;
+                    }
+                }
+
+
+                //$properties = clone($kohde);
                 MipJson::addGeoJsonFeatureCollectionFeaturePoint(null, $kohde);
                 //MipJson::addGeometryCollectionToFeature('Feature', $kohde->sijainnit, $properties);
             }
 
             MipJson::addMessage(Lang::get('kohde.search_success'));
 
-        } catch(Exception $e) {
-            MipJson::setGeoJsonFeature();
-            MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
-            MipJson::addMessage(Lang::get('kohde.search_failed'));
-        }
+         } catch(Exception $e) {
+             MipJson::setGeoJsonFeature();
+             MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+             MipJson::addMessage(Lang::get('kohde.search_failed'));
+         }
 
         return MipJson::getJson();
     }
@@ -271,7 +321,8 @@ class KohdeController extends Controller {
                     	'alakohteet.ajoitukset.ajoitus',
                     	'alakohteet.ajoitukset.tarkenne',
                     	'alakohteet.sijainnit',
-                        'tutkimukset'
+                        'tutkimukset',
+                        'inventointitutkimukset'
                     ))->first();
 
                 if(!$kohde) {
@@ -281,7 +332,6 @@ class KohdeController extends Controller {
                 }
 
                 $properties = clone($kohde);
-                //TODO: Lisätään nämä hidden kentiksi modelissa, ovatko ne silloin piilossa, mutta toimii kuten halutaan?
                 unset($properties['ark_kohdelaji_id']);
                 unset($properties['rauhoitusluokka_id']);
                 unset($properties['alkuperaisyys_id']);
@@ -299,18 +349,32 @@ class KohdeController extends Controller {
 
                 // Tarkistetaan onko Kypissä tietoja muutettu ja asetetaan vipu proppareihin.
                 // Vain kohteet joilla on jo tunnus tarkistetaan
-                if( !empty($kohde->muinaisjaannostunnus) ){
-                    try {
-                        if(self::tarkistaKyppiMuutos($kohde)){
-                            $properties->kyppi_updated = true;
+                if($userArkRole === 'tutkija' || $userArkRole === 'pääkäyttäjä') {
+                    if( !empty($kohde->muinaisjaannostunnus) ){
+                        try {
+                            if(self::tarkistaKyppiMuutos($kohde)){
+                                $properties->kyppi_updated = true;
+                            }
+                        } catch (Exception $e) {
+                            MipJson::addMessage($e->getMessage());
                         }
-                    } catch (Exception $e) {
-                        MipJson::addMessage($e->getMessage());
+                    }
+                }
+
+                // Jos on inventointitutkimuksia, fiksataan inventoijan nimi mukaan
+                foreach ($kohde->inventointitutkimukset as $it){
+
+                    if($it->pivot && $it->pivot->inventoija_id) {
+                        $inventoija = Kayttaja::where('id', '=', $it->pivot->inventoija_id)->first();
+                        $inventoijaNimi = '';
+                        if($inventoija && $inventoija->etunimi && $inventoija->sukunimi) {
+                            $inventoijaNimi = $inventoija->sukunimi . " " . $inventoija->etunimi;
+                        }
+                        $it->pivot->inventoija = $inventoijaNimi;
                     }
                 }
 
                 MipJson::setGeoJsonFeature(null, $properties);
-
                 MipJson::addMessage(Lang::get('kohde.search_success'));
             }
             catch(QueryException $e) {
@@ -333,8 +397,30 @@ class KohdeController extends Controller {
 
         /*
          * Role check
+         * Käyttäjällä tulee olla luontioikeus TAI jos käyttäjä on katselija
+         *  1. tiedoissa tulee olla mukana inventointitiedot
+         *  2. käyttäjän tulee olla inventoijana ko. inventointitutkimuksessa
          */
-        if(!Kayttaja::hasPermission('arkeologia.ark_kohde.luonti')) {
+        $hasPermission = false;
+
+        if(Kayttaja::hasPermission('arkeologia.ark_kohde.luonti')) {
+            $hasPermission = true;
+        }
+
+        if(!$hasPermission) {
+            $aktiivisetInventointitutkimukset = Tutkimus::getAktiivisetInventointitutkimukset(Auth::user()->id);
+            $inventointitiedot = $request->all()['properties']['inventointitiedot'];
+            //Log::debug($inventointitiedot);
+
+            foreach($aktiivisetInventointitutkimukset as $t) {
+                if($t->id == $inventointitiedot['inventointitutkimus_id']) {
+                    $hasPermission = true;
+                    break;
+                }
+            }
+        }
+
+        if(!$hasPermission) {
             MipJson::setGeoJsonFeature();
             MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
             MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
@@ -384,8 +470,13 @@ class KohdeController extends Controller {
                 KohdeVanhaKunta::paivita_kohde_vanhatkunnat($kohde->id, $request->input('properties.vanhat_kunnat'));
                 KohdeAlakohde::paivita_kohde_alakohteet($kohde->id, $request->input('properties.alakohteet'));
 
+                if($request->input('properties.inventointitiedot.inventointitutkimus_id')) {
+                    //Log::debug("Inventointitiedot ovat!");
+                    TutkimusInvKohteet::paivita_kohde($request->input('properties.inventointitiedot'), $kohde->id);
+                }
+
             } catch(Exception $e) {
-                Log::debug("Kohde tallennus virhe: " . $e);
+                Log::error("Kohde tallennus virhe: " . $e);
                 // Exception, always rollback the transaction
                 DB::rollback();
                 throw $e;
@@ -399,7 +490,7 @@ class KohdeController extends Controller {
             MipJson::setResponseStatus(Response::HTTP_OK);
 
         } catch(Exception $e) {
-            Log::debug("Kohde tallennus virhe: " . $e);
+            Log::error("Kohde tallennus virhe: " . $e);
             MipJson::setGeoJsonFeature();
             MipJson::setMessages(array(Lang::get('kohde.save_failed'),$e->getMessage()));
             MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -415,11 +506,32 @@ class KohdeController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id) {
-
         /*
          * Role check
+         * Käyttäjällä tulee olla luontioikeus TAI jos käyttäjä on katselija
+         *  1. tiedoissa tulee olla mukana inventointitiedot
+         *  2. käyttäjän tulee olla inventoijana ko. inventointitutkimuksessa
          */
-        if(!Kayttaja::hasPermission('arkeologia.ark_kohde.muokkaus')) {
+        $hasPermission = false;
+
+        if(Kayttaja::hasPermission('arkeologia.ark_kohde.muokkaus')) {
+            $hasPermission = true;
+        }
+
+        if(!$hasPermission) {
+            $aktiivisetInventointitutkimukset = Tutkimus::getAktiivisetInventointitutkimukset(Auth::user()->id);
+            $inventointitiedot = $request->all()['properties']['inventointitiedot'];
+            //Log::debug($inventointitiedot);
+
+            foreach($aktiivisetInventointitutkimukset as $t) {
+                if($t->id == $inventointitiedot['inventointitutkimus_id']) {
+                    $hasPermission = true;
+                    break;
+                }
+            }
+        }
+
+        if(!$hasPermission) {
             MipJson::setGeoJsonFeature();
             MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
             MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
@@ -476,6 +588,11 @@ class KohdeController extends Controller {
                     	KiinteistoRakennus::paivita_kohde_kiinteistorakennustiedot($kohde->id, $request->input('properties.kiinteistotrakennukset'));
                     	KohdeVanhaKunta::paivita_kohde_vanhatkunnat($kohde->id, $request->input('properties.vanhat_kunnat'));
                     	KohdeAlakohde::paivita_kohde_alakohteet($kohde->id, $request->input('properties.alakohteet'));
+
+                    	if($request->input('properties.inventointitiedot.inventointitutkimus_id')) {
+                    	    //Log::debug("Inventointitiedot ovat!");
+                    	    TutkimusInvKohteet::paivita_kohde($request->input('properties.inventointitiedot'), $kohde->id);
+                    	}
 
                     	// Kyppi-status päivitetään aina null arvoon tallennuksessa = MIP:ssä uudempi versio
                     	$kohde->kyppi_status = null;
@@ -598,10 +715,102 @@ class KohdeController extends Controller {
     }
 
     /**
+     * Hakee kohteet annetun alueen sisältä.
+     * Käytetään inventointi-tutkimuksen kohteiden hakuun.
+     * Palautetaan vain tarvittavat tiedot.
+     */
+    public function kohteetPolygon(Request $request) {
+
+        /*
+         * Role check
+         */
+        if(!Kayttaja::hasPermission('arkeologia.ark_kohde.katselu')) {
+            MipJson::setGeoJsonFeature();
+            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+            return MipJson::getJson();
+        }
+
+        try {
+            // Haetaan kohteet. Suodatetaan tuplat koska yhdellä kohteella voi olla useampi sijainti.
+            $kohteet = Kohde::haeAlueenKohteet($request->sijainti)->with(array('sijainnit', 'tyypit.tyyppi', 'laji'))->distinct()->get();
+
+            self::muodostaKohdeDtoLista($kohteet);
+
+            MipJson::addMessage(Lang::get('kohde.search_success'));
+
+        } catch (QueryException $e) {
+            MipJson::setGeoJsonFeature();
+            MipJson::addMessage(Lang::get('kohde.search_failed'));
+            MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return MipJson::getJson();
+    }
+
+    public function inventointitutkimusKohteet($tutkimusId) {
+        /*
+         * Role check
+         */
+        if(!Kayttaja::hasPermission('arkeologia.ark_kohde.katselu')) {
+            MipJson::setGeoJsonFeature();
+            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+            return MipJson::getJson();
+        }
+
+        try {
+            // Haetaan kohteet. Suodatetaan tuplat koska yhdellä kohteella voi olla useampi sijainti.
+            $tutkimus = Tutkimus::where('id', $tutkimusId)->first();
+            $tutkimusKohteet = $tutkimus->inventointikohteet->get();
+            self::muodostaKohdeDtoLista($tutkimusKohteet);
+
+            MipJson::addMessage(Lang::get('kohde.search_success'));
+
+        } catch (QueryException $e) {
+            MipJson::setGeoJsonFeature();
+            MipJson::addMessage(Lang::get('kohde.search_failed'));
+            MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return MipJson::getJson();
+    }
+
+    /**
+     * Muodostaa kohteista feature listan jossa kohteista valittu tarvittavat tiedot.
+     */
+    private static function muodostaKohdeDtoLista($kohdeLista){
+
+        MipJson::initGeoJsonFeatureCollection(count($kohdeLista));
+
+        // Muodostetaan dtot joilla palautetaan tarvittavat kentät
+        foreach ($kohdeLista as $kohde) {
+            //Log::debug(print_r($kohde, true));
+            $kohdeDto = new \stdClass;
+            $kohdeDto->id = $kohde->id;
+            $kohdeDto->nimi = $kohde->nimi;
+            $kohdeDto->muinaisjaannostunnus = $kohde->muinaisjaannostunnus;
+            if($kohde->laji && $kohde->laji->nimi_fi) {
+                $kohdeDto->laji = $kohde->laji->nimi_fi;
+            }
+            $kohdeDto->sijainnit = $kohde->sijainnit;
+
+            if(count($kohde->tyypit) == 0){
+                $kohdeDto->tyyppi = 'Ei määritelty';
+            } else {
+                $kohdeDto->tyyppi = $kohde->tyypit[0]->tyyppi->nimi_fi;
+            }
+
+            $properties = clone($kohdeDto);
+            MipJson::addGeoJsonFeatureCollectionFeaturePoint(null, $properties);
+        }
+    }
+
+    /**
      * Hakee muinaisjäännöksen Kypistä ja asettaa vivun jonka mukaan UI:ssa näytetään ilmoitus tietojen muuttumisesta.
      * Käyttäjä voi päivittää tiedot, jolloin haetaan kyseisen MJ kaikki tiedot.
      */
-    private function tarkistaKyppiMuutos($kohde){
+    private static function tarkistaKyppiMuutos($kohde){
 
         $kyppiService = new KyppiService();
 
@@ -613,8 +822,9 @@ class KohdeController extends Controller {
             return false;
         }
 
+        // Jos kohde on vasta viety MIP -> Kyppiin, muokkauspäivää ei vielä ole.
         if(!$kyppiMuutospvm) {
-            throw new \Exception('kyppi404: Kohteen tietoja ei voitu tarkastaa Muinaisjäännösrekisteristä');
+            return false;
         }
 
         // Tällä voi testata tietojen hakua kypistä kohteen avauksessa

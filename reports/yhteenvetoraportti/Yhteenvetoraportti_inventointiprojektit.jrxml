@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
+<!-- 2019-05-15T16:22:46 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Yhteenvetoraportti_inventointiprojektit" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="809a0bcf-2b3d-48de-ac52-3f513ef8b2fc">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<subDataset name="kunta_inventointiprojektit" uuid="0d70dfe0-b386-4624-86d3-202a8481a3cc">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MIPapp049Server-1\Test1_DB.xml"/>
+		<parameter name="l_kyla_id_array" class="java.util.List" nestedType="java.lang.String"/>
+		<parameter name="inventointiprojekti_id" class="java.lang.Long">
+			<parameterDescription><![CDATA[]]></parameterDescription>
+			<defaultValueExpression><![CDATA[$P{inventointiprojekti_id}]]></defaultValueExpression>
+		</parameter>
+		<queryString language="SQL">
+			<![CDATA[select ip.id as ip_id, ip.nimi as inventointiprojekti_nimi, 
+                string_agg(sq_inventoijat.inventoija_nimi, ', ') as inventoijat, 
+                string_agg(distinct sq_ajanjaksot.ajanjakso, ', ') as ajanjakso
+from inventointiprojekti ip
+join (--otetaan mukaan kiinteistöistä, alueista, arvoalueista inventointiprojektit
+    select ip1.id, ky.id as kyla_id
+    from inventointiprojekti ip1
+    left join inventointiprojekti_kiinteisto ipk on ipk.inventointiprojekti_id = ip1.id and ipk.poistettu is null
+    left join kiinteisto ki on ki.id = ipk.kiinteisto_id and ki.poistettu is null
+    left join kyla ky on ky.id = ki.kyla_id
+	where ($P{inventointiprojekti_id} is null or ipk.id = $P{inventointiprojekti_id})
+    union 
+    select ip2.id, ky.id as kyla_id
+    from inventointiprojekti ip2
+    left join inventointiprojekti_arvoalue ipaa on ipaa.inventointiprojekti_id = ip2.id and ipaa.poistettu is null
+    left join arvoalue aa on (aa.id = ipaa.arvoalue_id and aa.poistettu is null)
+    left join arvoalue_kyla aak on aak.arvoalue_id = aa.id
+    left join kyla ky on ky.id = aak.kyla_id
+	where ($P{inventointiprojekti_id} is null or ipaa.id = $P{inventointiprojekti_id})
+    union 
+    select ip3.id, ky.id as kyla_id
+    from inventointiprojekti ip3
+    left join inventointiprojekti_alue ipa on ipa.inventointiprojekti_id = ip3.id and ipa.poistettu is null
+    left join alue a on a.id = ipa.alue_id and a.poistettu is null
+    left join alue_kyla ak on ak.alue_id = a.id 
+    left join kyla ky on ky.id = ak.kyla_id
+	where ($P{inventointiprojekti_id} is null or ipa.id = $P{inventointiprojekti_id})
+) sq_ip on sq_ip.id = ip.id and $X{IN, sq_ip.kyla_id::text, l_kyla_id_array}  --Kunta_id tullaan parametrisoimaan Jasperissa
+left join ( --ajanjaksot mukaan inventointiprojekteille
+    select ia.inventointiprojekti_id, string_agg(concat(date_part('day', ia.alkupvm),'.', date_part('month', ia.alkupvm), '.', date_part('year', ia.alkupvm)) || '-' || concat(date_part('day',ia.loppupvm),'.', date_part('month', ia.loppupvm),'.', date_part('year', ia.loppupvm)), ', ') AS ajanjakso
+    from inventointiprojekti_ajanjakso ia, inventointiprojekti ip
+    where ia.inventointiprojekti_id = ip.id and ia.poistettu is null
+    group by ia.inventointiprojekti_id
+) sq_ajanjaksot on (sq_ajanjaksot.inventointiprojekti_id = ip.id)
+left join ( 
+-- "oikeat" inventoijat
+    select ipi.inventointiprojekti_id, ka.etunimi || ' ' || ka.sukunimi as inventoija_nimi
+    from kayttaja ka, inventointiprojekti_inventoija ipi
+    where ka.id = ipi.inventoija_id
+    union
+--muut inventoijat mukaan (eli inventoijat inventointiprojekti_kiinteisto & inventointiprojekti_alue & inventointiprojekti_arvoalue taulujen inventoija_id kentistä)
+    select ipk.inventointiprojekti_id, ka.etunimi || ' ' || ka.sukunimi as inventoija_nimi
+    from inventointiprojekti_kiinteisto ipk, kayttaja ka
+    where ipk.inventoija_id = ka.id and ipk.poistettu is null
+    union
+    select ipa.inventointiprojekti_id, ka.etunimi || ' ' || ka.sukunimi as inventoija_nimi
+    from inventointiprojekti_alue ipa, kayttaja ka
+    where ipa.inventoija_id = ka.id and ipa.poistettu is null
+    union
+    select ipaa.inventointiprojekti_id, ka.etunimi || ' ' || ka.sukunimi as inventoija_nimi
+    from inventointiprojekti_arvoalue ipaa, kayttaja ka
+    where ipaa.inventoija_id = ka.id and ipaa.poistettu is null
+) sq_inventoijat on sq_inventoijat.inventointiprojekti_id = sq_ip.id
+where ip.laji_id = 1
+and ip.poistettu is null 
+and ($P{inventointiprojekti_id} is null or ip.id = $P{inventointiprojekti_id})
+group by ip.id
+order by ip.nimi]]>
+		</queryString>
+		<field name="inventointiprojekti_nimi" class="java.lang.String"/>
+		<field name="ajanjakso" class="java.lang.String"/>
+		<field name="inventoijat" class="java.lang.String"/>
+	</subDataset>
+	<parameter name="kyla_idt" class="java.lang.String"/>
+	<parameter name="kyla_idt_array" class="java.util.List" nestedType="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[Arrays.asList($P{kyla_idt}.split(","))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="inventointiprojekti_id" class="java.lang.Long">
+		<defaultValueExpression><![CDATA[$P{inventointiprojekti_id}]]></defaultValueExpression>
+	</parameter>
+	<queryString language="SQL">
+		<![CDATA[select kunta.id from kunta limit 1]]>
+	</queryString>
+	<field name="id" class="java.lang.Long"/>
+	<title>
+		<band height="66">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<frame>
+				<reportElement x="0" y="0" width="550" height="60" uuid="0b4643f0-6f1e-4e28-a094-58dac40cfb57"/>
+				<box>
+					<pen lineColor="#FF0400"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<componentElement>
+					<reportElement x="0" y="23" width="550" height="20" uuid="638e5536-fa0c-4d77-bb59-67b87a2eb98b">
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					</reportElement>
+					<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
+						<datasetRun subDataset="kunta_inventointiprojektit" uuid="0066eca7-f017-4a64-b28a-2123afd8a375">
+							<datasetParameter name="l_kyla_id_array">
+								<datasetParameterExpression><![CDATA[$P{kyla_idt_array}]]></datasetParameterExpression>
+							</datasetParameter>
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+						<jr:listContents height="20" width="550">
+							<textField isStretchWithOverflow="true">
+								<reportElement x="0" y="0" width="180" height="20" uuid="163f04e6-3251-42ca-89fd-ac5dbf129b63"/>
+								<textFieldExpression><![CDATA[$F{inventointiprojekti_nimi}]]></textFieldExpression>
+							</textField>
+							<textField isStretchWithOverflow="true" pattern="dd.MM.yyyy" isBlankWhenNull="true">
+								<reportElement x="180" y="0" width="120" height="20" uuid="632383f6-53b5-408d-83eb-0befe424fcb4"/>
+								<textFieldExpression><![CDATA[$F{ajanjakso}]]></textFieldExpression>
+							</textField>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="300" y="0" width="250" height="20" uuid="0d42364e-4e3b-4dbd-86b6-39bb618d2127"/>
+								<textFieldExpression><![CDATA[$F{inventoijat}]]></textFieldExpression>
+							</textField>
+						</jr:listContents>
+					</jr:list>
+				</componentElement>
+				<staticText>
+					<reportElement x="0" y="0" width="180" height="20" uuid="574fd050-4e38-43de-8700-0d9f65e827b6"/>
+					<text><![CDATA[Inventointiprojekti]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="180" y="0" width="120" height="20" uuid="9b914cc2-f0ec-4235-ae1d-a68b3fcf7e82"/>
+					<text><![CDATA[Inventointiaika]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="300" y="0" width="250" height="20" uuid="c11d0b28-b024-469c-888c-6679ad9d488c"/>
+					<text><![CDATA[Inventoijat]]></text>
+				</staticText>
+			</frame>
+		</band>
+	</title>
+</jasperReport>

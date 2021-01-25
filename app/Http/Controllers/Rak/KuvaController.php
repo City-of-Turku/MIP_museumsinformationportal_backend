@@ -108,7 +108,7 @@ class KuvaController extends Controller {
     			$entities = $entities->with(array('luoja', 'muokkaaja'))->get();
 
     			if(count($entities) <= 0) {
-    				MipJson::setGeoJsonFeature();
+    				MipJson::initGeoJsonFeatureCollection(count($entities), $total_rows);
     				MipJson::addMessage(Lang::get('kuva.search_not_found'));
     			}
     			else  {
@@ -161,8 +161,8 @@ class KuvaController extends Controller {
     			"entiteetti_tyyppi" => "required|numeric|exists:entiteetti_tyyppi,id",
     			"entiteetti_id"		=> "required|numeric",
     			'otsikko'			=> 'required',
-    			'kuvaus'			=> 'string',
-    			'kuvaaja'			=> 'string',
+    			'kuvaus'			=> 'nullable|string',
+    			'kuvaaja'			=> 'nullable|string',
     			"julkinen"			=> "boolean"
     	]);
 
@@ -234,21 +234,25 @@ class KuvaController extends Controller {
 	    			 */
 	    			//Large
 	    			$img = Image::make($file_fullname)->encode('jpg');
+						$img->orientate();
 	    			$img_large = Kuva::createThumbnail($img, intval(explode(",",config('app.image_thumb_large'))[0]));
 	    			$img_large->save($file_path.$file_name."_LARGE.".$thumb_extension);
 
 	    			//Medium
 	    			$img = Image::make($file_fullname)->encode('jpg');
+						$img->orientate();
 	    			$img_medium = Kuva::createThumbnail($img, intval(explode(",",config('app.image_thumb_medium'))[0]));
 	    			$img_medium->save($file_path.$file_name."_MEDIUM.".$thumb_extension);
 
 	    			//Small
 	    			$img = Image::make($file_fullname)->encode('jpg');
+						$img->orientate();
     				$img_small = Kuva::createThumbnail($img, intval(explode(",",config('app.image_thumb_small'))[0]));
     				$img_small->save($file_path.$file_name."_SMALL.".$thumb_extension);
 
     				//Tiny
     				$img = Image::make($file_fullname)->encode('jpg');
+						$img->orientate();
     				$img_tiny = Kuva::createThumbnail($img, intval(explode(",",config('app.image_thumb_tiny'))[0]));
     				$img_tiny->save($file_path.$file_name."_TINY.".$thumb_extension);
 
@@ -434,8 +438,8 @@ class KuvaController extends Controller {
 
     	$validator = Validator::make($request->all(), [
     			'otsikko'			=> 'required',
-    			'kuvaus'			=> 'string',
-    			'kuvaaja'			=> 'string',
+    			'kuvaus'			=> 'nullable|string',
+    			'kuvaaja'			=> 'nullable|string',
     			"julkinen"			=> "boolean"
     	]);
 
@@ -861,7 +865,6 @@ class KuvaController extends Controller {
 	   				    foreach($request->idt as $id) {
 	   				        $img = KuvaSuunnittelija::whereImageIdAndSuunnittelijaId($id, $request->input('entiteetti_id'))->first();
 	   				        $img->updateJarjestys($order, $img->kuva_id, $img->suunnittelija_id);
-	   				        
 	   				        //Set the first kuva to public and others as not public
 	   				        if($order == 1){
 	   				            $kuva = Kuva::getSingle($id)->first();
@@ -872,7 +875,6 @@ class KuvaController extends Controller {
 	   				            $kuva->julkinen = false;
 	   				            $kuva->update();
 	   				        }
-	   				        
 	   				        $order++;
 	   				    }
 	   				    break;
@@ -1126,9 +1128,9 @@ class KuvaController extends Controller {
 	   		$kiinteisto = null;
 
 	   		if($request->palstanumero) {
-	   			$kiinteisto = $kiinteisto->where('palstanumero', $request->palstanumero)->get();
+	   			$kiinteisto = Kiinteisto::where('palstanumero', $request->palstanumero)->get();
 	   		} else {
-	   			$kiinteisto = $kiinteisto = Kiinteisto::where('kiinteistotunnus', $request->kiinteistotunnus)->whereNull('palstanumero')->get();
+	   			$kiinteisto = Kiinteisto::where('kiinteistotunnus', $request->kiinteistotunnus)->whereNull('palstanumero')->get();
 	   		}
 
 	   		if(count($kiinteisto) == 0) {

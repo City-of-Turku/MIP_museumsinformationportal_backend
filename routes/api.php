@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,9 +41,14 @@ Route::get("/raportti/ark_kuva/{id}/pieni",			"Ark\ArkKuvaController@viewSmall")
 
 
 /*
+ * OAI-PMH routes, currently do not require authentication
+ */
+Route::get("/oaipmh/", "FinnaController@index");
+
+/*
  * Inside of this routeGroup All the routes require user to be authenticated
  */
-Route::group(['middleware'=> 'auth.jwt'], function() {
+Route::group(['middleware' => 'auth.jwt'], function () {
 
 	/*
 	 * Userguide
@@ -55,10 +61,10 @@ Route::group(['middleware'=> 'auth.jwt'], function() {
 	/*
 	 * Report routes - old ones, will be useless in future
 	 */
-	Route::get("/raportti/kiinteistot/{type?}",			"ReportController@kiinteistotRaportti");
-	Route::get("/raportti/kiinteisto/{id}/{type?}",		"ReportController@kiinteistoRaportti");
-	Route::get("/raportti/alue/{id}/{type?}",			"ReportController@alueRaportti");
-	Route::get("/raportti/kiinteistoraportti/",			"ReportController@kiinteistoPerustietoRaportti");
+	// Route::get("/raportti/kiinteistot/{type?}",			"ReportController@kiinteistotRaportti");
+	// Route::get("/raportti/kiinteisto/{id}/{type?}",		"ReportController@kiinteistoRaportti");
+	// Route::get("/raportti/alue/{id}/{type?}",			"ReportController@alueRaportti");
+	// Route::get("/raportti/kiinteistoraportti/",			"ReportController@kiinteistoPerustietoRaportti");
 
 	/*
 	 * The new report server routes
@@ -343,6 +349,12 @@ Route::group(['middleware'=> 'auth.jwt'], function() {
 	//Route used to log frontend errors
 	Route::post("/log/", 									"LogController@log");
 
+	// Käyttäjän sijainnin/reitin routet
+	Route::get("/reitti/",                                  "ReittiController@index");
+	Route::post("/reitti/",                                 "ReittiController@store");
+	Route::get("/reitti/{entiteettiTyyppi}/{entiteettiId}", "ReittiController@show");
+	Route::delete("/reitti/{id}",                           "ReittiController@destroy");
+
 	/*
 	 * Koritoiminnallisuus
 	 */
@@ -370,11 +382,21 @@ Route::group(['middleware'=> 'auth.jwt'], function() {
 	 */
 	Route::get("/tutkimus/",								"Ark\TutkimusController@index");
 	Route::post("/tutkimus/",								"Ark\TutkimusController@store");
+	Route::get("tutkimus/aktiiviset_inventointitutkimukset", "Ark\TutkimusController@getAktiivisetInventointitutkimukset");
 	Route::get("/tutkimus/{id}/",							"Ark\TutkimusController@show");
 	Route::put("/tutkimus/{id}/",							"Ark\TutkimusController@update");
 	Route::delete("/tutkimus/{id}/",						"Ark\TutkimusController@destroy");
 	Route::get("/tutkimus/{tutkimus_id}/historia",			"Ark\TutkimusController@historia");
 	Route::post("tutkimus/{id}/kayttaja",					"Ark\TutkimusController@muokkaaKayttajia");
+	Route::get("/tutkimus/{id}/lukumaarat", 			"Ark\TutkimusController@lukumaarat");
+
+	/*
+	 * Tutkimusraportit
+	 */
+	Route::post("/tutkimusraportti",									"Ark\TutkimusraporttiController@store");
+	Route::put("/tutkimusraportti/{id}",							"Ark\TutkimusraporttiController@update");
+	Route::delete("/tutkimusraportti/{id}",					"Ark\TutkimusraporttiController@destroy");
+	Route::get("/tutkimusraportti/{tutkimusId}", 			"Ark\TutkimusraporttiController@getSingleByTutkimusId");
 
 	/*
 	 * Tutkimusalueet
@@ -457,6 +479,7 @@ Route::group(['middleware'=> 'auth.jwt'], function() {
 	Route::put("/kohde/{id}/",						"Ark\KohdeController@update");
 	Route::delete("/kohde/{id}/",					"Ark\KohdeController@destroy");
 	Route::get("/kohde/{id}/historia",			    "Ark\KohdeController@historia");
+	Route::get("/kohde/kohteet/polygon/",	        "Ark\KohdeController@kohteetPolygon");
 
 	/*
 	 * Löytö
@@ -472,6 +495,15 @@ Route::group(['middleware'=> 'auth.jwt'], function() {
 	Route::delete("/loyto/{id}/",					    "Ark\LoytoController@destroy");
 
 	/*
+	 * Kuntoraportit
+	 */
+	Route::get("/loyto/{id}/kuntoraportit",				"Ark\LoytoController@kuntoraportit");
+	Route::post("/kuntoraportti",									"Ark\KuntoraporttiController@store");
+	Route::put("/kuntoraportti/{id}",							"Ark\KuntoraporttiController@update");
+	Route::delete("/kuntoraportti/{id}",					"Ark\KuntoraporttiController@destroy");
+
+
+	/*
 	 * Näyte
 	 */
 	Route::get("/nayte/",							    "Ark\NayteController@index");
@@ -482,7 +514,7 @@ Route::group(['middleware'=> 'auth.jwt'], function() {
 	Route::post("/nayte/alanumero/",   				    "Ark\NayteController@nayteAlanumero");
 	Route::get("/nayte/{id}/",						    "Ark\NayteController@show");
 	Route::put("/nayte/{id}/",						    "Ark\NayteController@update");
-	Route::delete("/loyto/{id}/",					    "Ark\NayteController@destroy");
+	Route::delete("/nayte/{id}/",					    "Ark\NayteController@destroy");
 
 	/*
 	 * Konservointi hallinta
@@ -648,13 +680,18 @@ Route::group(['middleware'=> 'auth.jwt'], function() {
 	Route::get("/kyppi/haemuinaisjaannokset/{hakupvm}",     "Ark\KyppiController@haeMuinaisjaannokset");
 
 	/*
+	 * Kyppi integraatio, muinaisjäännöksen haku tunnuksella. Testaamiseen.
+	 */
+	Route::get("/kyppi/haemuinaisjaannostest/{id}",				"Ark\KyppiController@muinaisjaannosHakuTest");
+
+	/*
 	 * Kyppi integraatio, muinaisjäännöksen lisääminen
 	 */
-	Route::get("/kyppi/lisaamuinaisjaannos/",				"Ark\KyppiController@muinaisjaannosLisays");
+	Route::get("/kyppi/lisaamuinaisjaannos/{id}",				"Ark\KyppiController@muinaisjaannosLisays");
+
 
 	/*
 	 * Kyppi integraatio, muinaisjäännöksen haku ja kohteen luonti MIP:iin.
 	 */
 	Route::get("/kyppi/tuokohde/{id}",			            "Ark\KyppiController@tuoKohde");
 });
-

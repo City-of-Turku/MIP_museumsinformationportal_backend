@@ -1,6 +1,6 @@
 # MIP_museumsinformationportal_backend
 
-MIP Backend is the user interface for MIP.
+MIP Backend is the backend for MIP.
 
 ## Installation
 

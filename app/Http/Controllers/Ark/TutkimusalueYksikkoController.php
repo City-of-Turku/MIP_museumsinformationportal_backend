@@ -8,6 +8,7 @@ use App\Ark\TutkimusalueYksikko;
 use App\Ark\YksikkoMuutMaalajit;
 use App\Ark\YksikkoPaasekoitteet;
 use App\Ark\YksikkoTyovaihe;
+use App\Ark\YksikkoStratigrafia;
 use App\Http\Controllers\Controller;
 use App\Library\String\MipJson;
 use Illuminate\Database\QueryException;
@@ -217,6 +218,9 @@ class TutkimusalueYksikkoController extends Controller
 
                 // Deserialisoidaan JSON string kannasta
                 $properties->migraatiodata = json_decode($properties->migraatiodata, true);
+
+                $suhteet = YksikkoStratigrafia::haeSuhteet($yksikko->id)->get();
+                $properties->stratigrafia = $suhteet;
 
                 MipJson::setGeoJsonFeature(null, $properties);
 
@@ -441,6 +445,8 @@ class TutkimusalueYksikkoController extends Controller
                         YksikkoPaasekoitteet::paivita_paasekoitteet($yksikko->id, $request->input('properties.paasekoitteet'));
                         YksikkoMuutMaalajit::paivita_muut_maalajit($yksikko->id, $request->input('properties.muut_maalajit'));
 
+                        YksikkoStratigrafia::tallennaStratigrafia($yksikko->id, $request->input('properties.suhteet'));
+
                         // Muistiinpanokenttien arvot kopioidaan pohjaksi varsinaisiin kenttiin
                         if(!$request->input('kaivaus_valmis')){
                             self::kopioiMuistiinpanot($yksikko);
@@ -460,8 +466,6 @@ class TutkimusalueYksikkoController extends Controller
 
                     // Päivitys onnistui
                     DB::commit();
-
-
 
                     MipJson::addMessage(Lang::get('tutkimus.save_success'));
                     MipJson::setGeoJsonFeature(null, $yksikko);

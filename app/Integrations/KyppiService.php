@@ -27,28 +27,20 @@ use Exception;
  */
 class KyppiService{
 
-    private $kyppiHaeMuinaisjaannosUri;
-    private $kyppiHaeMuinaisjaannoksetUri;
     private $username;
     private $password;
     private $kyppiMuinaisjaannosUri;
     private $kyppiMuinaisjaannosEndpoint;
-
-    // Debug lokit päälle / pois
-    private $IS_DEBUG;
 
     /*
      * Arvot asetetaan .env tiedostossa
      */
     function __construct() {
 
-        $this->kyppiHaeMuinaisjaannosUri = config('app.kyppi_hae_muinaisjaannos_uri');
-        $this->kyppiHaeMuinaisjaannoksetUri = config('app.kyppi_hae_muinaisjaannokset_uri');
         $this->username = config('app.kyppi_username');
         $this->password = config('app.kyppi_password');
         $this->kyppiMuinaisjaannosUri = config('app.kyppi_muinaisjaannos_uri');
         $this->kyppiMuinaisjaannosEndpoint = config('app.kyppi_muinaisjaannos_endpoint');
-        $this->IS_DEBUG  =config('app.kyppi_is_debug');
 
     }
 
@@ -61,7 +53,7 @@ class KyppiService{
      */
     public function haeMuinaisjaannosSoap($id, $vainPvm) {
 
-        $soapHeader = self::muodostaSoapHeader();
+        $soapHeader = $this->muodostaSoapHeader();
 
         $soapBody = '<soapenv:Body>';
         $soapBody .=    '<mjr:HaeMuinaisjaannos>';
@@ -73,42 +65,37 @@ class KyppiService{
         $xmlRequest = $soapHeader . $soapBody . $soapFooter;
 
         try {
-            if($this->IS_DEBUG){
-                Log::debug('KyppiService: haeMuinaisjaannos SOAP mj-tunnus = ' . $id);
-            }
+
+            Log::info('KyppiService: haeMuinaisjaannos SOAP mj-tunnus = ' . $id);
+            Log::info('KyppiService: endpoint = ' . $this->kyppiMuinaisjaannosEndpoint);
 
             $time_start = microtime(true);
 
             try {
-                $client = new Client(['base_uri' => $this->kyppiHaeMuinaisjaannosUri,]);
-                $response = $client->post($this->kyppiMuinaisjaannosEndpoint,
-                    [
-                        'body'    => $xmlRequest,
-                        'headers' => [
-                            'Content-Type' => 'text/xml',
-                            'SOAPAction' => $this->kyppiMuinaisjaannosUri . 'HaeMuinaisjaannos'
-                        ]
-                    ]
-                    );
+                $endpoint = $this->kyppiMuinaisjaannosEndpoint;
+
+                $client = new Client();
+                $response = $client->request("POST", $endpoint, [
+                    'headers' => [
+                        'Content-Type' => 'text/xml',
+                        'SOAPAction' => $this->kyppiMuinaisjaannosUri . 'HaeMuinaisjaannos'
+                    ],
+                    'body' => $xmlRequest
+                ]);
 
                 if ($response->getStatusCode() != Response::HTTP_OK) {
                     throw new Exception(" HaeMuinaisjaannos-kutsu epäonnistui: " . $response->getStatusCode() . " : " . $response->getReasonPhrase());
                 }
             } catch (Exception $e) {
                 Log::error('haeMuinaisjaannosSoap virhe: ' .$e->getTraceAsString());
-                if ($e->hasResponse()) {
-                    return $e->getResponse();
-                }else{
-                    throw $e;
-                }
+
+                throw $e;
             }
 
             $time_end = microtime(true);
             $execution_time = ($time_end - $time_start);
 
-            if($this->IS_DEBUG){
-                Log::debug('Kyppi vastausaika: '.round($execution_time, 2) .' sec');
-            }
+            Log::info('Kyppi vastausaika: '.round($execution_time, 2) .' sec');
 
             if($vainPvm){
 
@@ -156,9 +143,8 @@ class KyppiService{
 
         if(empty($kohde)){
 
-            if($this->IS_DEBUG){
-                Log::debug('Lisaa kohde');
-            }
+            Log::info('Lisaa kohde');
+
             // Uusi Kohde model
             $kohde = new Kohde();
 
@@ -166,9 +152,7 @@ class KyppiService{
             $kohde->kyppi_status = '1';
 
         }else{
-            if($this->IS_DEBUG){
-                Log::debug('Paivita kohde ' .$kohde->muinaisjaannostunnus);
-            }
+            Log::info('Paivita kohde ' .$kohde->muinaisjaannostunnus);
             $isUpdate = true;
 
             // Kohteen status = päivitetty
@@ -183,25 +167,25 @@ class KyppiService{
         // <muinaisjaannos> elementin alta löytyy kaikki tarvittava
         $muinaisjaannos = $dom->getElementsByTagName( 'muinaisjaannos' )->item(0);
 
+        Log::debug($dom->saveXML());
+
         // Kohteen luonti ja tietojen populointi
-        self::muodostaKohdeKypinTiedoilla($muinaisjaannos, $kohde);
+        $this->muodostaKohdeKypinTiedoilla($muinaisjaannos, $kohde);
 
         // Tallenna kohde ja relaatiot
-        if( self::tallennaKohde($kohde, $dom, $muinaisjaannos, $isUpdate) ){
+        if( $this->tallennaKohde($kohde, $dom, $muinaisjaannos, $isUpdate) ){
             // Lokitusta
-            if($this->IS_DEBUG){
-                Log::debug('Kyppi-palvelusta tuotu kohde onnistuneesti');
-                Log::debug('Kohde save = ' .$kohde);
-            }
+            Log::info('Kyppi-palvelusta tuotu kohde onnistuneesti');
+            Log::info('Kohde save = ' .$kohde);
+
             // Onnistunut tuonti
             MipJson::setGeoJsonFeature(null, array("id" => $kohde->id));
             MipJson::addMessage(Lang::get('kohde.save_success'));
             MipJson::setResponseStatus(Response::HTTP_OK);
 
         }else{
-            if($this->IS_DEBUG){
-                Log::debug('Kohteen tallennus ei onnistunut, tarkista lokit = ' .$kohde);
-            }
+            Log::info('Kohteen tallennus ei onnistunut, tarkista lokit = ' .$kohde);
+
             MipJson::setGeoJsonFeature();
             MipJson::addMessage(Lang::get('kohde.save_failed'));
             MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -216,9 +200,8 @@ class KyppiService{
      */
     public function paivitaKohteenStatus($kohde) {
 
-        if($this->IS_DEBUG){
-            Log::debug('Paivita kohde status ' .$kohde->muinaisjaannostunnus);
-        }
+        Log::info('Paivita kohde status ' .$kohde->muinaisjaannostunnus);
+
         // Kohteen status = päivitetty
         $kohde->kyppi_status = '2';
 
@@ -238,9 +221,6 @@ class KyppiService{
             DB::rollback();
 
             Log::error('KyppiService paivitaKohteenStatus virhe: ' .$e->getTraceAsString());
-            if($this->IS_DEBUG){
-                Log::debug('KyppiService paivitaKohteenStatus virhe: ' .$e->getTraceAsString());
-            }
         }
         return MipJson::getJson();
     }
@@ -254,26 +234,19 @@ class KyppiService{
      */
     public function tuoKohteetKypista($dom) {
 
-        // Kaikki <muinaisjaannos> elementit
-        $muinaisjaannokset = $dom->getElementsByTagName( 'muinaisjaannos' );
-
         // <muinaisjaannos> elementin alta löytyy kaikki tarvittava
         $muinaisjaannos = $dom->getElementsByTagName( 'muinaisjaannos' )->item(0);
 
         // Kohteen luonti ja tietojen populointi
         $kohde = new Kohde();
-        self::muodostaKohdeKypinTiedoilla($muinaisjaannos, $kohde);
+        $this->muodostaKohdeKypinTiedoilla($muinaisjaannos, $kohde);
 
         // Tallenna kohde ja relaatiot
-        if( self::tallennaKohde($kohde, $dom, $muinaisjaannos, false) ){
-            if($this->IS_DEBUG){
-                Log::debug('Kohde = ' .$kohde);
-            }
+        if( $this->tallennaKohde($kohde, $dom, $muinaisjaannos, false) ){
+            Log::info('Kohde = ' .$kohde);
+
         }else{
-            if($this->IS_DEBUG){
-                Log::debug('Kohteen tallennus ei onnistunut, tarkista lokit ' .$kohde);
-            }
-            echo 'Kohteen tallennus ei onnistunut, tarkista lokit ' .PHP_EOL;
+            Log::info('Kohteen tallennus ei onnistunut, tarkista lokit ' .$kohde);
         }
 
     }
@@ -283,31 +256,29 @@ class KyppiService{
      * Kyppi-rajapinta: HaeMuinaisjaannokset
      * @param  $muutettuPvm = muutettu pvm jota uudemmat tiedot haetaan
      */
-    public function haeMuinaisjaannoksetSoap($muutettuPvm, $kunta){
+    public function haeMuinaisjaannoksetSoap($muutettuPvm, $kunta, $maakunta){
 
         try {
-            if($this->IS_DEBUG){
-                Log::debug('KyppiService: haeMuinaisjaannokset pvm = ' . $muutettuPvm);
-            }
-            $client = new Client();
-
             /*
              * Kyppi rajapinnan parametrit queryyn.
              * Kunta voi olla Ypäjä, jolloin maakunta parametri tyhjennetään. Muuten aina maakunta on Varsinais-Suomi ja kuntaa ei anneta.
              */
             if( empty($kunta) ){
+
+                Log::info('KyppiService: haeMuinaisjaannokset pvm = ' . $muutettuPvm . " " . $maakunta );
+
                 // Oletus
-                $maakunta = 'varsinais-suomi';
+                $maakunta = $maakunta;
                 $kunta = null;
-            }else{
-                if($this->IS_DEBUG){
-                    Log::debug('KyppiService: haeMuinaisjaannokset kunta = ' . $kunta);
-                }
+            } else {
+
+                Log::info('KyppiService: haeMuinaisjaannokset pvm = ' . $muutettuPvm . " " . $kunta );
+
                 $maakunta = null;
             }
 
             // Muodostetaan soap
-            $soapHeader = self::muodostaSoapHeader();
+            $soapHeader = $this->muodostaSoapHeader();
 
             $soapBody = '<soapenv:Body>';
             $soapBody .=    '<mjr:HaeMuinaisjaannokset>';
@@ -332,45 +303,35 @@ class KyppiService{
 
             $soapFooter = '</soapenv:Envelope>';
             $xmlRequest = $soapHeader . $soapBody . $soapFooter;
-
-            //app('log')->debug($xmlRequest);
-
-            // Muutettu pvm
-            $muutosleima = 'muutosleima=' .$muutettuPvm;
-
+            // Log::debug($xmlRequest);
             // Aika alkaa nyt
             $time_start = microtime(true);
 
             try {
-                $client = new Client(['base_uri' => $this->kyppiHaeMuinaisjaannoksetUri,]);
-                $response = $client->post($this->kyppiMuinaisjaannosEndpoint,
-                    [
-                        'body'    => $xmlRequest,
-                        'headers' => [
-                            'Content-Type' => 'text/xml',
-                            'SOAPAction' => $this->kyppiMuinaisjaannosUri . 'HaeMuinaisjaannokset'
-                        ]
-                    ]
-                    );
+                $endpoint = $this->kyppiMuinaisjaannosEndpoint;
+
+                $client = new Client();
+                $response = $client->request("POST", $endpoint, [
+                    'headers' => [
+                        'Content-Type' => 'text/xml;charset=UTF-8',
+                        'SOAPAction' => $this->kyppiMuinaisjaannosUri . 'HaeMuinaisjaannokset'
+                    ],
+                    'body' => $xmlRequest
+                ]);
 
                 if ($response->getStatusCode() != Response::HTTP_OK) {
                     throw new Exception(" HaeMuinaisjaannokset-kutsu epäonnistui: " . $response->getStatusCode() . " : " . $response->getReasonPhrase());
                 }
             } catch (Exception $e) {
                 Log::error('haeMuinaisjaannoksetSoap virhe: ' .$e->getTraceAsString());
-                if ($e->hasResponse()) {
-                    return $e->getResponse();
-                }else{
-                    throw $e;
-                }
+
+                throw $e;
             }
 
             $time_end = microtime(true);
             $execution_time = ($time_end - $time_start);
 
-            if($this->IS_DEBUG){
-                Log::debug('Kyppi HaeMuinaisjaannokset vastausaika: '.round($execution_time, 2) .' sec');
-            }
+            Log::info('Kyppi HaeMuinaisjaannokset vastausaika: '.round($execution_time, 2) .' sec');
 
             return $response->getBody();
 
@@ -383,11 +344,11 @@ class KyppiService{
     /**
      * Muinaisjäännösten testaukseen esim. Postman clientilla.
      * Aseta ensin Bearer token.
-     * GET: http://localhost/MIPKantasiirto/backend/public/kyppi/haemuinaisjaannokset/2017-01-01
+     * GET: http://localhost:8000/api/kyppi/haemuinaisjaannokset/2020-08-01
      */
     public function haeMuinaisjaannoksetSoapTesti($muutettuPvm, $maakunta, $kunta) {
 
-        $soapHeader = self::muodostaSoapHeader();
+        $soapHeader = $this->muodostaSoapHeader();
 
         $soapBody = '<soapenv:Body>';
         $soapBody .=    '<mjr:HaeMuinaisjaannokset>';
@@ -402,41 +363,39 @@ class KyppiService{
         $soapFooter = '</soapenv:Envelope>';
         $xmlRequest = $soapHeader . $soapBody . $soapFooter;
 
-        //app('log')->debug($xmlRequest);
+        Log::info('Request: '.$xmlRequest);
 
         // Aika alkaa nyt
         $time_start = microtime(true);
 
         try {
-            $client = new Client(['base_uri' => $this->kyppiHaeMuinaisjaannoksetUri,]);
-            $response = $client->post($this->kyppiMuinaisjaannosEndpoint,
-                [
-                    'body'    => $xmlRequest,
-                    'headers' => [
-                        'Content-Type' => 'text/xml',
-                        'SOAPAction' => $this->kyppiMuinaisjaannosUri . 'HaeMuinaisjaannokset'
-                    ]
-                ]
-                );
+            $endpoint = $this->kyppiMuinaisjaannosEndpoint;
+
+            $client = new Client();
+            $response = $client->request("POST", $endpoint, [
+                 'http_errors' => true,
+                 'headers' => [
+                     'Content-Type' => 'text/xml',
+                     'SOAPAction' => $this->kyppiMuinaisjaannosUri . 'HaeMuinaisjaannokset'
+                 ],
+                 'body' => $xmlRequest
+             ]);
 
             if ($response->getStatusCode() != Response::HTTP_OK) {
                 throw new Exception(" HaeMuinaisjaannokset-kutsu epäonnistui: " . $response->getStatusCode() . " : " . $response->getReasonPhrase());
             }
         } catch (Exception $e) {
             Log::error('haeMuinaisjaannoksetSoap virhe: ' .$e->getTraceAsString());
-            if ($e->hasResponse()) {
-                return $e->getResponse();
-            }else{
-                throw $e;
-            }
+
+            throw $e;
+
         }
 
         $time_end = microtime(true);
         $execution_time = ($time_end - $time_start);
 
-        if($this->IS_DEBUG){
-            Log::debug('Kyppi HaeMuinaisjaannokset vastausaika: '.round($execution_time, 2) .' sec');
-        }
+        Log::info('Kyppi HaeMuinaisjaannokset vastausaika: '.round($execution_time, 2) .' sec');
+
         return $response->getBody();
     }
 
@@ -446,16 +405,18 @@ class KyppiService{
      */
     public function lisaaMuinaisjaannos($xml) {
 
-        $soapHeader  = '<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">';
+        $soapHeader = '<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">';
         $soapHeader .= '<soap:Header>';
         $soapHeader .= '<TunnistusHeader xmlns="http://paikkatieto.nba.fi/mvrpp/MjrekiRajapinta/">';
+        $soapHeader .=      '<Tunnus>' . $this->username . '</Tunnus>';
+        $soapHeader .=      '<Salasana>' . $this->password . '</Salasana>';
         $soapHeader .= '</TunnistusHeader>';
         $soapHeader .= '</soap:Header>';
 
         $soapBody = '<soap:Body>';
-        $soapBody .=    '<LisaaMuinaisjaannos xmlns="http://paikkatieto.nba.fi/mvrpp/MjrekiRajapinta/">';
+        $soapBody .=    '<LisaaMuinaisjaannos xmlns="http://paikkatieto.nba.fi/mvrpp/MjrekiRajapinta/" xmlns:gml="http://www.opengis.net/gml">';
         $soapBody .=        '<muinaisjaannos>';
-        // TODO tähän tulee xml
+        $soapBody .= $xml;
         $soapBody .=        '</muinaisjaannos>';
         $soapBody .=    '</LisaaMuinaisjaannos>';
         $soapBody .= '</soap:Body>';
@@ -463,32 +424,51 @@ class KyppiService{
         $soapFooter = '</soap:Envelope>';
         $xmlRequest = $soapHeader . $soapBody . $soapFooter;
 
-        $client = new Client(['base_uri' => $this->kyppiMuinaisjaannosUri,]);
+        Log::info('LisaaMuinaisjaannos Request: '.$xmlRequest);
+
+        // Aika alkaa nyt
+        $time_start = microtime(true);
 
         try {
-            $response = $client->post($this->kyppiMuinaisjaannosEndpoint,
-                [
-                    'body'    => $xmlRequest,
-                    'headers' => [
-                        'Content-Type' => 'text/xml',
-                        'SOAPAction' => 'http://paikkatieto.nba.fi/mvrpp/MjrekiRajapinta/LisaaMuinaisjaannos'
-                    ]
-                ]
-                );
+            $endpoint = $this->kyppiMuinaisjaannosEndpoint;
+
+            $client = new Client();
+            $response = $client->request("POST", $endpoint, [
+                'headers' => [
+                    'Content-Type' => 'text/xml;charset=UTF-8',
+                    'SOAPAction' => $this->kyppiMuinaisjaannosUri . 'LisaaMuinaisjaannos'
+                ],
+                'body' => $xmlRequest
+            ]);
 
             if ($response->getStatusCode() != Response::HTTP_OK) {
                 throw new Exception(" LisaaMuinaisjaannos-kutsu epäonnistui: " . $response->getStatusCode() . " : " . $response->getReasonPhrase());
-            }else{
-                return $response;
             }
         } catch (Exception $e) {
-            if ($e->hasResponse()) {
-                return $e->getResponse();
-            }else{
-                throw $e;
-            }
+            Log::error('LisaaMuinaisjaannos virhe: ' .$e->getTraceAsString());
+
+            throw $e;
+
         }
 
+        $time_end = microtime(true);
+        $execution_time = ($time_end - $time_start);
+
+        Log::info('Kyppi LisaaMuinaisjaannos vastausaika: '.round($execution_time, 2) .' sec');
+
+        $body = $response->getBody();
+
+        $dom = new \DOMDocument('1.0', 'utf-8');
+        $dom->preserveWhiteSpace = false;
+
+        $dom->loadXML($body);
+
+        // Palautetaan uusi muinaisjäännöstunnus tai -1 palautuu, jos luominen epäonnistuu.
+        $muinaisjaannostunnus = $dom->getElementsByTagName( 'LisaaMuinaisjaannosResult' )->item(0)->nodeValue;
+
+        Log::info('Muinaisjäännöstunnus luotu: '.$muinaisjaannostunnus);
+
+        return $muinaisjaannostunnus;
     }
 
     /**
@@ -520,7 +500,6 @@ class KyppiService{
 
             if($isUpdate){
                 // Päivitä kohde
-                $author_field = Kohde::UPDATED_BY;
                 $kohde->muokkaaja = Utils::getSystemUserId();
                 $kohde->touch(); // tällä saadaan päätason muutokset muutoshistoriaan.
                 $kohde->update();
@@ -534,17 +513,17 @@ class KyppiService{
              */
 
             // <tyyppitiedot> alta tyypit ja tarkenteet <alatyyppi>
-            self::muodostaKohdeTyypit($kohde, $muinaisjaannos);
+            $this->muodostaKohdeTyypit($kohde, $muinaisjaannos);
 
             // Kohteen ajoitukset.
-            self::muodostaKohdeAjoitukset($kohde, $dom, $muinaisjaannos);
+            $this->muodostaKohdeAjoitukset($kohde, $dom, $muinaisjaannos);
 
             // Kunta
-            self::muodostaKohdeKunta($kohde, $muinaisjaannos);
+            $this->muodostaKohdeKunta($kohde, $muinaisjaannos);
 
 
             // Hae kohteen pisteen sijainti
-            $kohdePiste = self::muodostaKohteenPisteSijainti($kohde, null, $dom, $muinaisjaannos);
+            $kohdePiste = $this->muodostaKohteenPisteSijainti($kohde, null, $dom, $muinaisjaannos);
             DB::table('ark_kohde_sijainti')->where('kohde_id', $kohde->id)->delete();
 
             if( !empty($kohdePiste)){
@@ -552,7 +531,7 @@ class KyppiService{
             }
 
             // Hae alueiden sijainnit, voi olla useita
-            $aluesijainnit = self::muodostaKohteenAlueSijainnit($kohde, $dom, $muinaisjaannos);
+            $aluesijainnit = $this->muodostaKohteenAlueSijainnit($kohde, $dom, $muinaisjaannos);
 
             if( !empty($aluesijainnit) ){
                 foreach ($aluesijainnit as $aluesijainti) {
@@ -562,18 +541,18 @@ class KyppiService{
 
             // Alakohteiden käsittelyt.
             /*
-             * TODO toistaiseksi vain uusien lisäyksessä tallennetaan alakohteet.
+             * Toistaiseksi vain uusien lisäyksessä tallennetaan alakohteet.
              * Hankala tunnistaa päivitettävä alakohde, pitäisi nimen, kuvauksen ja sijainnin mukaan tunnistaa?
              */
             if(!$isUpdate){
-                self::muodostaAlakohteet($kohde, $dom, $muinaisjaannos);
+                $this->muodostaAlakohteet($kohde, $dom, $muinaisjaannos);
             }
 
             // Kohteen tutkimustiedot
-            self::muodostaTutkimukset($kohde, $muinaisjaannos);
+            $this->muodostaTutkimukset($kohde, $muinaisjaannos);
 
             // Vanhat kunnat
-            self::muodostaVanhatKunnat($kohde, $muinaisjaannos);
+            $this->muodostaVanhatKunnat($kohde, $muinaisjaannos);
 
             DB::commit();
             // Tallennus ok
@@ -584,9 +563,6 @@ class KyppiService{
             DB::rollback();
 
             Log::error('KyppiService tallennaKohde virhe: ' .$e->getTraceAsString());
-            if($this->IS_DEBUG){
-                Log::debug('KyppiService tallennaKohde virhe: ' .$e->getTraceAsString());
-            }
             return false;
         }
     }
@@ -598,7 +574,7 @@ class KyppiService{
     private function muodostaKohdeKypinTiedoilla($muinaisjaannos, $kohde){
 
         // <muinaisjaannos> elementin alta suoraan löytyvien tietojen läpikäynti ja asetus kohteelle
-        $kohde = self::haePaatasonArvot($muinaisjaannos, $kohde);
+        $kohde = $this->haePaatasonArvot($muinaisjaannos, $kohde);
 
         // Kohteen luojana system
         $author_field = Kohde::CREATED_BY;
@@ -613,7 +589,7 @@ class KyppiService{
      */
     private function muodostaKohteenPisteSijainti($kohde, $alakohde, $dom, $muinaisjaannos){
 
-        $xpath = self::luoXpath($dom);
+        $xpath = $this->luoXpath($dom);
 
         // <paikkatiedot> elementin alta saadaan kohteen pisteen sijainti. Pisteitä on vain yksi per muinaisjäännös
         $query = './kyppi:paikkatiedot/kyppi:pistetieto/gml:pos';
@@ -628,19 +604,16 @@ class KyppiService{
             //app('log')->debug('Kohde piste: '.$lonLat[0] .' ' .$lonLat[1]);
 
             if(empty($alakohde)){
-                $kohdePiste = self::muodostaKohdesijainti($kohde, $kohdepisteGeom);
+                $kohdePiste = $this->muodostaKohdesijainti($kohde, $kohdepisteGeom);
             }else{
                 // Alakohteelle sijainti
-                $kohdePiste = self::muodostaAlakohdesijainti($alakohde, $kohdepisteGeom);
+                $kohdePiste = $this->muodostaAlakohdesijainti($alakohde, $kohdepisteGeom);
             }
 
             return $kohdePiste;
 
         }else{
             Log::error('Sijaintitieto puuttuu: '.$kohde->muinaisjaannostunnus);
-            if($this->IS_DEBUG){
-                Log::debug('Sijaintitieto puuttuu: '.$kohde->muinaisjaannostunnus);
-            }
         }
 
     }
@@ -651,7 +624,7 @@ class KyppiService{
      */
     private function muodostaKohteenAlueSijainnit($kohde, $dom, $muinaisjaannos){
 
-        $xpath = self::luoXpath($dom);
+        $xpath = $this->luoXpath($dom);
 
         // <aluetieto> alta löytyy Polygon alue <gml:posList>. Alueita voi olla useita, joten tehdään omat sijainnit kaikille
         $query = './kyppi:paikkatiedot/kyppi:aluetieto/gml:surfaceMember/gml:Polygon/gml:exterior/gml:LinearRing/gml:posList';
@@ -664,7 +637,7 @@ class KyppiService{
             foreach ($gmlPosList as $poslist) {
 
                 // Kyppi palauttaa kaikki pisteet välilyönneillä eroteltuna -> muunnetaan pareiksi pilkulla erotelluksi arrayksi
-                $polygonArray = self::explodeByCount(' ', $poslist->nodeValue, 2);
+                $polygonArray = $this->explodeByCount(' ', $poslist->nodeValue, 2);
 
                 // Muunnetaan array stringiksi
                 $polygonPisteet = implode(',', $polygonArray);
@@ -674,7 +647,7 @@ class KyppiService{
                 $aluerajaus = MipGis::haeEpsg3067PolygonSijainti($polygonPisteet);
 
                 // Kohdesijainnin luonti
-                $alueSijainti = self::muodostaKohdesijainti($kohde, $aluerajaus);
+                $alueSijainti = $this->muodostaKohdesijainti($kohde, $aluerajaus);
 
                 // Lisää kohteen alueen sijainnit
                 $aluesijainnit[] =  $alueSijainti;
@@ -720,7 +693,7 @@ class KyppiService{
             }
 
             if($item->nodeName == 'laji'){
-                $kohde->ark_kohdelaji_id = self::haeValintalistanId('ark_kohdelaji', $item->nodeValue);
+                $kohde->ark_kohdelaji_id = $this->haeValintalistanId('ark_kohdelaji', $item->nodeValue);
             }
 
             if($item->nodeName == 'vedenalainen'){
@@ -732,7 +705,7 @@ class KyppiService{
             }
 
             if($item->nodeName == 'rauhoitusluokka'){
-                $kohde->rauhoitusluokka_id = self::haeValintalistanId('rauhoitusluokka', $item->nodeValue);
+                $kohde->rauhoitusluokka_id = $this->haeValintalistanId('rauhoitusluokka', $item->nodeValue);
             }
 
             if($item->nodeName == 'lukumaara'){
@@ -772,23 +745,23 @@ class KyppiService{
             }
 
             if($item->nodeName == 'alkuperaisyys'){
-                $kohde->alkuperaisyys_id = self::haeValintalistanId('alkuperaisyys', $item->nodeValue);
+                $kohde->alkuperaisyys_id = $this->haeValintalistanId('alkuperaisyys', $item->nodeValue);
             }
 
             if($item->nodeName == 'rajaustarkkuus'){
-                $kohde->rajaustarkkuus_id = self::haeValintalistanId('rajaustarkkuus', $item->nodeValue);
+                $kohde->rajaustarkkuus_id = $this->haeValintalistanId('rajaustarkkuus', $item->nodeValue);
             }
 
             if($item->nodeName == 'maastomerkinta'){
-                $kohde->maastomerkinta_id = self::haeValintalistanId('maastomerkinta', $item->nodeValue);
+                $kohde->maastomerkinta_id = $this->haeValintalistanId('maastomerkinta', $item->nodeValue);
             }
 
             if($item->nodeName == 'kunto'){
-                $kohde->kunto_id = self::haeValintalistanId('kunto', $item->nodeValue);
+                $kohde->kunto_id = $this->haeValintalistanId('kunto', $item->nodeValue);
             }
 
             if($item->nodeName == 'hoitotarve'){
-                $kohde->hoitotarve_id = self::haeValintalistanId('hoitotarve', $item->nodeValue);
+                $kohde->hoitotarve_id = $this->haeValintalistanId('hoitotarve', $item->nodeValue);
             }
 
             if($item->nodeName == 'huomautus'){
@@ -931,8 +904,8 @@ class KyppiService{
             $kohdetyyppi = new KohdeTyyppi();
             $kohdetyyppi->ark_kohde_id = $kohde->id;
 
-            $kohdetyyppi->tyyppi_id = self::haeValintalistanId('ark_kohdetyyppi', $tyyppi->nodeValue);
-            $kohdetyyppi->tyyppitarkenne_id =  self::haeValintalistanId('ark_kohdetyyppitarkenne', $alatyyppi->nodeValue);
+            $kohdetyyppi->tyyppi_id = $this->haeValintalistanId('ark_kohdetyyppi', $tyyppi->nodeValue);
+            $kohdetyyppi->tyyppitarkenne_id =  $this->haeValintalistanId('ark_kohdetyyppitarkenne', $alatyyppi->nodeValue);
             $kohdetyyppi->luoja = Utils::getSystemUserId();
 
             $kohdetyypit[] = $kohdetyyppi;
@@ -953,7 +926,7 @@ class KyppiService{
      */
     private function muodostaKohdeAjoitukset($kohde, $dom, $muinaisjaannos){
 
-        $xpath = self::luoXpath($dom);
+        $xpath = $this->luoXpath($dom);
 
         // <ajoitustieto> alta löytyvät ajoitus, ajoitustarkenne ja ajoituskriteeri
         $query = './kyppi:ajoitustiedot';
@@ -971,16 +944,14 @@ class KyppiService{
             $kohdeajoitus->ark_kohde_id = $kohde->id;
 
             if( empty($ajoitus) ){
-                if($this->IS_DEBUG){
-                    Log::debug('Ajoitus puuttuu, asetetaan oletusarvona: Ei maaritelty');
-                }
+                Log::info('Ajoitus puuttuu, asetetaan oletusarvona: Ei maaritelty');
                 $kohdeajoitus->ajoitus_id = '1';
             }else{
-                $kohdeajoitus->ajoitus_id = self::haeValintalistanId('ajoitus', $ajoitus->nodeValue);
+                $kohdeajoitus->ajoitus_id = $this->haeValintalistanId('ajoitus', $ajoitus->nodeValue);
             }
 
             if( !empty($ajoitustarkenne) ){
-                $kohdeajoitus->ajoitustarkenne_id = self::haeValintalistanId('ajoitustarkenne', $ajoitustarkenne->nodeValue);
+                $kohdeajoitus->ajoitustarkenne_id = $this->haeValintalistanId('ajoitustarkenne', $ajoitustarkenne->nodeValue);
             }
 
             if( !empty($ajoituskriteeri) ){
@@ -1036,13 +1007,11 @@ class KyppiService{
      */
     private function muodostaAlakohteet($kohde, $dom, $muinaisjaannos){
 
-        $xpath = self::luoXpath($dom);
+        $xpath = $this->luoXpath($dom);
 
         // <alakohteet> <alakohde>
         $query = './kyppi:alakohteet/kyppi:alakohde';
         $alakohteet = $xpath->query($query, $muinaisjaannos);
-
-        $kohdeAlakohteet = array();
 
         foreach ($alakohteet as $alakohdeDom) {
 
@@ -1064,12 +1033,12 @@ class KyppiService{
 
             // Alakohteen tyyppi
             if( !empty($tyyppi) ){
-                $kohdeAlakohde->ark_kohdetyyppi_id = self::haeValintalistanId('ark_kohdetyyppi', $tyyppi->nodeValue);
+                $kohdeAlakohde->ark_kohdetyyppi_id = $this->haeValintalistanId('ark_kohdetyyppi', $tyyppi->nodeValue);
             }
 
             // Alakohteen alatyyppi
             if( !empty($alatyyppi) ){
-                $kohdeAlakohde->ark_kohdetyyppitarkenne_id = self::haeValintalistanId('ark_kohdetyyppitarkenne', $alatyyppi->nodeValue);
+                $kohdeAlakohde->ark_kohdetyyppitarkenne_id = $this->haeValintalistanId('ark_kohdetyyppitarkenne', $alatyyppi->nodeValue);
             }
 
             // Liitos kohteeseen
@@ -1080,7 +1049,7 @@ class KyppiService{
             $kohde->alakohteet()->save($kohdeAlakohde);
 
             // Alakohteen ajoitukset
-            $ajoitukset = self::muodostaAlaKohdeAjoitukset($kohdeAlakohde, $alakohdeDom);
+            $ajoitukset = $this->muodostaAlaKohdeAjoitukset($kohdeAlakohde, $alakohdeDom);
 
             // Ajoitusten tallennus alakohteelle
             foreach ($ajoitukset as $alakohdeajoitus) {
@@ -1088,7 +1057,7 @@ class KyppiService{
             }
 
             // Hae alakohteen pisteen sijainti
-            $kohdePiste = self::muodostaKohteenPisteSijainti($kohde, $kohdeAlakohde, $dom, $muinaisjaannos);
+            $kohdePiste = $this->muodostaKohteenPisteSijainti($kohde, $kohdeAlakohde, $dom, $muinaisjaannos);
 
             // Sijainnin tallennus alakohteelle
             if( !empty($kohdePiste)){
@@ -1117,16 +1086,14 @@ class KyppiService{
 
 
             if( empty($ajoitus) ){
-                if($this->IS_DEBUG){
-                    Log::debug('Ajoitus puuttuu, asetetaan oletusarvona: Ei maaritelty');
-                }
+                Log::info('Ajoitus puuttuu, asetetaan oletusarvona: Ei maaritelty');
                 $alakohdeajoitus->ajoitus_id = '1';
             }else{
-                $alakohdeajoitus->ajoitus_id = self::haeValintalistanId('ajoitus', $ajoitus->nodeValue);
+                $alakohdeajoitus->ajoitus_id = $this->haeValintalistanId('ajoitus', $ajoitus->nodeValue);
             }
 
             if( !empty($ajoitustarkenne) ){
-                $alakohdeajoitus->ajoitustarkenne_id = self::haeValintalistanId('ajoitustarkenne', $ajoitustarkenne->nodeValue);
+                $alakohdeajoitus->ajoitustarkenne_id = $this->haeValintalistanId('ajoitustarkenne', $ajoitustarkenne->nodeValue);
             }
 
             if( !empty($ajoituskriteeri) ){
@@ -1169,7 +1136,7 @@ class KyppiService{
             $tutkimus->ark_kohde_id = $kohde->id;
             $tutkimus->luoja = Utils::getSystemUserId();
 
-            $tutkimus->ark_tutkimuslaji_id = self::haeValintalistanId('ark_tutkimuslaji', $tutkimuslajiDom->nodeValue);
+            $tutkimus->ark_tutkimuslaji_id = $this->haeValintalistanId('ark_tutkimuslaji', $tutkimuslajiDom->nodeValue);
             $tutkimus->tutkija = $tutkijaDom->nodeValue;
             $tutkimus->vuosi = $vuosiDom->nodeValue;
             $tutkimus->huomio = $huomioDom->nodeValue;

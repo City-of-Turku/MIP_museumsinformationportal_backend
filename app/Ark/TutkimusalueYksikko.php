@@ -17,7 +17,8 @@ class TutkimusalueYksikko extends Model
         'tyo_kaivajat', 'yksikko_kaivaustapa_id', 'yksikko_seulontatapa_id', 'kuvaus', 'kuvaus_note', 'yksikon_perusteet', 'stratigrafiset_suhteet',
         'rajapinnat', 'yksikon_perusteet_note', 'stratigrafiset_suhteet_note', 'rajapinnat_note', 'tulkinta', 'tulkinta_note',
         'ajoitus', 'ajoitus_note', 'ajoituksen_perusteet', 'ajoituksen_perusteet_note', 'lisatiedot', 'lisatiedot_note',
-        'kaivaus_valmis', 'yksikon_numero', 'yksikko_paamaalaji_id', 'muokattu', 'muokkaaja', 'kaivaustapa_lisatieto', 'kaivaustapa_lisatieto_note'
+        'kaivaus_valmis', 'yksikon_numero', 'yksikko_paamaalaji_id', 'muokattu', 'muokkaaja', 'kaivaustapa_lisatieto', 'kaivaustapa_lisatieto_note',
+        'yksikko_kuuluu', 'yksikko_leikkaa'
     );
 
     /*

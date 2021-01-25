@@ -1,0 +1,1 @@
+This folder contains the geoserver layer queries and styles used.

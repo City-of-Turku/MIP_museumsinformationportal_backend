@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Ark;
 
+use App\Ark\ArkKuntoraportti;
 use App\Http\Controllers\Controller;
 use App\Kayttaja;
 use App\Ark\ArkKuva;
@@ -31,9 +32,12 @@ use App\Ark\ArkKuvaLoyto;
 use App\Ark\ArkKuvaNayte;
 use App\Ark\ArkKuvaYksikko;
 use App\Ark\ArkKuvaKohde;
+use App\Ark\ArkKuvaKuntoraportti;
 use App\Ark\ArkKuvaTutkimus;
 use App\Ark\ArkKuvaTutkimusalue;
 use Illuminate\Database\QueryException;
+use App\Ark\Rontgenkuva;
+use App\Ark\ArkKuvaRontgenkuva;
 
 
 class ArkKuvaController extends Controller {
@@ -82,7 +86,7 @@ class ArkKuvaController extends Controller {
             return MipJson::getJson();
         }
 
-//          try {
+          try {
             $rivi = (isset($request->rivi) && is_numeric($request->rivi)) ? $request->rivi : 0;
             $riveja = (isset($request->rivit) && is_numeric($request->rivit)) ? $request->rivit : 100;
             $jarjestys_kentta = (isset($request->jarjestys)) ? $request->jarjestys : "ark_kuva.id";
@@ -116,6 +120,10 @@ class ArkKuvaController extends Controller {
             } else if($request->input("ark_tutkimus_id") && $request->input("ark_tutkimusalue_id") != 'null') {
                 $entities->withTutkimusalueId($request->input("ark_tutkimusalue_id"));
             }
+            // Tutkimuksen näkymään haettavat kuvat - ei näytetä mm. rontgen ja kuntoraporttien kuvia.
+            if($request->input("ark_tutkimus_id") && $request->input("tutkimus_view")) {
+                $entities->withTutkimusId($request->input("ark_tutkimus_id"), true);
+            }
             if($request->input("ark_kohde_id")) {
                 $entities->withKohdeId($request->input("ark_kohde_id"));
             }
@@ -137,13 +145,19 @@ class ArkKuvaController extends Controller {
             if($request->input("otsikko")) {
                 $entities->withOtsikko($request->input("otsikko"));
             }
+            if($request->input("ark_rontgenkuva_id") && $request->input("ark_rontgenkuva_id") !== 'null') {
+                $entities->withRontgenKuva($request->input("ark_rontgenkuva_id"));
+            }
+            if($request->input("ark_kuntoraportti_id") && $request->input("ark_kuntoraportti_id") !== 'null') {
+                $entities->withKuntoraportti($request->input("ark_kuntoraportti_id"));
+            }
 
             $total_rows = Utils::getCount($entities);
             $entities->withLimit($rivi, $riveja);
             $entities = $entities->get();
 
             if(count($entities) <= 0) {
-                MipJson::setGeoJsonFeature();
+                MipJson::initGeoJsonFeatureCollection(count($entities), $total_rows);
                 MipJson::addMessage(Lang::get('kuva.search_not_found'));
                 return MipJson::getJson();
             }
@@ -177,7 +191,6 @@ class ArkKuvaController extends Controller {
             }
 
             MipJson::initGeoJsonFeatureCollection(count($returnEntities), $total_rows);
-
             //Hoidetaan palautettaville kuville urlit ja relaatiot mukaan
             foreach ($returnEntities as $entity) {
                 $images = ArkKuva::getImageUrls($entity->polku.$entity->tiedostonimi);
@@ -200,12 +213,18 @@ class ArkKuvaController extends Controller {
                 foreach($entity->kuvayksikot as $ky) {
                     array_push($tmpYksikot, $ky->yksikko);
                 }
+                $tmpKohteet = [];
+                foreach($entity->kuvakohteet as $kk) {
+                    array_push($tmpKohteet, $kk->kohde);
+                }
                 $entity->loydot = $tmpLoydot;
                 $entity->naytteet = $tmpNaytteet;
                 $entity->yksikot = $tmpYksikot;
+                $entity->kohteet = $tmpKohteet;
                 unset($entity->kuvaloydot);
                 unset($entity->kuvanaytteet);
                 unset($entity->kuvayksikot);
+                unset($entity->kuvakohteet);
 
                 // Deserialisoidaan JSON string kannasta
                 $entity->migraatiodata = json_decode($entity->migraatiodata, true);
@@ -214,11 +233,12 @@ class ArkKuvaController extends Controller {
             }
             MipJson::addMessage(Lang::get('kuva.found_count',["count" => count($returnEntities)]));
 
-//        } catch(Exception $e) {
-//           MipJson::setGeoJsonFeature();
-//           MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
-//           MipJson::addMessage(Lang::get('kuva.search_failed'));
-//        }
+        } catch(Exception $e) {
+            Log::debug($e);
+            MipJson::setGeoJsonFeature();
+            MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+            MipJson::addMessage(Lang::get('kuva.search_failed'));
+        }
         return MipJson::getJson();
     }
 
@@ -331,6 +351,7 @@ class ArkKuvaController extends Controller {
 
         } catch(Exception $e) {
             DB::rollback();
+            Log::debug($e);
 
             MipJson::setGeoJsonFeature();
             MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -385,6 +406,7 @@ class ArkKuvaController extends Controller {
             MipJson::addMessage(Lang::get('kuva.search_success'));
         }
         catch(QueryException $e) {
+            Log::debug($e);
             MipJson::addMessage(Lang::get('kuva.search_failed'));
             MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -499,7 +521,12 @@ class ArkKuvaController extends Controller {
             }
 
             if($entity->tunnistekuva) {
-                ArkKuva::updateTunnistekuva($request->loydot[0]['id']);
+                if($request->loydot && $request->loydot[0]['id']) {
+                    ArkKuva::updateLoytoTunnistekuva($request->loydot[0]['id']);
+                }
+                if($request->yksikot && $request->yksikot[0]['id']) {
+                    ArkKuva::updateYksikkoTunnistekuva($request->yksikot[0]['id']);
+                }
             }
 
             $author_field = ArkKuva::UPDATED_BY;
@@ -515,6 +542,7 @@ class ArkKuvaController extends Controller {
             ArkKuva::linkita_loydot($entity->id, $request->loydot);
             ArkKuva::linkita_naytteet($entity->id, $request->naytteet);
             ArkKuva::linkita_yksikot($entity->id, $request->yksikot);
+            ArkKuva::linkita_kohteet($entity->id, $request->kohteet);
 
             MipJson::setGeoJsonFeature();
             MipJson::addMessage(Lang::get('kuva.save_success'));
@@ -523,6 +551,7 @@ class ArkKuvaController extends Controller {
             DB::commit();
 
         } catch(Exception $e) {
+            Log::debug($e);
             DB::rollback();
             MipJson::setGeoJsonFeature();
             MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -591,6 +620,7 @@ class ArkKuvaController extends Controller {
              ArkKuva::linkita_loydot($entity->id, []);
              ArkKuva::linkita_naytteet($entity->id, []);
              ArkKuva::linkita_yksikot($entity->id, []);
+             ArkKuva::linkita_kohteet($entity->id, []);
 
              // Poistetaan mahdollinen kohde, tutkimus tai tutkimusalue kuva.
              // Poisto tehdään näin koska yhdistelmä PK tyylin modelissa ei tunnu laravel toimivan, kuten normi Id PK mallissa.
@@ -826,6 +856,26 @@ class ArkKuvaController extends Controller {
                 $kuvaTutkimusalue->jarjestys = $maxJarjestys;
                 $kuvaTutkimusalue->save();
                 break;
+            case 19: // Röntgenkuva
+                $maxJarjestys = DB::table('ark_kuva_rontgenkuva')->where('ark_rontgenkuva_id', '=', $request->get('entiteetti_id'))->max('jarjestys')+1;
+                $rontgenkuva = Rontgenkuva::find($request->get('entiteetti_id'));
+                $kuvaRontgen = new ArkKuvaRontgenkuva();
+                $kuvaRontgen->luoja = Auth::user()->id;
+                $kuvaRontgen->ark_kuva_id = $entity->id;
+                $kuvaRontgen->ark_rontgenkuva_id = $rontgenkuva->id;
+                $kuvaRontgen->jarjestys = $maxJarjestys;
+                $kuvaRontgen->save();
+                break;
+            case 22: // Kuntoraportti
+                $maxJarjestys = DB::table('ark_kuva_kuntoraportti')->where('ark_kuntoraportti_id', '=', $request->get('entiteetti_id'))->max('jarjestys')+1;
+                $kuntoraportti = ArkKuntoraportti::find($request->get('entiteetti_id'));
+                $kuvaKuntoraportti = new ArkKuvaKuntoraportti();
+                $kuvaKuntoraportti->luoja = Auth::user()->id;
+                $kuvaKuntoraportti->ark_kuva_id = $entity->id;
+                $kuvaKuntoraportti->ark_kuntoraportti_id = $kuntoraportti->id;
+                $kuvaKuntoraportti->jarjestys = $maxJarjestys;
+                $kuvaKuntoraportti->save();
+                break;
         }
     }
 
@@ -833,21 +883,25 @@ class ArkKuvaController extends Controller {
         $thumb_extension = 'jpg';
         //Large
         $img = Image::make($file_fullname)->encode('jpg');
+        $img->orientate();
         $img_large = ArkKuva::createThumbnail($img, intval(explode(",",config('app.image_thumb_large'))[0]));
         $img_large->save($file_path.$file_name."_LARGE.".$thumb_extension);
 
         //Medium
         $img = Image::make($file_fullname)->encode('jpg');
+        $img->orientate();
         $img_medium = ArkKuva::createThumbnail($img, intval(explode(",",config('app.image_thumb_medium'))[0]));
         $img_medium->save($file_path.$file_name."_MEDIUM.".$thumb_extension);
 
         //Small
         $img = Image::make($file_fullname)->encode('jpg');
+        $img->orientate();
         $img_small = ArkKuva::createThumbnail($img, intval(explode(",",config('app.image_thumb_small'))[0]));
         $img_small->save($file_path.$file_name."_SMALL.".$thumb_extension);
 
         //Tiny
         $img = Image::make($file_fullname)->encode('jpg');
+        $img->orientate();
         $img_tiny = ArkKuva::createThumbnail($img, intval(explode(",",config('app.image_thumb_tiny'))[0]));
         $img_tiny->save($file_path.$file_name."_TINY.".$thumb_extension);
     }

@@ -3,6 +3,7 @@ namespace App\Library\Reports;
 
 use App\Kyla;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Auth;
 
 class ReportServer {
 
@@ -293,6 +294,52 @@ class ReportServer {
 	    return $parameters;
 	}
 
+	public static function generateNayteluetteloParameters($inputParams) {
+		$parameters = array(
+				array(
+					'name' => 'tutkimusId',
+					'value' => $inputParams['tutkimusId']
+				),
+				array(
+					'name' => 'naytekoodi',
+					'value' => $inputParams['naytekoodi']
+				),
+				array(
+					'name' => 'reportDisplayName',
+					'value' => $inputParams['reportDisplayName']
+				)
+			);
+		return $parameters;
+	}
+
+	public static function generateKarttaluetteloParameters($inputParams) {
+		$parameters = array(
+				array(
+					'name' => 'tutkimusId',
+					'value' => $inputParams['tutkimusId']
+				),
+				array(
+					'name' => 'reportDisplayName',
+					'value' => $inputParams['reportDisplayName']
+				)
+			);
+		return $parameters;
+	}
+
+	public static function generateValokuvaluetteloParameters($inputParams) {
+		$parameters = array(
+				array(
+					'name' => 'tutkimusId',
+					'value' => $inputParams['tutkimusId']
+				),
+				array(
+					'name' => 'reportDisplayName',
+					'value' => $inputParams['reportDisplayName']
+				)
+			);
+		return $parameters;
+	}
+
 	public static function generateLoytoLuettelointikortitParameters($inputParams) {
 		$idStr = implode(",", $inputParams['loyto_idt']);
 		$parameters = array(
@@ -344,5 +391,35 @@ class ReportServer {
 	    return $parameters;
 	}
 
+	// Löydön konservointiraportti
+	public static function generateLoytoKonservointiraporttiParameters($inputParams) {
+	      $parameters = array(
+	          array('name' => 'loytoId', 'value' => $inputParams['loytoId']),
+	          array('name' => 'reportDisplayName', 'value' => $inputParams['reportDisplayName']),
+	          array('name' => 'kons_toimenpiteet', 'value' => $inputParams['kons_toimenpiteet']),
+	          array('name' => 'raportti_luoja', 'value' => Auth::user()->etunimi . " " . Auth::user()->sukunimi)
+	      );
+	      return $parameters;
+	}
+
+	// Kuntoraportti
+	public static function generateKuntoraporttiParameters($inputParams) {
+		$parameters = array(
+			array('name' => 'kuntoraporttiId', 'value' => $inputParams['kuntoraporttiId']),
+			array('name' => 'reportDisplayName', 'value' => $inputParams['reportDisplayName']),
+			array('name' => 'konservaattori', 'value' => $inputParams['konservaattori'])
+		);
+		return $parameters;
+	}
+
+	// Tutkimusraportti
+	public static function generateTutkimusraporttiParameters($inputParams) {
+		$parameters = array(
+			array('name' => 'tutkimusraporttiId', 'value' => $inputParams['tutkimusraporttiId']),
+			array('name' => 'reportDisplayName', 'value' => $inputParams['reportDisplayName']),
+			array('name' => 'laji', 'value' => $inputParams['laji'])
+		);
+		return $parameters;
+	}
 
 }
