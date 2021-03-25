@@ -113,6 +113,21 @@ class Tutkimus extends Model
     }
 
     /**
+     * Palauttaa tutkimusten id-listan joihin katselija on liitetty käyttäjänä.
+     */
+    public static function getAllIdsForKatselijaAsUser($kayttaja_id) {
+        return self::select('ark_tutkimus.id')
+        ->whereIn('ark_tutkimus.id', function($q) use($kayttaja_id) {
+            $q->select('ark_tutkimus_id')
+            ->from ('ark_tutkimus_kayttaja')
+            ->where(function($query) use($kayttaja_id) {
+                return $query->where('ark_tutkimus_kayttaja.kayttaja_id', $kayttaja_id)
+                ->whereNull('ark_tutkimus_kayttaja.poistettu');
+            });
+        });
+    }
+
+    /**
      * Suodatukset
      */
 
