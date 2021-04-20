@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -495,6 +496,8 @@ class KayttajaController extends Controller {
 
     	// if user was NOT found
     	if(!$user) {
+
+				Log::info("Password reset request for non-existing username: " . $username);
     		MipJson::setGeoJsonFeature();
     		//MipJson::addMessage(Lang::get('auth.custom.user_not_found'));
     		//MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
@@ -510,15 +513,18 @@ class KayttajaController extends Controller {
    			$user->salasana = Hash::make($password);
    			$user->save();
 
+				$frontendUrl = config('app.frontend_url');
 
     		$message_content = "Hei ".ucfirst(strtolower($user->etunimi)).", \n\n".
-    				"sivustolla: https://mip.turku.fi/ \n".
+    				"sivustolla: " . $frontendUrl ." \n".
     				"on pyydetty uutta salasanaa tunnuksellesi: ".$user->sahkoposti.".\n\n".
    					"Uusi salasanasi sivustolle on: ".$password."";
 
    			$mail_sent = Mail::raw($message_content, function($message) use ($user) {
-   				$message->from('mip@mip.fi', 'MIP');
+					$emailFrom = config('app.email_from');
+   				$message->from($emailFrom, 'MIP');
    				$message->to($user->sahkoposti)->subject("Uusi MIP salasanasi.");
+					Log::info("Password reset request done for username: " . $user->sahkoposti);
    			});
 
     		DB::commit();
@@ -527,8 +533,9 @@ class KayttajaController extends Controller {
     		return MipJson::getJson();
 
     	} catch (Exception $e) {
+				Log::error($e);
 	    	DB::rollback();
-			MipJson::setGeoJsonFeature();
+			  MipJson::setGeoJsonFeature();
     		MipJson::addMessage(Lang::get('kayttaja.password_reset_failed'));
     		MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
 	    }
