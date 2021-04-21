@@ -19,6 +19,11 @@ class ArkKuvaLoyto extends Model
             "ark_loyto_id"
     ];
 
+    // Päivittää löydön timestampin lisäyksen/muokkauksen/poiston yhteydessä.
+    // Täten löydöt joihin lisätään kuvia, päivittyvät myös Finnaan.
+    // TODO: Tehdäänkö vastaavat myös muun tyyppisille (tutkimus, yksikkö, näyte, tutkimusalue...) ?
+    protected $touches = ['loyto'];
+
     public $timestamps = false;
 
     public static function whereImageIdAndLoytoId($kuva_id, $loyto_id) {
