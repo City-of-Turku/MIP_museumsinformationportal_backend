@@ -936,7 +936,7 @@ class FinnaService
 				$writer->startElement('lido:resourceSet');
 				$writer->startElement('lido:resourceID');
 				$writer->writeAttribute('lido:type', 'urn');
-				$writer->text('urn:mip.turku.fi:' . $kuva->id);
+				$writer->text('urn:' . $this->REPOSITORY_IDENTIFIER . ':' . $kuva->id);
 				$writer->endElement();
 				self::writeResourceRepresentation($writer, $loyto, 'image_thumb', $urls->small, $fileSizeSmall, $dataSmall[0], $dataSmall[1]);
 				self::writeResourceRepresentation($writer, $loyto, 'image_large', $urls->large, $fileSizeLarge, $dataLarge[0], $dataLarge[1]);
