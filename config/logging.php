@@ -51,19 +51,28 @@ return [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),
             'level' => 'debug',
-            'days' => 14,
+            'days' => 365,
         ],
 
         'frontend' => [
             'driver' => 'daily',
             'path' => storage_path('logs/frontend.log'),
             'level' => 'debug',
+            'days' => 365
         ],
 
         'finna' => [
             'driver' => 'daily',
             'path' => storage_path('logs/finna.log'),
             'level' => 'debug',
+            'days' => 365
+        ],
+
+        'mml' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/mml.log'),
+            'level' => 'debug',
+            'days' => 2555
         ],
 
         'slack' => [

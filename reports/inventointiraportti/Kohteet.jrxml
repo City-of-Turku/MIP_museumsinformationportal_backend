@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2021-01-21T10:15:49 -->
+<!-- 2021-04-27T15:24:30 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Kohteet" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="46fb868b-ad4e-4b5e-bfc1-29f32a3381f3">
 	<property name="net.sf.jasperreports.print.create.bookmarks" value="true"/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="qa"/>
@@ -566,11 +566,11 @@ $X{IN, k.id::text, kohdeIdtArray}]]>
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="0" y="310" width="564" height="20" isRemoveLineWhenBlank="true" uuid="87dbda34-1d4b-43e3-95e8-4b60fcf9dfc1">
+				<reportElement positionType="Float" x="0" y="310" width="564" height="30" isRemoveLineWhenBlank="true" uuid="87dbda34-1d4b-43e3-95e8-4b60fcf9dfc1">
 					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 				</reportElement>
 				<staticText>
-					<reportElement x="0" y="0" width="138" height="20" uuid="cc21cdcd-549f-4515-8a43-69d6f6f50df4">
+					<reportElement x="0" y="0" width="160" height="30" uuid="cc21cdcd-549f-4515-8a43-69d6f6f50df4">
 						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 					</reportElement>
 					<textElement>

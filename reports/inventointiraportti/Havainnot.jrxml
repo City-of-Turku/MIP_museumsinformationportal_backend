@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2021-01-21T10:11:46 -->
+<!-- 2021-04-26T15:45:44 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Havainnot" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="c7fa246a-c218-4a4e-ae0f-c7a326f85204">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
@@ -149,6 +149,12 @@ where tr.id = $P{tutkimusraporttiId}]]>
 		</band>
 		<band height="110">
 			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<staticText>
+				<reportElement positionType="Float" isPrintRepeatedValues="false" x="0" y="80" width="554" height="20" isRemoveLineWhenBlank="true" uuid="1a3584dc-2807-42e3-809e-448a2b5963c4">
+					<printWhenExpression><![CDATA[$F{tunnetut_ei_tyhjat_kohteet}.equals("-1")]]></printWhenExpression>
+				</reportElement>
+				<text><![CDATA[Inventointialueella ei ollut aiemmin tunnettuja arkeologisia kohteita.]]></text>
+			</staticText>
 			<textField bookmarkLevel="2">
 				<reportElement positionType="Float" isPrintRepeatedValues="false" x="0" y="0" width="554" height="30" isRemoveLineWhenBlank="true" uuid="10d98679-efa6-49ea-ac94-7138b3aaa79c">
 					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
@@ -178,12 +184,6 @@ where tr.id = $P{tutkimusraporttiId}]]>
 				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 				<subreportExpression><![CDATA["Kohteet.jasper"]]></subreportExpression>
 			</subreport>
-			<staticText>
-				<reportElement positionType="Float" isPrintRepeatedValues="false" x="0" y="80" width="554" height="20" isRemoveLineWhenBlank="true" uuid="1a3584dc-2807-42e3-809e-448a2b5963c4">
-					<printWhenExpression><![CDATA[$F{tunnetut_ei_tyhjat_kohteet}.equals("-1")]]></printWhenExpression>
-				</reportElement>
-				<text><![CDATA[Inventointialueella ei ollut aiemmin tunnettuja arkeologisia kohteita.]]></text>
-			</staticText>
 		</band>
 		<band height="110">
 			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
@@ -223,6 +223,20 @@ where tr.id = $P{tutkimusraporttiId}]]>
 		</band>
 		<band height="110">
 			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<staticText>
+				<reportElement positionType="Float" isPrintRepeatedValues="false" x="0" y="80" width="554" height="20" isRemoveLineWhenBlank="true" uuid="aea26a69-a2f9-4903-abd7-ff18de4b955e">
+					<printWhenExpression><![CDATA[$F{uudet_ei_tyhjat_kohteet}.equals("-1")]]></printWhenExpression>
+				</reportElement>
+				<text><![CDATA[Inventointialueella ei havaittu uusia arkeologisia kohteita.]]></text>
+			</staticText>
+			<textField bookmarkLevel="2">
+				<reportElement positionType="Float" x="0" y="0" width="554" height="30" uuid="1e47659b-781d-4efa-aae4-27a94e143501"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["3.3. Uudet arkeologiset kohteet"]]></textFieldExpression>
+				<anchorNameExpression><![CDATA["Uudet arkeologiset kohteet"]]></anchorNameExpression>
+			</textField>
 			<subreport>
 				<reportElement positionType="Float" isPrintRepeatedValues="false" x="0" y="30" width="554" height="50" isRemoveLineWhenBlank="true" uuid="4f2c796a-d879-4fd5-8328-d81f564d4417">
 					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
@@ -242,23 +256,15 @@ where tr.id = $P{tutkimusraporttiId}]]>
 				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 				<subreportExpression><![CDATA["Kohteet.jasper"]]></subreportExpression>
 			</subreport>
-			<textField bookmarkLevel="2">
-				<reportElement positionType="Float" x="0" y="0" width="554" height="30" uuid="1e47659b-781d-4efa-aae4-27a94e143501"/>
-				<textElement>
-					<font size="12" isBold="true"/>
-				</textElement>
-				<textFieldExpression><![CDATA["3.3. Uudet arkeologiset kohteet"]]></textFieldExpression>
-				<anchorNameExpression><![CDATA["Uudet arkeologiset kohteet"]]></anchorNameExpression>
-			</textField>
-			<staticText>
-				<reportElement positionType="Float" isPrintRepeatedValues="false" x="0" y="80" width="554" height="20" isRemoveLineWhenBlank="true" uuid="aea26a69-a2f9-4903-abd7-ff18de4b955e">
-					<printWhenExpression><![CDATA[$F{uudet_ei_tyhjat_kohteet}.equals("-1")]]></printWhenExpression>
-				</reportElement>
-				<text><![CDATA[Inventointialueella ei havaittu uusia arkeologisia kohteita.]]></text>
-			</staticText>
 		</band>
-		<band height="110">
+		<band height="107">
 			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<staticText>
+				<reportElement positionType="Float" isPrintRepeatedValues="false" x="0" y="80" width="554" height="20" isRemoveLineWhenBlank="true" uuid="14ac44f5-6e5e-4b3e-89bc-566494377f88">
+					<printWhenExpression><![CDATA[$F{uudet_tyhjat_kohteet}.equals("-1")]]></printWhenExpression>
+				</reportElement>
+				<text><![CDATA[Inventointialueella ei havaittu uusia muita kohteita.]]></text>
+			</staticText>
 			<textField bookmarkLevel="2">
 				<reportElement positionType="Float" isPrintRepeatedValues="false" x="0" y="0" width="554" height="30" isRemoveLineWhenBlank="true" uuid="1163afc3-63c8-423e-a2c9-8743092c647f"/>
 				<textElement>
@@ -286,12 +292,6 @@ where tr.id = $P{tutkimusraporttiId}]]>
 				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 				<subreportExpression><![CDATA["Kohteet.jasper"]]></subreportExpression>
 			</subreport>
-			<staticText>
-				<reportElement positionType="Float" isPrintRepeatedValues="false" x="0" y="80" width="554" height="20" isRemoveLineWhenBlank="true" uuid="14ac44f5-6e5e-4b3e-89bc-566494377f88">
-					<printWhenExpression><![CDATA[$F{uudet_tyhjat_kohteet}.equals("-1")]]></printWhenExpression>
-				</reportElement>
-				<text><![CDATA[Inventointialueella ei havaittu uusia muita kohteita.]]></text>
-			</staticText>
 		</band>
 		<band height="380">
 			<printWhenExpression><![CDATA[$F{lkm} != null]]></printWhenExpression>

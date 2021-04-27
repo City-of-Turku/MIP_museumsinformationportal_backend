@@ -117,8 +117,9 @@ class ark_kohdeNightlySeeder extends Seeder
                 $message_content = "Kohde nightly seeder fail. \n" . $e;
 
                 $mail_sent = Mail::raw($message_content, function($message) {
-                $message->from('mip@mip.fi', 'MIP');
-                $message->to(config('app.kyppi_admin_email'))->subject("MIP / " . App::environment());
+                    $emailFrom = config('app.email_from');
+                    $message->from($emailFrom, 'MIP');
+                    $message->to(config('app.kyppi_admin_email'))->subject("MIP / " . App::environment());
                 });
             } catch (Swift_TransportException $e) {
                 Log::error('Sending mail failed: ' . $e);

@@ -136,28 +136,6 @@ INSERT INTO public.ark_kohdetyyppi (nimi_fi,nimi_se,nimi_en,aktiivinen,luotu,luo
 	 ('Teollisuuskohteet',NULL,NULL,true,'2018-10-25 08:35:44',-1,NULL,NULL,NULL,NULL),
 	 ('Työ- ja valmistuspaikat',NULL,NULL,true,'2018-10-25 08:35:44',-1,NULL,NULL,NULL,NULL);
 --
-INSERT INTO public.ark_kohdetyyppi (nimi_fi,nimi_se,nimi_en,aktiivinen,luotu,luoja,muokattu,muokkaaja,poistettu,poistaja) VALUES
-	 ('Ei määritelty',NULL,NULL,true,'2018-10-25 08:35:44',-1,NULL,NULL,NULL,NULL),
-	 ('Alusten hylyt',NULL,NULL,true,'2018-10-25 08:35:44',-1,NULL,NULL,NULL,NULL),
-	 ('Asuinpaikat',NULL,NULL,true,'2018-10-25 08:35:44',-1,NULL,NULL,NULL,NULL),
-	 ('Hautapaikat',NULL,NULL,true,'2018-10-25 08:35:44',-1,NULL,NULL,NULL,NULL),
-	 ('Kirkkorakenteet',NULL,NULL,true,'2018-10-25 08:35:44',-1,NULL,NULL,NULL,NULL),
-	 ('Kivirakenteet',NULL,NULL,true,'2018-10-25 08:35:44',-1,NULL,NULL,NULL,NULL),
-	 ('Kulkuväylät',NULL,NULL,true,'2018-10-25 08:35:44',-1,NULL,NULL,NULL,NULL),
-	 ('Kultti- ja tarinapaikat',NULL,NULL,true,'2018-10-25 08:35:44',-1,NULL,NULL,NULL,NULL),
-	 ('Luonnonmuodostumat',NULL,NULL,true,'2018-10-25 08:35:44',-1,NULL,NULL,NULL,NULL),
-	 ('Löytöpaikat',NULL,NULL,true,'2018-10-25 08:35:44',-1,NULL,NULL,NULL,NULL);
-INSERT INTO public.ark_kohdetyyppi (nimi_fi,nimi_se,nimi_en,aktiivinen,luotu,luoja,muokattu,muokkaaja,poistettu,poistaja) VALUES
-	 ('Maarakenteet',NULL,NULL,true,'2018-10-25 08:35:44',-1,NULL,NULL,NULL,NULL),
-	 ('Muinaisjäännösryhmät',NULL,NULL,true,'2018-10-25 08:35:44',-1,NULL,NULL,NULL,NULL),
-	 ('Puolustusvarustukset',NULL,NULL,true,'2018-10-25 08:35:44',-1,NULL,NULL,NULL,NULL),
-	 ('Puurakenteet',NULL,NULL,true,'2018-10-25 08:35:44',-1,NULL,NULL,NULL,NULL),
-	 ('Raaka-aineen hankintapaikat',NULL,NULL,true,'2018-10-25 08:35:44',-1,NULL,NULL,NULL,NULL),
-	 ('Taide, Muistomerkit',NULL,NULL,true,'2018-10-25 08:35:44',-1,NULL,NULL,NULL,NULL),
-	 ('Tapahtumapaikat',NULL,NULL,true,'2018-10-25 08:35:44',-1,NULL,NULL,NULL,NULL),
-	 ('Teollisuuskohteet',NULL,NULL,true,'2018-10-25 08:35:44',-1,NULL,NULL,NULL,NULL),
-	 ('Työ- ja valmistuspaikat',NULL,NULL,true,'2018-10-25 08:35:44',-1,NULL,NULL,NULL,NULL);
---
 INSERT INTO public.ark_kohdetyyppitarkenne (nimi_fi,nimi_se,nimi_en,ark_kohdetyyppi_id,aktiivinen,luotu,luoja,muokattu,muokkaaja,poistettu,poistaja) VALUES
 	 ('Karjamajat',NULL,NULL,3,true,'2019-11-25 15:06:01',-1,NULL,NULL,NULL,NULL),
 	 ('Kentät (gieddi)',NULL,NULL,3,true,'2019-11-25 15:06:01',-1,NULL,NULL,NULL,NULL),
@@ -576,7 +554,7 @@ INSERT INTO public.ark_loyto_tila_tapahtuma (ark_loyto_tila_id,ark_loyto_tapahtu
 	 (6,9,'2019-03-15 15:24:10'),
 	 (9,10,'2019-03-15 15:24:10'),
 	 (8,11,'2019-03-15 15:24:10'),
-	 (10,12,'2019-03-15 15:24:10');   
+	 (10,12,'2019-03-15 15:24:10');
 --
 INSERT INTO public.ark_loyto_tyyppi (nimi_fi,nimi_se,nimi_en,aktiivinen,luotu,luoja,muokattu,muokkaaja,poistettu,poistaja) VALUES
 	 ('Astia',NULL,NULL,true,'2018-10-25 08:35:48',-1,NULL,NULL,NULL,NULL),
@@ -935,7 +913,7 @@ INSERT INTO public.ark_loyto_tyyppi_tarkenne (nimi_fi,nimi_se,nimi_en,aktiivinen
 	 ('Seiväs',NULL,NULL,true,'2020-03-02 13:02:44',-1,NULL,NULL,NULL,NULL),
 	 ('Sanka',NULL,NULL,true,'2020-03-02 13:02:44',-1,NULL,NULL,NULL,NULL),
 	 ('Koristeosa',NULL,NULL,true,'2020-03-02 13:02:44',-1,NULL,NULL,NULL,NULL),
-	 ('Taltta / Temmi',NULL,NULL,true,'2018-10-25 08:35:49',-1,NULL,NULL,NULL,NULL);    
+	 ('Taltta / Temmi',NULL,NULL,true,'2018-10-25 08:35:49',-1,NULL,NULL,NULL,NULL);
 --
 INSERT INTO public.ark_mittakaava (mittakaava,aktiivinen,luotu,luoja,muokattu,muokkaaja,poistettu,poistaja) VALUES
 	 ('1',true,'2019-03-15 15:24:09',-1,NULL,NULL,NULL,NULL),
@@ -967,7 +945,7 @@ INSERT INTO public.ark_nayte_tapahtuma (nimi_fi,nimi_se,nimi_en,aktiivinen,luotu
 	 ('Otettu kokoelmaan',NULL,NULL,true,'2019-03-15 15:24:10',-1,NULL,NULL,NULL,NULL),
 	 ('Poistettu kokoelmasta',NULL,NULL,true,'2019-03-15 15:24:10',-1,NULL,NULL,NULL,NULL),
 	 ('Näyttelyssä',NULL,NULL,true,'2019-03-15 15:24:10',-1,NULL,NULL,NULL,NULL),
-	 ('Puuttuu',NULL,NULL,true,'2019-03-15 15:24:10',-1,NULL,NULL,NULL,NULL);   
+	 ('Puuttuu',NULL,NULL,true,'2019-03-15 15:24:10',-1,NULL,NULL,NULL,NULL);
 --
 INSERT INTO public.ark_nayte_tila (nimi_fi,nimi_se,nimi_en,aktiivinen,luotu,luoja,muokattu,muokkaaja,poistettu,poistaja) VALUES
 	 ('Analyysissä',NULL,NULL,true,'2019-03-15 15:24:08',-1,NULL,NULL,NULL,NULL),
@@ -989,13 +967,13 @@ INSERT INTO public.ark_nayte_tila_tapahtuma (ark_nayte_tila_id,ark_nayte_tapahtu
 	 (6,6,'2019-03-15 15:24:10'),
 	 (7,7,'2019-03-15 15:24:10'),
 	 (8,8,'2019-03-15 15:24:10'),
-	 (9,9,'2019-03-15 15:24:10'); 
+	 (9,9,'2019-03-15 15:24:10');
 --
 INSERT INTO public.ark_naytekoodi (koodi,nimi_fi,nimi_se,nimi_en,aktiivinen,luotu,luoja,muokattu,muokkaaja,poistettu,poistaja) VALUES
 	 ('AN','Ajoitusnäyte',NULL,NULL,true,'2019-03-15 15:24:08',-1,NULL,NULL,NULL,NULL),
 	 ('LN','Luunäyte',NULL,NULL,true,'2019-03-15 15:24:08',-1,NULL,NULL,NULL,NULL),
 	 ('MN','Maanäyte',NULL,NULL,true,'2019-03-15 15:24:08',-1,NULL,NULL,NULL,NULL),
-	 ('RF','Rakennefragmentti',NULL,NULL,true,'2019-03-15 15:24:08',-1,NULL,NULL,NULL,NULL); 
+	 ('RF','Rakennefragmentti',NULL,NULL,true,'2019-03-15 15:24:08',-1,NULL,NULL,NULL,NULL);
 --
 INSERT INTO public.ark_naytetyyppi (nimi_fi,nimi_se,nimi_en,aktiivinen,luotu,luoja,muokattu,muokkaaja,poistettu,poistaja) VALUES
 	 ('C14',NULL,NULL,true,'2019-03-15 15:24:08',-1,NULL,NULL,NULL,NULL),
@@ -1016,7 +994,7 @@ INSERT INTO public.ark_naytetyyppi (nimi_fi,nimi_se,nimi_en,aktiivinen,luotu,luo
 	 ('Tiili',NULL,NULL,true,'2019-03-15 15:24:08',-1,NULL,NULL,NULL,NULL),
 	 ('Kattotiili',NULL,NULL,true,'2019-05-24 08:33:32',-1,NULL,NULL,NULL,NULL),
 	 ('Muu näyte',NULL,NULL,true,'2019-03-15 15:24:08',-1,NULL,NULL,NULL,NULL);
---     
+--
 INSERT INTO public.ark_naytetyypit (ark_naytekoodi_id,ark_naytetyyppi_id,luotu,luoja,muokattu,muokkaaja,poistettu,poistaja) VALUES
 	 (1,1,'2019-03-15 15:24:08',-1,NULL,NULL,NULL,NULL),
 	 (1,2,'2019-03-15 15:24:08',-1,NULL,NULL,NULL,NULL),
@@ -1065,7 +1043,7 @@ INSERT INTO public.ark_tutkimuslaji (nimi_fi,nimi_se,nimi_en,aktiivinen,luotu,lu
 	 ('Ilmoitus',NULL,NULL,false,'2018-10-25 08:35:49',-1,NULL,NULL,NULL,NULL,'Ilmoitus',NULL,NULL);
 INSERT INTO public.ark_tutkimuslaji (nimi_fi,nimi_se,nimi_en,aktiivinen,luotu,luoja,muokattu,muokkaaja,poistettu,poistaja,mjr_nimi_fi,mjr_nimi_se,mjr_nimi_en) VALUES
 	 ('Kartoitus',NULL,NULL,false,'2018-10-25 08:35:49',-1,NULL,NULL,NULL,NULL,'Kartoitus',NULL,NULL),
-	 ('Kasvillisuuskartoitus',NULL,NULL,false,'2018-10-25 08:35:49',-1,NULL,NULL,NULL,NULL,'Kasvillisuuskartoitus',NULL,NULL);     
+	 ('Kasvillisuuskartoitus',NULL,NULL,false,'2018-10-25 08:35:49',-1,NULL,NULL,NULL,NULL,'Kasvillisuuskartoitus',NULL,NULL);
 --
 INSERT INTO public.arvoaluekulttuurihistoriallinenarvo (nimi_fi,nimi_se,nimi_en,aktiivinen,luotu,luoja,muokattu,muokkaaja,poistaja,poistettu) VALUES
 	 ('Historiallisesti arvokas','Historiskt värde',NULL,true,'2017-06-05 08:58:38',-1,NULL,NULL,NULL,NULL),
@@ -1337,7 +1315,7 @@ INSERT INTO public.kiinteistokulttuurihistoriallinenarvo (nimi_fi,nimi_se,nimi_e
 	 ('Tutkittu ja tuhoutunut osittain',NULL,NULL,true,'2018-10-25 08:35:49',-1,NULL,NULL,NULL,NULL),
 	 ('Tutkittu kokonaan',NULL,NULL,true,'2018-10-25 08:35:49',-1,NULL,NULL,NULL,NULL),
 	 ('Tutkittu osittain',NULL,NULL,true,'2018-10-25 08:35:49',-1,NULL,NULL,NULL,NULL);
---     
+--
 INSERT INTO public.kuntotyyppi (nimi_fi,nimi_se,nimi_en,aktiivinen,luotu,luoja,muokattu,muokkaaja,poistaja,poistettu) VALUES
 	 ('Kohtalainen','Nöjaktigt',NULL,true,'2017-06-05 09:00:35',-1,NULL,NULL,NULL,NULL),
 	 ('Hyvä','Gott',NULL,true,'2017-06-05 09:00:35',-1,NULL,NULL,NULL,NULL),
@@ -1526,7 +1504,7 @@ INSERT INTO public.ocm_luokka (id,nimi_fi,nimi_se,nimi_en,aktiivinen,poistettu,l
 	 (534,'Musiikki-instrumentit',NULL,NULL,true,false,'2017-06-05 08:58:37',-1,NULL,NULL),
 	 (71,'Sotilasteknologia',NULL,NULL,true,false,'2017-06-05 08:58:37',-1,NULL,NULL),
 	 (78,'Uskomuksellinen toiminta ja uskonnon harjoitus',NULL,NULL,true,false,'2017-06-05 08:58:37',-1,NULL,NULL),
-	 (80,'Numerot, luvut, mitat',NULL,NULL,true,false,'2017-06-05 08:58:37',-1,NULL,NULL);     
+	 (80,'Numerot, luvut, mitat',NULL,NULL,true,false,'2017-06-05 08:58:37',-1,NULL,NULL);
 --
 INSERT INTO public.perustustyyppi (nimi_fi,nimi_se,nimi_en,aktiivinen,luotu,luoja,muokattu,muokkaaja,poistaja,poistettu) VALUES
 	 ('Luonnonkivi - kylmämuuraus','Natursten -kallmurad',NULL,true,'2017-06-05 08:59:56',-1,NULL,NULL,NULL,NULL),
@@ -1551,7 +1529,7 @@ INSERT INTO public.perustustyyppi (nimi_fi,nimi_se,nimi_en,aktiivinen,luotu,luoj
 --
 INSERT INTO public.porrashuonetyyppi (nimi_fi,nimi_se,nimi_en,aktiivinen,luotu,luoja,muokattu,muokkaaja,poistaja,poistettu) VALUES
 	 ('Keittiöporras','Kökstrappa',NULL,true,'2017-06-05 09:01:08',-1,NULL,NULL,NULL,NULL),
-	 ('Pääporras','Huvudtrappa',NULL,true,'2017-06-05 09:01:08',-1,NULL,NULL,NULL,NULL);    
+	 ('Pääporras','Huvudtrappa',NULL,true,'2017-06-05 09:01:08',-1,NULL,NULL,NULL,NULL);
 --
 INSERT INTO public.rajaustarkkuus (nimi_fi,nimi_se,nimi_en,aktiivinen,luotu,luoja,muokattu,muokkaaja,poistettu,poistaja) VALUES
 	 ('Ei määritelty',NULL,NULL,true,'2018-10-25 08:35:49',-1,NULL,NULL,NULL,NULL),
@@ -1757,7 +1735,7 @@ INSERT INTO public.rakennustyyppi (nimi_fi,nimi_se,nimi_en,aktiivinen,luotu,luoj
 	 ('Vesilaitos',NULL,NULL,true,'2018-10-25 08:35:50',-1,NULL,NULL,NULL,NULL),
 	 ('Viljasiilo',NULL,NULL,true,'2018-10-25 08:35:50',-1,NULL,NULL,NULL,NULL),
 	 ('Virasto',NULL,NULL,true,'2018-10-25 08:35:50',-1,NULL,NULL,NULL,NULL),
-	 ('Viljamakasiini',NULL,NULL,true,'2018-10-25 08:35:50',-1,NULL,NULL,NULL,NULL);     
+	 ('Viljamakasiini',NULL,NULL,true,'2018-10-25 08:35:50',-1,NULL,NULL,NULL,NULL);
 --
 INSERT INTO public.rauhoitusluokka (nimi_fi,nimi_se,nimi_en,aktiivinen,luotu,luoja,muokattu,muokkaaja,poistettu,poistaja) VALUES
 	 ('Ei määritelty',NULL,NULL,true,'2018-10-25 08:35:49',-1,NULL,NULL,NULL,NULL),
@@ -1795,7 +1773,7 @@ INSERT INTO public.runkotyyppi (nimi_fi,nimi_se,nimi_en,aktiivinen,luotu,luoja,m
 INSERT INTO public.suojelutyyppi_ryhma (id,nimi_fi,nimi_se,nimi_en,aktiivinen,luotu,luoja,muokattu,muokkaaja,poistaja,poistettu) VALUES
 	 (1,'Kaavat','Planer',NULL,true,'2017-06-05 09:00:53',-1,NULL,NULL,NULL,NULL),
 	 (2,'Muut suojeluperusteet','Övriga beskyddningsgrunder',NULL,true,'2017-06-05 09:00:53',-1,NULL,NULL,NULL,NULL);
---     
+--
 INSERT INTO public.suojelutyyppi (id,suojelutyyppi_ryhma_id,nimi_fi,nimi_se,nimi_en,aktiivinen,luotu,luoja,muokattu,muokkaaja,poistaja,poistettu) VALUES
 	 (1,1,'Asemakaava','Stadsplan',NULL,true,'2017-06-05 09:00:53',-1,NULL,NULL,NULL,NULL),
 	 (2,1,'Maakuntakaava','Landskapsplan',NULL,true,'2017-06-05 09:00:53',-1,NULL,NULL,NULL,NULL),
@@ -1832,7 +1810,7 @@ INSERT INTO public.suunnittelija_laji (nimi_fi,nimi_se,nimi_en,yritys,aktiivinen
 	 ('Yhdistys','Förening',NULL,true,true,'2017-06-05 09:01:21',-1,NULL,NULL,NULL,NULL),
 	 ('Ei tietoa','Uppgift saknas',NULL,true,true,'2017-06-05 09:01:21',-1,NULL,NULL,NULL,NULL);
 INSERT INTO public.suunnittelija_laji (nimi_fi,nimi_se,nimi_en,yritys,aktiivinen,luotu,luoja,muokattu,muokkaaja,poistettu,poistaja) VALUES
-	 ('Muu','Annan',NULL,true,true,'2017-06-05 09:01:21',-1,NULL,NULL,NULL,NULL);     
+	 ('Muu','Annan',NULL,true,true,'2017-06-05 09:01:21',-1,NULL,NULL,NULL,NULL);
 --
 INSERT INTO public.suunnittelija_tyyppi (nimi_fi,nimi_se,nimi_en,aktiivinen,luotu,luoja,muokattu,muokkaaja,poistettu,poistaja) VALUES
 	 ('Suunnittelija','Planerare',NULL,true,'2017-06-05 09:01:21',-1,NULL,NULL,NULL,NULL),
@@ -1841,7 +1819,7 @@ INSERT INTO public.suunnittelija_tyyppi (nimi_fi,nimi_se,nimi_en,aktiivinen,luot
 	 ('Rakennuttaja','Byggherre',NULL,true,'2017-06-05 09:01:21',-1,NULL,NULL,NULL,NULL),
 	 ('Urakoitsija','Entreprenör',NULL,true,'2017-06-05 09:01:21',-1,NULL,NULL,NULL,NULL),
 	 ('Muu','Annan',NULL,true,'2017-06-05 09:01:21',-1,NULL,NULL,NULL,NULL);
---     
+--
 INSERT INTO public.talteenottotapa (nimi_fi,kuvaus_fi,nimi_se,kuvaus_se,nimi_en,kuvaus_en,aktiivinen,luotu,luoja,muokattu,muokkaaja) VALUES
 	 ('Lasta','Lasta','Spatel','Spatel','Spatula','Spatula',true,'2017-06-05 08:58:37',-1,NULL,NULL),
 	 ('Lapio','Lapio','Spade','Spade','Shovel','Shovel',true,'2017-06-05 08:58:37',-1,NULL,NULL),
@@ -1870,7 +1848,7 @@ INSERT INTO public.tilatyyppi (nimi_fi,nimi_se,nimi_en,aktiivinen,luotu,luoja,mu
 	 ('Palstatila','Parcellägenhet',NULL,true,'2017-06-05 09:00:50',-1,NULL,NULL,NULL,NULL),
 	 ('Sotilasvirkatalo','Militärboställe',NULL,true,'2017-06-05 09:00:50',-1,NULL,NULL,NULL,NULL),
 	 ('Kartano','Herrgård',NULL,true,'2017-06-05 09:00:50',-1,NULL,NULL,NULL,NULL),
-	 ('Torppa','Torp',NULL,true,'2017-06-05 09:00:50',-1,NULL,NULL,NULL,NULL);    
+	 ('Torppa','Torp',NULL,true,'2017-06-05 09:00:50',-1,NULL,NULL,NULL,NULL);
 --
 INSERT INTO public.tyylisuunta (nimi_fi,nimi_se,nimi_en,aktiivinen,luotu,luoja,muokattu,muokkaaja,poistaja,poistettu) VALUES
 	 ('Gotiikka, keskiaika (1300-luku)','Gotik, medeltid (1300-luku)',NULL,true,'2017-06-05 09:00:54',-1,NULL,NULL,NULL,NULL),
@@ -1998,7 +1976,7 @@ INSERT INTO public.yksikko_maalaji (nimi_fi,nimi_se,nimi_en,aktiivinen,luotu,luo
 	 ('Tiilen kappaleita',NULL,NULL,true,'2018-10-25 08:35:50',-1,NULL,NULL,NULL,NULL),
 	 ('Siltti',NULL,NULL,true,'2018-10-25 08:35:50',-1,NULL,NULL,NULL,NULL),
 	 ('Laastin kappaleita',NULL,NULL,true,'2018-10-25 08:35:50',-1,NULL,NULL,NULL,NULL),
-	 ('Puun kappaleita',NULL,NULL,true,'2018-10-25 08:35:50',-1,NULL,NULL,NULL,NULL);    
+	 ('Puun kappaleita',NULL,NULL,true,'2018-10-25 08:35:50',-1,NULL,NULL,NULL,NULL);
 --
 INSERT INTO public.yksikko_seulontatapa (nimi_fi,nimi_se,nimi_en,aktiivinen,luotu,luoja,muokattu,muokkaaja,poistettu,poistaja) VALUES
 	 ('Seula','Sikt','Sieve',true,'2018-10-25 08:35:49',-1,NULL,NULL,NULL,NULL),
