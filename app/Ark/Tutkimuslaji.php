@@ -9,18 +9,18 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Tutkimuslaji extends Model
 {
 	use SoftDeletes;
-	
+
     protected $table = "ark_tutkimuslaji";
     public $timestamps = true;
-    
+
     const CREATED_AT 		= 'luotu';
     const UPDATED_AT 		= 'muokattu';
     const DELETED_AT 		= "poistettu";
-    
+
     const CREATED_BY		= 'luoja';
     const UPDATED_BY		= 'muokkaaja';
     const DELETED_BY		= 'poistaja';
-    
+
 	/**
 	 * fillable elements
 	 */
@@ -33,17 +33,20 @@ class Tutkimuslaji extends Model
 			"kuvaus_se",
 			"kuvaus_en"
 	);
-	
+
 	public static function getSingle($id) {
 		return self::select('*')->where('id', '=', $id);
 	}
-	
+
 	public function luoja() {
 		return $this->belongsTo('App\Kayttaja', 'luoja');
 	}
-	
+
 	public function muokkaaja() {
 		return $this->belongsTo('App\Kayttaja', 'muokkaaja');
 	}
-	
+
+	public function tutkimus_kokoelmalajit() {
+		return $this->hasMany('App\Ark\TutkimuslajiKokoelmalaji', 'ark_tutkimuslaji_id');
+	}
 }

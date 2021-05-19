@@ -19,6 +19,7 @@ use App\Ark\Naytekoodi;
 use App\Ark\NayteTapahtuma;
 use App\Ark\NayteTapahtumat;
 use App\Ark\NayteTilaTapahtuma;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Näytteen controller
@@ -445,6 +446,7 @@ class NayteController extends Controller
             MipJson::setResponseStatus(Response::HTTP_OK);
 
         } catch(Exception $e) {
+            Log::error($e);
             MipJson::setGeoJsonFeature();
             MipJson::setMessages(array(Lang::get('nayte.save_failed'),$e->getMessage()));
             MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
