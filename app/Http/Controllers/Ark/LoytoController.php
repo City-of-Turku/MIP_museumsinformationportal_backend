@@ -549,13 +549,20 @@ class LoytoController extends Controller
 
                 $loyto = new Loyto($request->all()['properties']);
 
+                $tutkimus = Tutkimus::getSingle($request->input('properties.ark_tutkimus_id'))->with('loytoKokoelmalaji')->first()->toArray();
+
                 // Juokseva alanumero per yksikkö ja materiaalikoodi
                 //TAI jos ark_tutkimusalue_id on asetettu, tiedetään että löytö kuuluu suoraan tutkimusalueeseen
                 //ja on siis irtolöytötyyppiseen tutkimukseen kuuluva löytö (=yksikköä ei ole)
-                if($request->input('properties.ark_tutkimus_id') && $request->input('properties.ark_tutkimusalue_id')) {
-                    $alanumero = $loyto::getAlanumero(null, null, $request->input('properties.ark_tutkimus_id'), $request->input('properties.ark_tutkimusalue_id'));
+                // TMK saa erilliskäsittelyn, muilla luettelointinumero muodostetaan pelkästään juoksevasti.
+                if($tutkimus['loyto_kokoelmalaji'] && $tutkimus['loyto_kokoelmalaji']['tunnus'] == 'TMK') {
+                    if($request->input('properties.ark_tutkimus_id') && $request->input('properties.ark_tutkimusalue_id')) {
+                        $alanumero = $loyto::getAlanumero(null, null, $request->input('properties.ark_tutkimus_id'), $request->input('properties.ark_tutkimusalue_id'));
+                    } else {
+                        $alanumero = $loyto::getAlanumero($request->input('properties.ark_tutkimusalue_yksikko_id'), $request->input('properties.materiaalikoodi.id'), null, null);
+                    }
                 } else {
-                    $alanumero = $loyto::getAlanumero($request->input('properties.ark_tutkimusalue_yksikko_id'), $request->input('properties.materiaalikoodi.id'), null, null);
+                    $alanumero = $loyto::getAlanumero(null, null, $request->input('properties.ark_tutkimus_id'), null);
                 }
 
                 $loyto->alanumero = $alanumero;

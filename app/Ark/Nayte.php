@@ -5,6 +5,7 @@ namespace App\Ark;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use \Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Näytteen model
@@ -98,7 +99,7 @@ class Nayte extends Model
      */
     public static function haeAlanumero($tutkimus_id, $naytekoodi_id) {
         $tutkimus = Tutkimus::getSingle($tutkimus_id)->first();
-        if($tutkimus->ark_tutkimuslaji_id == 6) { //CASE IRTOLÖYTÖ
+        if($tutkimus->ark_tutkimuslaji_id == 6 || $tutkimus->ark_tutkimuslaji_id == 11) { //CASE IRTOLÖYTÖ
             return self::select('ark_nayte.alanumero')
             ->join('ark_tutkimusalue', 'ark_nayte.ark_tutkimusalue_id', '=', 'ark_tutkimusalue.id')
             ->join('ark_tutkimus', 'ark_tutkimusalue.ark_tutkimus_id', '=', 'ark_tutkimus.id')
@@ -405,7 +406,7 @@ class Nayte extends Model
         //->join('ark_tutkimusalue', 'ark_tutkimusalue_yksikko.ark_tutkimusalue_id', '=', 'ark_tutkimusalue.id')
         ->join('ark_tutkimus', 'ark_tutkimusalue.ark_tutkimus_id', '=', 'ark_tutkimus.id');
     }
-    
+
     public function files() {
         return $this->belongsToMany('App\Ark\ArkTiedosto', 'ark_tiedosto_nayte', 'ark_nayte_id');
     }
