@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2020-12-16T08:47:42 -->
+<!-- 2021-05-27T13:36:13 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Kuntoraportti" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="70f50391-5405-497c-af51-13d2fe4d51e5">
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="qa"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="net.sf.jasperreports.export.docx.frames.as.nested.tables" value=""/>
 	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
@@ -121,6 +121,7 @@ order by id]]>
 	<parameter name="kuntoraporttiId" class="java.lang.Long"/>
 	<parameter name="MIP_BACKEND_URL" class="java.lang.String"/>
 	<parameter name="konservaattori" class="java.lang.String"/>
+	<parameter name="ORGANISATION_NAME_CAPS" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[select kr.kohteen_lisakuvaus,
 			kr.loydon_kunto,
@@ -247,7 +248,7 @@ order by id]]>
 					<textElement textAlignment="Left">
 						<font size="14"/>
 					</textElement>
-					<textFieldExpression><![CDATA["TURUN MUSEOKESKUS"]]></textFieldExpression>
+					<textFieldExpression><![CDATA[$P{ORGANISATION_NAME_CAPS}]]></textFieldExpression>
 				</textField>
 				<textField>
 					<reportElement x="180" y="0" width="300" height="30" uuid="689c90f6-d7d6-4ee3-9637-d2383b09fa85">
