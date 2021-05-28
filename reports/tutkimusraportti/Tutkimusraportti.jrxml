@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2021-01-15T09:03:30 -->
+<!-- 2021-05-27T13:52:30 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Tutkimusraportti" pageWidth="595" pageHeight="842" sectionType="Part" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="30" bottomMargin="30" uuid="d2716064-8ae4-40cf-a575-33afba400e3a">
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="qa"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
 	<property name="net.sf.jasperreports.print.create.bookmarks" value="true"/>
 	<property name="com.jaspersoft.studio.book.group.cover.header" value="Cover and Table of Contents"/>
 	<property name="com.jaspersoft.studio.book.group.cover.footer" value="Backcover"/>
@@ -10,6 +10,7 @@
 	<parameter name="tutkimusraporttiId" class="java.lang.Long"/>
 	<parameter name="MIP_BACKEND_URL" class="java.lang.String"/>
 	<parameter name="MIP_MAPSERVER_URL" class="java.lang.String"/>
+	<parameter name="ORGANISATION_NAME" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[select tr.id 
 from ark_tutkimusraportti tr
@@ -30,6 +31,9 @@ and t.poistettu is null]]>
 				</subreportParameter>
 				<subreportParameter name="MIP_BACKEND_URL">
 					<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="ORGANISATION_NAME">
+					<subreportParameterExpression><![CDATA[$P{ORGANISATION_NAME}]]></subreportParameterExpression>
 				</subreportParameter>
 				<subreportExpression><![CDATA["Kansilehti.jasper"]]></subreportExpression>
 			</p:subreportPart>
