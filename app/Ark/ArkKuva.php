@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 
 class ArkKuva extends Model {
 
@@ -384,7 +385,7 @@ class ArkKuva extends Model {
 	    return false;
 	}
 
-	public static function updateLoytoTunnistekuva($loytoId) {
+	public static function updateLoytoTunnistekuva($loytoId, $kuvaId) {
 	    DB::select(DB::raw('update ark_kuva set tunnistekuva = false
 				where ark_kuva.id in(
 					select ark_kuva.id
@@ -393,10 +394,11 @@ class ArkKuva extends Model {
 					left join ark_loyto on ark_loyto.id = ark_kuva_loyto.ark_loyto_id
 					where ark_loyto.id = :lId
 					and ark_kuva.luettelointinumero is null
-				);'), array('lId' => $loytoId));
+					and ark_kuva.id != :kId
+				);'), array('lId' => $loytoId, 'kId' => $kuvaId));
 	}
 
-	public static function updateYksikkoTunnistekuva($yksikkoId) {
+	public static function updateYksikkoTunnistekuva($yksikkoId, $kuvaId) {
 		DB::select(DB::raw('update ark_kuva set tunnistekuva = false
 			where ark_kuva.id in(
 				select ark_kuva.id
@@ -404,7 +406,8 @@ class ArkKuva extends Model {
 				left join ark_kuva_yksikko on ark_kuva.id = ark_kuva_yksikko.ark_kuva_id
 				left join ark_tutkimusalue_yksikko on ark_tutkimusalue_yksikko.id = ark_kuva_yksikko.ark_yksikko_id
 				where ark_tutkimusalue_yksikko.id = :yId
-			);'), array('yId' => $yksikkoId));
+				and ark_kuva.id != :kId
+			);'), array('yId' => $yksikkoId, 'kId' => $kuvaId));
 }
 
 	public static function tutkimus($kuvaId) {

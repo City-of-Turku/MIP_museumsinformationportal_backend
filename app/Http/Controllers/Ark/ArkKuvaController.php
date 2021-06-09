@@ -522,10 +522,10 @@ class ArkKuvaController extends Controller {
 
             if($entity->tunnistekuva) {
                 if($request->loydot && $request->loydot[0]['id']) {
-                    ArkKuva::updateLoytoTunnistekuva($request->loydot[0]['id']);
+                    ArkKuva::updateLoytoTunnistekuva($request->loydot[0]['id'], $entity->id);
                 }
                 if($request->yksikot && $request->yksikot[0]['id']) {
-                    ArkKuva::updateYksikkoTunnistekuva($request->yksikot[0]['id']);
+                    ArkKuva::updateYksikkoTunnistekuva($request->yksikot[0]['id'], $entity->id);
                 }
             }
 
