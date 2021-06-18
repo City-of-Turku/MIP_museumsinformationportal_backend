@@ -545,8 +545,16 @@ class KyppiService{
              * Hankala tunnistaa päivitettävä alakohde, pitäisi nimen, kuvauksen ja sijainnin mukaan tunnistaa?
              */
             if(!$isUpdate){
+                // US11140
+                // Muuten sama kuin uuden luonti, mutta alakohteen nimen lukemisen jälkeen
+                // koitetaan jos kohteelta löytyy samanniminen alakohde.
+                //      Jos löytyy, kohdistetaan arvojen asettaminen tähän alakohteeseen. huom (mm. ajoitukset ja sijainnit voidaan poistaa ensin ja lisätä uudelleen)
+                //      Jos ei löydy, luodaan uusi kohde kuten lisäystilanteessa
+                //
+                // Passataan isUpdate mukaan muodostaAlakohteet metodille ja siellä tehdään tarvittavat asiat.
                 $this->muodostaAlakohteet($kohde, $dom, $muinaisjaannos);
             }
+
 
             // Kohteen tutkimustiedot
             $this->muodostaTutkimukset($kohde, $muinaisjaannos);

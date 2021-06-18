@@ -178,6 +178,18 @@ class Loyto extends Model
             ->whereNull('ark_loyto.poistettu')
             ->where('ark_tutkimus_id', '=', $ark_tutkimus_id)
             ->max('alanumero');
+        } else {
+            // Normaali käsittely - juokseva luettelointinumero per tutkimus, kaikki löydöt joinitaan mukaan
+            $alanumero = self::select('ark_loyto')
+            ->leftjoin('ark_tutkimusalue_yksikko', 'ark_loyto.ark_tutkimusalue_yksikko_id', '=', 'ark_tutkimusalue_yksikko.id')
+            ->join('ark_tutkimusalue', function($join) { //Joinitaan mukaan irtolöytötutkimukset myös, suoraan löytö->tutkimusalue->
+                $join->on('ark_tutkimusalue_yksikko.ark_tutkimusalue_id', '=', 'ark_tutkimusalue.id')
+                ->orOn('ark_loyto.ark_tutkimusalue_id', '=', 'ark_tutkimusalue.id');
+            })
+            ->leftjoin('ark_tutkimus', 'ark_tutkimusalue.ark_tutkimus_id', '=', 'ark_tutkimus.id')
+            ->whereNull('ark_loyto.poistettu')
+            ->where('ark_tutkimus_id', '=', $ark_tutkimus_id)
+            ->max('alanumero');
         }
         return $alanumero + 1;
     }

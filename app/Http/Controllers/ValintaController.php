@@ -244,7 +244,7 @@ class ValintaController extends Controller {
 					$entities = Tuhoutumissyy::select("id", "nimi_fi", "nimi_se", "nimi_en")->orderBy("nimi_fi")->get();
 					break;
 				case "ark_kokoelmalaji":
-				    $entities = Kokoelmalaji::select("id", "nimi_fi", "nimi_se", "nimi_en")->orderBy("nimi_fi")->get();
+				    $entities = Kokoelmalaji::select("id", "nimi_fi", "nimi_se", "nimi_en")->orderBy("nimi_fi")->get();//->with('tutkimus_kokoelmalajit.tutkimuslaji')->orderBy("nimi_fi")->get(); this adds available tutkimuslaji for each kokoelmalaji
 				    break;
 				case "yksikko_tyyppi":
 				    $entities = YksikkoTyyppi::select("id", "nimi_fi", "nimi_se", "nimi_en")->orderBy("nimi_fi")->get();
@@ -334,6 +334,7 @@ class ValintaController extends Controller {
 			return $entities;
 
 		} catch(Exception $e) {
+				Log::error($e);
     		MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
     		MipJson::addMessage(Lang::get('valinta.search_failed'));
     	}

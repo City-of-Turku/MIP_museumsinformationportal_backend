@@ -322,6 +322,9 @@ return [
     'finna_kokoelma' => env('FINNA_KOKOELMA'),
     'finna_museo_url' => env('FINNA_MUSEO_URL'),
     'finna_repository_name' => env('FINNA_REPOSITORY_NAME'),
-    'finna_repository_identifier' => env('FINNA_REPOSITORY_IDENTIFIER')
+    'finna_repository_identifier' => env('FINNA_REPOSITORY_IDENTIFIER'),
+
+    'frontend_url' => env('FRONTEND_URL'),
+    'email_from' => env('EMAIL_FROM')
 
 ];

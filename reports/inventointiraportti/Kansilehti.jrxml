@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2021-01-20T17:40:50 -->
+<!-- 2021-05-27T13:48:50 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Kansilehti" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="7c1e417c-59c6-4b3d-b526-50f7d936b1c3">
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="kehitys"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="net.sf.jasperreports.print.create.bookmarks" value="true"/>
 	<subDataset name="kuva_kansilehti" uuid="0b1b0646-4f6c-48dc-9a37-d3b27cb70755">
@@ -23,6 +23,7 @@ and atk.kappale = 'kansilehti']]>
 	</subDataset>
 	<parameter name="tutkimusraporttiId" class="java.lang.Long"/>
 	<parameter name="MIP_BACKEND_URL" class="java.lang.String"/>
+	<parameter name="ORGANISATION_NAME" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[select tr.id, raportti_luoja.etunimi, raportti_luoja.sukunimi, t.nimi as tutkimus_nimi, tkk.kunta, tkk.kyla, t.alkupvm, t.loppupvm
 from ark_tutkimusraportti tr
@@ -64,7 +65,7 @@ where tr.id = $P{tutkimusraporttiId}]]>
 				<textElement textAlignment="Right">
 					<font size="14"/>
 				</textElement>
-				<textFieldExpression><![CDATA["Turun museokeskus" + "\n" + $F{etunimi} + " " + $F{sukunimi}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$P{ORGANISATION_NAME} + "\n" + $F{etunimi} + " " + $F{sukunimi}]]></textFieldExpression>
 			</textField>
 			<componentElement>
 				<reportElement positionType="Float" x="0" y="241" width="557" height="346" uuid="db81ea6e-8877-434c-b5b8-49f70615e409">

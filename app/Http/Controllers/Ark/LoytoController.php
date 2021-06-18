@@ -25,6 +25,7 @@ use App\Ark\LoytoTapahtumat;
 use App\Ark\LoytoTilaTapahtuma;
 use App\Ark\LoytoMateriaalikoodi;
 use App\Ark\LoytoLuettelointinroHistoria;
+use App\Ark\Tutkimus;
 
 /**
  * Löydön käsittelyt
@@ -38,33 +39,6 @@ class LoytoController extends Controller
      * Löytöjen haku
      */
     public function index(Request $request) {
-        /*
-         * Käyttöoikeus
-         */
-//         if(!Kayttaja::hasPermission('arkeologia.ark_loyto.katselu')) {
-//             MipJson::setGeoJsonFeature();
-//             MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
-//             MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
-//             return MipJson::getJson();
-//         }
-
-        /*
-         * Validointi
-         */
-        //         $validator = Validator::make($request->all(), [
-        //             'ark_tutkimusalue_id'	=> 'required|numeric|exists:'
-        //         ]);
-
-        //         if ($validator->fails()) {
-        //             MipJson::setGeoJsonFeature();
-        //             MipJson::addMessage(Lang::get('validation.custom.user_input_validation_failed'));
-        //             foreach($validator->errors()->all() as $error) {
-        //                 MipJson::addMessage($error);
-        //             }
-        //             MipJson::setResponseStatus(Response::HTTP_BAD_REQUEST);
-        //             return MipJson::getJson();
-        //         }
-
 
         try {
             $rivi = (isset($request->rivi) && is_numeric($request->rivi)) ? $request->rivi : 0;
@@ -236,7 +210,6 @@ class LoytoController extends Controller
                 $loydot->WithKenttanumeroVanhaTyonumero($request->kenttanumero_vanha_tyonumero);
             }
 
-
             if($request->loyto_id) {
                 $loydot->withLoytoId($request->loyto_id);
             }
@@ -269,6 +242,15 @@ class LoytoController extends Controller
                 $loydot = $loydot->makeHidden(['sisaiset_lisatiedot']);
             }
 
+            // US11534 Katselijoiden löytöjen tietojen rajoittaminen
+            if(Auth::user()->ark_rooli == 'katselija') {
+                $tutkimusIds = Tutkimus::getAllIdsForKatselijaAsUser(Auth::user()->id)->get();
+
+                foreach ($loydot as $ltmp) {
+                    self::loytoTiedotKatselijalle($ltmp, $tutkimusIds);
+                }
+            }
+
             MipJson::initGeoJsonFeatureCollection(count($loydot), $total_rows);
             foreach ($loydot as $loyto) {
                 // löydön lisäys feature listaan
@@ -288,8 +270,49 @@ class LoytoController extends Controller
             MipJson::addMessage(Lang::get('loyto.search_failed'));
         }
 
-
         return MipJson::getJson();
+    }
+
+    /**
+     * Katselija-roolille ei näytetä alla mainittuja löydön tietoja, ellei katselija ole lisättynä tutkimuksen käyttäjäksi.
+     * Säilytystila, Hyllypaikka, Tilapäinen sijainti, Lainaaja, Lisätiedot
+     */
+    private static function loytoTiedotKatselijalle($loyto, $tutkimusIds) {
+        if(!is_null($loyto->yksikko)){
+
+            $tutkimus = $loyto->yksikko->tutkimusalue->tutkimus;
+
+            if(! $tutkimusIds->contains($tutkimus->id)){
+                $loyto->makeHidden(['sailytystila']);
+                $loyto->makeHidden(['tilapainen_sijainti']);
+                $loyto->makeHidden(['vakituinen_hyllypaikka']);
+                $loyto->makeHidden(['vakituinen_sailytystila_id']);
+                if(!is_null($loyto->tapahtumat)) {
+                    foreach($loyto->tapahtumat as $tapahtuma) {
+                         $tapahtuma->makeHidden('kuvaus');
+                        $tapahtuma->makeHidden('lainaaja');
+                        $tapahtuma->makeHidden(['tilapainen_sijainti']);
+                    }
+                }
+            }
+        }elseif(!is_null($loyto->tutkimusalue)){
+
+            $tutkimus = $loyto->tutkimusalue->tutkimus;
+
+            if(! $tutkimusIds->contains($tutkimus->id)){
+                $loyto->makeHidden(['sailytystila']);
+                $loyto->makeHidden(['tilapainen_sijainti']);
+                $loyto->makeHidden(['vakituinen_hyllypaikka']);
+                $loyto->makeHidden(['vakituinen_sailytystila_id']);
+                if(!is_null($loyto->tapahtumat)) {
+                    foreach($loyto->tapahtumat as $tapahtuma) {
+                        $tapahtuma->makeHidden('kuvaus');
+                        $tapahtuma->makeHidden('lainaaja');
+                        $tapahtuma->makeHidden(['tilapainen_sijainti']);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -358,6 +381,10 @@ class LoytoController extends Controller
                 // US10297
                 if(Auth::user()->ark_rooli == 'katselija') {
                     $loyto = $loyto->makeHidden(['sisaiset_lisatiedot']);
+
+                    // US11534 Katselijoiden löytöjen tietojen rajoittaminen
+                    $tutkimusIds = Tutkimus::getAllIdsForKatselijaAsUser(Auth::user()->id)->get();
+                    self::loytoTiedotKatselijalle($loyto, $tutkimusIds);
                 }
 
                 // Muodostetaan propparit
@@ -522,13 +549,20 @@ class LoytoController extends Controller
 
                 $loyto = new Loyto($request->all()['properties']);
 
+                $tutkimus = Tutkimus::getSingle($request->input('properties.ark_tutkimus_id'))->with('loytoKokoelmalaji')->first()->toArray();
+
                 // Juokseva alanumero per yksikkö ja materiaalikoodi
                 //TAI jos ark_tutkimusalue_id on asetettu, tiedetään että löytö kuuluu suoraan tutkimusalueeseen
                 //ja on siis irtolöytötyyppiseen tutkimukseen kuuluva löytö (=yksikköä ei ole)
-                if($request->input('properties.ark_tutkimus_id') && $request->input('properties.ark_tutkimusalue_id')) {
-                    $alanumero = $loyto::getAlanumero(null, null, $request->input('properties.ark_tutkimus_id'), $request->input('properties.ark_tutkimusalue_id'));
+                // TMK saa erilliskäsittelyn, muilla luettelointinumero muodostetaan pelkästään juoksevasti.
+                if($tutkimus['loyto_kokoelmalaji'] && $tutkimus['loyto_kokoelmalaji']['tunnus'] == 'TMK') {
+                    if($request->input('properties.ark_tutkimus_id') && $request->input('properties.ark_tutkimusalue_id')) {
+                        $alanumero = $loyto::getAlanumero(null, null, $request->input('properties.ark_tutkimus_id'), $request->input('properties.ark_tutkimusalue_id'));
+                    } else {
+                        $alanumero = $loyto::getAlanumero($request->input('properties.ark_tutkimusalue_yksikko_id'), $request->input('properties.materiaalikoodi.id'), null, null);
+                    }
                 } else {
-                    $alanumero = $loyto::getAlanumero($request->input('properties.ark_tutkimusalue_yksikko_id'), $request->input('properties.materiaalikoodi.id'), null, null);
+                    $alanumero = $loyto::getAlanumero(null, null, $request->input('properties.ark_tutkimus_id'), null);
                 }
 
                 $loyto->alanumero = $alanumero;
@@ -1027,7 +1061,7 @@ class LoytoController extends Controller
      * Löytöpäivämäärän tapahtuma.
      * Luodaan uusi tai päivitetään jos muutettu.
      */
-    private function luoLoytoTapahtuma($loyto, $request){
+    private static function luoLoytoTapahtuma($loyto, $request){
 
         $inputPvm = $request->input('properties.loytopaivamaara');
         $tapahtuma = LoytoTapahtumat::haeTapahtuma($loyto->id, LoytoTapahtuma::LOYDETTY);
@@ -1048,7 +1082,7 @@ class LoytoController extends Controller
         }
     }
 
-    private function luoLuettelointinumeroHistoria($loyto, $tapahtuma, $vanhaLuettelointiNro) {
+    private static function luoLuettelointinumeroHistoria($loyto, $tapahtuma, $vanhaLuettelointiNro) {
         $lnroHistoria = new LoytoLuettelointinroHistoria();
         $lnroHistoria->ark_loyto_id = $loyto->id;
         $lnroHistoria->ark_loyto_tapahtumat_id = $tapahtuma->id;
@@ -1061,7 +1095,7 @@ class LoytoController extends Controller
     /**
      * Löydön tila muutettu. Tila id ja tapahtuma id yhdistetään välitaululla LoytoTilaTapahtuma.
      */
-    private function luoTilanMuutosTapahtuma($loyto, $inputAikaleima, $request){
+    private static function luoTilanMuutosTapahtuma($loyto, $inputAikaleima, $request){
 
         $luotu = \Carbon\Carbon::now()->toDateTimeString();//\Carbon\Carbon::createFromTimestamp($inputAikaleima);
 
@@ -1105,7 +1139,7 @@ class LoytoController extends Controller
     /**
      * Luettelointinumeron vaihdon tapahtuma.
      */
-    private function luoLuettelointinumeroTapahtuma($loyto, $request){
+    private static function luoLuettelointinumeroTapahtuma($loyto, $request){
 
         $uusiTapahtuma = self::uusiTapahtuma($loyto);
         $uusiTapahtuma->ark_loyto_tapahtuma_id = LoytoTapahtuma::VAIHDETTU_LUETTELOINTINUMERO;
@@ -1119,7 +1153,7 @@ class LoytoController extends Controller
     /*
      * Uuden tapahtuman alustus
      */
-    private function uusiTapahtuma($loyto){
+    private static function uusiTapahtuma($loyto){
         $tapahtuma = new LoytoTapahtumat();
         $tapahtuma->ark_loyto_id = $loyto->id;
         $tapahtuma->luoja = Auth::user()->id;
@@ -1214,7 +1248,7 @@ class LoytoController extends Controller
             MipJson::addMessage(Lang::get('loyto.search_success'));
         }
         catch(QueryException $e) {
-            Log::debug($e);
+            Log::error($e);
             MipJson::setGeoJsonFeature();
             MipJson::addMessage(Lang::get('loyto.search_failed'));
             MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);

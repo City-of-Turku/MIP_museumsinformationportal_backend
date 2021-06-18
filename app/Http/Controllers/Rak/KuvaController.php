@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 use Exception;
 use Illuminate\Support\Facades\File;
 use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
@@ -231,28 +232,49 @@ class KuvaController extends Controller {
 
     				/*
 	    			 * Create thumbnails
+						 * TODO: Tee järkevämmäksi.
 	    			 */
 	    			//Large
 	    			$img = Image::make($file_fullname)->encode('jpg');
-						$img->orientate();
+						try {
+							$img->orientate();
+						} catch (Exception $e) {
+							// Log for details
+							Log::debug($e);
+						}
 	    			$img_large = Kuva::createThumbnail($img, intval(explode(",",config('app.image_thumb_large'))[0]));
 	    			$img_large->save($file_path.$file_name."_LARGE.".$thumb_extension);
 
 	    			//Medium
 	    			$img = Image::make($file_fullname)->encode('jpg');
-						$img->orientate();
+						try {
+							$img->orientate();
+						} catch (Exception $e) {
+							// Log for details
+							Log::debug($e);
+						}
 	    			$img_medium = Kuva::createThumbnail($img, intval(explode(",",config('app.image_thumb_medium'))[0]));
 	    			$img_medium->save($file_path.$file_name."_MEDIUM.".$thumb_extension);
 
 	    			//Small
 	    			$img = Image::make($file_fullname)->encode('jpg');
-						$img->orientate();
+						try {
+							$img->orientate();
+						} catch (Exception $e) {
+							// Log for details
+							Log::debug($e);
+						}
     				$img_small = Kuva::createThumbnail($img, intval(explode(",",config('app.image_thumb_small'))[0]));
     				$img_small->save($file_path.$file_name."_SMALL.".$thumb_extension);
 
     				//Tiny
     				$img = Image::make($file_fullname)->encode('jpg');
-						$img->orientate();
+						try {
+							$img->orientate();
+						} catch (Exception $e) {
+							// Log for details
+							Log::debug($e);
+						}
     				$img_tiny = Kuva::createThumbnail($img, intval(explode(",",config('app.image_thumb_tiny'))[0]));
     				$img_tiny->save($file_path.$file_name."_TINY.".$thumb_extension);
 
