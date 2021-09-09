@@ -295,33 +295,40 @@ class Tutkimus extends Model
     }
 
     //Haetaan viimeisin luettelointinumero annetun tutkimuksen kuvalle
-    //Numerointi on AINA muotoa <vuosi>:<alanumero>:<juokseva_numero>
-    //split_part(, , 3) luottaa tähän, muutoin ei saada juoksevaa numeroa automaattisesti.
-    public static function getViimeisinLuettelointinumero($tutkimus_id) {
-        // Koitetaan ensin vanhalla logiikalla, ja jos se feilaa niin sitten koitetaan uudella migroitujen kuvien tavalla...
-//        DB::beginTransaction();
-//        try {
-            $q = DB::select(DB::raw("select k.luettelointinumero,
-                                    split_part(k.luettelointinumero, ':',3)::int as juokseva
-                                    from ark_kuva k
-                                    where k.ark_tutkimus_id = :tId
-                                    and k.poistettu is null
-                                    and k.otsikko is null
-                                    and k.luettelointinumero is not null
-                                    order by juokseva desc
-                                    limit 1;"), array('tId' => $tutkimus_id));
-//        } catch(\PDOException $e) {
-//            DB::rollback();
-//            $q = DB::select(DB::raw("select k.luettelointinumero,
-//                                    split_part(k.luettelointinumero, ':',2)::int as juokseva
-//                                    from ark_kuva k
-//                                    where k.ark_tutkimus_id = :tId
-//                                    and k.poistettu is null
-//                                    and k.otsikko is null
-//                                    and k.luettelointinumero is not null
-//                                    order by juokseva desc
-//                                    limit 1;"), array('tId' => $tutkimus_id));
-//        }
+    // Luettelointinumeron muoto (= osien määrä) selvitetään ensin, ja tämän jälkeen luettelointinumeron 
+    // viimeinen osa on juokseva numero, jonka arvoon lisätään 1.
+    public static function getViimeisinLuettelointinumero($tutkimus_id) {       
+        // Ensin selvitetään miten moneen osaan luettelointinumero on jaettu, jotta tiedetään mikä osio on juokseva numero
+        $splitQuery = DB::select(DB::raw("select 
+                                        (CHAR_LENGTH(luettelointinumero) - CHAR_LENGTH(REPLACE(luettelointinumero, ':', ''))) / CHAR_LENGTH(':') as coloncount
+                                        from
+                                        ark_kuva k
+                                        where
+                                        k.ark_tutkimus_id = :tId
+                                        and k.poistettu is null
+                                        and k.otsikko is null
+                                        and k.luettelointinumero is not null
+                                        order by id desc
+                                        limit 1;"), array('tId' => $tutkimus_id));
+
+        // Defaultataan alkuperäisen speksin lukuun 3, jos muuta ei tule. Position on siis
+        // :-merkistä splitatun osion kohta joka otetaan käyttöön, alkaen ykkösestä.
+        $position = 3;
+        if(sizeof($splitQuery) > 0) {
+            $position = $splitQuery[0]->coloncount;
+            $position = intval($position)+1;
+        }
+        
+        $q = DB::select(DB::raw("select k.luettelointinumero,
+                                split_part(k.luettelointinumero, ':',:pos)::int as juokseva
+                                from ark_kuva k
+                                where k.ark_tutkimus_id = :tId
+                                and k.poistettu is null
+                                and k.otsikko is null
+                                and k.luettelointinumero is not null
+                                order by juokseva desc
+                                limit 1;"), array('tId' => $tutkimus_id, 'pos' => $position));
+
         if(sizeof($q) > 0) {
             return $q[0]->luettelointinumero;
         } else {
