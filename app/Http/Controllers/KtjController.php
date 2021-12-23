@@ -252,16 +252,7 @@ class KtjController extends Controller {
 			MipJson::initGeoJsonFeatureCollection(count($osoitteet), count($osoitteet));
 
 			foreach ($osoitteet as $index => $osoite) {
-				// set the feature->geometry->type  to 'Point' and feature->geometry->coordinates to the sijainti
-				$point = [];
-				$point["type"] = "Point";
-				$point["coordinates"] = explode(" ", $osoite["sijainti"]);
-				//Convert string to float
-				$point["coordinates"][0] = (float)$point['coordinates'][0];
-				$point["coordinates"][1] = (float)$point['coordinates'][1];
-
-				MipJson::addGeoJsonFeatureCollectionFeaturePoint($point, $osoite);
-
+				MipJson::addGeoJsonFeatureCollectionFeaturePoint($osoite["sijainti"], $osoite);
 			}
 
 			MipJson::addMessage(Lang::get('ktj.search_success'));
