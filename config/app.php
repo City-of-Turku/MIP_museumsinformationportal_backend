@@ -265,6 +265,9 @@ return [
 
     'mml_wmts_username' => env('MML_WMTS_USERNAME'),
     'mml_wmts_password' => env('MML_WMTS_PASSWORD'),
+    'mml_apikey_nimisto' => env('MML_APIKEY_NIMISTO'),
+    'mml_municipality_codes' => env('MML_MUNICIPALITY_CODES'),
+    'mml_placetype_codes' => env('MML_PLACETYPE_CODES'),
 
     'mml_kiinteistotiedot_url' => env('MML_KIINTEISTOTIEDOT_URL'),
     'mml_kiinteistotiedot_username' => env('MML_KIINTEISTOTIEDOT_USERNAME'),
