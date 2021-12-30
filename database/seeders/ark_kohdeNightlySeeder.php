@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Seeders;
+
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -8,6 +10,7 @@ use App\Ark\Kohde;
 use App\Utils;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
+use Exception;
 
 class ark_kohdeNightlySeeder extends Seeder
 {
@@ -120,7 +123,7 @@ class ark_kohdeNightlySeeder extends Seeder
                 $message->from('mip@mip.fi', 'MIP');
                 $message->to(config('app.kyppi_admin_email'))->subject("MIP / " . App::environment());
                 });
-            } catch (Swift_TransportException $e) {
+            } catch (Exception $e) {
                 Log::error('Sending mail failed: ' . $e);
             }
         }

@@ -127,7 +127,7 @@ return [
         |
         */
 
-        'user' => 'Tymon\JWTAuth\Providers\User\EloquentUserAdapter',
+        'user' => 'PHPOpenSourceSaver\JWTAuth\Providers\User\EloquentUserAdapter',
 
         /*
         |--------------------------------------------------------------------------
@@ -138,7 +138,7 @@ return [
         |
         */
 
-        'jwt' => Tymon\JWTAuth\Providers\JWT\Namshi::class,
+        'jwt' => PHPOpenSourceSaver\JWTAuth\Providers\JWT\Namshi::class,
 
         /*
         |--------------------------------------------------------------------------
@@ -149,7 +149,7 @@ return [
         |
         */
 
-        'auth' => Tymon\JWTAuth\Providers\Auth\Illuminate::class,
+        'auth' => PHPOpenSourceSaver\JWTAuth\Providers\Auth\Illuminate::class,
 
         /*
         |--------------------------------------------------------------------------
@@ -160,10 +160,10 @@ return [
         |
         */
 
-        'storage' => Tymon\JWTAuth\Providers\Storage\Illuminate::class
-        //'jwt' => 'Tymon\JWTAuth\Providers\JWT\NamshiAdapter',
-        //'auth' => 'Tymon\JWTAuth\Providers\Auth\IlluminateAuthAdapter', 
-        //'storage' => 'Tymon\JWTAuth\Providers\Storage\IlluminateCacheAdapter'
+        'storage' => PHPOpenSourceSaver\JWTAuth\Providers\Storage\Illuminate::class
+        //'jwt' => 'PHPOpenSourceSaver\JWTAuth\Providers\JWT\NamshiAdapter',
+        //'auth' => 'PHPOpenSourceSaver\JWTAuth\Providers\Auth\IlluminateAuthAdapter', 
+        //'storage' => 'PHPOpenSourceSaver\JWTAuth\Providers\Storage\IlluminateCacheAdapter'
 
     ]
 

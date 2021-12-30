@@ -5,9 +5,9 @@ namespace App\Http\Middleware;
 use App\Library\String\MipJson;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Lang;
-use Tymon\JWTAuth\Exceptions\JWTException;
-use Tymon\JWTAuth\Exceptions\TokenExpiredException;
-use Tymon\JWTAuth\Http\Middleware\BaseMiddleware;
+use PHPOpenSourceSaver\JWTAuth\Exceptions\JWTException;
+use PHPOpenSourceSaver\JWTAuth\Exceptions\TokenExpiredException;
+use PHPOpenSourceSaver\JWTAuth\Http\Middleware\BaseMiddleware;
 use Closure;
 
 class JwtToken extends BaseMiddleware {
