@@ -2,10 +2,12 @@
 
 MIP Backend is the backend for MIP.
 
+Develop and Master branches use Laravel v6, develop_v8 branch uses Laravel v8.
+
 ## Installation
 
 **Prerequisites**
-- PHP >=7.2
+- PHP >=7.2 (PHP >=8.1.1 if using develop_v8 branch)
 - Composer
 
 
