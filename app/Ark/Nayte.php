@@ -253,8 +253,8 @@ class Nayte extends Model
         if($tarkka){
             return $query->where('ark_nayte.luettelointinumero', 'ILIKE', $keyword);
         }else{
-            return $query->where('ark_nayte.luettelointinumero', 'ILIKE', "%".$keyword."%")
-            ->orWhere('ark_nayte.alkup_luetnro', 'ILIKE', "%".$keyword."%");
+            return $query->where('ark_nayte.luettelointinumero', 'ILIKE', "%".$keyword)
+            ->orWhere('ark_nayte.alkup_luetnro', 'ILIKE', "%".$keyword);
         }
     }
     public function scopeWithUniikkiLuettelointinumero($query, $keyword) {
