@@ -5,7 +5,7 @@ MIP Backend is the backend for MIP.
 ## Installation
 
 **Prerequisites**
-- PHP >=7.2
+- PHP >=8.1.1
 - Composer
 
 
