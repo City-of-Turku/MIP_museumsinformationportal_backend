@@ -38,10 +38,6 @@ class Kori extends Model
         return self::select('kori.*')->where('id', '=', $id);
     }
 
-    public static function getSingleByName($name) {
-        return self::select('kori.*')->where('nimi', 'like', $name);
-    }
-
     /**
      * Palauttaa korin id listan
      */
@@ -68,6 +64,10 @@ class Kori extends Model
      */
     public function scopeWithKorityyppi($query, $id) {
         return $query->where('korityyppi_id', '=', $id);
+    }
+
+    public function scopeWithKoriNimi($query, $nimi){
+        return $query->where('nimi', 'ILIKE', $nimi);
     }
 
     /**
