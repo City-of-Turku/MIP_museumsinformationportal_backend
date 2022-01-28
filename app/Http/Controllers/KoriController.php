@@ -129,38 +129,6 @@ class KoriController extends Controller
         return MipJson::getJson();
     }
 
-    public function showByName($name) {
-
-       
-        try {
-
-            // Hae kori
-            $kori = Kori::getSingleByName($name)->with( array(
-                'korityyppi',
-                'luoja',
-                'muokkaaja'))->first();
-            if(!$kori) {
-                MipJson::setGeoJsonFeature();
-                MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
-                MipJson::addMessage(Lang::get('kori.search_not_found'));
-                return MipJson::getJson();
-            }
-
-            // Muodostetaan propparit
-            $properties = clone($kori);
-
-            MipJson::setGeoJsonFeature(null, $properties);
-            MipJson::addMessage(Lang::get('kori.search_success'));
-        }
-        catch(QueryException $e) {
-            MipJson::setGeoJsonFeature();
-            MipJson::addMessage(Lang::get('kori.search_failed'));
-            MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    
-        return MipJson::getJson();
-    }
-
     /**
      * Tallenna uusi kori
      *
