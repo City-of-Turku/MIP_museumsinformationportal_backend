@@ -2,7 +2,7 @@
 
 namespace App\Exceptions;
 
-use Exception;
+use Throwable;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler
@@ -32,7 +32,7 @@ class Handler extends ExceptionHandler
      * @param  \Exception  $exception
      * @return void
      */
-    public function report(Exception $exception)
+    public function report(Throwable $exception)
     {
         parent::report($exception);
     }
@@ -41,18 +41,18 @@ class Handler extends ExceptionHandler
      * Render an exception into an HTTP response.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Exception  $exception
+     * @param  \Throwable  $exception
      * @return \Illuminate\Http\Response
      */
-    public function render($request, Exception $e)
+    public function render($request, Throwable $e)
     {
-        if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException) {
+        if ($e instanceof \PHPOpenSourceSaver\JWTAuth\Exceptions\TokenInvalidException) {
     		return response(['Auth token is invalid'], 401);
     	}
-    	else if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenExpiredException) {
+    	else if ($e instanceof \PHPOpenSourceSaver\JWTAuth\Exceptions\TokenExpiredException) {
     		return response(['Auth token has expired'], 401);
     	}
-    	else if($e instanceof \Tymon\JWTAuth\Exceptions\JWTException) {
+    	else if($e instanceof \PHPOpenSourceSaver\JWTAuth\Exceptions\JWTException) {
     		//return response(['Auth token is required'], 401);
     		return array('Auth token is required, please request token via /singin - PRESENT ERROR AS MIPJSON FORMAT!');
     	}

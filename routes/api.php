@@ -361,7 +361,6 @@ Route::group(['middleware' => 'auth.jwt'], function () {
 	Route::get("/kori/",                                    "KoriController@index");
 	Route::post("/kori/",                                   "KoriController@store");
 	Route::get("/kori/{id}",                                "KoriController@show");
-	Route::get("/kori/nimi/{nimi}",                         "KoriController@showByName");
 	Route::get("/kori/korityyppi/{taulu}",                  "KoriController@haeKorityyppi");
 	Route::put("/kori/{id}",                                "KoriController@update");
 	Route::delete("/kori/{id}",                             "KoriController@destroy");

@@ -4,7 +4,7 @@ namespace App\Integrations\Finna;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
-use Tymon\JWTAuth\Facades\JWTAuth;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use App\Kayttaja;
 use App\Ark\Loyto;
 use Illuminate\Support\Facades\Auth;

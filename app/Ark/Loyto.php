@@ -286,7 +286,7 @@ class Loyto extends Model
         if($tarkka){
             return $query->where('ark_loyto.luettelointinumero', 'ILIKE', $keyword);
         }else{
-            return $query->where('ark_loyto.luettelointinumero', 'ILIKE', "%".$keyword."%");
+            return $query->where('ark_loyto.luettelointinumero', 'ILIKE', "%".$keyword);
         }
     }
 
