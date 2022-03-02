@@ -66,8 +66,8 @@ class KyppiService{
 
         try {
 
-            Log::info('KyppiService: haeMuinaisjaannos SOAP mj-tunnus = ' . $id);
-            Log::info('KyppiService: endpoint = ' . $this->kyppiMuinaisjaannosEndpoint);
+            Log::channel('kyppi')->info('KyppiService: haeMuinaisjaannos SOAP mj-tunnus = ' . $id);
+            Log::channel('kyppi')->info('KyppiService: endpoint = ' . $this->kyppiMuinaisjaannosEndpoint);
 
             $time_start = microtime(true);
 
@@ -87,7 +87,7 @@ class KyppiService{
                     throw new Exception(" HaeMuinaisjaannos-kutsu epäonnistui: " . $response->getStatusCode() . " : " . $response->getReasonPhrase());
                 }
             } catch (Exception $e) {
-                Log::error('haeMuinaisjaannosSoap virhe: ' .$e->getTraceAsString());
+                Log::channel('kyppi')->error('haeMuinaisjaannosSoap virhe: ' .$e);
 
                 throw $e;
             }
@@ -95,7 +95,7 @@ class KyppiService{
             $time_end = microtime(true);
             $execution_time = ($time_end - $time_start);
 
-            Log::info('Kyppi vastausaika: '.round($execution_time, 2) .' sec');
+            Log::channel('kyppi')->info('Kyppi vastausaika: '.round($execution_time, 2) .' sec');
 
             if($vainPvm){
 
@@ -125,8 +125,8 @@ class KyppiService{
             }
 
         } catch (Exception $e) {
-            Log::error('Exception: ' . $e);
-            throw new Exception(" haeMuinaisjaannos-kutsu epäonnistui: " .$e->getTraceAsString());
+            Log::channel('kyppi')->error('Exception: ' . $e);
+            throw new Exception(" haeMuinaisjaannos-kutsu epäonnistui: " .$e);
         }
     }
 
@@ -143,7 +143,7 @@ class KyppiService{
 
         if(empty($kohde)){
 
-            Log::info('Lisaa kohde');
+            Log::channel('kyppi')->info('Lisaa kohde');
 
             // Uusi Kohde model
             $kohde = new Kohde();
@@ -152,7 +152,7 @@ class KyppiService{
             $kohde->kyppi_status = '1';
 
         }else{
-            Log::info('Paivita kohde ' .$kohde->muinaisjaannostunnus);
+            Log::channel('kyppi')->info('Paivita kohde ' .$kohde->muinaisjaannostunnus);
             $isUpdate = true;
 
             // Kohteen status = päivitetty
@@ -167,7 +167,7 @@ class KyppiService{
         // <muinaisjaannos> elementin alta löytyy kaikki tarvittava
         $muinaisjaannos = $dom->getElementsByTagName( 'muinaisjaannos' )->item(0);
 
-        Log::debug($dom->saveXML());
+        Log::channel('kyppi')->debug($dom->saveXML());
 
         // Kohteen luonti ja tietojen populointi
         $this->muodostaKohdeKypinTiedoilla($muinaisjaannos, $kohde);
@@ -175,8 +175,8 @@ class KyppiService{
         // Tallenna kohde ja relaatiot
         if( $this->tallennaKohde($kohde, $dom, $muinaisjaannos, $isUpdate) ){
             // Lokitusta
-            Log::info('Kyppi-palvelusta tuotu kohde onnistuneesti');
-            Log::info('Kohde save = ' .$kohde);
+            Log::channel('kyppi')->info('Kyppi-palvelusta tuotu kohde onnistuneesti');
+            Log::channel('kyppi')->info('Kohde save = ' .$kohde);
 
             // Onnistunut tuonti
             MipJson::setGeoJsonFeature(null, array("id" => $kohde->id));
@@ -184,7 +184,7 @@ class KyppiService{
             MipJson::setResponseStatus(Response::HTTP_OK);
 
         }else{
-            Log::info('Kohteen tallennus ei onnistunut, tarkista lokit = ' .$kohde);
+            Log::channel('kyppi')->info('Kohteen tallennus ei onnistunut, tarkista lokit = ' .$kohde);
 
             MipJson::setGeoJsonFeature();
             MipJson::addMessage(Lang::get('kohde.save_failed'));
@@ -200,7 +200,7 @@ class KyppiService{
      */
     public function paivitaKohteenStatus($kohde) {
 
-        Log::info('Paivita kohde status ' .$kohde->muinaisjaannostunnus);
+        Log::channel('kyppi')->info('Paivita kohde status ' .$kohde->muinaisjaannostunnus);
 
         // Kohteen status = päivitetty
         $kohde->kyppi_status = '2';
@@ -220,7 +220,7 @@ class KyppiService{
             // Rollback jos virhe
             DB::rollback();
 
-            Log::error('KyppiService paivitaKohteenStatus virhe: ' .$e->getTraceAsString());
+            Log::channel('kyppi')->error('KyppiService paivitaKohteenStatus virhe: ' .$e);
         }
         return MipJson::getJson();
     }
@@ -243,10 +243,10 @@ class KyppiService{
 
         // Tallenna kohde ja relaatiot
         if( $this->tallennaKohde($kohde, $dom, $muinaisjaannos, false) ){
-            Log::info('Kohde = ' .$kohde);
+            Log::channel('kyppi')->info('Kohde = ' .$kohde);
 
         }else{
-            Log::info('Kohteen tallennus ei onnistunut, tarkista lokit ' .$kohde);
+            Log::channel('kyppi')->info('Kohteen tallennus ei onnistunut, tarkista lokit ' .$kohde);
         }
 
     }
@@ -265,14 +265,14 @@ class KyppiService{
              */
             if( empty($kunta) ){
 
-                Log::info('KyppiService: haeMuinaisjaannokset pvm = ' . $muutettuPvm . " " . $maakunta );
+                Log::channel('kyppi')->info('KyppiService: haeMuinaisjaannokset pvm = ' . $muutettuPvm . " " . $maakunta );
 
                 // Oletus
                 $maakunta = $maakunta;
                 $kunta = null;
             } else {
 
-                Log::info('KyppiService: haeMuinaisjaannokset pvm = ' . $muutettuPvm . " " . $kunta );
+                Log::channel('kyppi')->info('KyppiService: haeMuinaisjaannokset pvm = ' . $muutettuPvm . " " . $kunta );
 
                 $maakunta = null;
             }
@@ -303,7 +303,7 @@ class KyppiService{
 
             $soapFooter = '</soapenv:Envelope>';
             $xmlRequest = $soapHeader . $soapBody . $soapFooter;
-            // Log::debug($xmlRequest);
+            // Log::channel('kyppi')->debug($xmlRequest);
             // Aika alkaa nyt
             $time_start = microtime(true);
 
@@ -323,7 +323,7 @@ class KyppiService{
                     throw new Exception(" HaeMuinaisjaannokset-kutsu epäonnistui: " . $response->getStatusCode() . " : " . $response->getReasonPhrase());
                 }
             } catch (Exception $e) {
-                Log::error('haeMuinaisjaannoksetSoap virhe: ' .$e->getTraceAsString());
+                Log::channel('kyppi')->error('haeMuinaisjaannoksetSoap virhe: ' .$e);
 
                 throw $e;
             }
@@ -331,13 +331,13 @@ class KyppiService{
             $time_end = microtime(true);
             $execution_time = ($time_end - $time_start);
 
-            Log::info('Kyppi HaeMuinaisjaannokset vastausaika: '.round($execution_time, 2) .' sec');
+            Log::channel('kyppi')->info('Kyppi HaeMuinaisjaannokset vastausaika: '.round($execution_time, 2) .' sec');
 
             return $response->getBody();
 
         } catch (Exception $e) {
-            Log::error('KyppiService exception: ' .$e->getTraceAsString());
-            throw new Exception(" HaeMuinaisjaannokset-kutsu epäonnistui: " .$e->getTraceAsString());
+            Log::channel('kyppi')->error('KyppiService exception: ' .$e);
+            throw new Exception(" HaeMuinaisjaannokset-kutsu epäonnistui: " .$e);
         }
     }
 
@@ -363,7 +363,7 @@ class KyppiService{
         $soapFooter = '</soapenv:Envelope>';
         $xmlRequest = $soapHeader . $soapBody . $soapFooter;
 
-        Log::info('Request: '.$xmlRequest);
+        Log::channel('kyppi')->info('Request: '.$xmlRequest);
 
         // Aika alkaa nyt
         $time_start = microtime(true);
@@ -385,7 +385,7 @@ class KyppiService{
                 throw new Exception(" HaeMuinaisjaannokset-kutsu epäonnistui: " . $response->getStatusCode() . " : " . $response->getReasonPhrase());
             }
         } catch (Exception $e) {
-            Log::error('haeMuinaisjaannoksetSoap virhe: ' .$e->getTraceAsString());
+            Log::channel('kyppi')->error('haeMuinaisjaannoksetSoap virhe: ' .$e);
 
             throw $e;
 
@@ -394,7 +394,7 @@ class KyppiService{
         $time_end = microtime(true);
         $execution_time = ($time_end - $time_start);
 
-        Log::info('Kyppi HaeMuinaisjaannokset vastausaika: '.round($execution_time, 2) .' sec');
+        Log::channel('kyppi')->info('Kyppi HaeMuinaisjaannokset vastausaika: '.round($execution_time, 2) .' sec');
 
         return $response->getBody();
     }
@@ -424,7 +424,7 @@ class KyppiService{
         $soapFooter = '</soap:Envelope>';
         $xmlRequest = $soapHeader . $soapBody . $soapFooter;
 
-        Log::info('LisaaMuinaisjaannos Request: '.$xmlRequest);
+        Log::channel('kyppi')->info('LisaaMuinaisjaannos Request: '.$xmlRequest);
 
         // Aika alkaa nyt
         $time_start = microtime(true);
@@ -445,7 +445,7 @@ class KyppiService{
                 throw new Exception(" LisaaMuinaisjaannos-kutsu epäonnistui: " . $response->getStatusCode() . " : " . $response->getReasonPhrase());
             }
         } catch (Exception $e) {
-            Log::error('LisaaMuinaisjaannos virhe: ' .$e->getTraceAsString());
+            Log::channel('kyppi')->error('LisaaMuinaisjaannos virhe: ' .$e);
 
             throw $e;
 
@@ -454,7 +454,7 @@ class KyppiService{
         $time_end = microtime(true);
         $execution_time = ($time_end - $time_start);
 
-        Log::info('Kyppi LisaaMuinaisjaannos vastausaika: '.round($execution_time, 2) .' sec');
+        Log::channel('kyppi')->info('Kyppi LisaaMuinaisjaannos vastausaika: '.round($execution_time, 2) .' sec');
 
         $body = $response->getBody();
 
@@ -466,7 +466,7 @@ class KyppiService{
         // Palautetaan uusi muinaisjäännöstunnus tai -1 palautuu, jos luominen epäonnistuu.
         $muinaisjaannostunnus = $dom->getElementsByTagName( 'LisaaMuinaisjaannosResult' )->item(0)->nodeValue;
 
-        Log::info('Muinaisjäännöstunnus luotu: '.$muinaisjaannostunnus);
+        Log::channel('kyppi')->info('Muinaisjäännöstunnus luotu: '.$muinaisjaannostunnus);
 
         return $muinaisjaannostunnus;
     }
@@ -570,7 +570,7 @@ class KyppiService{
             // Rollback jos virhe
             DB::rollback();
 
-            Log::error('KyppiService tallennaKohde virhe: ' .$e->getTraceAsString());
+            Log::channel('kyppi')->error('KyppiService tallennaKohde virhe: ' .$e);
             return false;
         }
     }
@@ -609,7 +609,6 @@ class KyppiService{
 
             // Haetaan geometry sijainti EPSG:3067 koordinaateilla
             $kohdepisteGeom = MipGis::haeEpsg3067Sijainti($lonLat[0], $lonLat[1]);
-            //app('log')->debug('Kohde piste: '.$lonLat[0] .' ' .$lonLat[1]);
 
             if(empty($alakohde)){
                 $kohdePiste = $this->muodostaKohdesijainti($kohde, $kohdepisteGeom);
@@ -621,7 +620,7 @@ class KyppiService{
             return $kohdePiste;
 
         }else{
-            Log::error('Sijaintitieto puuttuu: '.$kohde->muinaisjaannostunnus);
+            Log::channel('kyppi')->error('Sijaintitieto puuttuu: '.$kohde->muinaisjaannostunnus);
         }
 
     }
@@ -649,7 +648,6 @@ class KyppiService{
 
                 // Muunnetaan array stringiksi
                 $polygonPisteet = implode(',', $polygonArray);
-                //app('log')->debug('polygonPisteet: ' .$i .$polygonPisteet);
 
                 // Muodostetaan geometry arvo
                 $aluerajaus = MipGis::haeEpsg3067PolygonSijainti($polygonPisteet);
@@ -673,8 +671,6 @@ class KyppiService{
     private function haePaatasonArvot($muinaisjaannos, $kohde){
 
         foreach ($muinaisjaannos->childNodes as $item) {
-
-            //app('log')->debug($item->nodeName . " = " . $item->nodeValue);
 
             if($item->nodeName == 'muinaisjaannostunnus'){
                 $kohde->muinaisjaannostunnus = $item->nodeValue;
@@ -826,10 +822,9 @@ class KyppiService{
      * @param $nimi_fi = 'valintalistan teksti'
      */
     private function haeValintalistanId($table, $nimi_fi){
-        //app('log')->debug('Valintalista table = ' . $table . ' ' . $nimi_fi);
 
         if(empty($nimi_fi)){
-            Log::error('KyppiService: valintalistan hakuparametri puuttuu');
+            Log::channel('kyppi')->error('KyppiService: valintalistan hakuparametri puuttuu');
             return '';
         }
 
@@ -843,7 +838,7 @@ class KyppiService{
             }
 
             if(empty($valintalista)){
-                Log::error('Valintalistan id puuttuu table, kentta: ' .$table .' ,' .$nimi_fi);
+                Log::channel('kyppi')->error('Valintalistan id puuttuu table, kentta: ' .$table .' ,' .$nimi_fi);
                 return null;
             }else{
 
@@ -852,7 +847,7 @@ class KyppiService{
             }
 
         } catch(Exception $e) {
-            Log::error('Valintalistan haun virhe ' . $e);
+            Log::channel('kyppi')->error('Valintalistan haun virhe ' . $e);
             throw $e;
         }
     }
@@ -952,7 +947,7 @@ class KyppiService{
             $kohdeajoitus->ark_kohde_id = $kohde->id;
 
             if( empty($ajoitus) ){
-                Log::info('Ajoitus puuttuu, asetetaan oletusarvona: Ei maaritelty');
+                Log::channel('kyppi')->info('Ajoitus puuttuu, asetetaan oletusarvona: Ei maaritelty');
                 $kohdeajoitus->ajoitus_id = '1';
             }else{
                 $kohdeajoitus->ajoitus_id = $this->haeValintalistanId('ajoitus', $ajoitus->nodeValue);
@@ -994,7 +989,7 @@ class KyppiService{
         $kunta = Kunta::where('kuntanumero', $kuntakoodi->nodeValue)->first();
         if( empty($kunta) ){
             // Jos kuntaa ei löydy tallennus epäonnistuu
-            Log::error('Virhe: Kuntaa ei löydy kuntanumerolla: '.$kuntakoodi->nodevalue .' mj: ' .$muinaisjaannos->muinaisjaannostunnus->nodevalue);
+            Log::channel('kyppi')->error('Virhe: Kuntaa ei löydy kuntanumerolla: '.$kuntakoodi->nodevalue .' mj: ' .$muinaisjaannos->muinaisjaannostunnus->nodevalue);
         }
 
         $kohdeKuntaKyla = new KohdeKuntaKyla();
@@ -1094,7 +1089,7 @@ class KyppiService{
 
 
             if( empty($ajoitus) ){
-                Log::info('Ajoitus puuttuu, asetetaan oletusarvona: Ei maaritelty');
+                Log::channel('kyppi')->info('Ajoitus puuttuu, asetetaan oletusarvona: Ei maaritelty');
                 $alakohdeajoitus->ajoitus_id = '1';
             }else{
                 $alakohdeajoitus->ajoitus_id = $this->haeValintalistanId('ajoitus', $ajoitus->nodeValue);
