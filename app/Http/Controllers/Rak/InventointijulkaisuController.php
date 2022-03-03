@@ -481,7 +481,7 @@ class InventointijulkaisuController extends Controller {
 		}
 
 		$entity = Inventointijulkaisu::find ( $id );
-		if ($entity) {
+		if (!$entity) {
 			// return: not found
 			MipJson::setGeoJsonFeature ();
 			MipJson::addMessage ( Lang::get ( 'inventointijulkaisu.search_not_found' ) );
