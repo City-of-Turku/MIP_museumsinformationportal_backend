@@ -24,6 +24,13 @@ class KtjController extends Controller {
 	 * @since 1.0
 	 */
 	public function queryKiinteisto(Request $request) {
+	
+		if(config('app.mml_kiinteisto_queries_enabled') == false) {
+			MipJson::setGeoJsonFeature(null, array('ktj_service' => 'not_configured'));
+			MipJson::addMessage(Lang::get('ktj.not_in_use'));
+			MipJson::setResponseStatus(Response::HTTP_BAD_REQUEST);
+			return MipJson::getJson();
+		}
 		/*
 		 * Role check
 		 */
@@ -91,8 +98,14 @@ class KtjController extends Controller {
 	 */
 	public function queryKiinteistotWithinPolygonWithRakennukset(Request $request) {
 
-		try {
+		if(config('app.mml_kiinteisto_queries_enabled') == false) {
+			MipJson::setGeoJsonFeature(null, array('ktj_service' => 'not_configured'));
+			MipJson::addMessage(Lang::get('ktj.not_in_use'));
+			MipJson::setResponseStatus(Response::HTTP_BAD_REQUEST);
+			return MipJson::getJson();
+		}
 
+		try {
 			$kiinteistot = MMLQueries::getKiinteistoTunnusByPolygon($request->sijainti);
 
 			MipJson::initGeoJsonFeatureCollection(count($kiinteistot), count($kiinteistot));
@@ -162,6 +175,13 @@ class KtjController extends Controller {
 			MipJson::setGeoJsonFeature();
 			MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
 			MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+			return MipJson::getJson();
+		}
+
+		if(config('app.mml_kiinteisto_queries_enabled') == false) {
+			MipJson::setGeoJsonFeature(null, array('ktj_service' => 'not_configured'));
+			MipJson::addMessage(Lang::get('ktj.not_in_use'));
+			MipJson::setResponseStatus(Response::HTTP_BAD_REQUEST);
 			return MipJson::getJson();
 		}
 

@@ -328,6 +328,8 @@ return [
     'finna_repository_identifier' => env('FINNA_REPOSITORY_IDENTIFIER'),
 
     'frontend_url' => env('FRONTEND_URL'),
-    'email_from' => env('EMAIL_FROM')
+    'email_from' => env('EMAIL_FROM'),
+    'kyppi_nightly_starttime' => env('KYPPI_NIGHTLY_STARTTIME'),
+    'mml_kiinteisto_queries_enabled' => env('MML_KIINTEISTO_QUERIES_ENABLED')
 
 ];

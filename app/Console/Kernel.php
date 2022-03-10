@@ -27,9 +27,10 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')
         //          ->everyMinute();
-     
+        $starttime = config('app.kyppi_nightly_starttime');
+           
         $schedule->command('db:seed --class ark_kohdeNightlySeeder --force')
-            ->dailyAt('03:00')
+            ->dailyAt($starttime)
             ->appendOutputTo(storage_path('logs/kyppi.log'));
     }
 
