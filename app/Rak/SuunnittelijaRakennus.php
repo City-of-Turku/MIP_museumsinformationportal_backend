@@ -41,14 +41,30 @@ class SuunnittelijaRakennus extends Model
 		
 		foreach($suunnittelijat as $s) {
 			//value "" is not accepted, change them to null
-			if($s['suunnitteluvuosi_alku'] == "") {
+			if(isset($s['suunnitteluvuosi_alku'])) {
+				if($s['suunnitteluvuosi_alku'] == "") {
+					$s['suunnitteluvuosi_alku'] = null;
+				}
+			} else {
 				$s['suunnitteluvuosi_alku'] = null;
 			}
-			
-			if($s['suunnitteluvuosi_loppu'] == "") {
+
+			if(isset($s['suunnitteluvuosi_loppu'])) {
+				if($s['suunnitteluvuosi_loppu'] == "") {
+					$s['suunnitteluvuosi_loppu'] = null;
+				}
+			} else {
 				$s['suunnitteluvuosi_loppu'] = null;
 			}
 			
+			if(isset($s['lisatieto'])) {
+				if($s['lisatieto'] == "") {
+					$s['lisatieto'] = null;
+				}
+			} else {
+				$s['lisatieto'] = null;
+			}
+
 			DB::table('suunnittelija_rakennus')->insert([
 					'rakennus_id' => $rakennus_id,
 					'suunnittelija_id' => $s['suunnittelija']['properties']['id'],

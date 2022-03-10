@@ -80,12 +80,15 @@ class InventointiprojektiAlue extends Model {
 		$inventointiprojektiAlue->alue_id = $alue_id;
 		
 		//Take the information from the user
-		$inventoija = Kayttaja::where('id', '=', $inventointiprojekti["inventoija_id"])->first();
+		if (isset($inventointiprojekti["inventoija_id"])) {
+			$inventoija = Kayttaja::where('id', '=', $inventointiprojekti["inventoija_id"])->first();
 		
-		$inventointiprojektiAlue->inventoija_nimi = $inventoija->etunimi . " " . $inventoija->sukunimi;
-		$inventointiprojektiAlue->inventoija_organisaatio = $inventoija->organisaatio;
+			$inventointiprojektiAlue->inventoija_nimi = $inventoija->etunimi . " " . $inventoija->sukunimi;
+			$inventointiprojektiAlue->inventoija_organisaatio = $inventoija->organisaatio;
 		
-		$inventointiprojektiAlue->save();
+
+			$inventointiprojektiAlue->save();
+		}
 	}
 	
 	public static function deleteInventointitieto($inventointiprojektiId, $alueId, $inventoijaId) {
