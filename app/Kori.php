@@ -66,6 +66,10 @@ class Kori extends Model
         return $query->where('korityyppi_id', '=', $id);
     }
 
+    public function scopeWithKoriNimi($query, $nimi){
+        return $query->where('nimi', 'ILIKE', $nimi);
+    }
+
     /**
      * Relaatiot
      */

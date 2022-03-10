@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Seeders;
+
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -8,6 +10,7 @@ use App\Ark\Kohde;
 use App\Utils;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
+use Exception;
 
 class ark_kohdeNightlySeeder extends Seeder
 {
@@ -43,7 +46,7 @@ class ark_kohdeNightlySeeder extends Seeder
         if(empty($haku)){
             // echo 'Tallennettua hakupaivaa ei loytynyt, kaytetaan kuluvaa paivaa.' .PHP_EOL;
 
-            Log::info('Tallennettua hakupaivaa ei loytynyt, kaytetaan kuluvaa paivaa.');
+            Log::channel('kyppi')->info('Tallennettua hakupaivaa ei loytynyt, kaytetaan kuluvaa paivaa.');
 
             $hakupaiva = date("Y-m-d");
         }else{
@@ -106,31 +109,31 @@ class ark_kohdeNightlySeeder extends Seeder
 
                 DB::commit();
             } catch (Exception $e) {
-                Log::error('ark_kohdeNightlySeeder exception: ' .$e);
+                Log::channel('kyppi')->error('ark_kohdeNightlySeeder exception: ' .$e);
                 throw $e;
             }
 
         } catch (Exception $e) {
-            Log::error('ark_kohdeNightlySeeder exception: ' .$e);
+            Log::channel('kyppi')->error('ark_kohdeNightlySeeder exception: ' .$e);
 
             try {
                 $message_content = "Kohde nightly seeder fail. \n" . $e;
 
                 $mail_sent = Mail::raw($message_content, function($message) {
-                $message->from('mip@mip.fi', 'MIP');
+                $message->from(config('app.url'), config('app.email_from'));
                 $message->to(config('app.kyppi_admin_email'))->subject("MIP / " . App::environment());
                 });
-            } catch (Swift_TransportException $e) {
-                Log::error('Sending mail failed: ' . $e);
+            } catch (Exception $e) {
+                Log::channel('kyppi')->error('Sending mail failed: ' . $e);
             }
         }
 
         $time_end = microtime(true);
         $execution_time = ($time_end - $time_start);
 
-        Log::info('ark_kohdeNightlySeeder suoritusaika: ' .round($execution_time, 2));
-        Log::info('ark_kohdeNightlySeeder uusia kohteita: ' .$uusia);
-        Log::info('ark_kohdeNightlySeeder paivitettyja kohteita: ' .$paivitettyja);
+        Log::channel('kyppi')->info('ark_kohdeNightlySeeder suoritusaika: ' .round($execution_time, 2));
+        Log::channel('kyppi')->info('ark_kohdeNightlySeeder uusia kohteita: ' .$uusia);
+        Log::channel('kyppi')->info('ark_kohdeNightlySeeder paivitettyja kohteita: ' .$paivitettyja);
 
         // echo 'Suoritusaika: '.round($execution_time, 2) .' sec' .PHP_EOL;
         // echo 'Uusia kohteita: ' .$uusia .PHP_EOL;
@@ -173,7 +176,7 @@ class ark_kohdeNightlySeeder extends Seeder
 
             if( empty($kohde) ){
 
-                Log::info('ark_kohdeNightlySeeder tuodaan uusi kohde: ' .$muinaisjaannostunnus);
+                Log::channel('kyppi')->info('ark_kohdeNightlySeeder tuodaan uusi kohde: ' .$muinaisjaannostunnus);
 
                 // echo 'Tuodaan uusi kohde: ' .$muinaisjaannostunnus .PHP_EOL;
 
@@ -186,7 +189,7 @@ class ark_kohdeNightlySeeder extends Seeder
 
             }else{
                 // echo 'Kohde on jo MIP:ssa, paivitetaan kohteen status: ' .$muinaisjaannostunnus .PHP_EOL;
-                Log::info('ark_kohdeNightlySeeder paivitetaan kohteen status: ' .$muinaisjaannostunnus);
+                Log::channel('kyppi')->info('ark_kohdeNightlySeeder paivitetaan kohteen status: ' .$muinaisjaannostunnus);
 
                 // Päivitetään vain status
                 $kyppiService->paivitaKohteenStatus($kohde);
@@ -195,6 +198,9 @@ class ark_kohdeNightlySeeder extends Seeder
                 global $paivitettyja;
                 $paivitettyja++;
             }
+
+            // Sleep so kyppi won't go down
+            sleep(1);
         }
     }
 }

@@ -69,9 +69,9 @@ class Kernel extends HttpKernel
     	 * ---> tehdään sama myös muille?
     	 */
     	//'jwt' => \App\Http\Middleware\JwtToken::class,
-        'auth.jwt' => \Tymon\JWTAuth\Http\Middleware\Authenticate::class
-    	//'jwt.auth' => Tymon\JWTAuth\Middleware\GetUserFromToken::class,
-    	//'jwt.refresh' => Tymon\JWTAuth\Middleware\RefreshToken::class,
+        'auth.jwt' => \PHPOpenSourceSaver\JWTAuth\Http\Middleware\Authenticate::class
+    	//'jwt.auth' => PHPOpenSourceSaver\JWTAuth\Middleware\GetUserFromToken::class,
+    	//'jwt.refresh' => PHPOpenSourceSaver\JWTAuth\Middleware\RefreshToken::class,
     		
     ];
 

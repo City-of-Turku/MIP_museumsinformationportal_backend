@@ -175,9 +175,9 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
-        Tymon\JWTAuth\Providers\LaravelServiceProvider::class, // JWT-Auth
+        PHPOpenSourceSaver\JWTAuth\Providers\LaravelServiceProvider::class, // JWT-Auth
         //Barryvdh\Cors\ServiceProvider::class,
-    	//'Tymon\JWTAuth\Providers\LaravelServiceProvider', // JWT-Auth
+    	//'PHPOpenSourceSaver\JWTAuth\Providers\LaravelServiceProvider', // JWT-Auth
     	//'Barryvdh\Cors\ServiceProvider', // CORS
     	Intervention\Image\ImageServiceProvider::class,
         Fruitcake\Cors\CorsServiceProvider::class,
@@ -233,8 +233,8 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
 
-        //'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
-    	//'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
+        //'JWTAuth' => PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth::class,
+    	//'JWTFactory' => PHPOpenSourceSaver\JWTAuth\Facades\JWTFactory::class,
     	'Image' => Intervention\Image\Facades\Image::class,
 
     ],
@@ -265,6 +265,9 @@ return [
 
     'mml_wmts_username' => env('MML_WMTS_USERNAME'),
     'mml_wmts_password' => env('MML_WMTS_PASSWORD'),
+    'mml_apikey_nimisto' => env('MML_APIKEY_NIMISTO'),
+    'mml_municipality_codes' => env('MML_MUNICIPALITY_CODES'),
+    'mml_placetype_codes' => env('MML_PLACETYPE_CODES'),
 
     'mml_kiinteistotiedot_url' => env('MML_KIINTEISTOTIEDOT_URL'),
     'mml_kiinteistotiedot_username' => env('MML_KIINTEISTOTIEDOT_USERNAME'),

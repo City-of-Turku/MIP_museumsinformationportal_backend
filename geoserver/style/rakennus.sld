@@ -291,7 +291,7 @@
           <ogc:Filter>
             <ogc:PropertyIsEqualTo>
               <ogc:PropertyName>purettu</ogc:PropertyName>
-              <Literal>true</Literal>
+              <ogc:Literal>true</ogc:Literal>
             </ogc:PropertyIsEqualTo>
           </ogc:Filter>              
           <PointSymbolizer>

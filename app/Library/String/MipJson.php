@@ -120,6 +120,10 @@ class MipJson {
 		return response($json, self::$status_code);
 	}
 
+	public static function getData() {
+		return self::$data;
+	}
+
 	/**
 	 * Method to set the http response "status code"
 	 *

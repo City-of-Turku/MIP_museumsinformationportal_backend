@@ -54,6 +54,11 @@ class KoriController extends Controller
                 $korit->withKorityyppi($korityyppi);
             }
 
+            // Korien haku nimellä
+            if($request->nimi){
+                $korit->withKoriNimi($request->nimi);
+            }
+
             // Rivien määrän laskenta
             $total_rows = Utils::getCount($korit);
 
@@ -123,6 +128,8 @@ class KoriController extends Controller
         }
         return MipJson::getJson();
     }
+
+
 
     /**
      * Tallenna uusi kori

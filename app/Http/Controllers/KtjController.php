@@ -10,6 +10,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 use Exception;
 
 class KtjController extends Controller {
@@ -71,7 +72,10 @@ class KtjController extends Controller {
 			} // foreach
 
 			MipJson::addMessage(Lang::get('ktj.search_success'));
-
+			
+			Log::channel('mml')->info("User:" . Auth::user()->id . " Request/Response: ");
+			Log::channel('mml')->info(json_encode($request->all()));
+			Log::channel('mml')->info(json_encode(MipJson::getData()));
 		}
 		catch(Exception $e) {
 		  Log::error("KtjController - queryKiinteisto: " . $e->getMessage());
@@ -126,6 +130,9 @@ class KtjController extends Controller {
 
 			MipJson::addMessage(Lang::get('ktj.search_success'));
 
+			Log::channel('mml')->info("User:" . Auth::user()->id . " Request/Response: ");
+			Log::channel('mml')->info(json_encode($request->all()));
+			Log::channel('mml')->info(json_encode(MipJson::getData()));
 		}
 		catch(Exception $e) {
 		  Log::error("KtjController - queryKiinteistotWithinPolygonWithRakennukset: " . $e->getMessage());
@@ -195,6 +202,10 @@ class KtjController extends Controller {
 			}
 
 			MipJson::addMessage(Lang::get('ktj.search_success'));
+			
+			Log::channel('mml')->info("User:" . Auth::user()->id . " Request/Response: ");
+			Log::channel('mml')->info(json_encode($request->all()));
+			Log::channel('mml')->info(json_encode(MipJson::getData()));
 
 		}
 		catch(Exception $e) {
@@ -252,19 +263,14 @@ class KtjController extends Controller {
 			MipJson::initGeoJsonFeatureCollection(count($osoitteet), count($osoitteet));
 
 			foreach ($osoitteet as $index => $osoite) {
-				// set the feature->geometry->type  to 'Point' and feature->geometry->coordinates to the sijainti
-				$point = [];
-				$point["type"] = "Point";
-				$point["coordinates"] = explode(" ", $osoite["sijainti"]);
-				//Convert string to float
-				$point["coordinates"][0] = (float)$point['coordinates'][0];
-				$point["coordinates"][1] = (float)$point['coordinates'][1];
-
-				MipJson::addGeoJsonFeatureCollectionFeaturePoint($point, $osoite);
-
+				MipJson::addGeoJsonFeatureCollectionFeaturePoint($osoite["sijainti"], $osoite);
 			}
 
 			MipJson::addMessage(Lang::get('ktj.search_success'));
+			
+			Log::channel('mml')->info("User:" . Auth::user()->id . " Request/Response: ");
+			Log::channel('mml')->info(json_encode($request->all()));
+			Log::channel('mml')->info(json_encode(MipJson::getData()));
 
 		}
 		catch(Exception $e) {
@@ -337,6 +343,10 @@ class KtjController extends Controller {
 			}
 
 			MipJson::addMessage(Lang::get('ktj.search_success'));
+			
+			Log::channel('mml')->info("User:" . Auth::user()->id . " Request/Response: ");
+			Log::channel('mml')->info(json_encode($request->all()));
+			Log::channel('mml')->info(json_encode(MipJson::getData()));
 
 		}
 		catch(Exception $e) {
