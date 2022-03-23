@@ -73,7 +73,7 @@ return [
     ],
     "string"           => "The :attribute must be a string.",
     "timezone"         => "The :attribute must be a valid zone.",
-    "unique"           => ":attribute on jo käytössä.",
+    "unique"           => ":Attribute on jo käytössä.",
     "url"              => ":attribute URL-osoite on virheellinen.",
 
     /*
