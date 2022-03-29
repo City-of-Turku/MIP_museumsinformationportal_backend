@@ -222,6 +222,18 @@ class LoytoController extends Controller
                 $loydot->withIrtoloytotutkimusAlueId($request->ark_irtoloytotutkimusalue_id);
             }
 
+            if ($request->sailytystila){
+                $loydot->withSailytystila($request->sailytystila);
+            }
+
+            if ($request->hyllypaikka){
+                $loydot->withHyllypaikka($request->hyllypaikka);
+            }
+
+            if ($request->tilapainen_sijainti){
+                $loydot->withTilapainenSijainti($request->tilapainen_sijainti);
+            }
+
             // Rivien määrän laskenta
             $total_rows = Utils::getCount($loydot);
 

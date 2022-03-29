@@ -153,6 +153,18 @@ class NayteController extends Controller
                 $naytteet->withIrtoloytotutkimusAlueId($request->ark_irtoloytotutkimusalue_id);
             }
 
+            if ($request->sailytystila){
+                $naytteet->withSailytystila($request->sailytystila);
+            }
+
+            if ($request->hyllypaikka){
+                $naytteet->withHyllypaikka($request->hyllypaikka);
+            }
+
+            if ($request->tilapainen_sijainti){
+                $naytteet->withTilapainenSijainti($request->tilapainen_sijainti);
+            }
+
             // Rivien määrän laskenta
             $total_rows = Utils::getCount($naytteet);
 

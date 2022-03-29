@@ -430,6 +430,18 @@ class Loyto extends Model
         return $query->where('ark_loyto.id', '=', $id);
     }
 
+    public function scopeWithSailytystila($query, $id){
+        return $query->where('ark_loyto.vakituinen_sailytystila_id', '=', $id);
+    }
+
+    public function scopeWithHyllypaikka($query, $keyword){
+        return $query->where('ark_loyto.vakituinen_hyllypaikka', 'ILIKE', $keyword);
+    }
+
+    public function scopeWithTilapainenSijainti($query, $keyword) {
+        return $query->where('ark_loyto.tilapainen_sijainti', 'ILIKE', "%".$keyword."%");
+    }
+
     /**
      * Suodatusjärjestys
      */
