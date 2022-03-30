@@ -58,7 +58,8 @@ class NayteController extends Controller
                 'tapahtumat.luoja',
                 'luoja',
                 'muokkaaja',
-                'tutkimusalue.tutkimus' //IRTOLÖYTÖ
+                'tutkimusalue.tutkimus', //IRTOLÖYTÖ
+                'sailytystila'
             ));
 
             // Luettelointinumeron uniikki-tarkistus
