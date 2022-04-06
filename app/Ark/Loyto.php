@@ -286,7 +286,16 @@ class Loyto extends Model
         if($tarkka){
             return $query->where('ark_loyto.luettelointinumero', 'ILIKE', $keyword);
         }else{
+          // tarkistetaan onko '-' merkkiä, eli haetaan jollain välillä
+          if(substr_count($keyword, '-') > 0) {            
+            $substrings = explode('-',$keyword);
+            // erotetaan löydön luettelonumeron alkuosa, konkatenoidaan loppuosan alanumero
+            $loppuosa = implode(':', explode(':', $substrings[0], -1)).$substrings[1];
+            return $query->whereBetween('ark_loyto.luettelointinumero', [$substrings[0], $loppuosa]);
+          }
+          else {
             return $query->where('ark_loyto.luettelointinumero', 'ILIKE', "%".$keyword);
+          }
         }
     }
 
