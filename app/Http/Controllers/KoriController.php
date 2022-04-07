@@ -209,7 +209,7 @@ class KoriController extends Controller
          * Validointi
          */
         $validator = Validator::make($request->all()['properties'], [
-            'nimi'			=> 'required|string|unique:kori',
+            'nimi'			=> 'required|string|unique:kori,nimi,'.$id,
             'kuvaus'	    => 'required|string'
         ]);
 
