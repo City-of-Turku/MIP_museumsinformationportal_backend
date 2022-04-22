@@ -326,8 +326,6 @@ class KoriController extends Controller
 
 			$kori->save();
 
-            log::debug($kori);
-
             DB::commit();
 
             MipJson::addMessage(Lang::get('kori.delete_success'));
