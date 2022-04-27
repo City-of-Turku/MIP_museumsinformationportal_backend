@@ -214,7 +214,7 @@ class KoriController extends Controller
          */
         Log::debug(json_encode($request->kori));
         $validator = Validator::make($request->kori['properties'], [
-            'nimi'			=> 'required|string',
+            'nimi'			=> 'required|string|unique:kori,nimi,'.$id,
             'kuvaus'	    => 'required|string'
         ]);
 
@@ -314,14 +314,26 @@ class KoriController extends Controller
     }
 
     /**
-     * Poista kori. Hard delete eli poistetaan kokonaan.
+     * Poista kori.
      */
     public function destroy($id) {
 
         try {
+
+            DB::beginTransaction();
+			Utils::setDBUser();
+
             $kori = Kori::find($id);
 
-            $kori->delete();
+
+            $author_field = Kori::DELETED_BY;
+			$when_field = Kori::DELETED_AT;
+			$kori->$author_field = Auth::user ()->id;
+			$kori->$when_field = \Carbon\Carbon::now();
+
+			$kori->save();
+
+            DB::commit();
 
             MipJson::addMessage(Lang::get('kori.delete_success'));
 

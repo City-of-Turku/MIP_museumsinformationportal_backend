@@ -286,7 +286,21 @@ class Loyto extends Model
         if($tarkka){
             return $query->where('ark_loyto.luettelointinumero', 'ILIKE', $keyword);
         }else{
+          // tarkistetaan onko '-' merkkiä, eli haetaan jollain välillä
+          if(substr_count($keyword, '-') > 0) {  
+            $substrings = explode(':', $keyword);
+            $hakuvali = explode('-', end($substrings));
+            $alkuteksti = implode(':', explode(':', $keyword, -1));
+            $haettavat = [];
+            for ($i=$hakuvali[0]; $i<=$hakuvali[1]; $i++) {
+              array_push($haettavat, $alkuteksti.':'.$i);
+            }
+            return $query->whereIn('ark_loyto.luettelointinumero', $haettavat);
+
+          }
+          else {
             return $query->where('ark_loyto.luettelointinumero', 'ILIKE', "%".$keyword);
+          }
         }
     }
 
@@ -428,6 +442,18 @@ class Loyto extends Model
 
     public function scopeWithLoytoId($query, $id) {
         return $query->where('ark_loyto.id', '=', $id);
+    }
+
+    public function scopeWithSailytystila($query, $id){
+        return $query->where('ark_loyto.vakituinen_sailytystila_id', '=', $id);
+    }
+
+    public function scopeWithHyllypaikka($query, $keyword){
+        return $query->where('ark_loyto.vakituinen_hyllypaikka', 'ILIKE', $keyword);
+    }
+
+    public function scopeWithTilapainenSijainti($query, $keyword) {
+        return $query->where('ark_loyto.tilapainen_sijainti', 'ILIKE', "%".$keyword."%");
     }
 
     /**

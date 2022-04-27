@@ -392,6 +392,18 @@ class Nayte extends Model
         ->where('ark_tutkimusalue.id', '=', $keyword);
     }
 
+    public function scopeWithSailytystila($query, $id){
+        return $query->where('ark_nayte.vakituinen_sailytystila_id', '=', $id);
+    }
+
+    public function scopeWithHyllypaikka($query, $keyword){
+        return $query->where('ark_nayte.vakituinen_hyllypaikka', 'ILIKE', $keyword);
+    }
+
+    public function scopeWithTilapainenSijainti($query, $keyword) {
+        return $query->where('ark_nayte.tilapainen_sijainti', 'ILIKE', "%".$keyword."%");
+    }
+
     /**
      * Joinaa tutkimuksen, tutkimusalueen ja yksikön näytteeseen.
      */

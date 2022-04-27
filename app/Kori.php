@@ -31,6 +31,9 @@ class Kori extends Model
     const CREATED_BY		= 'luoja';
     const UPDATED_BY		= 'muokkaaja';
 
+    const DELETED_AT 		= "poistettu";
+    const DELETED_BY		= 'poistaja';
+    
     /**
      * Haku id:n mukaan.
      */
@@ -49,24 +52,24 @@ class Kori extends Model
      * Kaikkien haku
      */
     public static function getAll($id) {
-        return self::select('kori.*');
+        return self::select('kori.*')->whereNull('poistettu');
     }
 
     /**
      * Käyttäjän korit
      */
     public static function haeKayttajanKorit($id) {
-        return self::select('kori.*')->where('luoja', '=', $id)->orderBy('nimi', 'asc');
+        return self::select('kori.*')->where('luoja', '=', $id)->whereNull('poistettu')->orderBy('nimi', 'asc');
     }
     /**
      * Suodatukset
      */
     public function scopeWithKorityyppi($query, $id) {
-        return $query->where('korityyppi_id', '=', $id);
+        return $query->where('korityyppi_id', '=', $id)->whereNull('poistettu');
     }
 
     public function scopeWithKoriNimi($query, $nimi){
-        return $query->where('nimi', 'ILIKE', $nimi);
+        return $query->where('nimi', 'ILIKE', $nimi)->whereNull('poistettu');
     }
 
     /**
