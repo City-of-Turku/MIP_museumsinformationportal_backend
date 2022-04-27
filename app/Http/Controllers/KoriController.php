@@ -312,9 +312,21 @@ class KoriController extends Controller
     public function destroy($id) {
 
         try {
+            
+            DB::beginTransaction();
+			Utils::setDBUser();
+
             $kori = Kori::find($id);
 
-            $kori->delete();
+
+            $author_field = Kori::DELETED_BY;
+			$when_field = Kori::DELETED_AT;
+			$kori->$author_field = Auth::user ()->id;
+			$kori->$when_field = \Carbon\Carbon::now();
+
+			$kori->save();
+
+            DB::commit();
 
             MipJson::addMessage(Lang::get('kori.delete_success'));
 
