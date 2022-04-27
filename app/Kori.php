@@ -55,14 +55,9 @@ class Kori extends Model
     /**
      * Käyttäjän korit
      */
-    public static function haeKayttajanKorit($id,$request){
-        $kysely = self::select('kori.*')
-        ->leftjoin('kori_kayttajat', 'kori.id', '=', 'kori_kayttajat.kori_id')->where('mip_alue', '=', $request->mip_alue)
-        ->where('kori.luoja','=',$id)->orWhere("kori_kayttajat.kayttaja_id",'=',$id)
-        ->groupBy('kori.id');
-        return $kysely;
+    public static function haeKayttajanKorit($id) {
+        return self::select('kori.*')->where('luoja', '=', $id)->orderBy('nimi', 'asc');
     }
-
     /**
      * Suodatukset
      */

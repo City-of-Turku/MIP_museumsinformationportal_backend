@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Kori;
 use App\Korityyppi;
+use App\KoriKayttaja;
 use App\Utils;
 use App\Library\String\MipJson;
 use Illuminate\Database\QueryException;
@@ -43,11 +44,11 @@ class KoriController extends Controller
             // TODO requestiin vipu hae kaikki tai sitten vain aina user tai valittu käyttäjä...
 
             // mip_alue päättää haetaanko RAK vai ARK koreja
-            $korit = Kori::haeKayttajanKorit(Auth::user()->id,$request)->with( array(
+            $korit = Kori::haeKayttajanKorit(Auth::user()->id)->with( array(
                 'korityyppi',
                 'luoja',
                 'muokkaaja'
-            ));
+            ))->where('mip_alue', '=', $request->mip_alue);
 
             // Haetaan kaikki korit, jos tyyppiä ei ole rajattu
             if($korityyppi != null){
@@ -140,7 +141,8 @@ class KoriController extends Controller
         /*
          * Validointi
          */
-        $validator = Validator::make($request->all()['properties'], [
+        Log::debug(json_encode($request->kori));
+        $validator = Validator::make($request->kori['properties'], [
             'korityyppi' => 'required',
             'nimi' => 'required|string|unique:kori',
             'kuvaus' => 'required|string'
@@ -163,13 +165,15 @@ class KoriController extends Controller
 
             try {
 
-                $kori = new Kori($request->all()['properties']);
+                $kori = new Kori($request->kori['properties']);
 
                 // Valintalistojen id:t
-                $kori->korityyppi_id = $request->input('properties.korityyppi.id');
+                $kori->korityyppi_id = $request->input('kori.properties.korityyppi.id');
 
                 $kori->luoja = Auth::user()->id;
+                Log::debug($kori->id . json_encode($kori));
                 $kori->save();
+                KoriKayttaja::lisaaKorinKayttajat($kori->id, $request->jaetut_kayttajat);
             // Log::debug("KORI:");
             // Log::debug($kori);
             } catch(Exception $e) {
@@ -208,8 +212,9 @@ class KoriController extends Controller
         /*
          * Validointi
          */
-        $validator = Validator::make($request->all()['properties'], [
-            'nimi'			=> 'required|string|unique:kori',
+        Log::debug(json_encode($request->kori));
+        $validator = Validator::make($request->kori['properties'], [
+            'nimi'			=> 'required|string',
             'kuvaus'	    => 'required|string'
         ]);
 
@@ -223,7 +228,7 @@ class KoriController extends Controller
         else {
             try {
                 $kori = Kori::find($id);
-
+                Log::debug("Korin päivitys");
                 if(!$kori){
                     MipJson::setGeoJsonFeature();
                     MipJson::addMessage(Lang::get('kori.search_not_found'));
@@ -234,15 +239,17 @@ class KoriController extends Controller
                     Utils::setDBUser();
 
                     try {
-                        $kori->fill($request->all()['properties']);
+                        $kori->fill($request->kori['properties']);
 
                         // Valintalistojen id:t
-                        $kori->korityyppi_id = $request->input('properties.korityyppi.id');
+                        $kori->korityyppi_id = $request->input('kori.properties.korityyppi.id');
 
                         $author_field = Kori::UPDATED_BY;
                         $kori->$author_field = Auth::user()->id;
 
                         $kori->update();
+
+                        KoriKayttaja::lisaaKorinKayttajat($id, $request->jaetut_kayttajat);
 
                     } catch(Exception $e) {
                         DB::rollback();
