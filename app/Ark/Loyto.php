@@ -283,81 +283,93 @@ class Loyto extends Model
      * Jos tarkka = true haetaan vain annettua
      */
     public function scopeWithLuettelointinumero($query, $keyword, $tarkka) {
-      Log::info("haku alkaa");
         if($tarkka){
             return $query->where('ark_loyto.luettelointinumero', 'ILIKE', $keyword);
         }else{
           // tarkistetaan onko '-' merkkiä, eli haetaan jollain välillä
           if(substr_count($keyword, '-') > 0) {
-            $substrings = explode(':', $keyword);
-            $hakuvali = explode('-', end($substrings));
-            $alkuteksti = implode(':', explode(':', $keyword, -1));
-            $haettavat = [];
-            $hakunumero = $hakuvali[0];
-            // tarkistetaan löytyykö hakunumerosta aakkosia
-            if(preg_match("/[a-z]/i", $hakunumero)) {
-              // tarkistetaan onko kyseessä (Materiaalikoodi, kolminumeroinen yksikkötunnus ja juokseva alanumero kaikki yhdessä)
-              if(strlen($hakunumero)>5 && preg_match("/[a-z]/i", substr($hakunumero,0, 2))) {
-                $hakunumero1 = substr($hakunumero, 0, 5);
-                $hakunumero2 = substr($hakunumero, 5);
-                for ($i=$hakunumero2; $i<=$hakuvali[1]; $i++) {
-                  array_push($haettavat, $alkuteksti.':'.$hakunumero1.$hakunumero2);
-                  $hakunumero2++;
-                }
-              }
-              //tarkistetaan onko viimeinen merkki aakkonen (kirjaimet alanumeron perässä)
-              elseif(ctype_alpha(substr($hakunumero, -1))) {
-                for ($i=substr($hakunumero, -1); $i<=$hakuvali[1]; $i++) {
-                  array_push($haettavat, $alkuteksti.':'.$hakunumero);
-                  $hakunumero++;
-                }
-              }
-              // (juokseva alanumero materiaalikoodissa kiinni)
-              else {
-                preg_match('/^([^\d]+)([\d]*?)$/', $hakunumero, $match);
-                $string = $match[1];
-                $number = $match[2];
-                for ($i=$match[2]; $i<=preg_replace('/[^0-9]/', '', $hakuvali[1]); $i++) {
-                  array_push($haettavat, $alkuteksti.':'.$string.$number);
-                  $number++;
-                }
-              }
-            }
-            else {
-              $hakunumero = $hakuvali[0];
-              // tarkistetaan onko pistettä (Huonekoodi ja alanumero erotettu pisteellä)
-              if (strpos($hakunumero, ".") !== false) {
-                $hakunumero_split = explode('.', $hakunumero);
-                $alku = $hakunumero_split[1];
-                for ($i=$alku; $i<=$hakuvali[1]; $i++) {
-                  array_push($haettavat, $alkuteksti.':'.$hakunumero_split[0].'.'.$alku);
-                  $alku++;
-                }
-              }
-              else {
-                // tarkistetaan onko ensimmäinen merkki nolla (nollat juoksevan alanumeron edessä)
-                if($hakuvali[0][0] == 0) {
-                  $hakunumero = $alkuteksti.':'.$hakuvali[0];
-                  for ($i=$hakuvali[0]; $i<=$hakuvali[1]; $i++) {
-                    array_push($haettavat, $hakunumero);
-                    $hakunumero++;
-                  }
-                }
-                else {
-                  $number = $hakuvali[0];
-                  for ($i=$hakuvali[0]; $i<=$hakuvali[1]; $i++) {
-                    array_push($haettavat, $alkuteksti.':'.$number);
-                    $number++;
-                  }
-                }
-              }
-            }
+            // siivotaan % merkit
+            $keyword = str_replace('%', '', $keyword);
+            $haettavat = self::createHaettavatAlanumerot($keyword);
             return $query->whereIn('ark_loyto.luettelointinumero', $haettavat);
           }
           else {
             return $query->where('ark_loyto.luettelointinumero', 'ILIKE', "%".$keyword);
           }
         }
+    }
+
+    /*
+    * Luo ja palauttaa taulukon sisältäen kaikki tutkimuksen löydöt annettujen alanumeroiden välillä
+    */
+    private static function createHaettavatAlanumerot($keyword) {
+      $substrings = explode(':', $keyword);
+      $hakuvali = explode('-', end($substrings));
+      $alkuteksti = implode(':', explode(':', $keyword, -1));
+      $haettavat = [];
+      $hakunumero = $hakuvali[0];
+      // tarkistetaan löytyykö hakunumerosta aakkosia
+      if(preg_match("/[a-z]/i", $hakunumero)) {
+        // tarkistetaan onko kyseessä (Materiaalikoodi, kolminumeroinen yksikkötunnus ja juokseva alanumero kaikki yhdessä)
+        // $alkuosa_length on materiaalikoodi + yksikkötunnus (2+3)
+        $alkuosa_length = 5;
+        if(strlen($hakunumero)>$alkuosa_length && preg_match("/[a-z]/i", substr($hakunumero,0, 2))) {
+
+          $hakunumero1 = substr($hakunumero, 0, $alkuosa_length);
+          $hakunumero2 = substr($hakunumero, $alkuosa_length);
+          for ($i=$hakunumero2; $i<=$hakuvali[1]; $i++) {
+            array_push($haettavat, $alkuteksti.':'.$hakunumero1.$hakunumero2);
+            $hakunumero2++;
+          }
+        }
+        //tarkistetaan onko viimeinen merkki aakkonen (kirjaimet alanumeron perässä)
+        elseif(ctype_alpha(substr($hakunumero, -1))) {
+          for ($i=substr($hakunumero, -1); $i<=$hakuvali[1]; $i++) {
+            array_push($haettavat, $alkuteksti.':'.$hakunumero);
+            $hakunumero++;
+          }
+        }
+        // (juokseva alanumero materiaalikoodissa kiinni)
+        else {
+          preg_match('/^([^\d]+)([\d]*?)$/', $hakunumero, $match);
+          $string = $match[1];
+          $number = $match[2];
+          for ($i=$match[2]; $i<=preg_replace('/[^0-9]/', '', $hakuvali[1]); $i++) {
+            array_push($haettavat, $alkuteksti.':'.$string.$number);
+            $number++;
+          }
+        }
+      }
+      else {
+        $hakunumero = $hakuvali[0];
+        // tarkistetaan onko pistettä (Huonekoodi ja alanumero erotettu pisteellä)
+        if (strpos($hakunumero, ".") !== false) {
+          $hakunumero_split = explode('.', $hakunumero);
+          $alku = $hakunumero_split[1];
+          for ($i=$alku; $i<=$hakuvali[1]; $i++) {
+            array_push($haettavat, $alkuteksti.':'.$hakunumero_split[0].'.'.$alku);
+            $alku++;
+          }
+        }
+        else {
+          // tarkistetaan onko ensimmäinen merkki nolla (nollat juoksevan alanumeron edessä)
+          if($hakuvali[0][0] == 0) {
+            $hakunumero = $alkuteksti.':'.$hakuvali[0];
+            for ($i=$hakuvali[0]; $i<=$hakuvali[1]; $i++) {
+              array_push($haettavat, $hakunumero);
+              $hakunumero++;
+            }
+          }
+          else {
+            $number = $hakuvali[0];
+            for ($i=$hakuvali[0]; $i<=$hakuvali[1]; $i++) {
+              array_push($haettavat, $alkuteksti.':'.$number);
+              $number++;
+            }
+          }
+        }
+      }
+      return $haettavat;
     }
 
     public function scopeWithLoytotyypit($query, $keyword) {
