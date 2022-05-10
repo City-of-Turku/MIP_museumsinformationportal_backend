@@ -37,4 +37,19 @@ class KoriKayttaja extends Model
 
     }
 
+    public static function getSingle($id) {
+        return self::select('kori_kayttajat.*')->where('kori_id', '=', $id);
+    }
+
+    public static function getKoriKayttajat($id){
+        Log::debug("Korikayttajat id " .$id);
+        return DB::table('kori_kayttajat AS kk')
+        ->select('k.*')
+        ->leftJoin('kayttaja AS k', 'k.id', '=', 'kk.kayttaja_id')
+        ->where(function($query) use ($id)
+        {
+            $query->where('kk.kori_id', '=', $id);
+        });
+    }
+
 }

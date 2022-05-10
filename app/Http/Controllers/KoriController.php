@@ -42,13 +42,14 @@ class KoriController extends Controller
             $jarjestys_suunta = (isset($request->jarjestys_suunta)) ? ($request->jarjestys_suunta == "laskeva" ? "desc" : "asc") : "asc";
 
             // TODO requestiin vipu hae kaikki tai sitten vain aina user tai valittu käyttäjä...
-
             // mip_alue päättää haetaanko RAK vai ARK koreja
             $korit = Kori::haeKayttajanKorit(Auth::user()->id)->with( array(
                 'korityyppi',
                 'luoja',
                 'muokkaaja'
-            ))->where('mip_alue', '=', $request->mip_alue);
+            ))->where('kori.mip_alue', '=', $request->mip_alue);
+
+            Log::debug("Korit ". json_encode($korit));
 
             // Haetaan kaikki korit, jos tyyppiä ei ole rajattu
             if($korityyppi != null){
@@ -115,6 +116,11 @@ class KoriController extends Controller
                     return MipJson::getJson();
                 }
 
+                Log::debug("Kori " . $kori->nimi);
+                $kori_kayttajat = KoriKayttaja::getKoriKayttajat($id)->get();
+                Log::debug("Kayttajat " . json_encode($kori_kayttajat));
+                $kori->kayttajat = $kori_kayttajat;
+
                 // Muodostetaan propparit
                 $properties = clone($kori);
 
@@ -171,7 +177,7 @@ class KoriController extends Controller
                 $kori->korityyppi_id = $request->input('kori.properties.korityyppi.id');
 
                 $kori->luoja = Auth::user()->id;
-                Log::debug($kori->id . json_encode($kori));
+                Log::debug("KOriin" .$kori->id . json_encode($kori));
                 $kori->save();
                 KoriKayttaja::lisaaKorinKayttajat($kori->id, $request->jaetut_kayttajat);
             // Log::debug("KORI:");
