@@ -1267,4 +1267,87 @@ class LoytoController extends Controller
         }
         return MipJson::getJson();
     }
+
+    /**
+     * Löydön haku luettelointinumerolla
+     */
+    public function haeLoytoLuettelointinumerolla($luettelointinumero) {
+      /*
+       * Käyttöoikeus
+       */
+    	if(!Kayttaja::hasPermissionForEntity('arkeologia.ark_loyto.katselu', $luettelointinumero)) {
+        MipJson::setGeoJsonFeature();
+        MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+        MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+        return MipJson::getJson();
+      }
+      else {
+        try {
+          // Hae löytö
+          $loyto = Loyto::getSingleByLuettelointinumero($luettelointinumero)->with( array(
+            'yksikko',
+            'yksikko.tutkimusalue',
+            'yksikko.tutkimusalue.tutkimus',
+            'materiaalikoodi',
+            'materiaalikoodi.ensisijaisetMateriaalit' => function($query) {
+                $query->orderBy('nimi_fi', 'ASC');
+            },
+            'ensisijainenMateriaali',
+            'materiaalit' => function($query) {
+                $query->orderBy('nimi_fi', 'ASC');
+            },
+            'loytotyyppi',
+            'loytotyyppiTarkenteet',
+            'merkinnat',
+            'loydonAsiasanat',
+            'loydonTila',
+            'tapahtumat.tapahtumaTyyppi',
+            'tapahtumat.luoja',
+            'tapahtumat.sailytystila',
+            'tekija',
+            'luoja',
+            'muokkaaja',
+            'luettelointinrohistoria' => function($query) {
+                $query->orderBy('luotu', 'DESC');
+            },
+            'luettelointinrohistoria.loytoTapahtuma',
+            'luettelointinrohistoria.luoja',
+            'tutkimusalue.tutkimus',//irtolöytö tai tarkastus
+            'sailytystila',
+            'kuntoraportit' => function($query) {
+                $query->orderBy('luotu', 'DESC');
+            }))->first();
+            if(!$loyto) {
+              MipJson::setGeoJsonFeature();
+              MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
+              MipJson::addMessage(Lang::get('loyto.search_not_found'));
+              return MipJson::getJson();
+            }
+            if(Auth::user()->ark_rooli == 'katselija') {
+              $loyto = $loyto->makeHidden(['sisaiset_lisatiedot']);
+
+              // US11534 Katselijoiden löytöjen tietojen rajoittaminen
+              $tutkimusIds = Tutkimus::getAllIdsForKatselijaAsUser(Auth::user()->id)->get();
+              self::loytoTiedotKatselijalle($loyto, $tutkimusIds);
+            }
+            // Muodostetaan propparit
+            $properties = clone($loyto);
+
+            // Deserialisoidaan JSON string kannasta, poistetaan myös control characterit
+            $properties->migraatiodata = preg_replace('/[[:cntrl:]]/', ' ', $properties->migraatiodata);
+            $properties->migraatiodata = json_decode($properties->migraatiodata, true);
+
+            MipJson::setGeoJsonFeature(null, $properties);
+            MipJson::addMessage(Lang::get('loyto.search_success'));
+        }
+        catch(QueryException $e) {
+          Log::error($e);
+          MipJson::setGeoJsonFeature();
+          MipJson::addMessage(Lang::get('loyto.search_failed'));
+          MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+      }
+      return MipJson::getJson();
+    }
+
 }

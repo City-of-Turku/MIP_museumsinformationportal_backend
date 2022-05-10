@@ -57,6 +57,13 @@ class Loyto extends Model
     }
 
     /**
+     * Haku luettelointinumeron mukaan.
+     */
+    public static function getSingleByLuettelointinumero($luettelointinumero) {
+      return self::select('ark_loyto.*')->where('luettelointinumero', '=', $luettelointinumero);
+    }
+
+    /**
      * Kaikkien haku tai katselijan oikeuksilla haku
      *
      * Split part osuudella jaotellaan luettelointinumero eri kenttiin, jotta järjestys luettelointinumeron saadaan tehtyä oikein.
@@ -287,7 +294,7 @@ class Loyto extends Model
             return $query->where('ark_loyto.luettelointinumero', 'ILIKE', $keyword);
         }else{
           // tarkistetaan onko '-' merkkiä, eli haetaan jollain välillä
-          if(substr_count($keyword, '-') > 0) {  
+          if(substr_count($keyword, '-') > 0) {
             $substrings = explode(':', $keyword);
             $hakuvali = explode('-', end($substrings));
             $alkuteksti = implode(':', explode(':', $keyword, -1));

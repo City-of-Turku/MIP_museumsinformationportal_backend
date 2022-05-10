@@ -493,6 +493,7 @@ Route::group(['middleware' => 'auth.jwt'], function () {
 	Route::put("/loyto/{id}/",						    "Ark\LoytoController@update");
 	Route::put("/loyto/luettelointinumero/{id}/",	    "Ark\LoytoController@vaihdaLuettelointinumero");
 	Route::delete("/loyto/{id}/",					    "Ark\LoytoController@destroy");
+  Route::get("/loyto/luettelointinumerohaku/{luettelointinumero}/",						    "Ark\LoytoController@haeLoytoLuettelointinumerolla");
 
 	/*
 	 * Kuntoraportit
