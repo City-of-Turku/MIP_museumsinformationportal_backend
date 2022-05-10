@@ -254,8 +254,9 @@ class KoriController extends Controller
                         $kori->$author_field = Auth::user()->id;
 
                         $kori->update();
-
-                        KoriKayttaja::lisaaKorinKayttajat($id, $request->jaetut_kayttajat);
+                        if ($request->jaetut_kayttajat){
+                            KoriKayttaja::lisaaKorinKayttajat($id, $request->jaetut_kayttajat);
+                        }
 
                     } catch(Exception $e) {
                         DB::rollback();
