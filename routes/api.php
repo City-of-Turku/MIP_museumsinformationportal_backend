@@ -516,6 +516,7 @@ Route::group(['middleware' => 'auth.jwt'], function () {
 	Route::get("/nayte/{id}/",						    "Ark\NayteController@show");
 	Route::put("/nayte/{id}/",						    "Ark\NayteController@update");
 	Route::delete("/nayte/{id}/",					    "Ark\NayteController@destroy");
+  Route::get("/nayte/luettelointinumerohaku/{luettelointinumero}/",						    "Ark\NayteController@haeNayteLuettelointinumerolla");
 
 	/*
 	 * Konservointi hallinta
