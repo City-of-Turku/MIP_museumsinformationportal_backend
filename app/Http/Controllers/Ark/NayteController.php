@@ -804,4 +804,65 @@ class NayteController extends Controller
 
         $uusiTapahtuma->save();
     }
+
+        /**
+     * Näytteen haku luettelointinumerolla
+     */
+    public function haeNayteLuettelointinumerolla($luettelointinumero) {
+
+      /*
+       * Käyttöoikeus
+       */
+      if(!Kayttaja::hasPermissionForEntity('arkeologia.ark_nayte.katselu', $luettelointinumero)) {
+          MipJson::setGeoJsonFeature();
+          MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+          MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+          return MipJson::getJson();
+      }
+      try {
+          // Hae näyte
+          $nayte = Nayte::getSingleByLuettelointinumero($luettelointinumero)->with( array(
+              'yksikko',
+              'yksikko.tutkimusalue',
+              'yksikko.tutkimusalue.tutkimus',
+              'yksikko.tutkimusalue.tutkimus.nayteKokoelmalaji',
+              'naytekoodi',
+              'naytekoodi.naytetyypit' => function($query) {
+              $query->orderBy('nimi_fi', 'ASC');
+              },
+              'naytetyyppi',
+              'talteenottotapa',
+              'tila',
+              'tekija',
+              'luoja',
+              'tapahtumat.tapahtumaTyyppi',
+              'tapahtumat.luoja',
+              'tapahtumat.sailytystila',
+              'tutkimusalue.tutkimus.nayteKokoelmalaji', //IRTOLÖYTÖ
+              'sailytystila'
+               ))->first();
+          if(!$nayte) {
+              MipJson::setGeoJsonFeature();
+              MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
+              MipJson::addMessage(Lang::get('nayte.search_not_found'));
+              return MipJson::getJson();
+          }
+
+          // Muodostetaan propparit
+          $properties = clone($nayte);
+
+          // Deserialisoidaan JSON string kannasta
+          $properties->migraatiodata = json_decode($properties->migraatiodata, true);
+
+          MipJson::setGeoJsonFeature(null, $properties);
+
+          MipJson::addMessage(Lang::get('nayte.search_success'));
+      }
+      catch(QueryException $e) {
+          MipJson::setGeoJsonFeature();
+          MipJson::addMessage(Lang::get('nayte.search_failed'));
+          MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+      }
+      return MipJson::getJson();
+  }
 }

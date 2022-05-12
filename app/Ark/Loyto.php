@@ -57,6 +57,13 @@ class Loyto extends Model
     }
 
     /**
+     * Haku luettelointinumeron mukaan.
+     */
+    public static function getSingleByLuettelointinumero($luettelointinumero) {
+      return self::select('ark_loyto.*')->where('luettelointinumero', '=', $luettelointinumero);
+    }
+
+    /**
      * Kaikkien haku tai katselijan oikeuksilla haku
      *
      * Split part osuudella jaotellaan luettelointinumero eri kenttiin, jotta järjestys luettelointinumeron saadaan tehtyä oikein.

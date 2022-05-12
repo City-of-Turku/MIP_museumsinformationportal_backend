@@ -493,6 +493,7 @@ Route::group(['middleware' => 'auth.jwt'], function () {
 	Route::put("/loyto/{id}/",						    "Ark\LoytoController@update");
 	Route::put("/loyto/luettelointinumero/{id}/",	    "Ark\LoytoController@vaihdaLuettelointinumero");
 	Route::delete("/loyto/{id}/",					    "Ark\LoytoController@destroy");
+  Route::get("/loyto/luettelointinumerohaku/{luettelointinumero}/",						    "Ark\LoytoController@haeLoytoLuettelointinumerolla");
 
 	/*
 	 * Kuntoraportit
@@ -515,6 +516,7 @@ Route::group(['middleware' => 'auth.jwt'], function () {
 	Route::get("/nayte/{id}/",						    "Ark\NayteController@show");
 	Route::put("/nayte/{id}/",						    "Ark\NayteController@update");
 	Route::delete("/nayte/{id}/",					    "Ark\NayteController@destroy");
+  Route::get("/nayte/luettelointinumerohaku/{luettelointinumero}/",						    "Ark\NayteController@haeNayteLuettelointinumerolla");
 
 	/*
 	 * Konservointi hallinta
