@@ -22,17 +22,14 @@ class KoriKayttaja extends Model
      * Asetetaan käyttäjille oikeus jaettuun koriin. Poistetaan korin oikeudet ja luodaan uudet tilalle.
      */
     public static function lisaaKorinKayttajat($id, $kayttajat){
-        Log::debug("Kayttajaat ". json_encode($kayttajat));
         DB::table('kori_kayttajat')->where('kori_id', $id)->delete();
 
         foreach($kayttajat as $kayttaja) {
-            Log::debug("Käyttäjä " .$kayttaja);
             $kk = new KoriKayttaja();
             $kk->kori_id = $id;
             $kk->kayttaja_id = $kayttaja;
 
             $kk->save();
-            Log::debug("KK " . json_encode($kk));
         }
 
     }
@@ -42,7 +39,6 @@ class KoriKayttaja extends Model
     }
 
     public static function getKoriKayttajat($id){
-        Log::debug("Korikayttajat id " .$id);
         return DB::table('kori_kayttajat AS kk')
         ->select('k.*')
         ->leftJoin('kayttaja AS k', 'k.id', '=', 'kk.kayttaja_id')

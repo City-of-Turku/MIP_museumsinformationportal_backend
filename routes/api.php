@@ -364,6 +364,7 @@ Route::group(['middleware' => 'auth.jwt'], function () {
 	Route::get("/kori/korityyppi/{taulu}",                  "KoriController@haeKorityyppi");
 	Route::put("/kori/{id}",                                "KoriController@update");
 	Route::delete("/kori/{id}",                             "KoriController@destroy");
+	Route::get("/korikayttaja/{kori_id}",					"KoriController@getKoriKayttajat");
 
 	/*
 	 * Rontgenkuva

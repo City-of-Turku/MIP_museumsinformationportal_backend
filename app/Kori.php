@@ -61,51 +61,24 @@ class Kori extends Model
     /**
      * Käyttäjän korit
      */
-    public static function haeKayttajanKorit($id) {
-        Log::debug("Haetaan korit " . $id);
-        //$kysely = DB::table('kori AS k')
-        //->select('k.*')
-        /*
-        $kysely = Kori::select('kori.*')
+    public static function haeKayttajanKorit($id, $korityyppi) {
+        $jaetut = Kori::select(DB::raw('kori.id, korityyppi_id, nimi, kuvaus, julkinen, kori.luotu, kori.luoja, kori.muokattu, kori.muokkaaja, kori_id_lista::text, mip_alue, kori.poistaja, kori.poistettu'))
         ->leftJoin('kori_kayttajat AS kk', 'kk.kori_id', '=', 'kori.id')
-        ->where('kori.luoja', '=', $id)
-        ->whereNull('kori.poistettu')
-        ->orWhere(function($query) use ($id) {
-            $query->where("kk.kayttaja_id",'=', $id);
-        })
-        ->orderBy('kori.nimi', 'asc');
-        */
-        //$jaetut = Kori::select('kori.id', 'korityyppi_id', 'nimi', 'kuvaus', 'julkinen', 'luotu', 'luoja', 'muokattu', 'muokkaaja', 'kori_id_lista::text', 'mip_alue', 'poistaja', 'poistettu')
-        $jaetut = Kori::select(DB::raw('kori.id, korityyppi_id, nimi, kuvaus, julkinen, luotu, luoja, muokattu, muokkaaja, kori_id_lista::text, mip_alue, poistaja, poistettu'))
-        ->leftJoin('kori_kayttajat AS kk', 'kk.kori_id', '=', 'kori.id')
-        ->where("kk.kayttaja_id",'=', $id);
+        ->leftJoin('kayttaja AS k', 'k.id', '=', 'kk.kayttaja_id')
+        ->where("kk.kayttaja_id",'=', $id)
+        ->whereIn("k.rooli", ["pääkäyttäjä", "tutkija"]);
 
-        Log::debug("Jaetut ".json_encode($jaetut));
+        if($korityyppi != null){
+            $jaetut->withKorityyppi($korityyppi);
+        }
 
-        //$kysely = Kori::select('kori.id', 'korityyppi_id', 'nimi', 'kuvaus', 'julkinen', 'luotu', 'luoja', 'muokattu', 'muokkaaja', 'kori_id_lista::text', 'mip_alue', 'poistaja', 'poistettu')
         $kysely = Kori::select(DB::raw('kori.id, korityyppi_id, nimi, kuvaus, julkinen, luotu, luoja, muokattu, muokkaaja, kori_id_lista::text, mip_alue, poistaja, poistettu'))
         ->where('kori.luoja', '=', $id)
         ->whereNull('kori.poistettu')
         ->union($jaetut)
         ->orderBy('nimi', 'asc');
 
-        Log::debug("Queryy sql ".$kysely->toSql());
-        Log::debug("Queryy ".json_encode($kysely));
         return $kysely;
-
-        /*
-        return self::select('kori.*')
-        ->leftJoin('kori_kayttajat AS kk', 'kk.kori_id', '=', 'kori.id')
-        ->where("kk.kayttaja_id",'=',$id)
-        ->orWhere(function($query) {
-            Log::debug("Orwheeree " .json_encode($query));
-            $query->where('k.luoja', '=', $id)
-                ->whereNull('k.poistettu');
-            Log::debug("Orwheeree2 " .json_encode($query));
-        })
-        ->orderBy('nimi', 'asc');*/
-
-        ////->orWhere("kk.kayttaja_id",'=',$id)
     }
 
     /**
