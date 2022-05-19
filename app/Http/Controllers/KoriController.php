@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Kori;
 use App\Korityyppi;
+use App\KoriKayttaja;
 use App\Utils;
 use App\Library\String\MipJson;
 use Illuminate\Database\QueryException;
@@ -41,13 +42,12 @@ class KoriController extends Controller
             $jarjestys_suunta = (isset($request->jarjestys_suunta)) ? ($request->jarjestys_suunta == "laskeva" ? "desc" : "asc") : "asc";
 
             // TODO requestiin vipu hae kaikki tai sitten vain aina user tai valittu käyttäjä...
-
             // mip_alue päättää haetaanko RAK vai ARK koreja
-            $korit = Kori::haeKayttajanKorit(Auth::user()->id)->with( array(
+            $korit = Kori::haeKayttajanKorit(Auth::user()->id, $korityyppi)->with( array(
                 'korityyppi',
                 'luoja',
                 'muokkaaja'
-            ))->where('mip_alue', '=', $request->mip_alue);
+            ))->where('kori.mip_alue', '=', $request->mip_alue);
 
             // Haetaan kaikki korit, jos tyyppiä ei ole rajattu
             if($korityyppi != null){
@@ -64,7 +64,6 @@ class KoriController extends Controller
 
             // Rivimäärien rajoitus parametrien mukaan
             //$korit->withLimit($rivi, $riveja);
-
             // suorita query
             $korit = $korit->get();
 
@@ -114,6 +113,9 @@ class KoriController extends Controller
                     return MipJson::getJson();
                 }
 
+                $kori_kayttajat = KoriKayttaja::getKoriKayttajat($id)->get();
+                $kori->kayttajat = $kori_kayttajat;
+
                 // Muodostetaan propparit
                 $properties = clone($kori);
 
@@ -140,7 +142,7 @@ class KoriController extends Controller
         /*
          * Validointi
          */
-        $validator = Validator::make($request->all()['properties'], [
+        $validator = Validator::make($request->kori['properties'], [
             'korityyppi' => 'required',
             'nimi' => 'required|string|unique:kori',
             'kuvaus' => 'required|string'
@@ -163,15 +165,16 @@ class KoriController extends Controller
 
             try {
 
-                $kori = new Kori($request->all()['properties']);
+                $kori = new Kori($request->kori['properties']);
 
                 // Valintalistojen id:t
-                $kori->korityyppi_id = $request->input('properties.korityyppi.id');
+                $kori->korityyppi_id = $request->input('kori.properties.korityyppi.id');
 
                 $kori->luoja = Auth::user()->id;
                 $kori->save();
-            // Log::debug("KORI:");
-            // Log::debug($kori);
+                if ($request->jaetut_kayttajat){
+                    KoriKayttaja::lisaaKorinKayttajat($kori->id, $request->jaetut_kayttajat);
+                }
             } catch(Exception $e) {
                 DB::rollback();
                 MipJson::setGeoJsonFeature();
@@ -208,7 +211,7 @@ class KoriController extends Controller
         /*
          * Validointi
          */
-        $validator = Validator::make($request->all()['properties'], [
+         $validator = Validator::make($request->kori['properties'], [
             'nimi'			=> 'required|string|unique:kori,nimi,'.$id,
             'kuvaus'	    => 'required|string'
         ]);
@@ -223,7 +226,6 @@ class KoriController extends Controller
         else {
             try {
                 $kori = Kori::find($id);
-
                 if(!$kori){
                     MipJson::setGeoJsonFeature();
                     MipJson::addMessage(Lang::get('kori.search_not_found'));
@@ -234,15 +236,18 @@ class KoriController extends Controller
                     Utils::setDBUser();
 
                     try {
-                        $kori->fill($request->all()['properties']);
+                        $kori->fill($request->kori['properties']);
 
                         // Valintalistojen id:t
-                        $kori->korityyppi_id = $request->input('properties.korityyppi.id');
+                        $kori->korityyppi_id = $request->input('kori.properties.korityyppi.id');
 
                         $author_field = Kori::UPDATED_BY;
                         $kori->$author_field = Auth::user()->id;
 
                         $kori->update();
+                        if ($request->jaetut_kayttajat){
+                            KoriKayttaja::lisaaKorinKayttajat($id, $request->jaetut_kayttajat);
+                        }
 
                     } catch(Exception $e) {
                         DB::rollback();
@@ -258,6 +263,7 @@ class KoriController extends Controller
                         'luoja',
                         'muokkaaja'))->first();
 
+                    $kori->kayttajat = KoriKayttaja::getKoriKayttajat($id)->get();
                     MipJson::addMessage(Lang::get('kori.save_success'));
                     MipJson::setGeoJsonFeature(null, $kori);
                     MipJson::setResponseStatus(Response::HTTP_OK);
@@ -307,12 +313,12 @@ class KoriController extends Controller
     }
 
     /**
-     * Poista kori. Hard delete eli poistetaan kokonaan.
+     * Poista kori.
      */
     public function destroy($id) {
 
         try {
-            
+
             DB::beginTransaction();
 			Utils::setDBUser();
 
@@ -339,4 +345,23 @@ class KoriController extends Controller
 
         return MipJson::getJson();
     }
+
+    public function getKoriKayttajat($id) {
+        try {
+            $korikayttajat = KoriKayttaja::getKoriKayttajat($id)->get();
+
+            $properties = clone($korikayttajat);
+            MipJson::setGeoJsonFeature(null, $properties);
+            MipJson::setResponseStatus(Response::HTTP_OK);
+            MipJson::addMessage(Lang::get('kori.type_search_success'));
+
+        } catch(Exception $e) {
+
+            MipJson::setGeoJsonFeature();
+            MipJson::setMessages(array(Lang::get('kori.type_search_failed'),$e->getMessage()));
+            MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        return MipJson::getJson();
+    }
+
 }

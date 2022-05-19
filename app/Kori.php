@@ -3,6 +3,9 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+
 
 /**
  * Korin tiedot. kori_id_lista = koriin tallennetut id:t. Korityyppi kertoo minkä tyyppistä tietoa sisältää. esim löytöjä
@@ -33,7 +36,7 @@ class Kori extends Model
 
     const DELETED_AT 		= "poistettu";
     const DELETED_BY		= 'poistaja';
-    
+
     /**
      * Haku id:n mukaan.
      */
@@ -58,19 +61,36 @@ class Kori extends Model
     /**
      * Käyttäjän korit
      */
-    public static function haeKayttajanKorit($id) {
-        return self::select('kori.*')->where('luoja', '=', $id)->whereNull('poistettu')->orderBy('nimi', 'asc');
+    public static function haeKayttajanKorit($id, $korityyppi) {
+        $jaetut = Kori::select(DB::raw('kori.id, korityyppi_id, nimi, kuvaus, julkinen, kori.luotu, kori.luoja, kori.muokattu, kori.muokkaaja, kori_id_lista::text, mip_alue, kori.poistaja, kori.poistettu'))
+        ->leftJoin('kori_kayttaja AS kk', 'kk.kori_id', '=', 'kori.id')
+        ->leftJoin('kayttaja AS k', 'k.id', '=', 'kk.kayttaja_id')
+        ->where("kk.kayttaja_id",'=', $id)
+        ->whereNull('kori.poistettu')
+        ->whereIn("k.rooli", ["pääkäyttäjä", "tutkija"]);
+
+        if($korityyppi != null){
+            $jaetut->withKorityyppi($korityyppi);
+        }
+
+        $kysely = Kori::select(DB::raw('kori.id, korityyppi_id, nimi, kuvaus, julkinen, luotu, luoja, muokattu, muokkaaja, kori_id_lista::text, mip_alue, poistaja, poistettu'))
+        ->where('kori.luoja', '=', $id)
+        ->whereNull('kori.poistettu')
+        ->union($jaetut)
+        ->orderBy('nimi', 'asc');
+
+        return $kysely;
     }
 
     /**
      * Suodatukset
      */
     public function scopeWithKorityyppi($query, $id) {
-        return $query->where('korityyppi_id', '=', $id)->whereNull('poistettu');
+        return $query->where('korityyppi_id', '=', $id);
     }
 
     public function scopeWithKoriNimi($query, $nimi){
-        return $query->where('nimi', 'ILIKE', $nimi)->whereNull('poistettu');
+        return $query->where('nimi', 'ILIKE', $nimi);
     }
 
     /**
