@@ -63,9 +63,10 @@ class Kori extends Model
      */
     public static function haeKayttajanKorit($id, $korityyppi) {
         $jaetut = Kori::select(DB::raw('kori.id, korityyppi_id, nimi, kuvaus, julkinen, kori.luotu, kori.luoja, kori.muokattu, kori.muokkaaja, kori_id_lista::text, mip_alue, kori.poistaja, kori.poistettu'))
-        ->leftJoin('kori_kayttajat AS kk', 'kk.kori_id', '=', 'kori.id')
+        ->leftJoin('kori_kayttaja AS kk', 'kk.kori_id', '=', 'kori.id')
         ->leftJoin('kayttaja AS k', 'k.id', '=', 'kk.kayttaja_id')
         ->where("kk.kayttaja_id",'=', $id)
+        ->whereNull('kori.poistettu')
         ->whereIn("k.rooli", ["pääkäyttäjä", "tutkija"]);
 
         if($korityyppi != null){
@@ -85,11 +86,11 @@ class Kori extends Model
      * Suodatukset
      */
     public function scopeWithKorityyppi($query, $id) {
-        return $query->where('korityyppi_id', '=', $id)->whereNull('poistettu');
+        return $query->where('korityyppi_id', '=', $id);
     }
 
     public function scopeWithKoriNimi($query, $nimi){
-        return $query->where('nimi', 'ILIKE', $nimi)->whereNull('poistettu');
+        return $query->where('nimi', 'ILIKE', $nimi);
     }
 
     /**

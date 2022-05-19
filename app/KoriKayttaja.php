@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Log;
 
 class KoriKayttaja extends Model
 {
-    protected $table = "kori_kayttajat";
+    protected $table = "kori_kayttaja";
 
     protected $fillable = array(
         'kori_id', 'kayttaja_id'
@@ -22,7 +22,7 @@ class KoriKayttaja extends Model
      * Asetetaan käyttäjille oikeus jaettuun koriin. Poistetaan korin oikeudet ja luodaan uudet tilalle.
      */
     public static function lisaaKorinKayttajat($id, $kayttajat){
-        DB::table('kori_kayttajat')->where('kori_id', $id)->delete();
+        DB::table('kori_kayttaja')->where('kori_id', $id)->delete();
 
         foreach($kayttajat as $kayttaja) {
             $kk = new KoriKayttaja();
@@ -35,17 +35,18 @@ class KoriKayttaja extends Model
     }
 
     public static function getSingle($id) {
-        return self::select('kori_kayttajat.*')->where('kori_id', '=', $id);
+        return self::select('kori_kayttaja.*')->where('kori_id', '=', $id);
     }
 
     public static function getKoriKayttajat($id){
-        return DB::table('kori_kayttajat AS kk')
+        return DB::table('kori_kayttaja AS kk')
         ->select('k.*')
         ->leftJoin('kayttaja AS k', 'k.id', '=', 'kk.kayttaja_id')
         ->where(function($query) use ($id)
         {
             $query->where('kk.kori_id', '=', $id);
         });
+
     }
 
 }

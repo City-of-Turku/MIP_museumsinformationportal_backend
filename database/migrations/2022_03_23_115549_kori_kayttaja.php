@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class KoriKayttajat extends Migration
+class KoriKayttaja extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class KoriKayttajat extends Migration
      */
     public function up()
     {
-        Schema::create('kori_kayttajat', function(Blueprint $table){
+        Schema::create('kori_kayttaja', function(Blueprint $table){
             $table->bigIncrements("id"); // PK
             $table->bigInteger("kori_id");
             $table->integer("kayttaja_id");
@@ -28,6 +28,6 @@ class KoriKayttajat extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('kori_kayttajat');   
+        Schema::dropIfExists('kori_kayttaja');
     }
 }
