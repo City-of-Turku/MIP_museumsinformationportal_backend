@@ -13,10 +13,13 @@ class KoriKayttaja extends Migration
      */
     public function up()
     {
-        Schema::create('kori_kayttaja', function(Blueprint $table){
+        Schema::create('kori_kayttajat', function(Blueprint $table){
             $table->bigIncrements("id"); // PK
             $table->bigInteger("kori_id");
-            $table->integer("kayttaja_id");
+            $table->jsonb("kayttaja_id_lista");
+            $table->boolean("museon_kori");
+
+            $table->foreign("kori_id")->references("id")->on("kori");
         });
 
     }
@@ -28,6 +31,6 @@ class KoriKayttaja extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('kori_kayttaja');
+        Schema::dropIfExists('kori_kayttajat');
     }
 }

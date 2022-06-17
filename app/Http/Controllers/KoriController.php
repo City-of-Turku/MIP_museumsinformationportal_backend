@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Kori;
 use App\Korityyppi;
-use App\KoriKayttaja;
+use App\KoriKayttajat;
 use App\Utils;
 use App\Library\String\MipJson;
 use Illuminate\Database\QueryException;
@@ -36,14 +36,16 @@ class KoriController extends Controller
 
         try {
             $korityyppi = (isset($request->korityyppi) && is_numeric($request->korityyppi)) ? $request->korityyppi : null;
+            $korijako = (isset($request->korijako) && is_numeric($request->korijako)) ? $request->korijako : null;
             $rivi = (isset($request->rivi) && is_numeric($request->rivi)) ? $request->rivi : 0;
             $riveja = (isset($request->rivit) && is_numeric($request->rivit)) ? $request->rivit : 25;
             $jarjestys_kentta = (isset($request->jarjestys)) ? $request->jarjestys : "nimi";
             $jarjestys_suunta = (isset($request->jarjestys_suunta)) ? ($request->jarjestys_suunta == "laskeva" ? "desc" : "asc") : "asc";
 
+
             // TODO requestiin vipu hae kaikki tai sitten vain aina user tai valittu käyttäjä...
             // mip_alue päättää haetaanko RAK vai ARK koreja
-            $korit = Kori::haeKayttajanKorit(Auth::user()->id, $korityyppi)->with( array(
+            $korit = Kori::haeKayttajanKorit(Auth::user()->id)->with( array(
                 'korityyppi',
                 'luoja',
                 'muokkaaja'
@@ -57,6 +59,9 @@ class KoriController extends Controller
             // Korien haku nimellä
             if($request->nimi){
                 $korit->withKoriNimi($request->nimi);
+            }
+            if ($korijako){
+                $korit->withKoriJako($korijako, Auth::user()->id);
             }
 
             // Rivien määrän laskenta
@@ -113,8 +118,13 @@ class KoriController extends Controller
                     return MipJson::getJson();
                 }
 
-                $kori_kayttajat = KoriKayttaja::getKoriKayttajat($id)->get();
-                $kori->kayttajat = $kori_kayttajat;
+                if ($kori->mip_alue == 'ARK'){ //RAK-puolelle ei ole toteutettu korin jakoa
+                    $kori_kayttajat = KoriKayttajat::getKoriKayttajat($id);
+                    if ($kori_kayttajat != null){
+                        $kori->kayttajat = $kori_kayttajat;
+                        $kori->museon_kori = $kori_kayttajat->first()->museon_kori;
+                    }
+                }
 
                 // Muodostetaan propparit
                 $properties = clone($kori);
@@ -172,8 +182,8 @@ class KoriController extends Controller
 
                 $kori->luoja = Auth::user()->id;
                 $kori->save();
-                if ($request->jaetut_kayttajat){
-                    KoriKayttaja::lisaaKorinKayttajat($kori->id, $request->jaetut_kayttajat);
+                if ($request->jaetut_kayttajat || $request->kori['properties']["museon_kori"] == true){
+                    KoriKayttajat::lisaaKorinKayttajat($kori->id, $request->jaetut_kayttaja, $request->kori['properties']["museon_kori"]);
                 }
             } catch(Exception $e) {
                 DB::rollback();
@@ -245,8 +255,9 @@ class KoriController extends Controller
                         $kori->$author_field = Auth::user()->id;
 
                         $kori->update();
-                        if ($request->jaetut_kayttajat){
-                            KoriKayttaja::lisaaKorinKayttajat($id, $request->jaetut_kayttajat);
+
+                        if ($request->jaetut_kayttajat || array_key_exists("museon_kori", $request->kori['properties'])){
+                            KoriKayttajat::lisaaKorinKayttajat($id, $request->jaetut_kayttajat, $request->kori['properties']["museon_kori"]);
                         }
 
                     } catch(Exception $e) {
@@ -263,7 +274,13 @@ class KoriController extends Controller
                         'luoja',
                         'muokkaaja'))->first();
 
-                    $kori->kayttajat = KoriKayttaja::getKoriKayttajat($id)->get();
+                    if ($kori->mip_alue == 'ARK'){ //RAK-puolelle ei ole toteutettu korin jakoa
+                        $kori_kayttajat = KoriKayttajat::getKoriKayttajat($id);
+                        if ($kori_kayttajat != null){
+                            $kori->kayttajat = $kori_kayttajat;
+                            $kori->museon_kori = $kori_kayttajat->first()->museon_kori;
+                        }
+                    }
                     MipJson::addMessage(Lang::get('kori.save_success'));
                     MipJson::setGeoJsonFeature(null, $kori);
                     MipJson::setResponseStatus(Response::HTTP_OK);
@@ -348,7 +365,7 @@ class KoriController extends Controller
 
     public function getKoriKayttajat($id) {
         try {
-            $korikayttajat = KoriKayttaja::getKoriKayttajat($id)->get();
+            $korikayttajat = KoriKayttajat::getKoriKayttajat($id);
 
             $properties = clone($korikayttajat);
             MipJson::setGeoJsonFeature(null, $properties);

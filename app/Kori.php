@@ -61,25 +61,18 @@ class Kori extends Model
     /**
      * Käyttäjän korit
      */
-    public static function haeKayttajanKorit($id, $korityyppi) {
-        $jaetut = Kori::select(DB::raw('kori.id, korityyppi_id, nimi, kuvaus, julkinen, kori.luotu, kori.luoja, kori.muokattu, kori.muokkaaja, kori_id_lista::text, mip_alue, kori.poistaja, kori.poistettu'))
-        ->leftJoin('kori_kayttaja AS kk', 'kk.kori_id', '=', 'kori.id')
-        ->leftJoin('kayttaja AS k', 'k.id', '=', 'kk.kayttaja_id')
-        ->where("kk.kayttaja_id",'=', $id)
-        ->whereNull('kori.poistettu')
-        ->whereIn("k.rooli", ["pääkäyttäjä", "tutkija"]);
-
-        if($korityyppi != null){
-            $jaetut->withKorityyppi($korityyppi);
-        }
-
-        $kysely = Kori::select(DB::raw('kori.id, korityyppi_id, nimi, kuvaus, julkinen, luotu, luoja, muokattu, muokkaaja, kori_id_lista::text, mip_alue, poistaja, poistettu'))
-        ->where('kori.luoja', '=', $id)
-        ->whereNull('kori.poistettu')
-        ->union($jaetut)
-        ->orderBy('nimi', 'asc');
-
-        return $kysely;
+    public static function haeKayttajanKorit($id) {
+        $query = Kori::select(DB::raw('kori.id, korityyppi_id, nimi, kuvaus, julkinen,kori.luotu, kori.luoja, kori.muokattu, kori.muokkaaja, kori_id_lista::text, mip_alue, kori.poistaja, kori.poistettu'))
+        ->leftJoin('kori_kayttajat AS kk', function($join) use($id){
+            $join->on('kk.kori_id', '=', 'kori.id')
+            ->on('kori.luoja', '!=', DB::raw($id));
+        })
+        ->leftJoin('kayttaja as k', function($join){
+            $join->on('kk.museon_kori', '=', DB::raw('true'))
+            ->whereIn('k.rooli', ['pääkäyttäjä', 'tutkija']);
+        })
+        ->whereNull('kori.poistettu');
+        return $query;
     }
 
     /**
@@ -91,6 +84,29 @@ class Kori extends Model
 
     public function scopeWithKoriNimi($query, $nimi){
         return $query->where('nimi', 'ILIKE', $nimi);
+    }
+
+    public function scopeWithKoriJako($query, $jako, $user){
+        switch ($jako) {
+            case 1: //Omat
+                return $query->where(function($query) use ($user){
+                    $query->where("kori.luoja", $user);
+                });
+                break;
+            case 2: //Jaetut
+                return $query->where(function($query) use ($user){
+                    $query->whereRaw('kk.kayttaja_id_lista @> ?', $user)
+                    ->orWhere("k.id", $user);
+                });
+                break;
+            case 3: //Kaikki
+                return $query->where(function($query) use ($user){
+                    $query->whereRaw('kk.kayttaja_id_lista @> ?', $user)
+                    ->orWhere("k.id", $user)
+                    ->orWhere("kori.luoja", $user);
+                });
+                break;
+        }
     }
 
     /**
