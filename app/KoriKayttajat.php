@@ -38,9 +38,20 @@ class KoriKayttajat extends Model
     }
 
     public static function getKoriKayttajat($id){
-        $query = DB::table('kori_kayttajat AS kk')
-        ->select('kk.museon_kori', 'k.*')
-        ->leftJoin('kayttaja AS k' , function($join) use($id){
+
+        $museo_query = DB::table('kori_kayttajat AS kk')
+        ->select('kk.museon_kori')
+        ->where('kori_id', $id)
+        ->get();
+        $museon_kori = false;
+
+        if ($museo_query != null && count($museo_query) > 0){
+            $museon_kori = $museo_query->first()->museon_kori;
+        }
+
+        $query = DB::table('kayttaja AS k')
+        ->select('k.*')
+        ->leftJoin('kori_kayttajat AS kk' , function($join) {
             $join->whereIn(DB::raw('k.id::text'), function($subquery){
                 $subquery->select(DB::raw('jsonb_array_elements_text(kk.kayttaja_id_lista)'))
                 ->from('kori_kayttajat');
@@ -48,7 +59,14 @@ class KoriKayttajat extends Model
         })
         ->where('kori_id', $id);
 
-        return $query->get();
+        return array('kayttajat' => $query->get(), 'museon_kori' => $museon_kori);
     }
 
+    public static function getKayttajat($kayttajalista){
+        $query = DB::table('kayttaja AS k')
+        ->select('k.*')
+        ->whereIn('k.id', json_decode($kayttajalista));
+
+        return $query->get();
+    }
 }
