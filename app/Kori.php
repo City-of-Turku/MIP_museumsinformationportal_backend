@@ -61,25 +61,84 @@ class Kori extends Model
     /**
      * Käyttäjän korit
      */
-    public static function haeKayttajanKorit($id, $korityyppi) {
-        $jaetut = Kori::select(DB::raw('kori.id, korityyppi_id, nimi, kuvaus, julkinen, kori.luotu, kori.luoja, kori.muokattu, kori.muokkaaja, kori_id_lista::text, mip_alue, kori.poistaja, kori.poistettu'))
-        ->leftJoin('kori_kayttaja AS kk', 'kk.kori_id', '=', 'kori.id')
-        ->leftJoin('kayttaja AS k', 'k.id', '=', 'kk.kayttaja_id')
-        ->where("kk.kayttaja_id",'=', $id)
-        ->whereNull('kori.poistettu')
-        ->whereIn("k.rooli", ["pääkäyttäjä", "tutkija"]);
+    public static function haeKayttajanKorit($id, $korityyppi, $korijako, $nimi) {
+        switch ($korijako) {
+            case 1: //Omat
+                $query = Kori::select(DB::raw('kori.id, korityyppi_id, nimi, kuvaus, julkinen,kori.luotu, kori.luoja, kori.muokattu, kori.muokkaaja, kori_id_lista::text, mip_alue, kori.poistaja, kori.poistettu, kk.museon_kori'), 'kk.kayttaja_id_lista')
+                ->leftJoin('kori_kayttajat AS kk', 'kk.kori_id', '=', 'kori.id')
+                ->whereNull('kori.poistettu')
+                ->where('kori.luoja', '=', $id)
+                ->orderBy('nimi', 'asc');
 
-        if($korityyppi != null){
-            $jaetut->withKorityyppi($korityyppi);
+                if($nimi){
+                    $query->withKoriNimi($nimi);
+                }
+                break;
+            case 2: //Jaetut
+                $query = Kori::select(DB::raw('kori.id, korityyppi_id, nimi, kuvaus, julkinen,kori.luotu, kori.luoja, kori.muokattu, kori.muokkaaja, kori_id_lista::text, mip_alue, kori.poistaja, kori.poistettu, kk.museon_kori'), 'kk.kayttaja_id_lista')
+                ->leftJoin('kori_kayttajat AS kk', function($join) use($id){
+                    $join->on('kk.kori_id', '=', 'kori.id');
+                })
+                ->leftJoin('kayttaja as k', function($join){
+                    $join->on('kk.museon_kori', '=', DB::raw('true'))
+                    ->whereIn('k.rooli', ["pääkäyttäjä", "tutkija"]);
+                })
+                ->whereNull('kori.poistettu')
+                ->where(function($subwhere) use($id){
+                    $subwhere->whereRaw('kk.kayttaja_id_lista @> ?', $id)
+                    ->orWhere('k.id', '=', $id);
+                })
+                ->where('kori.luoja', '!=', DB::raw($id));
+
+                if($korityyppi != null){
+                    $query->withKorityyppi($korityyppi);
+                }
+
+                if($nimi){
+                    $query->withKoriNimi($nimi);
+                }
+
+                $query->groupBy('nimi', 'kori.id', 'kk.museon_kori', 'kk.kayttaja_id_lista');
+                break;
+            case 3: //Kaikki
+                $jaetut = Kori::select(DB::raw('kori.id, korityyppi_id, nimi, kuvaus, julkinen,kori.luotu, kori.luoja, kori.muokattu, kori.muokkaaja, kori_id_lista::text, mip_alue, kori.poistaja, kori.poistettu, kk.museon_kori'), 'kk.kayttaja_id_lista')
+                ->leftJoin('kori_kayttajat AS kk', function($join) use($id){
+                    $join->on('kk.kori_id', '=', 'kori.id');
+                })
+                ->leftJoin('kayttaja as k', function($join){
+                    $join->on('kk.museon_kori', '=', DB::raw('true'))
+                    ->whereIn('k.rooli', ["pääkäyttäjä", "tutkija"]);
+                })
+                ->whereNull('kori.poistettu')
+                ->where(function($subwhere) use($id){
+                    $subwhere->whereRaw('kk.kayttaja_id_lista @> ?', $id)
+                    ->orWhere('k.id', '=', $id);
+                })
+                ->where('kori.luoja', '!=', DB::raw($id));
+
+                if($korityyppi != null){
+                    $jaetut->withKorityyppi($korityyppi);
+                }
+
+                if($nimi){
+                    $jaetut->withKoriNimi($nimi);
+                }
+
+                $jaetut->groupBy('nimi', 'kori.id', 'kk.museon_kori', 'kk.kayttaja_id_lista');
+
+                $query = Kori::select(DB::raw('kori.id, korityyppi_id, nimi, kuvaus, julkinen,kori.luotu, kori.luoja, kori.muokattu, kori.muokkaaja, kori_id_lista::text, mip_alue, kori.poistaja, kori.poistettu, kk.museon_kori'), 'kk.kayttaja_id_lista')
+                ->leftJoin('kori_kayttajat AS kk', 'kk.kori_id', '=', 'kori.id')
+                ->whereNull('kori.poistettu')
+                ->where('kori.luoja', '=', $id)
+                ->union($jaetut)
+                ->orderBy('nimi', 'asc');
+
+                if($nimi){
+                    $query->withKoriNimi($nimi);
+                }
+                break;
         }
-
-        $kysely = Kori::select(DB::raw('kori.id, korityyppi_id, nimi, kuvaus, julkinen, luotu, luoja, muokattu, muokkaaja, kori_id_lista::text, mip_alue, poistaja, poistettu'))
-        ->where('kori.luoja', '=', $id)
-        ->whereNull('kori.poistettu')
-        ->union($jaetut)
-        ->orderBy('nimi', 'asc');
-
-        return $kysely;
+        return $query;
     }
 
     /**
@@ -90,7 +149,7 @@ class Kori extends Model
     }
 
     public function scopeWithKoriNimi($query, $nimi){
-        return $query->where('nimi', 'ILIKE', $nimi);
+        return $query->where('nimi', 'ILIKE', $nimi."%");
     }
 
     /**
