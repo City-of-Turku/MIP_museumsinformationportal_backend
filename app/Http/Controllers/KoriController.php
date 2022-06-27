@@ -366,22 +366,4 @@ class KoriController extends Controller
         return MipJson::getJson();
     }
 
-    public function getKoriKayttajat($id) {
-        try {
-            $korikayttajat = KoriKayttajat::getKoriKayttajat($id);
-
-            $properties = clone($korikayttajat);
-            MipJson::setGeoJsonFeature(null, $properties);
-            MipJson::setResponseStatus(Response::HTTP_OK);
-            MipJson::addMessage(Lang::get('kori.type_search_success'));
-
-        } catch(Exception $e) {
-
-            MipJson::setGeoJsonFeature();
-            MipJson::setMessages(array(Lang::get('kori.type_search_failed'),$e->getMessage()));
-            MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-        return MipJson::getJson();
-    }
-
 }
