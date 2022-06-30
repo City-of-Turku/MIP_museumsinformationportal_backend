@@ -81,7 +81,7 @@ class Kori extends Model
                 })
                 ->leftJoin('kayttaja as k', function($join){
                     $join->on('kk.museon_kori', '=', DB::raw('true'))
-                    ->whereIn('k.rooli', ["pääkäyttäjä", "tutkija"]);
+                    ->whereIn('k.ark_rooli', ["pääkäyttäjä", "tutkija"]);
                 })
                 ->whereNull('kori.poistettu')
                 ->where(function($subwhere) use($id){
@@ -107,7 +107,7 @@ class Kori extends Model
                 })
                 ->leftJoin('kayttaja as k', function($join){
                     $join->on('kk.museon_kori', '=', DB::raw('true'))
-                    ->whereIn('k.rooli', ["pääkäyttäjä", "tutkija"]);
+                    ->whereIn('k.ark_rooli', ["pääkäyttäjä", "tutkija"]);
                 })
                 ->whereNull('kori.poistettu')
                 ->where(function($subwhere) use($id){
