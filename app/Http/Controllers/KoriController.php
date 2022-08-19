@@ -45,7 +45,7 @@ class KoriController extends Controller
 
             // TODO requestiin vipu hae kaikki tai sitten vain aina user tai valittu käyttäjä...
             // mip_alue päättää haetaanko RAK vai ARK koreja
-            $korit = Kori::haeKayttajanKorit(Auth::user()->id, $korityyppi, $korijako, $request->nimi)->with( array(
+            $korit = Kori::haeKayttajanKorit(Auth::user()->id, $korityyppi, $korijako, $request->nimi, $request->mip_alue)->with( array(
                 'korityyppi',
                 'luoja',
                 'muokkaaja'
