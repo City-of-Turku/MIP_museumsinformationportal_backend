@@ -315,6 +315,9 @@ class Loyto extends Model
       $alkuteksti = implode(':', explode(':', $keyword, -1));
       $haettavat = [];
       $hakunumero = $hakuvali[0];
+      if (!is_numeric($hakuvali[1])){
+        return $haettavat;
+      }
       // tarkistetaan löytyykö hakunumerosta aakkosia
       if(preg_match("/[a-z]/i", $hakunumero)) {
         // tarkistetaan onko kyseessä (Materiaalikoodi, kolminumeroinen yksikkötunnus ja juokseva alanumero kaikki yhdessä)
