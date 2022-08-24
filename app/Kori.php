@@ -61,7 +61,7 @@ class Kori extends Model
     /**
      * Käyttäjän korit
      */
-    public static function haeKayttajanKorit($id, $korityyppi, $korijako, $nimi) {
+    public static function haeKayttajanKorit($id, $korityyppi, $korijako, $nimi, $mip_alue) {
         switch ($korijako) {
             case 1: //Omat
                 $query = Kori::select(DB::raw('kori.id, korityyppi_id, nimi, kuvaus, julkinen,kori.luotu, kori.luoja, kori.muokattu, kori.muokkaaja, kori_id_lista::text, mip_alue, kori.poistaja, kori.poistettu, kk.museon_kori'), 'kk.kayttaja_id_lista')
@@ -81,14 +81,16 @@ class Kori extends Model
                 })
                 ->leftJoin('kayttaja as k', function($join){
                     $join->on('kk.museon_kori', '=', DB::raw('true'))
-                    ->whereIn('k.rooli', ["pääkäyttäjä", "tutkija"]);
+                    ->whereIn('k.ark_rooli', ["pääkäyttäjä", "tutkija"]);
                 })
                 ->whereNull('kori.poistettu')
                 ->where(function($subwhere) use($id){
                     $subwhere->whereRaw('kk.kayttaja_id_lista @> ?', $id)
                     ->orWhere('k.id', '=', $id);
                 })
-                ->where('kori.luoja', '!=', DB::raw($id));
+                ->where('kori.luoja', '!=', DB::raw($id))
+                ->where('kori.mip_alue', '=', $mip_alue);
+
 
                 if($korityyppi != null){
                     $query->withKorityyppi($korityyppi);
@@ -107,14 +109,15 @@ class Kori extends Model
                 })
                 ->leftJoin('kayttaja as k', function($join){
                     $join->on('kk.museon_kori', '=', DB::raw('true'))
-                    ->whereIn('k.rooli', ["pääkäyttäjä", "tutkija"]);
+                    ->whereIn('k.ark_rooli', ["pääkäyttäjä", "tutkija"]);
                 })
                 ->whereNull('kori.poistettu')
                 ->where(function($subwhere) use($id){
                     $subwhere->whereRaw('kk.kayttaja_id_lista @> ?', $id)
                     ->orWhere('k.id', '=', $id);
                 })
-                ->where('kori.luoja', '!=', DB::raw($id));
+                ->where('kori.luoja', '!=', DB::raw($id))
+                ->where('kori.mip_alue', '=', $mip_alue);
 
                 if($korityyppi != null){
                     $jaetut->withKorityyppi($korityyppi);
