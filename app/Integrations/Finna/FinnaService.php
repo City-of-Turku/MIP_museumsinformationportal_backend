@@ -367,7 +367,12 @@ class FinnaService
 		$writer->startElement('lido:objectWorkTypeWrap');
 		$writer->startElement('lido:objectWorkType');
 		$writer->startElement('lido:term');
-		$writer->text($loyto['loytotyyppi']['nimi_fi']);
+		if (!empty($loyto['loytotyyppi'])){
+			$writer->text($loyto['loytotyyppi']['nimi_fi']);
+		}
+		else{
+			$writer->text("");
+		}
 		$writer->endElement();
 		$writer->endElement();
 		$writer->endElement();
