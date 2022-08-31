@@ -315,11 +315,11 @@ class Loyto extends Model
       $alkuteksti = implode(':', explode(':', $keyword, -1));
       $haettavat = [];
       $hakunumero = $hakuvali[0];
-      if (!is_numeric($hakuvali[1])){
-        return $haettavat;
-      }
       // tarkistetaan löytyykö hakunumerosta aakkosia
       if(preg_match("/[a-z]/i", $hakunumero)) {
+        if (ctype_alpha(substr(end($hakuvali), 0, 1)) && is_numeric(substr(end($hakuvali), -1))){
+            return $haettavat;
+        }
         // tarkistetaan onko kyseessä (Materiaalikoodi, kolminumeroinen yksikkötunnus ja juokseva alanumero kaikki yhdessä)
         // $alkuosa_length on materiaalikoodi + yksikkötunnus (2+3)
         $alkuosa_length = 5;
