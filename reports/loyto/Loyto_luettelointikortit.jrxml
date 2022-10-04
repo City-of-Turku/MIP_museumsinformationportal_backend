@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2019-03-15T10:45:06 -->
+<!-- 2022-10-04T08:37:32 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Loyto_luettelointikortit" columnCount="4" printOrder="Horizontal" pageWidth="595" pageHeight="842" columnWidth="138" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="dea69c35-0e8e-453e-972c-f915cdff87f9">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
@@ -20,7 +20,7 @@ split_part(ark_loyto.luettelointinumero, ':', 1) as luettelointinumero1,
 split_part(ark_loyto.luettelointinumero, ':', 2) as luettelointinumero2,
 case 
 	when coalesce(split_part(ark_loyto.luettelointinumero, ':', 3), '') = '' then null 
-	else cast(split_part(ark_loyto.luettelointinumero, ':', 3) as int)
+	else split_part(ark_loyto.luettelointinumero, ':', 3)
 end as luettelointinumero3, 
 ark_tutkimus.nimi as tutkimus_nimi,
 ark_tutkimus.loyto_paanumero,
