@@ -74,13 +74,15 @@ class InventointiprojektiArvoalue extends Model {
 		$inventointiprojektiArvoalue = new InventointiprojektiArvoalue($inventointiprojekti);
 		$inventointiprojektiArvoalue->arvoalue_id= $arvoalue_id;
 		
-		//Take the information from the user
-		$inventoija = Kayttaja::where('id', '=', $inventointiprojekti["inventoija_id"])->first();
-		
-		$inventointiprojektiArvoalue->inventoija_nimi = $inventoija->etunimi . " " . $inventoija->sukunimi;
-		$inventointiprojektiArvoalue->inventoija_organisaatio = $inventoija->organisaatio;
-		
-		$inventointiprojektiArvoalue->save();
+		//Take the information from the user		
+		if (isset($inventointiprojekti["inventoija_id"])) {
+			$inventoija = Kayttaja::where('id', '=', $inventointiprojekti["inventoija_id"])->first();
+			
+			$inventointiprojektiArvoalue->inventoija_nimi = $inventoija->etunimi . " " . $inventoija->sukunimi;
+			$inventointiprojektiArvoalue->inventoija_organisaatio = $inventoija->organisaatio;
+			
+			$inventointiprojektiArvoalue->save();
+		}
 	}
 	
 	public static function deleteInventointitieto($inventointiprojektiId, $arvoalueId, $inventoijaId) {

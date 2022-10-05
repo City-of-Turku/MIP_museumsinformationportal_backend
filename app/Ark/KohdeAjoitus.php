@@ -25,8 +25,8 @@ class KohdeAjoitus extends Model {
 				$kohdeajoitus = new KohdeAjoitus();
 				$kohdeajoitus->ark_kohde_id = $kohde_id;
 				$kohdeajoitus->ajoitus_id = $ka['ajoitus']['id'];
-				array_key_exists('tarkenne', $ka) ? $kohdeajoitus->ajoitustarkenne_id = $ka['tarkenne']['id'] : null;
-				array_key_exists('ajoituskriteeri', $ka) ? $kohdeajoitus->ajoituskriteeri = $ka['ajoituskriteeri'] : null;
+				isset($ka['tarkenne']) ? $kohdeajoitus->ajoitustarkenne_id = $ka['tarkenne']['id'] : null;
+				isset($ka['ajoituskriteeri']) ? $kohdeajoitus->ajoituskriteeri = $ka['ajoituskriteeri'] : null;
 				$kohdeajoitus->luoja = Auth::user()->id;
 				$kohdeajoitus->save();
 			}

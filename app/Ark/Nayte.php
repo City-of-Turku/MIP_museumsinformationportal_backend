@@ -52,6 +52,13 @@ class Nayte extends Model
     }
 
     /**
+     * Haku luettelointinumeron mukaan.
+     */
+    public static function getSingleByLuettelointinumero($luettelointinumero) {
+      return self::select('ark_nayte.*')->where('luettelointinumero', '=', $luettelointinumero);
+  }
+
+    /**
      * Kaikkien haku tai katselijan oikeuksilla haku
      *
      * Split part osuudella jaotellaan luettelointinumero eri kenttiin, jotta järjestys luettelointinumeron saadaan tehtyä oikein.
@@ -390,6 +397,18 @@ class Nayte extends Model
     public function scopeWithIrtoloytotutkimusAlueId($query, $keyword) {
         return $query->join('ark_tutkimusalue', 'ark_tutkimusalue.id', '=', 'ark_nayte.ark_tutkimusalue_id')
         ->where('ark_tutkimusalue.id', '=', $keyword);
+    }
+
+    public function scopeWithSailytystila($query, $id){
+        return $query->where('ark_nayte.vakituinen_sailytystila_id', '=', $id);
+    }
+
+    public function scopeWithHyllypaikka($query, $keyword){
+        return $query->where('ark_nayte.vakituinen_hyllypaikka', 'ILIKE', $keyword);
+    }
+
+    public function scopeWithTilapainenSijainti($query, $keyword) {
+        return $query->where('ark_nayte.tilapainen_sijainti', 'ILIKE', "%".$keyword."%");
     }
 
     /**

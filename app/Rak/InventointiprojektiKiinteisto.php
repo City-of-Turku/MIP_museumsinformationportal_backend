@@ -46,12 +46,14 @@ class InventointiprojektiKiinteisto extends Model {
 		$inventointiprojektiKiinteisto->kiinteisto_id = $kiinteisto_id;
 		
 		//Take the information from the user
-		$inventoija = Kayttaja::where('id', '=', $inventointiprojekti["inventoija_id"])->first();
-		
-		$inventointiprojektiKiinteisto->inventoija_nimi = $inventoija->etunimi . " " . $inventoija->sukunimi;
-		$inventointiprojektiKiinteisto->inventoija_organisaatio = $inventoija->organisaatio;
-		
-		$inventointiprojektiKiinteisto->save();
+		if (isset($inventointiprojekti["inventoija_id"])) {
+			$inventoija = Kayttaja::where('id', '=', $inventointiprojekti["inventoija_id"])->first();
+			
+			$inventointiprojektiKiinteisto->inventoija_nimi = $inventoija->etunimi . " " . $inventoija->sukunimi;
+			$inventointiprojektiKiinteisto->inventoija_organisaatio = $inventoija->organisaatio;
+			
+			$inventointiprojektiKiinteisto->save();
+		}
 	}
 	
 	public static function deleteInventointitieto($inventointiprojektiId, $kiinteistoId, $inventoijaId) {
