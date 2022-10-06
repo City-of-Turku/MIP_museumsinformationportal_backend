@@ -41,11 +41,11 @@ class KoriController extends Controller
             $riveja = (isset($request->rivit) && is_numeric($request->rivit)) ? $request->rivit : 25;
             $jarjestys_kentta = (isset($request->jarjestys)) ? $request->jarjestys : "nimi";
             $jarjestys_suunta = (isset($request->jarjestys_suunta)) ? ($request->jarjestys_suunta == "laskeva" ? "desc" : "asc") : "asc";
-
+            $tarkka = isset($request->tarkka) ? $request->tarkka : false;
 
             // TODO requestiin vipu hae kaikki tai sitten vain aina user tai valittu käyttäjä...
             // mip_alue päättää haetaanko RAK vai ARK koreja
-            $korit = Kori::haeKayttajanKorit(Auth::user()->id, $korityyppi, $korijako, $request->nimi, $request->mip_alue)->with( array(
+            $korit = Kori::haeKayttajanKorit(Auth::user()->id, $korityyppi, $korijako, $request->nimi, $request->mip_alue, $tarkka)->with( array(
                 'korityyppi',
                 'luoja',
                 'muokkaaja'

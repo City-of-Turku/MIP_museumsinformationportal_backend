@@ -61,7 +61,7 @@ class Kori extends Model
     /**
      * Käyttäjän korit
      */
-    public static function haeKayttajanKorit($id, $korityyppi, $korijako, $nimi, $mip_alue) {
+    public static function haeKayttajanKorit($id, $korityyppi, $korijako, $nimi, $mip_alue, $tarkka) {
         switch ($korijako) {
             case 1: //Omat
                 $query = Kori::select(DB::raw('kori.id, korityyppi_id, nimi, kuvaus, julkinen,kori.luotu, kori.luoja, kori.muokattu, kori.muokkaaja, kori_id_lista::text, mip_alue, kori.poistaja, kori.poistettu, kk.museon_kori'), 'kk.kayttaja_id_lista')
@@ -71,7 +71,7 @@ class Kori extends Model
                 ->orderBy('nimi', 'asc');
 
                 if($nimi){
-                    $query->withKoriNimi($nimi);
+                    $query->withKoriNimi($nimi, false);
                 }
                 break;
             case 2: //Jaetut
@@ -97,7 +97,7 @@ class Kori extends Model
                 }
 
                 if($nimi){
-                    $query->withKoriNimi($nimi);
+                    $query->withKoriNimi($nimi, false);
                 }
 
                 $query->groupBy('nimi', 'kori.id', 'kk.museon_kori', 'kk.kayttaja_id_lista');
@@ -124,7 +124,7 @@ class Kori extends Model
                 }
 
                 if($nimi){
-                    $jaetut->withKoriNimi($nimi);
+                    $jaetut->withKoriNimi($nimi, $tarkka);
                 }
 
                 $jaetut->groupBy('nimi', 'kori.id', 'kk.museon_kori', 'kk.kayttaja_id_lista');
@@ -137,7 +137,7 @@ class Kori extends Model
                 ->orderBy('nimi', 'asc');
 
                 if($nimi){
-                    $query->withKoriNimi($nimi);
+                    $query->withKoriNimi($nimi, $tarkka);
                 }
                 break;
         }
@@ -151,8 +151,13 @@ class Kori extends Model
         return $query->where('korityyppi_id', '=', $id);
     }
 
-    public function scopeWithKoriNimi($query, $nimi){
-        return $query->where('nimi', 'ILIKE', $nimi."%");
+    public function scopeWithKoriNimi($query, $nimi, $tarkka){
+        if ($tarkka){
+            return $query->where('nimi', '=', $nimi);
+        }
+        else{
+            return $query->where('nimi', 'ILIKE', $nimi."%");
+        }
     }
 
     /**
