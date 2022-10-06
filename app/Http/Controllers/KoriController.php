@@ -36,7 +36,7 @@ class KoriController extends Controller
 
         try {
             $korityyppi = (isset($request->korityyppi) && is_numeric($request->korityyppi)) ? $request->korityyppi : null;
-            $korijako = (isset($request->korijako) && is_numeric($request->korijako)) ? $request->korijako : null;
+            $korijako = (isset($request->korijako) && is_numeric($request->korijako)) ? $request->korijako : 3; // 3 = kaikki korit (omat + jaetut korit)
             $rivi = (isset($request->rivi) && is_numeric($request->rivi)) ? $request->rivi : 0;
             $riveja = (isset($request->rivit) && is_numeric($request->rivit)) ? $request->rivit : 25;
             $jarjestys_kentta = (isset($request->jarjestys)) ? $request->jarjestys : "nimi";
