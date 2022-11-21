@@ -15,6 +15,9 @@ class GeomFileReader {
      * @param  $type
      * @param  $file
      */
+    //Suomen ulkorajat, samat rajat löytyy frontista 3067 muodossa.
+    const limits = array("West" => 14.627542518010905, "North" => 70.11863658262968, "East" => 34.07497472940342, "South" => 59.18761403545063);
+
     public static function readGeometriesFromFile($type, $file) {
 
         //Geojson tyyppinen kollektio joka palautetaan UI:lle asti.
@@ -401,6 +404,7 @@ class GeomFileReader {
                 //Jos rivi sisältää halutun aloitusmerkin, aloitetaan kirjoittaminen
                 if(!$doWrite && GeomFileReader::lineContainsKeyword($data, $startStrings)) {
                     $doWrite = true;
+                    $firstpoint = '';
                     $geometry = "POLYGON(("; //WKT-muotoinen geometria alkaa tällä
                     //Otetaan talteen ja käytetään nimenä.
                     //$name = $data;
@@ -410,6 +414,10 @@ class GeomFileReader {
                     //Rivi sisälsi lopetusmerkin, lopetetaan tallentaminen.
                     $doWrite = false;
                     $geometry =  rtrim($geometry ,','); //Trimmataan viimeinen , pois viimeisen koordinaattiparin perästä WKT-stringistä.
+                    $points = explode(",", $geometry);
+                    if ($points[count($points) - 1] != $firstpoint){
+                        $geometry .= "," .$firstpoint;
+                    }
                     $geometry .= '))'; //Lisätään WKT:n sulkevat sulkeet
 
                     /*
@@ -420,6 +428,12 @@ class GeomFileReader {
                         try {
                             //Konvertoidaan koordinaatit UI:n käyttämään projektioon (4326)
                             $convertedCoords = MipGis::transformSSRID(3067, 4326, $geometry);
+                            $coord = explode(" ", substr($convertedCoords, 9))[0];
+                            if ($coord < GeomFileReader::limits["West"] || $coord > GeomFileReader::limits["East"]){
+                                //Flipataan koordinaatit, jollei ne ole Suomen rajojen sisäpuolella.
+                                $flippedGeometry = MipGis::flipCoords($geometry);
+                                $convertedCoords = MipGis::transformSSRID(3067, 4326, $flippedGeometry);
+                            }
                             //Muutetaan geojsoniksi
                             $asGeoJson = MipGis::asGeoJson($convertedCoords);
                             //Dekoodataan, jotta tässä vaiheessa ei käsitellä pelkkää stringiä
@@ -450,6 +464,10 @@ class GeomFileReader {
                     if($doWrite) {
                         if($previousLine == $lonIndicator) {
                             if($data != '0.000000') { //TODO: Fiksattava, ei voi olla kovakoodattu
+                                if ($firstpoint == ''){
+                                    //Otetaan ensimmäinen piste talteen, jotta voidaan tarvittaessa lisätä se viimeiseksi
+                                    $firstpoint = substr($geometry, 9) . $data;
+                                }
                                 $geometry .= $data . ",";
                                 $previousLine = $data;
                             }
