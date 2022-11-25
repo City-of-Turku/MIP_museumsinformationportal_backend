@@ -69,7 +69,10 @@ class LoytoController extends Controller
             if($request->loydon_tilat) {
                 $loydot->withLoydonTilat($request->loydon_tilat);
             }else{
-                $loydot->where('loydon_tila_id', '!=', self::POISTETTU_LUETTELOSTA);
+                if($request->loydon_tilat_kaikki == null){
+                    //Röntgenkuvaan löytöjä lisätessä näytetään kaikki, tilasta riippumatta
+                    $loydot->where('loydon_tila_id', '!=', self::POISTETTU_LUETTELOSTA);
+                }
             }
 
             // Suodatus tutkimusalueen yksikön mukaan
