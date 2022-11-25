@@ -16,7 +16,8 @@ class ArkKuvaLoyto extends Model
     protected $fillable = [
             "jarjestys",
             "ark_kuva_id",
-            "ark_loyto_id"
+            "ark_loyto_id",
+            "kuva_tyyppi"
     ];
 
     // Päivittää löydön timestampin lisäyksen/muokkauksen/poiston yhteydessä.

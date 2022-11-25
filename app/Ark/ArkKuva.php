@@ -294,9 +294,14 @@ class ArkKuva extends Model {
 	    return $this->belongsTo('App\Ark\Tutkimus', 'ark_tutkimus_id');
 	}
 
+	public function kuvatyyppi() {
+	    return $this->hasOne('App\Ark\ArkKuvaLoyto');
+	}
+
 	//Poistetaan vanhat linkatut löydöt ja lisätään uudet jotka tulee $loydot-listassa
 	public static function linkita_loydot($kuva_id, $loydot) {
 	    if(!is_null($loydot)) {
+			$kuva_tyyppi = DB::table('ark_kuva_loyto')->where('ark_kuva_id', $kuva_id)->pluck('kuva_tyyppi')->first();
 	        DB::table('ark_kuva_loyto')->where('ark_kuva_id', $kuva_id)->delete();
 
 	        foreach($loydot as $loyto) {
@@ -306,6 +311,7 @@ class ArkKuva extends Model {
 	            $kl->ark_kuva_id = $kuva_id;
 	            $kl->ark_loyto_id = $loyto["id"];
 	            $kl->jarjestys = $maxJarjestys;
+				$kl->kuva_tyyppi = $kuva_tyyppi;
 	            $kl->luoja = Auth::user()->id;
 
 	            $kl->save();

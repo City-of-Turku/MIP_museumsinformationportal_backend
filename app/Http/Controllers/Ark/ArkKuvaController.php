@@ -101,7 +101,8 @@ class ArkKuvaController extends Controller {
                     'kuvaloydot.loyto',
                     'kuvanaytteet.nayte',
                     'kuvakohteet.kohde',
-                    'tutkimukset'
+                    'tutkimukset',
+                    'kuvatyyppi'
                 ))->orderBy($jarjestys_kentta, $jarjestys_suunta);
 
             if($request->input("ark_loyto_id") && $request->input("ark_loyto_id") !== 'null') {
@@ -186,7 +187,15 @@ class ArkKuvaController extends Controller {
                 }
                 //Ei palauteta kuvia joihin ei ole oikeutta
                 if($entity->oikeudet && $entity->oikeudet['katselu'] == true) {
+                    if(!$request->input("kuvatyyppi")) {
                     array_push($returnEntities, $entity);
+                }
+                    else{ //Palautetaan kuvat näkymän perusteella löytö/konservointi, paitsi tunnistekuva näytetään aina
+                        $loydonkuva = (($entity->kuvatyyppi && $entity->kuvatyyppi->kuva_tyyppi == $request->input("kuvatyyppi")) || $entity->tunnistekuva == true);
+                        if ($loydonkuva){
+                            array_push($returnEntities, $entity);
+                        }
+                    }
                 }
             }
 
@@ -804,6 +813,7 @@ class ArkKuvaController extends Controller {
                 $kuvaLoyto->ark_kuva_id = $entity->id;
                 $kuvaLoyto->ark_loyto_id = $loyto->id;
                 $kuvaLoyto->jarjestys = $maxJarjestys;
+                $kuvaLoyto->kuva_tyyppi = $request->get('kuva_tyyppi');
                 $kuvaLoyto->save();
                 break;
             case 18:
