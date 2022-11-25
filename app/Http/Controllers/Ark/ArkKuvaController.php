@@ -548,7 +548,7 @@ class ArkKuvaController extends Controller {
 
             //Linkitetään muihin
             //Tallennetaan linkattavat löydöt ja yksikot
-            ArkKuva::linkita_loydot($entity->id, $request->loydot);
+            ArkKuva::linkita_loydot($entity->id, $request->loydot, $request->kuvaTyyppi);
             ArkKuva::linkita_naytteet($entity->id, $request->naytteet);
             ArkKuva::linkita_yksikot($entity->id, $request->yksikot);
             ArkKuva::linkita_kohteet($entity->id, $request->kohteet);
