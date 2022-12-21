@@ -234,8 +234,8 @@ class LoytoController extends Controller
                 $loydot->withTilapainenSijainti($request->tilapainen_sijainti);
             }
                         /*
-             *   Vaatii konservointia mukaan
-             *  2 = kaikki, 1 = kyllä, 0 = ei
+             *   KM laina mukaan
+             *  3 = kaikki, 2 = ei, 1 = kyllä
              */
             if($request->km_laina){
                 if($request->km_laina != 3){
