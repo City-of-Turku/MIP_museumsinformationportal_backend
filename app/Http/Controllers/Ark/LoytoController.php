@@ -61,7 +61,8 @@ class LoytoController extends Controller
                 'muokkaaja',
                 'luettelointinrohistoria',
                 'tutkimusalue.tutkimus',//IRTOLÖYTÖ tai tarkastus
-                'sailytystila'
+                'sailytystila',
+                'rontgenkuvat'
             ));
 
             // Löydöistä jätetään oletuksena pois luettelosta poistettu - tilaiset.
@@ -244,6 +245,10 @@ class LoytoController extends Controller
                 if($request->km_laina != 3){
                     $loydot->withKmLaina($request->km_laina);
                 }
+            }
+
+            if ($request->rontgenkuvat){
+                $loydot->withRontgenkuvat($request->rontgenkuvat);
             }
 
             // Rivien määrän laskenta
