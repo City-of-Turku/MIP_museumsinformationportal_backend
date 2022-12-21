@@ -464,6 +464,23 @@ class Loyto extends Model
             ->where('ark_tutkimus.tutkimuksen_lyhenne', 'ILIKE', $keyword."%");
         });
     }
+        /*
+     * Tutkimuksen lyhenne
+     */
+    public function scopeWithKmLaina($query, $keyword) {
+        if($keyword==1){
+            $query->whereIn('ark_loyto.id', function($q) use ($keyword) {
+                $q = self::joinTutkimus($q)
+                ->whereNotNull('ark_tutkimus.km_paanumerot_ja_diaarnum');
+            });
+        } else{
+            $query->whereIn('ark_loyto.id', function($q) use ($keyword) {
+                $q = self::joinTutkimus($q)
+                ->whereNull('ark_tutkimus.km_paanumerot_ja_diaarnum');
+            });
+        }
+        return $query;
+    }
 
     public function scopeWithVaatiiKonservointia($query, $keyword) {
         return $query->where('ark_loyto.konservointi', '=', $keyword);
@@ -532,6 +549,15 @@ class Loyto extends Model
 
     public function scopeWithTilapainenSijainti($query, $keyword) {
         return $query->where('ark_loyto.tilapainen_sijainti', 'ILIKE', "%".$keyword."%");
+    }
+
+    public function scopeWithRontgenkuvat($query, $keyword) {
+        return $query->whereIn('ark_loyto.id', function($q) use ($keyword) {
+
+            $q = self::joinRontgen($q)
+
+            ->where('ark_rontgenkuva.numero', 'ILIKE', $keyword);
+        });
     }
 
     /**
@@ -658,6 +684,13 @@ class Loyto extends Model
         return $this->belongsTo('App\Ark\ArkSailytystila', 'vakituinen_sailytystila_id');
     }
 
+    /*
+     * Hakee välitaulun 'ark_rontgenkuva_loyto' mukaiset löydölle kuuluvat röntgenkuvat
+     */
+    public function rontgenkuvat() {
+        return $this->hasManyThrough('App\Ark\Rontgenkuva', 'App\Ark\RontgenkuvaLoyto', 'ark_loyto_id', 'id', 'id', 'ark_rontgenkuva_id');
+    }
+
     public function kuntoraportit() {
         return $this->hasMany('App\Ark\ArkKuntoraportti', 'ark_loyto_id', 'id');
     }
@@ -674,6 +707,13 @@ class Loyto extends Model
             ->orOn('ark_loyto.ark_tutkimusalue_id', '=', 'ark_tutkimusalue.id');
         })
         ->join('ark_tutkimus', 'ark_tutkimusalue.ark_tutkimus_id', '=', 'ark_tutkimus.id');
+    }
+
+    public static function joinRontgen($q) {
+        return $q->select('ark_loyto.id')
+                ->from('ark_loyto')
+                ->leftjoin('ark_rontgenkuva_loyto', 'ark_rontgenkuva_loyto.ark_loyto_id', '=', 'ark_loyto.id')
+                ->join('ark_rontgenkuva', 'ark_rontgenkuva.id', '=', 'ark_rontgenkuva_loyto.ark_rontgenkuva_id');
     }
 
     public function files() {
