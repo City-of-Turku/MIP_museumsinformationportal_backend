@@ -236,6 +236,15 @@ class LoytoController extends Controller
             if ($request->tilapainen_sijainti){
                 $loydot->withTilapainenSijainti($request->tilapainen_sijainti);
             }
+                        /*
+             *   KM laina mukaan
+             *  3 = kaikki, 2 = ei, 1 = kyllä
+             */
+            if($request->km_laina){
+                if($request->km_laina != 3){
+                    $loydot->withKmLaina($request->km_laina);
+                }
+            }
 
             // Rivien määrän laskenta
             $total_rows = Utils::getCount($loydot);

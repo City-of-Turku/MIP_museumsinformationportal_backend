@@ -464,6 +464,23 @@ class Loyto extends Model
             ->where('ark_tutkimus.tutkimuksen_lyhenne', 'ILIKE', $keyword."%");
         });
     }
+        /*
+     * Tutkimuksen lyhenne
+     */
+    public function scopeWithKmLaina($query, $keyword) {
+        if($keyword==1){
+            $query->whereIn('ark_loyto.id', function($q) use ($keyword) {
+                $q = self::joinTutkimus($q)
+                ->whereNotNull('ark_tutkimus.km_paanumerot_ja_diaarnum');
+            });
+        } else{
+            $query->whereIn('ark_loyto.id', function($q) use ($keyword) {
+                $q = self::joinTutkimus($q)
+                ->whereNull('ark_tutkimus.km_paanumerot_ja_diaarnum');
+            });
+        }
+        return $query;
+    }
 
     public function scopeWithVaatiiKonservointia($query, $keyword) {
         return $query->where('ark_loyto.konservointi', '=', $keyword);
