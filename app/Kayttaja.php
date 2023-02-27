@@ -571,8 +571,7 @@ class Kayttaja extends Model implements JWTSubject, Authenticatable {
 				$permissions['poisto'] = false;
 
 			}
-
-		return $permissions;
+      return $permissions;
 	}
 
 	/*
@@ -640,7 +639,8 @@ class Kayttaja extends Model implements JWTSubject, Authenticatable {
 			    $tutkimus = ArkKuva::tutkimus($id)->first();
 			    $permissions = self::getArkTutkimusPermissions($tutkimus);
 			} else if($entity == 'ark_kartta') {
-			    $tutkimus = ArkKartta::tutkimus($id)->first();
+                $kartta = ArkKartta::getSingle($id)->first();
+			    $tutkimus = self::getArkTutkimus($kartta->ark_tutkimus_id);
 			    $permissions = self::getArkTutkimusPermissions($tutkimus);
 			} else if($entity == 'ark_rontgenkuva') {
 			    $loyto = Rontgenkuva::joinloyto($id)->first();
