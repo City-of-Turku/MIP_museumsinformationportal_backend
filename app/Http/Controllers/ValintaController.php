@@ -164,7 +164,7 @@ class ValintaController extends Controller {
 					$entities = Kuntotyyppi::select("id", "nimi_fi", "nimi_se", "nimi_en")->orderBy("nimi_fi")->get();
 					break;
 				case "arvotus":
-					$entities = Arvotustyyppi::select("id", "nimi_fi", "nimi_se", "nimi_en")->orderBy("nimi_fi")->get();
+					$entities = Arvotustyyppi::select("id", "nimi_fi", "nimi_se", "nimi_en")->orderBy("jarjestys")->get();
 					break;
 				case "aluetyyppi":
 					$entities = Aluetyyppi::select("id", "nimi_fi", "nimi_se", "nimi_en")->orderBy("nimi_fi")->get();
