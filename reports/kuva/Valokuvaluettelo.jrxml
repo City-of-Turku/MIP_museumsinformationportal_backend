@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2021-01-21T15:53:46 -->
+<!-- 2023-02-22T09:30:58 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Valokuvaluettelo" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="7417a2e2-63d4-404b-adb6-0f467eb458ef">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="qa"/>
@@ -17,14 +17,13 @@ left join ark_kohde k2 on k2.id = akt.ark_kohde_id
 left join ( 
     select count(k2.id) as lkm, k2.ark_tutkimus_id
     from ark_kuva k2
+    where k2.poistettu is null and k2.luettelointinumero is not null
     group by ark_tutkimus_id
 ) kuva_lkm on kuva_lkm.ark_tutkimus_id = t.id
 where k.ark_tutkimus_id = $P{tutkimusId}
 and k.poistettu is null
 and luettelointinumero is not null
-order by valinumero, juokseva
-
-]]>
+order by valinumero, juokseva]]>
 	</queryString>
 	<field name="luettelointinumero" class="java.lang.String"/>
 	<field name="kuvaus" class="java.lang.String"/>
