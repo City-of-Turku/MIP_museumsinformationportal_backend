@@ -31,9 +31,13 @@ class KohdeAlakohde extends Model {
 				$kohdeAlakohde->ark_kohde_id = $kohde_id;
 				array_key_exists('nimi', $ak) ? $kohdeAlakohde->nimi = $ak['nimi'] : null;
 				array_key_exists('kuvaus', $ak) ? $kohdeAlakohde->kuvaus = $ak['kuvaus'] : null;
-				array_key_exists('tyyppi', $ak) ? $kohdeAlakohde->ark_kohdetyyppi_id = $ak['tyyppi']['id'] : null;
-				array_key_exists('tyyppitarkenne', $ak) ? $kohdeAlakohde->ark_kohdetyyppitarkenne_id = $ak['tyyppitarkenne']['id'] : null;
-				array_key_exists('koordselite', $ak) ? $kohdeAlakohde->koordselite = $ak['koordselite'] : null;
+                if (array_key_exists('tyyppi', $ak) && $ak['tyyppi'] != null){
+                    $kohdeAlakohde->ark_kohdetyyppi_id = $ak['tyyppi']['id'];
+                } 
+                if (array_key_exists('tyyppitarkenne', $ak) && $ak['tyyppitarkenne'] != null){
+                    $kohdeAlakohde->ark_kohdetyyppitarkenne_id = $ak['tyyppitarkenne']['id'];
+                } 
+			array_key_exists('koordselite', $ak) ? $kohdeAlakohde->koordselite = $ak['koordselite'] : null;
 				array_key_exists('korkeus_min', $ak) ? $kohdeAlakohde->korkeus_min = $ak['korkeus_min'] : null;
 				array_key_exists('korkeus_max', $ak) ? $kohdeAlakohde->korkeus_max = $ak['korkeus_max'] : null;
 				$kohdeAlakohde->luoja = Auth::user()->id;

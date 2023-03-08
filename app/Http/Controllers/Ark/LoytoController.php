@@ -61,7 +61,8 @@ class LoytoController extends Controller
                 'muokkaaja',
                 'luettelointinrohistoria',
                 'tutkimusalue.tutkimus',//IRTOLÖYTÖ tai tarkastus
-                'sailytystila'
+                'sailytystila',
+                'rontgenkuvat'
             ));
 
             // Löydöistä jätetään oletuksena pois luettelosta poistettu - tilaiset.
@@ -69,7 +70,10 @@ class LoytoController extends Controller
             if($request->loydon_tilat) {
                 $loydot->withLoydonTilat($request->loydon_tilat);
             }else{
-                $loydot->where('loydon_tila_id', '!=', self::POISTETTU_LUETTELOSTA);
+                if($request->loydon_tilat_kaikki == null){
+                    //Röntgenkuvaan löytöjä lisätessä näytetään kaikki, tilasta riippumatta
+                    $loydot->where('loydon_tila_id', '!=', self::POISTETTU_LUETTELOSTA);
+                }
             }
 
             // Suodatus tutkimusalueen yksikön mukaan
@@ -232,6 +236,19 @@ class LoytoController extends Controller
 
             if ($request->tilapainen_sijainti){
                 $loydot->withTilapainenSijainti($request->tilapainen_sijainti);
+            }
+                        /*
+             *   KM laina mukaan
+             *  3 = kaikki, 2 = ei, 1 = kyllä
+             */
+            if($request->km_laina){
+                if($request->km_laina != 3){
+                    $loydot->withKmLaina($request->km_laina);
+                }
+            }
+
+            if ($request->rontgenkuvat){
+                $loydot->withRontgenkuvat($request->rontgenkuvat);
             }
 
             // Rivien määrän laskenta
