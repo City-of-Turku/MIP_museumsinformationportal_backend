@@ -6,7 +6,7 @@ use Exception;
 
 class MMLQueries {
 
-	private static function parseKiinteistoTunnus($rawXmlString) {
+	private static function parseKiinteistoTunnus2($rawXmlString) {
 
 		$xml_string = str_replace(array("rhr:", "gml:","ktjkiiwfs:"), "", $rawXmlString);
 		$data = new \SimpleXmlElement($xml_string);
@@ -24,6 +24,24 @@ class MMLQueries {
 					$result['kiinteistotunnus'] = "";
 				}
 
+				array_push($data_array, $result);
+			}
+		}
+		return $data_array;
+	}
+
+	private static function parseKiinteistoTunnus($rawJSONString) {
+		$data_array = array();
+		$data = json_decode($rawJSONString);
+		if($data->features) {
+			foreach($data->features as $kiinteisto) {
+				$ktunnus = (string)$kiinteisto->properties->kiinteistotunnus;
+
+				if ($ktunnus!="") {
+					$result['kiinteistotunnus'] = substr($ktunnus, 0, 3). "-". substr($ktunnus, 3, 3). "-".  substr($ktunnus, 6, 4). "-".  substr($ktunnus, 10, 4);
+				} else {
+					$result['kiinteistotunnus'] = "";
+				}
 				array_push($data_array, $result);
 			}
 		}
@@ -206,7 +224,8 @@ class MMLQueries {
 	 * @param $point
 	 * @throws Exception
 	 */
-	public static function getKiinteistoTunnusByPoint($point) {
+
+	public static function getKiinteistoTunnusByPointOld($point) {
 
 		$url = config('app.mml_kiinteistotiedot_url');
 		$username = config('app.mml_kiinteistotiedot_username');
@@ -225,6 +244,26 @@ class MMLQueries {
 			throw new Exception("KiinteistoTiedot failed: ".$res->getStatusCode()." : ".$res->getReasonPhrase());
 		}
 
+		return self::parseKiinteistoTunnus2($res->getBody());
+	}
+
+	public static function getKiinteistoTunnusByPoint($point) {
+		$margin = 50;
+
+		$lat = explode(" ", $point)[0];
+		$lon = explode(" ", $point)[1];
+		$bbox = implode(",", [$lat+$margin, $lon+$margin, $lat-$margin, $lon-$margin]);
+		$url = "https://avoin-paikkatieto.maanmittauslaitos.fi/kiinteisto-avoin/simple-features/v3/collections/KiinteistotunnuksenSijaintitiedot/items?&bbox-crs=http://www.opengis.net/def/crs/EPSG/0/3067&crs=http://www.opengis.net/def/crs/EPSG/0/3067&bbox=" .htmlentities($bbox);
+		$client = new Client();
+
+		$res = $client->request('GET', $url, [
+			'auth' => [config('app.mml_apikey_nimisto'), '']
+		]);
+
+		if ($res->getStatusCode()!="200") {
+			throw new Exception("KiinteistoTunnus failed: ".$res->getStatusCode()." : ".$res->getReasonPhrase());
+		}
+
 		return self::parseKiinteistoTunnus($res->getBody());
 	}
 
@@ -235,7 +274,7 @@ class MMLQueries {
 	 * @param $polygon
 	 * @throws Exception
 	 */
-	public static function getKiinteistoTunnusByPolygon($polygon) {
+	public static function getKiinteistoTunnusByPolygon2($polygon) {
 
 		$url = config('app.mml_kiinteistotiedot_url');
 		$username = config('app.mml_kiinteistotiedot_username');
@@ -252,6 +291,24 @@ class MMLQueries {
 
 		if ($res->getStatusCode()!="200") {
 			throw new Exception("KiinteistoTiedotForPolygon failed: ".$res->getStatusCode()." : ".$res->getReasonPhrase());
+		}
+
+		return self::parseKiinteistoTunnus2($res->getBody());
+	}
+
+	public static function getKiinteistoTunnusByPolygon($polygon) {
+		$poly = str_replace(",","+", $polygon);
+		$poly = str_replace(" ",",", $poly);
+		$filter = "filter=S_INTERSECTS(geometry,POLYGON((" .$poly .")))";
+		$url = "https://avoin-paikkatieto.maanmittauslaitos.fi/kiinteisto-avoin/simple-features/v3/collections/KiinteistotunnuksenSijaintitiedot/items?limit=1000&filter-lang=cql2-text&crs=http%3A%2F%2Fwww.opengis.net%2Fdef%2Fcrs%2FEPSG%2F0%2F3067&bbox-crs=http%3A%2F%2Fwww.opengis.net%2Fdef%2Fcrs%2FEPSG%2F0%2F3067&filter-crs=http%3A%2F%2Fwww.opengis.net%2Fdef%2Fcrs%2FEPSG%2F0%2F3067&". $filter;
+		$client = new Client();
+
+		$res = $client->request('GET', $url, [
+			'auth' => [config('app.mml_apikey_nimisto'), '']
+		]);
+
+		if ($res->getStatusCode()!="200") {
+			throw new Exception("KiinteistoTunnus failed: ".$res->getStatusCode()." : ".$res->getReasonPhrase());
 		}
 
 		return self::parseKiinteistoTunnus($res->getBody());
