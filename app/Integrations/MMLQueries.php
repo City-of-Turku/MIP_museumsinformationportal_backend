@@ -6,30 +6,6 @@ use Exception;
 
 class MMLQueries {
 
-	private static function parseKiinteistoTunnus2($rawXmlString) {
-
-		$xml_string = str_replace(array("rhr:", "gml:","ktjkiiwfs:"), "", $rawXmlString);
-		$data = new \SimpleXmlElement($xml_string);
-
-		$data_array = array();
-
-		if($data->featureMember) {
-			foreach($data->featureMember as $estate) {
-				$result = array();
-				$ktunnus = (string)$estate->RekisteriyksikonSijaintitiedot->kiinteistotunnus;
-
-				if ($ktunnus!="") {
-					$result['kiinteistotunnus'] = substr($ktunnus, 0, 3). "-". substr($ktunnus, 3, 3). "-".  substr($ktunnus, 6, 4). "-".  substr($ktunnus, 10, 4);
-				} else {
-					$result['kiinteistotunnus'] = "";
-				}
-
-				array_push($data_array, $result);
-			}
-		}
-		return $data_array;
-	}
-
 	private static function parseKiinteistoTunnus($rawJSONString) {
 		$data_array = array();
 		$data = json_decode($rawJSONString);
@@ -113,76 +89,6 @@ class MMLQueries {
 		return $kiinteisto;
 	}
 
-	private static function generateKiinteistoTiedotRequestBodyForPoint($point) {
-
-		$margin = 5;
-
-		$lat = explode(" ", $point)[0];
-		$lon = explode(" ", $point)[1];
-		$lowerCorner = ($lat+$margin)." ".($lon+$margin);
-		$upperCorner = ($lat-$margin)." ".($lon-$margin);
-
-		$body  = '<?xml version="1.0" encoding="UTF-8"?>';
-		$body .= '<wfs:GetFeature version="1.1.0" ';
-		$body .= 'xmlns:ktjkiiwfs="http://xml.nls.fi/ktjkiiwfs/2010/02" ';
-		$body .= 'xmlns:wfs="http://www.opengis.net/wfs" ';
-		$body .= 'xmlns:gml="http://www.opengis.net/gml" ';
-		$body .= 'xmlns:ogc="http://www.opengis.net/ogc" ';
-		$body .= 'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ';
-		$body .= 'xsi:schemaLocation="http://www.opengis.net/wfs ';
-		$body .= 'http://schemas.opengis.net/wfs/1.1.0/wfs.xsd">';
-		$body .= '<wfs:Query ';
-		$body .= 'typeName="ktjkiiwfs:RekisteriyksikonSijaintitiedot" ';
-		$body .= 'srsName="EPSG:3067">';
-		$body .= '<ogc:Filter>';
-		$body .= '<ogc:BBOX>';
-		$body .= '<ogc:PropertyName>ktjkiiwfs:rekisteriyksikonPalstanTietoja/ktjkiiwfs:RekisteriyksikonPalstanTietoja/ktjkiiwfs:sijainti</ogc:PropertyName>';
-		$body .= '<gml:Envelope srsName="EPSG:3067">';
-		$body .= '<gml:lowerCorner>'.$lowerCorner.'</gml:lowerCorner>';
-		$body .= '<gml:upperCorner>'.$upperCorner.'</gml:upperCorner>';
-		$body .= '</gml:Envelope>';
-		$body .= '</ogc:BBOX>';
-		$body .= '</ogc:Filter>';
-		$body .= '</wfs:Query>';
-		$body .= '</wfs:GetFeature>';
-
-		return $body;
-	}
-
-	private static function generateKiinteistoTiedotRequestBodyForPolygon($polygon) {
-
-		$body  = '<?xml version="1.0" encoding="UTF-8"?>';
-		$body .= '<wfs:GetFeature version="1.1.0" ';
-		$body .= 'xmlns:ktjkiiwfs="http://xml.nls.fi/ktjkiiwfs/2010/02" ';
-		$body .= 'xmlns:wfs="http://www.opengis.net/wfs" ';
-		$body .= 'xmlns:gml="http://www.opengis.net/gml" ';
-		$body .= 'xmlns:ogc="http://www.opengis.net/ogc" ';
-		$body .= 'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ';
-		$body .= 'xsi:schemaLocation="http://www.opengis.net/wfs ';
-		$body .= 'http://schemas.opengis.net/wfs/1.1.0/wfs.xsd">';
-		$body .= '<wfs:Query ';
-		$body .= 'typeName="ktjkiiwfs:RekisteriyksikonSijaintitiedot" ';
-		$body .= 'srsName="EPSG:3067">';
-		$body .= '<ogc:Filter>';
-		$body .= '<ogc:Intersects>';
-		$body .= '<ogc:PropertyName>ktjkiiwfs:rekisteriyksikonPalstanTietoja/ktjkiiwfs:RekisteriyksikonPalstanTietoja/ktjkiiwfs:sijainti</ogc:PropertyName>';
-		$body .= '<gml:Polygon srsName="EPSG:3067">';
-		$body .= '  <gml:outerBoundaryIs>';
-		$body .= '    <gml:LinearRing>';
-		$body .= '      <gml:coordinates>';
-		$body .= $polygon;
-		$body .= '      </gml:coordinates>';
-		$body .= '    </gml:LinearRing>';
-		$body .= '</gml:outerBoundaryIs>';
-		$body .= '</gml:Polygon>';
-		$body .= '</ogc:Intersects>';
-		$body .= '</ogc:Filter>';
-		$body .= '</wfs:Query>';
-		$body .= '</wfs:GetFeature>';
-
-		return $body;
-	}
-
 	public static function getKiinteistoTiedot_byHttpGET($bbox) {
 		// getting the kiinteistotiedot by http GET, this does not work for some reason..
 		// no time to find out why, the POST works (funtion getKiinteistoTunnusByPoint)
@@ -224,29 +130,6 @@ class MMLQueries {
 	 * @param $point
 	 * @throws Exception
 	 */
-
-	public static function getKiinteistoTunnusByPointOld($point) {
-
-		$url = config('app.mml_kiinteistotiedot_url');
-		$username = config('app.mml_kiinteistotiedot_username');
-		$password = config('app.mml_kiinteistotiedot_password');
-
-		$client = new Client();
-
-		$res = $client->request("POST", $url, [
-				'http_errors' => false,
-				'headers' => ['Content-Type' => 'text/xml'],
-				"auth" => [$username, $password],
-				"body" => self::generateKiinteistoTiedotRequestBodyForPoint($point)
-		]);
-
-		if ($res->getStatusCode()!="200") {
-			throw new Exception("KiinteistoTiedot failed: ".$res->getStatusCode()." : ".$res->getReasonPhrase());
-		}
-
-		return self::parseKiinteistoTunnus2($res->getBody());
-	}
-
 	public static function getKiinteistoTunnusByPoint($point) {
 		$margin = 50;
 
@@ -274,28 +157,6 @@ class MMLQueries {
 	 * @param $polygon
 	 * @throws Exception
 	 */
-	public static function getKiinteistoTunnusByPolygon2($polygon) {
-
-		$url = config('app.mml_kiinteistotiedot_url');
-		$username = config('app.mml_kiinteistotiedot_username');
-		$password = config('app.mml_kiinteistotiedot_password');
-
-		$client = new Client();
-
-		$res = $client->request("POST", $url, [
-				'http_errors' => false,
-				'headers' => ['Content-Type' => 'text/xml'],
-				"auth" => [$username, $password],
-				"body" => self::generateKiinteistoTiedotRequestBodyForPolygon($polygon)
-		]);
-
-		if ($res->getStatusCode()!="200") {
-			throw new Exception("KiinteistoTiedotForPolygon failed: ".$res->getStatusCode()." : ".$res->getReasonPhrase());
-		}
-
-		return self::parseKiinteistoTunnus2($res->getBody());
-	}
-
 	public static function getKiinteistoTunnusByPolygon($polygon) {
 		$poly = str_replace(",","+", $polygon);
 		$poly = str_replace(" ",",", $poly);
