@@ -12,13 +12,13 @@
               <ogc:PropertyName>arvoluokka</ogc:PropertyName>
               <ogc:Literal>Valtakunnallinen</ogc:Literal>
             </ogc:PropertyIsEqualTo>
-          </ogc:Filter>              
+          </ogc:Filter>
           <PointSymbolizer>
             <Graphic>
               <Mark>
                 <WellKnownName>circle</WellKnownName>
                 <Fill>
-                  <CssParameter name="fill">#8f6bb1</CssParameter>     
+                  <CssParameter name="fill">#8f6bb1</CssParameter>
                 </Fill>
                 <Stroke>
                   <CssParameter name="stroke">#0000FF</CssParameter>
@@ -30,14 +30,14 @@
           </PointSymbolizer>
         </Rule>
         <Rule>
-          <Name>Seudullinen</Name>
-          <Title>Seudullinen</Title>
+          <Name>Maakunnallinen</Name>
+          <Title>Maakunnallinen</Title>
           <ogc:Filter>
             <ogc:PropertyIsEqualTo>
               <ogc:PropertyName>arvoluokka</ogc:PropertyName>
-              <ogc:Literal>Seudullinen</ogc:Literal>
+              <ogc:Literal>Maakunnallinen</ogc:Literal>
             </ogc:PropertyIsEqualTo>
-          </ogc:Filter>              
+          </ogc:Filter>
           <PointSymbolizer>
             <Graphic>
               <Mark>
@@ -62,7 +62,7 @@
               <ogc:PropertyName>arvoluokka</ogc:PropertyName>
               <ogc:Literal>Paikallinen</ogc:Literal>
             </ogc:PropertyIsEqualTo>
-          </ogc:Filter>              
+          </ogc:Filter>
           <PointSymbolizer>
             <Graphic>
               <Mark>
@@ -87,7 +87,7 @@
               <ogc:PropertyName>arvoluokka</ogc:PropertyName>
               <ogc:Literal>Maisemallinen</ogc:Literal>
             </ogc:PropertyIsEqualTo>
-          </ogc:Filter>              
+          </ogc:Filter>
           <PointSymbolizer>
             <Graphic>
               <Mark>
@@ -112,7 +112,7 @@
               <ogc:PropertyName>arvoluokka</ogc:PropertyName>
               <ogc:Literal>Historiallinen</ogc:Literal>
             </ogc:PropertyIsEqualTo>
-          </ogc:Filter>              
+          </ogc:Filter>
           <PointSymbolizer>
             <Graphic>
               <Mark>
@@ -136,7 +136,7 @@
             <ogc:PropertyIsNull>
               <ogc:PropertyName>arvoluokka</ogc:PropertyName>
             </ogc:PropertyIsNull>
-          </ogc:Filter>              
+          </ogc:Filter>
           <PointSymbolizer>
             <Graphic>
               <Mark>

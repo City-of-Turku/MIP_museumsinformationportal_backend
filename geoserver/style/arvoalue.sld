@@ -1,8 +1,8 @@
-<StyledLayerDescriptor version="1.0.0" 
-                       xsi:schemaLocation="http://www.opengis.net/sld StyledLayerDescriptor.xsd" 
-                       xmlns="http://www.opengis.net/sld" 
-                       xmlns:ogc="http://www.opengis.net/ogc" 
-                       xmlns:xlink="http://www.w3.org/1999/xlink" 
+<StyledLayerDescriptor version="1.0.0"
+                       xsi:schemaLocation="http://www.opengis.net/sld StyledLayerDescriptor.xsd"
+                       xmlns="http://www.opengis.net/sld"
+                       xmlns:ogc="http://www.opengis.net/ogc"
+                       xmlns:xlink="http://www.w3.org/1999/xlink"
                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <NamedLayer>
     <Name>arvoalue</Name>
@@ -17,7 +17,7 @@
               <ogc:PropertyName>arvoluokka</ogc:PropertyName>
               <ogc:Literal>Valtakunnallinen</ogc:Literal>
             </ogc:PropertyIsEqualTo>
-          </ogc:Filter> 
+          </ogc:Filter>
           <PointSymbolizer>
             <Geometry>
               <ogc:PropertyName>keskipiste</ogc:PropertyName>
@@ -102,14 +102,14 @@
           </TextSymbolizer>
         </Rule>
         <Rule>
-          <Name>Seudullinen</Name>
-          <Title>Seudullinen</Title>
+          <Name>Maakunnallinen</Name>
+          <Title>Maakunnallinen</Title>
           <ogc:Filter>
             <ogc:PropertyIsEqualTo>
               <ogc:PropertyName>arvoluokka</ogc:PropertyName>
-              <ogc:Literal>Seudullinen</ogc:Literal>
+              <ogc:Literal>Maakunnallinen</ogc:Literal>
             </ogc:PropertyIsEqualTo>
-          </ogc:Filter> 
+          </ogc:Filter>
           <PointSymbolizer>
             <Geometry>
               <ogc:PropertyName>keskipiste</ogc:PropertyName>
@@ -152,12 +152,12 @@
           </TextSymbolizer>
         </Rule>
         <Rule>
-          <Name>Seudullinen</Name>
-          <Title>Seudullinen</Title>
+          <Name>Maakunnallinen</Name>
+          <Title>Maakunnallinen</Title>
           <ogc:Filter>
             <ogc:PropertyIsEqualTo>
               <ogc:PropertyName>arvoluokka</ogc:PropertyName>
-              <ogc:Literal>Seudullinen</ogc:Literal>
+              <ogc:Literal>Maakunnallinen</ogc:Literal>
             </ogc:PropertyIsEqualTo>
           </ogc:Filter>
           <PolygonSymbolizer>
@@ -201,7 +201,7 @@
               <ogc:PropertyName>arvoluokka</ogc:PropertyName>
               <ogc:Literal>Paikallinen</ogc:Literal>
             </ogc:PropertyIsEqualTo>
-          </ogc:Filter> 
+          </ogc:Filter>
           <PointSymbolizer>
             <Geometry>
               <ogc:PropertyName>keskipiste</ogc:PropertyName>
@@ -293,7 +293,7 @@
               <ogc:PropertyName>arvoluokka</ogc:PropertyName>
               <ogc:Literal>Maisemallinen</ogc:Literal>
             </ogc:PropertyIsEqualTo>
-          </ogc:Filter> 
+          </ogc:Filter>
           <PointSymbolizer>
             <Geometry>
               <ogc:PropertyName>keskipiste</ogc:PropertyName>
@@ -385,7 +385,7 @@
               <ogc:PropertyName>arvoluokka</ogc:PropertyName>
               <ogc:Literal>Historiallinen</ogc:Literal>
             </ogc:PropertyIsEqualTo>
-          </ogc:Filter> 
+          </ogc:Filter>
           <PointSymbolizer>
             <Geometry>
               <ogc:PropertyName>keskipiste</ogc:PropertyName>
@@ -475,7 +475,7 @@
           <ogc:PropertyIsNull>
             <ogc:PropertyName>arvoluokka</ogc:PropertyName>
           </ogc:PropertyIsNull>
-        </ogc:Filter> 
+        </ogc:Filter>
         <PointSymbolizer>
           <Geometry>
             <ogc:PropertyName>keskipiste</ogc:PropertyName>
