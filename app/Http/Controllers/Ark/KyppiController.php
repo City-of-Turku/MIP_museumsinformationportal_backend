@@ -631,4 +631,20 @@ class KyppiController extends Controller{
         }
         return $posList;
     }
+
+
+    /*
+     * Ylläpitotyökalu nightly seederin ajamiseksi heti!
+    */
+    public function muinaisjaannosPaivitys() {
+        if(Auth::user()->ark_rooli != 'pääkäyttäjä') {
+            MipJson::setGeoJsonFeature();
+            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+            return MipJson::getJson();
+        }
+
+        $nightlySeeder = new \Database\Seeders\ark_kohdeNightlySeeder();
+        $nightlySeeder->run();
+    }
 }
