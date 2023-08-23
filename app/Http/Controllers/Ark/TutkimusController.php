@@ -621,7 +621,7 @@ class TutkimusController extends Controller
 
                         // Päivittämällä parentin aikaleimaa saadaan lapsitaulujen muutokset muutoshistoriaan helpommin
                         $tutkimus->touch();
-                        $tutkimus->update();
+                        $tutkimus->update(['muokattu' => \Carbon\Carbon::now()]);
 
                         /*
                          * Jos kyseessä on tarkastustutkimus, tallennetaan tarkastuksen kentät.
