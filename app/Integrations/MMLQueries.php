@@ -136,7 +136,7 @@ class MMLQueries {
 		$lat = explode(" ", $point)[0];
 		$lon = explode(" ", $point)[1];
 		$bbox = implode(",", [$lat+$margin, $lon+$margin, $lat-$margin, $lon-$margin]);
-		$url = "https://avoin-paikkatieto.maanmittauslaitos.fi/kiinteisto-avoin/simple-features/v3/collections/KiinteistotunnuksenSijaintitiedot/items?&bbox-crs=http://www.opengis.net/def/crs/EPSG/0/3067&crs=http://www.opengis.net/def/crs/EPSG/0/3067&bbox=" .htmlentities($bbox);
+		$url = config('app.mml_kiinteistotiedot_url') .htmlentities($bbox);
 		$client = new Client();
 
 		$res = $client->request('GET', $url, [
@@ -161,7 +161,8 @@ class MMLQueries {
 		$poly = str_replace(",","+", $polygon);
 		$poly = str_replace(" ",",", $poly);
 		$filter = "filter=S_INTERSECTS(geometry,POLYGON((" .$poly .")))";
-		$url = "https://avoin-paikkatieto.maanmittauslaitos.fi/kiinteisto-avoin/simple-features/v3/collections/KiinteistotunnuksenSijaintitiedot/items?limit=1000&filter-lang=cql2-text&crs=http%3A%2F%2Fwww.opengis.net%2Fdef%2Fcrs%2FEPSG%2F0%2F3067&bbox-crs=http%3A%2F%2Fwww.opengis.net%2Fdef%2Fcrs%2FEPSG%2F0%2F3067&filter-crs=http%3A%2F%2Fwww.opengis.net%2Fdef%2Fcrs%2FEPSG%2F0%2F3067&". $filter;
+		$url = config('app.mml_kiinteistotiedot_alue_url') . $filter;
+
 		$client = new Client();
 
 		$res = $client->request('GET', $url, [
