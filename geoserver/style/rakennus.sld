@@ -52,12 +52,12 @@
           </TextSymbolizer>
         </Rule>
         <Rule>
-          <Name>Seudullinen</Name>
-          <Title>Seudullinen</Title>
+          <Name>Maakunnallinen</Name>
+          <Title>Maakunnallinen</Title>
           <ogc:Filter>
             <ogc:PropertyIsEqualTo>
               <ogc:PropertyName>arvoluokka</ogc:PropertyName>
-              <ogc:Literal>Seudullinen</ogc:Literal>
+              <ogc:Literal>Maakunnallinen</ogc:Literal>
             </ogc:PropertyIsEqualTo>
           </ogc:Filter>              
           <PointSymbolizer>
