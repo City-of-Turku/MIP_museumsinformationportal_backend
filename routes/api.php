@@ -696,4 +696,10 @@ Route::group(['middleware' => 'auth.jwt'], function () {
 	 * Kyppi integraatio, muinaisjäännöksen haku ja kohteen luonti MIP:iin.
 	 */
 	Route::get("/kyppi/tuokohde/{id}",			            "Ark\KyppiController@tuoKohde");
+
+	/*
+	* Kyppi integraatio, käynnistä yöllinen ajo käyttöliittymän admin menusta
+	*/
+	Route::get("/kyppi/paivitaMuinaisjaannokset/",				"Ark\KyppiController@muinaisjaannosPaivitys");
+
 });
