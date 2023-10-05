@@ -46,6 +46,18 @@ Route::get("/raportti/ark_kuva/{id}/pieni",			"Ark\ArkKuvaController@viewSmall")
 Route::get("/oaipmh/", "FinnaController@index");
 
 /*
+ * Public routes
+ */
+
+/*
+ * Kiinteisto
+ */
+Route::get("/julkinenkiinteisto/",											"Julkinen\PublicKiinteistoController@index");
+Route::get("/julkinenkiinteisto/kiinteistotunnushaku/{kiinteistotunnus}",	"Julkinen\PublicKiinteistoController@getByIdentifier");
+Route::get("/julkinenkiinteisto/{kiinteisto_id}/",							"Julkinen\PublicKiinteistoController@show");
+//Route::get("/julkinenkiinteisto/{kiinteisto_id}/rakennus/",					"Julkinen\PublicKiinteistoController@get_buildings");
+
+/*
  * Inside of this routeGroup All the routes require user to be authenticated
  */
 Route::group(['middleware' => 'auth.jwt'], function () {

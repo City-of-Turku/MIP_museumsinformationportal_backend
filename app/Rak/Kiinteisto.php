@@ -113,6 +113,37 @@ class Kiinteisto extends Model {
     }
 
     /**
+     * Get all public models from DB
+     */
+    public static function getAllPublicInformation() {
+
+        $qry = Kiinteisto::select('kiinteisto.id', 'kiinteistotunnus', 'kiinteisto.nimi',
+            'kiinteisto.osoite', 'kiinteisto.paikkakunta',
+            'kiinteisto.kyla_id', 'kiinteisto.arvotustyyppi_id',
+            DB::raw(MipGis::getGeometryFieldQueryString("kiinteiston_sijainti", "sijainti"))
+            )
+            ->leftJoin('kyla', 'kiinteisto.kyla_id', '=', 'kyla.id')
+            ->leftJoin('kunta', 'kyla.kunta_id', '=', 'kunta.id')
+            ->addSelect('kunta.id as kunta_id','kunta.nimi as kunta', 'kunta.nimi_se as kunta_se', 'kyla.nimi as kyla', 'kunta.kuntanumero as kuntanumero', 'kyla.kylanumero as kylanumero')
+            ->leftJoin('arvotustyyppi', 'kiinteisto.arvotustyyppi_id', '=', 'arvotustyyppi.id')
+            ->addSelect('arvotustyyppi.'.self::getLocalizedfieldname('nimi').' as arvotustyyppi_nimi');
+
+		return $qry;
+    }
+
+    /**
+     * Method to get single entity with only public information with given ID
+     */
+    public static function getSinglePublicInformation($id) {
+        return Kiinteisto::select('kiinteisto.id', 'kiinteisto.kyla_id', 'kiinteisto.kiinteistotunnus', 'kiinteisto.nimi', 'kiinteisto.osoite',
+        'kiinteisto.paikkakunta', 'kiinteisto.aluetyyppi', 'kiinteisto.arvotus',
+        'kiinteisto.historiallinen_tilatyyppi', 'kiinteisto.kiinteiston_sijainti',
+        'kiinteisto.arkeologinen_intressi', 'kiinteisto.muu_historia', 'kiinteisto.data_sailo', 'kiinteisto.arvotustyyppi_id',
+        DB::raw('ST_AsGeoJson(ST_transform(kiinteiston_sijainti, 4326)) as sijainti')
+        )->where('kiinteisto.id', '=', $id);
+    }
+
+    /**
      * Method to get single entity from db with given ID
      *
      * @param int $id
