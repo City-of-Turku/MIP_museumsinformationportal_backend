@@ -158,11 +158,6 @@ class PublicKiinteistoController extends Controller
                 MipJson::addGeoJsonFeatureCollectionFeaturePoint(json_decode($kiinteisto->sijainti), $properties);
             }
 
-            /*
-             * Koritoiminnallisuus. Palautetaan id:t listana.
-             */
-            MipJson::setIdList($kori_id_lista);
-
             MipJson::addMessage(Lang::get('kiinteisto.search_success'));
 
         } catch (Exception $e) {
@@ -249,7 +244,12 @@ class PublicKiinteistoController extends Controller
 
                 if ($estate) {
 
-                    $buildings = $estate->buildings()->with(array('rakennustyypit', 'osoitteet'))->orderby('inventointinumero')->get();
+                    $buildings = $estate->buildings()->with(array('osoitteet'))->orderby('inventointinumero')->get();
+
+                    //Hide some fields from the response
+                    $buildings = $buildings->makeHidden(['luoja', 'luotu', 'muokkaaja', 'muokattu', 'poistettu', 'poistaja', 'asuin_ja_liikehuoneistoja',
+                                                         'kunto', 'erityispiirteet', 'sisatilakuvaus', 'muut_tiedot', 'arvotus', 'arvotustyyppi_id',
+                                                         'kulttuurihistoriallisetarvot_perustelut']);
 
                     // calculate the total rows of the search results
                     $total_rows = count($buildings);

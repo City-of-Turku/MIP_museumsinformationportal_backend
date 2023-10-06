@@ -55,7 +55,7 @@ Route::get("/oaipmh/", "FinnaController@index");
 Route::get("/julkinenkiinteisto/",											"Julkinen\PublicKiinteistoController@index");
 Route::get("/julkinenkiinteisto/kiinteistotunnushaku/{kiinteistotunnus}",	"Julkinen\PublicKiinteistoController@getByIdentifier");
 Route::get("/julkinenkiinteisto/{kiinteisto_id}/",							"Julkinen\PublicKiinteistoController@show");
-//Route::get("/julkinenkiinteisto/{kiinteisto_id}/rakennus/",					"Julkinen\PublicKiinteistoController@get_buildings");
+Route::get("/julkinenkiinteisto/{kiinteisto_id}/rakennus/",					"Julkinen\PublicKiinteistoController@get_buildings");
 
 /*
  * Inside of this routeGroup All the routes require user to be authenticated
