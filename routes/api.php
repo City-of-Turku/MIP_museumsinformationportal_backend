@@ -58,6 +58,12 @@ Route::get("/julkinenkiinteisto/{kiinteisto_id}/",							"Julkinen\PublicKiintei
 Route::get("/julkinenkiinteisto/{kiinteisto_id}/rakennus/",					"Julkinen\PublicKiinteistoController@get_buildings");
 
 /*
+ * Rakennus
+ */
+Route::get("/julkinenrakennus/",												"Julkinen\PublicRakennusController@index");
+Route::get("/julkinenrakennus/{rakennus_id}/",									"Julkinen\PublicRakennusController@show");
+
+/*
  * Inside of this routeGroup All the routes require user to be authenticated
  */
 Route::group(['middleware' => 'auth.jwt'], function () {

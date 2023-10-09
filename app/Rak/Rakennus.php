@@ -192,6 +192,75 @@ class Rakennus extends Model {
 	    return $qry;
 	}
 
+	/**
+	 * Get all public information of Models from DB - order by given $order_field to given $order_direction
+	 *
+	 *
+	 * @param int $order_field field name we want to order results by
+	 * @param int $order_direction Direction we want to order results to (ASC/DESC)
+	 */
+	public static function getAllPublicInformation() {
+
+		$rak_osoitteet_sql  = "( select rakennus_id, ";
+		$rak_osoitteet_sql .= "  string_agg(rakennus_osoite.katunimi || ' ' || rakennus_osoite.katunumero, '\n') as osoitteet ";
+		$rak_osoitteet_sql .= "  from rakennus_osoite ";
+		$rak_osoitteet_sql .= "  group by rakennus_id ";
+		$rak_osoitteet_sql .= ") as rak_osoitteet ";
+
+		$rak_raktyypit_sql  = "( select rakennus_id, ";
+		$rak_raktyypit_sql .= "   string_agg(rakennustyyppi.".self::getLocalizedfieldname('nimi').", '\n') as rakennustyypit ";
+		$rak_raktyypit_sql .= "   from rakennus_rakennustyyppi, rakennustyyppi ";
+		$rak_raktyypit_sql .= "   where rakennus_rakennustyyppi.rakennustyyppi_id = rakennustyyppi.id ";
+		$rak_raktyypit_sql .= "   group by rakennus_id ";
+		$rak_raktyypit_sql .= ") as rak_rakennustyypit ";
+
+		$rak_suunnittelijat_sql  = "( select rakennus_id, ";
+ 		$rak_suunnittelijat_sql .= " string_agg( suunnittelija.sukunimi || ' ' || coalesce(suunnittelija.etunimi, ''), '<br />' ) as kaikki_suunnittelijat ";
+		$rak_suunnittelijat_sql .= "  from suunnittelija_rakennus ";
+		$rak_suunnittelijat_sql .= "  left join suunnittelija suunnittelija on (suunnittelija.id = suunnittelija_rakennus.suunnittelija_id) ";
+		$rak_suunnittelijat_sql .= "  group by rakennus_id";
+		$rak_suunnittelijat_sql .= ") as rak_suunnittelijat ";
+
+		$rak_inventointiprojektit_sql = "( select kiinteisto_id, ";
+		$rak_inventointiprojektit_sql .= " string_agg(distinct inventointiprojekti.nimi, '<br >') as inventointiprojektit_str ";
+		$rak_inventointiprojektit_sql .= " from inventointiprojekti, inventointiprojekti_kiinteisto, inventointiprojekti_laji ";
+		$rak_inventointiprojektit_sql .= " where inventointiprojekti.id = inventointiprojekti_kiinteisto.inventointiprojekti_id ";
+		$rak_inventointiprojektit_sql .= " and inventointiprojekti.laji_id = inventointiprojekti_laji.id ";
+		$rak_inventointiprojektit_sql .= " and inventointiprojekti_laji.tekninen_projekti = false ";
+		$rak_inventointiprojektit_sql.= "  group by kiinteisto_id ";
+		$rak_inventointiprojektit_sql .= ") as rak_inventointiprojektit ";
+
+		$qry = self::select(
+				'rakennus.id', 'rakennus.rakennustunnus', 'rakennus.inventointinumero', 'rakennus.purettu', 'rakennus.nykyinen_tyyli_id',
+				'rakennus.rakennustyyppi_kuvaus', 'rakennus.rakennusvuosi_alku', 'rakennus.rakennusvuosi_loppu', 'rakennus.rakennusvuosi_selite',
+				'rakennus.kiinteisto_id', 'rakennus.arvotustyyppi_id', 'rakennus.rakennushistoria',
+				DB::raw(MipGis::getGeometryFieldQueryString("rakennuksen_sijainti", "sijainti")),
+				'arvotustyyppi.'.self::getLocalizedfieldname('nimi').' as arvotustyyppi_nimi',
+				'rak_osoitteet.osoitteet',
+				'rak_rakennustyypit.rakennustyypit',
+		        'rak_suunnittelijat.kaikki_suunnittelijat',
+				'rak_inventointiprojektit.inventointiprojektit_str',
+		        'kunta.id as kunta_id',
+		        'kyla.id as kyla_id',
+		        'kiinteisto.nimi as kiinteisto_nimi',
+		        'kiinteisto.kiinteistotunnus as kiinteisto_tunnus'
+			)
+			->join('kiinteisto', 'rakennus.kiinteisto_id', '=', 'kiinteisto.id')
+			->join('kyla', 'kiinteisto.kyla_id', '=', 'kyla.id')
+			->join('kunta', 'kyla.kunta_id', '=', 'kunta.id')
+    		->leftJoin('arvotustyyppi', 'rakennus.arvotustyyppi_id', '=', 'arvotustyyppi.id')
+    		->leftJoin(DB::raw($rak_osoitteet_sql), 'rakennus.id', '=', 'rak_osoitteet.rakennus_id')
+    		->leftJoin(DB::raw($rak_suunnittelijat_sql), 'rakennus.id', '=', 'rak_suunnittelijat.rakennus_id')
+    		->leftJoin(DB::raw($rak_inventointiprojektit_sql), 'rakennus.kiinteisto_id', '=', 'rak_inventointiprojektit.kiinteisto_id')
+    		->leftJoin(DB::raw($rak_raktyypit_sql), 'rakennus.id', '=', 'rak_rakennustyypit.rakennus_id')
+    		->whereNull('rakennus.poistettu')->whereNull('kiinteisto.poistettu');
+
+
+    	$qry = $qry->where('kiinteisto.julkinen', '=', true);
+
+	    return $qry;
+	}
+
 	// use only with all() above
 	public function scopeWithOrder($query, $order_field=null, $order_direction=null) {
 

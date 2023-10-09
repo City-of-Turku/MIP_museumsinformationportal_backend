@@ -187,20 +187,10 @@ class PublicKiinteistoController extends Controller
                 $kiinteisto = Kiinteisto::getSinglePublicInformation($id)->with(array('kyla', 'kyla.kunta', 'kulttuurihistoriallisetarvot', 'arvotustyyppi'))->first();
 
                 //Unset values from array kyla
-                unset($kiinteisto->kyla->luoja);
-                unset($kiinteisto->kyla->luotu);
-                unset($kiinteisto->kyla->muokkaaja);
-                unset($kiinteisto->kyla->muokattu);
-                unset($kiinteisto->kyla->poistettu);
-                unset($kiinteisto->kyla->poistaja);
+                $kiinteisto->kyla->makeHidden(['luoja', 'luotu', 'muokkaaja', 'muokattu', 'poistettu', 'poistaja']);
 
                 //Unset same values from array kyla->kunta
-                unset($kiinteisto->kyla->kunta->luoja);
-                unset($kiinteisto->kyla->kunta->luotu);
-                unset($kiinteisto->kyla->kunta->muokkaaja);
-                unset($kiinteisto->kyla->kunta->muokattu);
-                unset($kiinteisto->kyla->kunta->poistettu);
-                unset($kiinteisto->kyla->kunta->poistaja);
+                $kiinteisto->kyla->kunta->makeHidden(['luoja', 'luotu', 'muokkaaja', 'muokattu', 'poistettu', 'poistaja']);
 
                 if ($kiinteisto) {
 
@@ -247,9 +237,23 @@ class PublicKiinteistoController extends Controller
                     $buildings = $estate->buildings()->with(array('osoitteet'))->orderby('inventointinumero')->get();
 
                     //Hide some fields from the response
-                    $buildings = $buildings->makeHidden(['luoja', 'luotu', 'muokkaaja', 'muokattu', 'poistettu', 'poistaja', 'asuin_ja_liikehuoneistoja',
-                                                         'kunto', 'erityispiirteet', 'sisatilakuvaus', 'muut_tiedot', 'arvotus', 'arvotustyyppi_id',
-                                                         'kulttuurihistoriallisetarvot_perustelut']);
+                    $buildings->makeHidden([
+                        'luoja',
+                        'luotu',
+                        'muokkaaja',
+                        'muokattu',
+                        'poistettu',
+                        'poistaja',
+                        'asuin_ja_liikehuoneistoja',
+                        'kunto',
+                        'erityispiirteet',
+                        'sisatilakuvaus',
+                        'muut_tiedot',
+                        'arvotus',
+                        'arvotustyyppi_id',
+                        'kulttuurihistoriallisetarvot_perustelut',
+                        'postinumero'
+                    ]);
 
                     // calculate the total rows of the search results
                     $total_rows = count($buildings);
