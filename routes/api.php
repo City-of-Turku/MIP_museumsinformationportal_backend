@@ -64,6 +64,29 @@ Route::get("/julkinenrakennus/",												"Julkinen\PublicRakennusController@i
 Route::get("/julkinenrakennus/{rakennus_id}/",									"Julkinen\PublicRakennusController@show");
 
 /*
+ * Endpoints to list DROPDOWN list values
+ *
+ * Possible categories are:
+ * - arvotus
+ * - kate
+ * - kattotyyppi
+ * - kunto
+ * - käyttötarkoitus
+ * - nykyinen_tyyli
+ * - perustus
+ * - porrastyyppi
+ * - rakennustyyppi
+ * - rakentajalaji
+ * - rakentajatyyppi
+ * - runko
+ * - tilatyyppi
+ * - vuoraus
+ */
+Route::get("/julkinenvalinta/",									"Julkinen\PublicValintaController@index");
+Route::get("/julkinenvalinta/{kategoria}/",						"Julkinen\PublicValintaController@listCategoryValues");
+Route::get("/julkinenvalinta/list/{type}/",						"Julkinen\PublicValintaController@getValintaCategoriesByType");
+
+/*
  * Inside of this routeGroup All the routes require user to be authenticated
  */
 Route::group(['middleware' => 'auth.jwt'], function () {
