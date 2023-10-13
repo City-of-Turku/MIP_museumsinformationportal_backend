@@ -259,6 +259,46 @@ class Arvoalue extends Model {
 		return $qry;
 	}
 
+	/**
+	 * Get all public information of Models from DB - order by given $order_field to given $order_direction
+	 *
+	 * @param int $order_field field name we want to order results by
+	 * @param int $order_direction Direction we want to order results to (ASC/DESC)
+	 */
+	public static function getAllPublicInformation() {
+
+		$kylat_sql  = "( select arvoalue_id, ";
+		$kylat_sql .= "  string_agg(kyla.nimi, '\n') as kylat ";
+		$kylat_sql .= "  from arvoalue_kyla, kyla ";
+		$kylat_sql .= "  where arvoalue_kyla.kyla_id = kyla.id ";
+		$kylat_sql .= "  group by arvoalue_id ";
+		$kylat_sql .= ") as arvoalue_kylat ";
+
+		$kunnat_sql  = "( select arvoalue_id, ";
+		$kunnat_sql .= "  string_agg(kunta.nimi, '\n') as kunnat ";
+		$kunnat_sql .= "  from arvoalue_kyla, kyla ";
+		$kunnat_sql .= "  left join kunta on (kunta.id = kyla.kunta_id) ";
+		$kunnat_sql .= "  where arvoalue_kyla.kyla_id = kyla.id ";
+		$kunnat_sql .= "  group by arvoalue_id ";
+		$kunnat_sql .= ") as arvoalue_kunnat ";
+
+
+		$qry= self::select(
+		    'arvoalue.id','arvoalue.paikkakunta','arvoalue.nimi',
+			'arvoalue.alue_id', 'arvoalue.aluetyyppi_id', 'arvoalue.arvotustyyppi_id', 'arvoalue.inventointinumero',
+			DB::raw(MipGis::getGeometryFieldQueryString("arvoalue.keskipiste", "sijainti")),
+			DB::raw(MipGis::getGeometryFieldQueryString("arvoalue.aluerajaus", "alue"))
+			)
+			->leftJoin(DB::raw($kylat_sql), 'arvoalue.id', '=', 'arvoalue_kylat.arvoalue_id')
+			->leftJoin(DB::raw($kunnat_sql), 'arvoalue.id', '=', 'arvoalue_kunnat.arvoalue_id')
+			->leftJoin('alue', 'arvoalue.alue_id', '=', 'alue.id')
+			->leftJoin('aluetyyppi', 'arvoalue.aluetyyppi_id', '=', 'aluetyyppi.id')
+			->leftJoin('arvotustyyppi', 'arvoalue.arvotustyyppi_id', '=', 'arvotustyyppi.id')
+			;
+
+		return $qry;
+	}
+
 	public function scopeWithOrderBy($query, $bbox=null, $order_field=null, $order_direction=null) {
 
 		if ($order_field == "bbox_center" && !is_null($bbox)) {
@@ -333,6 +373,19 @@ class Arvoalue extends Model {
 	 * @since 1.0
 	 */
 	public static function getSingle($id) {
+		return self::select('*',
+			DB::raw(MipGis::getGeometryFieldQueryString("keskipiste", "sijainti")),
+			DB::raw(MipGis::getGeometryFieldQueryString("aluerajaus", "alue"))
+			)
+		->where('id', '=', $id);
+	}
+
+	/**
+	 * Method to get public information of single entity from db with given ID
+	 *
+	 * @param int $id
+	 */
+	public static function getSinglePublicInformation($id) {
 		return self::select('*',
 			DB::raw(MipGis::getGeometryFieldQueryString("keskipiste", "sijainti")),
 			DB::raw(MipGis::getGeometryFieldQueryString("aluerajaus", "alue"))

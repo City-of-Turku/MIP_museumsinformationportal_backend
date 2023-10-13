@@ -193,6 +193,41 @@ class Alue extends Model {
 		return $qry;
 	}
 
+	/**
+	 * Get all public information of Models from DB - order by given $order_field to given $order_direction
+	 *
+	 * @param int $order_field field name we want to order results by
+	 * @param int $order_direction Direction we want to order results to (ASC/DESC)
+	 */
+	public static function getAllPublicInformation() {
+
+		$kylat_sql  = "( select alue_id, ";
+		$kylat_sql .= "  string_agg(kyla.nimi, '\n') as kylat ";
+		$kylat_sql .= "  from alue_kyla, kyla ";
+		$kylat_sql .= "  where alue_kyla.kyla_id = kyla.id ";
+		$kylat_sql .= "  group by alue_id ";
+		$kylat_sql .= ") as alue_kylat ";
+
+		$kunnat_sql  = "( select alue_id, ";
+		$kunnat_sql .= "  string_agg(kunta.nimi, '\n') as kunnat ";
+		$kunnat_sql .= "  from alue_kyla, kyla ";
+		$kunnat_sql .= "  left join kunta on (kunta.id = kyla.kunta_id) ";
+		$kunnat_sql .= "  where alue_kyla.kyla_id = kyla.id ";
+		$kunnat_sql .= "  group by alue_id ";
+		$kunnat_sql .= ") as alue_kunnat ";
+
+		$order_table = "alue";
+		$qry = self::select(
+			'alue.id','alue.paikkakunta','alue.nimi as nimi', 
+			DB::raw(MipGis::getGeometryFieldQueryString("keskipiste", "sijainti")),
+			DB::raw(MipGis::getGeometryFieldQueryString("aluerajaus", "alue"))
+			)
+			->leftJoin(DB::raw($kylat_sql), 'alue.id', '=', 'alue_kylat.alue_id')
+			->leftJoin(DB::raw($kunnat_sql), 'alue.id', '=', 'alue_kunnat.alue_id');
+
+		return $qry;
+	}
+
 	public function scopeWithOrderBy($query, $bbox=null, $order_field=null, $order_direction=null) {
 
 		if ($order_field == "bbox_center" && !is_null($bbox)) {
@@ -222,6 +257,19 @@ class Alue extends Model {
 	 */
 	public static function getSingle($id) {
 		return self::select('alue.*',
+			DB::raw(MipGis::getGeometryFieldQueryString("keskipiste", "sijainti")),
+			DB::raw(MipGis::getGeometryFieldQueryString("aluerajaus", "alue"))
+			)
+		->where('alue.id', '=', $id);
+	}
+
+	/**
+	 * Method to get public information of single entity from db with given ID
+	 *
+	 * @param int $id
+	 */
+	public static function getSinglePublicInformation($id) {
+		return self::select('alue.id', 'alue.nimi', 'alue.maisema', 'alue.historia', 'alue.nykytila', 'alue.paikkakunta', 'alue.arkeologinen_kohde', 
 			DB::raw(MipGis::getGeometryFieldQueryString("keskipiste", "sijainti")),
 			DB::raw(MipGis::getGeometryFieldQueryString("aluerajaus", "alue"))
 			)

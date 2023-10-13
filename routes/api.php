@@ -50,7 +50,7 @@ Route::get("/oaipmh/", "FinnaController@index");
  */
 
 /*
- * Kiinteisto
+ * Julkinen Kiinteisto
  */
 Route::get("/julkinenkiinteisto/",											"Julkinen\PublicKiinteistoController@index");
 Route::get("/julkinenkiinteisto/kiinteistotunnushaku/{kiinteistotunnus}",	"Julkinen\PublicKiinteistoController@getByIdentifier");
@@ -58,10 +58,24 @@ Route::get("/julkinenkiinteisto/{kiinteisto_id}/",							"Julkinen\PublicKiintei
 Route::get("/julkinenkiinteisto/{kiinteisto_id}/rakennus/",					"Julkinen\PublicKiinteistoController@get_buildings");
 
 /*
- * Rakennus
+ * Julkinen Rakennus
  */
 Route::get("/julkinenrakennus/",												"Julkinen\PublicRakennusController@index");
 Route::get("/julkinenrakennus/{rakennus_id}/",									"Julkinen\PublicRakennusController@show");
+
+/*
+ * Julkinen Alue
+ */
+Route::get("/julkinenalue/",							"Julkinen\PublicAlueController@index");
+Route::get("/julkinenalue/{alue_id}/",					"Julkinen\PublicAlueController@show");
+Route::get("/julkinenalue/{alue_id}/arvoalue/",			"Julkinen\PublicAlueController@listValueAreas");
+
+/*
+ * Julkinen Arvoalue
+ */
+Route::get("/julkinenarvoalue/",												"Julkinen\PublicArvoalueController@index");
+Route::get("/julkinenarvoalue/{arvoalue_id}/",									"Julkinen\PublicArvoalueController@show");
+Route::get("/julkinenarvoalue/{arvoalue_id}/kiinteistot",						"Julkinen\PublicArvoalueController@showEstatesWithin");
 
 /*
  * Inside of this routeGroup All the routes require user to be authenticated
