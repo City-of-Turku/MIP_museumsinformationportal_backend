@@ -64,9 +64,7 @@ Route::get("/julkinenrakennus/",												"Julkinen\PublicRakennusController@i
 Route::get("/julkinenrakennus/{rakennus_id}/",									"Julkinen\PublicRakennusController@show");
 
 /*
- * Endpoints to list DROPDOWN list values
- *
- * 
+ * Endpoints to list available filters
  */
 Route::get("/julkinenvalinta/",									"Julkinen\PublicValintaController@index");
 Route::get("/julkinenvalinta/{kategoria}/",						"Julkinen\PublicValintaController@listCategoryValues");

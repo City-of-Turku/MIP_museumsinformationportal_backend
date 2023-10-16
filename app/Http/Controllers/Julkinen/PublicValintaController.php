@@ -106,6 +106,8 @@ class PublicValintaController extends Controller {
 	}
 
 	/**
+	 * NOTE: currently not in use in public ui, could be removed if not needed later on
+	 * 
 	 * Method to list values of given caetgory
 	 *
 	 * @param String $category
@@ -117,8 +119,6 @@ class PublicValintaController extends Controller {
 	public function listCategoryValues($category) {
 
 		try {
-			// TODO: kaikki loput kategoriat
-			// TODO: Lisätään where aktiivinen = true
 		    switch ($category) {
 				case "kayttotarkoitus":
 					$entities = Kayttotarkoitus::select("id", "nimi_fi", "nimi_se", "nimi_en")->orderBy("nimi_fi")->get();
@@ -325,8 +325,17 @@ class PublicValintaController extends Controller {
 
 	public function getValintaCategoriesByType($type) {
 
+		// Categories should be either rakennuskiinteisto or arkeologia (for now atleast)
+
 		try {
+			// TODO: redo the types depending on what filters we want to display
 			if ($type == 'rakennuskiinteisto') {
+
+				/* 
+				 * Filter types to display under the category, keys need to be adjusted to match the searchParams of
+				 * datacontrollers ie. PublicRakennusController. Link the logic between filters and searchParams on
+				 * controllers so the keys match.
+				 */
 				$types = [
 						"aluetyyppi" => Aluetyyppi::class,
 						"tilatyyppi" => Tilatyyppi::class,
@@ -343,10 +352,11 @@ class PublicValintaController extends Controller {
 							"categoryType" => "rakennukset_ja_kiinteistot",
 							"data" => []
 					];
-			
+					
+					// Return only the needed data for the filters
 					foreach ($types as $key => $entityClass) {
 							$query = $entityClass::select("id", "nimi_fi", "nimi_se", "nimi_en")->orderBy("nimi_fi");
-							
+
 							if ($key == "rakennustyyppi") {
 									$query->where('aktiivinen', '=', 'true');
 							}
@@ -379,98 +389,4 @@ class PublicValintaController extends Controller {
 
     	return MipJson::getJson();
 	}
-
-	/**
-	 * Method to list culture historical values of a given type
-	 *
-	 * @param Request $request
-	 * @return MipJson
-	 * @author
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	public function listCultureHistoricalValues(Request $request) {
-		$validator = Validator::make($request->all(), [
-				"tyyppi"	=> "required|string|in:kiinteisto,rakennus,arvoalue",
-		]);
-
-		if ($validator->fails()) {
-			MipJson::setGeoJsonFeature();
-			MipJson::addMessage(Lang::get('validation.custom.user_input_validation_failed'));
-			foreach($validator->errors()->all() as $error)
-				MipJson::addMessage($error);
-			MipJson::setResponseStatus(Response::HTTP_BAD_REQUEST);
-		}
-		else {
-
-			try {
-				switch ($request->tyyppi) {
-					case "kiinteisto" :
-						$entities = KiinteistonKulttuurihistoriallinenArvo::select("id", "nimi_fi", "nimi_se", "nimi_en")->orderBy("nimi_fi")->get();
-						break;
-					case "rakennus"	:
-						$entities = RakennuksenKulttuurihistoriallinenArvo::select("id", "nimi_fi", "nimi_se", "nimi_en")->orderBy("nimi_fi")->get();
-						break;
-					case "arvoalue" :
-						$entities = ArvoalueenKulttuurihistoriallinenArvo::select("id", "nimi_fi", "nimi_se", "nimi_en")->orderBy("nimi_fi")->get();
-						break;
-					default:
-						throw new Exception("Invalid type selector");
-				}
-
-			    $total_rows = count($entities);
-				MipJson::initGeoJsonFeatureCollection($total_rows, $total_rows);
-
-				foreach ($entities as $entity) {
-					MipJson::addGeoJsonFeatureCollectionFeaturePoint(null, $entity);
-				}
-
-				if($total_rows <= 0) {
-					MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
-					MipJson::addMessage(Lang::get('valinta.search_not_found'));
-				}
-
-			} catch(Exception $e) {
-				MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
-				MipJson::addMessage(Lang::get('valinta.search_failed'));
-			}
-		}
-
-		return MipJson::getJson();
-	}
-
-	/**
-	 * Method to list ALL WMS layer values
-	 *
-	 * @author
-	 * @version 1.0
-	 * @since 1.0
-	 */
-	public function listWmsValues() {
-
-		try {
-
-			$entities = WmsRajapinta::orderBy("nimi", "ASC")->get();
-			$total_rows = count($entities);
-			MipJson::initGeoJsonFeatureCollection($total_rows, $total_rows);
-
-			foreach ($entities as $entity) {
-				MipJson::addGeoJsonFeatureCollectionFeaturePoint(null, $entity);
-			}
-
-			if($total_rows <= 0) {
-				MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
-				MipJson::addMessage(Lang::get('wms.search_not_found'));
-			}
-			else
-				MipJson::addMessage(Lang::get("wms.search_success"));
-
-		} catch(Exception $e) {
-			MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
-			MipJson::addMessage(Lang::get('wms.search_failed'));
-		}
-
-		return MipJson::getJson();
-	}
-
 }
