@@ -50,7 +50,7 @@ Route::get("/oaipmh/", "FinnaController@index");
  */
 
 /*
- * Kiinteisto
+ * Julkinen Kiinteisto
  */
 Route::get("/julkinenkiinteisto/",											"Julkinen\PublicKiinteistoController@index");
 Route::get("/julkinenkiinteisto/kiinteistotunnushaku/{kiinteistotunnus}",	"Julkinen\PublicKiinteistoController@getByIdentifier");
@@ -58,7 +58,7 @@ Route::get("/julkinenkiinteisto/{kiinteisto_id}/",							"Julkinen\PublicKiintei
 Route::get("/julkinenkiinteisto/{kiinteisto_id}/rakennus/",					"Julkinen\PublicKiinteistoController@get_buildings");
 
 /*
- * Rakennus
+ * Julkinen Rakennus
  */
 Route::get("/julkinenrakennus/",												"Julkinen\PublicRakennusController@index");
 Route::get("/julkinenrakennus/{rakennus_id}/",									"Julkinen\PublicRakennusController@show");
@@ -66,25 +66,25 @@ Route::get("/julkinenrakennus/{rakennus_id}/",									"Julkinen\PublicRakennusC
 /*
  * Endpoints to list DROPDOWN list values
  *
- * Possible categories are:
- * - arvotus
- * - kate
- * - kattotyyppi
- * - kunto
- * - käyttötarkoitus
- * - nykyinen_tyyli
- * - perustus
- * - porrastyyppi
- * - rakennustyyppi
- * - rakentajalaji
- * - rakentajatyyppi
- * - runko
- * - tilatyyppi
- * - vuoraus
+ * 
  */
 Route::get("/julkinenvalinta/",									"Julkinen\PublicValintaController@index");
 Route::get("/julkinenvalinta/{kategoria}/",						"Julkinen\PublicValintaController@listCategoryValues");
 Route::get("/julkinenvalinta/list/{type}/",						"Julkinen\PublicValintaController@getValintaCategoriesByType");
+
+/*
+ * Julkinen Alue
+ */
+Route::get("/julkinenalue/",							"Julkinen\PublicAlueController@index");
+Route::get("/julkinenalue/{alue_id}/",					"Julkinen\PublicAlueController@show");
+Route::get("/julkinenalue/{alue_id}/arvoalue/",			"Julkinen\PublicAlueController@listValueAreas");
+
+/*
+ * Julkinen Arvoalue
+ */
+Route::get("/julkinenarvoalue/",												"Julkinen\PublicArvoalueController@index");
+Route::get("/julkinenarvoalue/{arvoalue_id}/",									"Julkinen\PublicArvoalueController@show");
+Route::get("/julkinenarvoalue/{arvoalue_id}/kiinteistot",						"Julkinen\PublicArvoalueController@showEstatesWithin");
 
 /*
  * Inside of this routeGroup All the routes require user to be authenticated
