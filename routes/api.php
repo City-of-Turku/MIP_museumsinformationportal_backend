@@ -85,10 +85,16 @@ Route::get("/julkinenarvoalue/{arvoalue_id}/",									"Julkinen\PublicArvoalueC
 Route::get("/julkinenarvoalue/{arvoalue_id}/kiinteistot",						"Julkinen\PublicArvoalueController@showEstatesWithin");
 
 /*
- * Kohde
+ * Julkinen Kohde
  */
 Route::get("/julkinenkohde/",							"Julkinen\PublicKohdeController@index");
 Route::get("/julkinenkohde/{kohde_id}/",				"Julkinen\PublicKohdeController@show");
+
+/*
+ * Julkinen Tutkimus
+ */
+Route::get("/julkinentutkimus/",								"Julkinen\PublicTutkimusController@index");
+Route::get("/julkinentutkimus/{id}/",							"Julkinen\PublicTutkimusController@show");
 
 /*
  * Inside of this routeGroup All the routes require user to be authenticated

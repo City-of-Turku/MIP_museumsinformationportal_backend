@@ -332,7 +332,6 @@ class PublicKohdeController extends Controller
              MipJson::setGeoJsonFeature();
              MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
              MipJson::addMessage(Lang::get('kohde.search_failed'));
-             MipJson::addMessage($e->getMessage());
          }
 
         return MipJson::getJson();

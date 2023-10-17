@@ -46,6 +46,16 @@ class Tutkimus extends Model
     public static function getSingle($id) {
         return self::select('ark_tutkimus.*')->where('id', '=', $id);
     }
+    
+    public static function getSinglePublicInformation($id) {
+        return self::select('ark_tutkimus.id', 'ark_tutkimus.ark_tutkimuslaji_id', 'ark_tutkimus.nimi', 
+        'ark_tutkimus.alkupvm', 'ark_tutkimus.loppupvm', 'ark_tutkimus.kenttatyo_alkupvm', 
+        'ark_tutkimus.kenttatyo_loppupvm', 'ark_tutkimus.kl_koodi', 'ark_tutkimus.ark_loyto_kokoelmalaji_id', 'ark_tutkimus.ark_raportti_kokoelmalaji_id', 
+        'ark_tutkimus.tutkimuksen_lyhenne', 'ark_tutkimus.kuvaus')
+        ->where('id', '=', $id)
+        ->where('ark_tutkimus.julkinen', '=', true)
+        ->where('ark_tutkimus.valmis', '=', true);
+    }
 
     /**
      * Kaikkien haku - Rajoitetaan katselijoiden näkemät rivit suoraan
@@ -93,6 +103,15 @@ class Tutkimus extends Model
     						->whereNull('ark_tutkimus_kayttaja.poistettu');
     			});
     		});
+    }
+
+    public static function getAllPublicInformation() {
+    	return self::select('ark_tutkimus.id', 'ark_tutkimus.ark_tutkimuslaji_id', 'ark_tutkimus.nimi', 
+        'ark_tutkimus.alkupvm', 'ark_tutkimus.loppupvm', 'ark_tutkimus.kenttatyo_alkupvm', 
+        'ark_tutkimus.kenttatyo_loppupvm', 'ark_tutkimus.kl_koodi', 'ark_tutkimus.ark_loyto_kokoelmalaji_id', 'ark_tutkimus.ark_raportti_kokoelmalaji_id', 
+        'ark_tutkimus.tutkimuksen_lyhenne', 'ark_tutkimus.toimeksiantaja', 'ark_tutkimus.kuvaus')
+	    	->where('ark_tutkimus.valmis', '=', true)
+	    	->where('ark_tutkimus.julkinen', '=', true);
     }
 
     /**
