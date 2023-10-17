@@ -64,6 +64,13 @@ Route::get("/julkinenrakennus/",												"Julkinen\PublicRakennusController@i
 Route::get("/julkinenrakennus/{rakennus_id}/",									"Julkinen\PublicRakennusController@show");
 
 /*
+ * Endpoints to list available filters
+ */
+Route::get("/julkinenvalinta/",									"Julkinen\PublicValintaController@index");
+Route::get("/julkinenvalinta/{kategoria}/",						"Julkinen\PublicValintaController@listCategoryValues");
+Route::get("/julkinenvalinta/list/{type}/",						"Julkinen\PublicValintaController@getValintaCategoriesByType");
+
+/*
  * Julkinen Alue
  */
 Route::get("/julkinenalue/",							"Julkinen\PublicAlueController@index");
