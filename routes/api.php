@@ -78,6 +78,12 @@ Route::get("/julkinenarvoalue/{arvoalue_id}/",									"Julkinen\PublicArvoalueC
 Route::get("/julkinenarvoalue/{arvoalue_id}/kiinteistot",						"Julkinen\PublicArvoalueController@showEstatesWithin");
 
 /*
+ * Kohde
+ */
+Route::get("/julkinenkohde/",							"Julkinen\PublicKohdeController@index");
+Route::get("/julkinenkohde/{kohde_id}/",				"Julkinen\PublicKohdeController@show");
+
+/*
  * Inside of this routeGroup All the routes require user to be authenticated
  */
 Route::group(['middleware' => 'auth.jwt'], function () {
