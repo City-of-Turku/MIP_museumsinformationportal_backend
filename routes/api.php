@@ -97,6 +97,19 @@ Route::get("/julkinentutkimus/",								"Julkinen\PublicTutkimusController@index
 Route::get("/julkinentutkimus/{id}/",							"Julkinen\PublicTutkimusController@show");
 
 /*
+ * Julkinen Tutkimusalue 
+ */
+Route::get("/julkinentutkimusalueet/",							"Julkinen\PublicTutkimusalueController@index");
+Route::get("/julkinentutkimusalue/{id}/",						"Julkinen\PublicTutkimusalueController@show");
+
+/*
+ * Julkinen Löytö
+ */
+// Route::get("/julkinenloyto/",								"Julkinen\PublicLoytoController@index");
+// Route::get("/julkinenloyto/{id}/",							"Julkinen\PublicLoytoController@show");
+// Route::get("/julkinenloyto/materiaali/ensisijaiset/{id}",   "Julkinen\PublicLoytoController@haeEnsisijaisetMateriaalit");
+
+/*
  * Inside of this routeGroup All the routes require user to be authenticated
  */
 Route::group(['middleware' => 'auth.jwt'], function () {

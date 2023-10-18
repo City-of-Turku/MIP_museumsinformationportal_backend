@@ -46,12 +46,22 @@ class Tutkimusalue extends Model
     			DB::raw(MipGis::getGeometryFieldQueryString("sijainti", "sijainti")),
     	        DB::raw(MipGis::getGeometryFieldQueryString("sijainti_piste", "sijainti_piste")))->where('id', '=', $id);
     }
+    
+    public static function getSinglePublicInformation($id) {
+    	return self::select('ark_tutkimusalue.id', 'ark_tutkimusalue.nimi', 'ark_tutkimusalue.ark_tutkimus_id', 'ark_tutkimusalue.sijainti_piste', 'ark_tutkimusalue.sijainti',
+    			DB::raw(MipGis::getGeometryFieldQueryString("sijainti", "sijainti")),
+    	        DB::raw(MipGis::getGeometryFieldQueryString("sijainti_piste", "sijainti_piste")))->where('id', '=', $id);
+    }
 
     /**
      * Kaikkien haku
      */
     public static function getAll() {
         return self::select('ark_tutkimusalue.*');
+    }
+
+    public static function getAllPublicInformation() {
+        return self::select('ark_tutkimusalue.id', 'ark_tutkimusalue.nimi', 'ark_tutkimusalue.ark_tutkimus_id', 'ark_tutkimusalue.sijainti_piste');
     }
 
     /**
