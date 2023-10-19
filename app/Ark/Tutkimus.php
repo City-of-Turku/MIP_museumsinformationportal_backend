@@ -132,6 +132,15 @@ class Tutkimus extends Model
     }
 
     /**
+     * Palauttaa julkisten ja valmiiden tutkimusten listan.
+     */
+    public static function getAllIdsForPublic() {
+        return self::select('ark_tutkimus.id')
+        ->where('ark_tutkimus.valmis', '=', true)
+        ->where('ark_tutkimus.julkinen', '=', true);
+    }
+
+    /**
      * Palauttaa tutkimusten id-listan joihin katselija on liitetty käyttäjänä.
      */
     public static function getAllIdsForKatselijaAsUser($kayttaja_id) {

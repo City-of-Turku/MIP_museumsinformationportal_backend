@@ -105,9 +105,8 @@ Route::get("/julkinentutkimusalue/{id}/",						"Julkinen\PublicTutkimusalueContr
 /*
  * Julkinen Löytö
  */
-// Route::get("/julkinenloyto/",								"Julkinen\PublicLoytoController@index");
-// Route::get("/julkinenloyto/{id}/",							"Julkinen\PublicLoytoController@show");
-// Route::get("/julkinenloyto/materiaali/ensisijaiset/{id}",   "Julkinen\PublicLoytoController@haeEnsisijaisetMateriaalit");
+Route::get("/julkinenloyto/",								"Julkinen\PublicLoytoController@index");
+Route::get("/julkinenloyto/{id}/",							"Julkinen\PublicLoytoController@show");
 
 /*
  * Inside of this routeGroup All the routes require user to be authenticated
