@@ -87,6 +87,30 @@ Route::get("/julkinenarvoalue/{arvoalue_id}/",									"Julkinen\PublicArvoalueC
 Route::get("/julkinenarvoalue/{arvoalue_id}/kiinteistot",						"Julkinen\PublicArvoalueController@showEstatesWithin");
 
 /*
+ * Julkinen Kohde
+ */
+Route::get("/julkinenkohde/",							"Julkinen\PublicKohdeController@index");
+Route::get("/julkinenkohde/{kohde_id}/",				"Julkinen\PublicKohdeController@show");
+
+/*
+ * Julkinen Tutkimus
+ */
+Route::get("/julkinentutkimus/",								"Julkinen\PublicTutkimusController@index");
+Route::get("/julkinentutkimus/{id}/",							"Julkinen\PublicTutkimusController@show");
+
+/*
+ * Julkinen Tutkimusalue 
+ */
+Route::get("/julkinentutkimusalueet/",							"Julkinen\PublicTutkimusalueController@index");
+Route::get("/julkinentutkimusalue/{id}/",						"Julkinen\PublicTutkimusalueController@show");
+
+/*
+ * Julkinen Löytö
+ */
+Route::get("/julkinenloyto/",								"Julkinen\PublicLoytoController@index");
+Route::get("/julkinenloyto/{id}/",							"Julkinen\PublicLoytoController@show");
+
+/*
  * Inside of this routeGroup All the routes require user to be authenticated
  */
 Route::group(['middleware' => 'auth.jwt'], function () {

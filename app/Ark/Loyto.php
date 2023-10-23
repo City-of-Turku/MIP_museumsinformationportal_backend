@@ -57,6 +57,37 @@ class Loyto extends Model
     }
 
     /**
+     * Haku id:n mukaan.
+     */
+    public static function getSinglePublicInformation($id) {
+        // Käyttäjä näkee vain valmiit ja julkiset tutkimukset ja niihin liittyvät löydöt
+            // Tutkimusten id:t
+            $ids = Tutkimus::getAllIdsForPublic()->get();
+
+            $q = self::select('ark_loyto.id', 'ark_loyto.ark_tutkimusalue_yksikko_id', 'ark_loyto.ark_tutkimusalue_kerros_id',
+            'ark_loyto.ark_loyto_materiaalikoodi_id', 'ark_loyto.ark_loyto_tyyppi_id', 'ark_loyto.luettelointinumero',
+            'ark_loyto.alanumero', 'ark_loyto.loytopaikan_tarkenne', 'ark_loyto.koordinaatti_z',
+            'ark_loyto.kuvaus', 'ark_loyto.kappalemaara', 'ark_loyto.paino',
+            'ark_loyto.painoyksikko', 'ark_loyto.pituus', 'ark_loyto.pituusyksikko',
+            'ark_loyto.leveys', 'ark_loyto.leveysyksikko', 'ark_loyto.korkeus',
+            'ark_loyto.korkeusyksikko', 'ark_loyto.halkaisija', 'ark_loyto.halkaisijayksikko',
+            'ark_loyto.paksuus', 'ark_loyto.paksuusyksikko', 'ark_loyto.muut_mitat',
+            'ark_loyto.tulkinta', 'ark_loyto.alkuvuosi', 'ark_loyto.alkuvuosi_ajanlasku',
+            'ark_loyto.paatosvuosi', 'ark_loyto.paatosvuosi_ajanlasku', 'ark_loyto.ajoitus_kuvaus',
+            'ark_loyto.ajoituksen_perusteet',
+            'ark_loyto.ark_loyto_ensisijainen_materiaali_id', 'ark_loyto.koordinaatti_n', 'ark_loyto.koordinaatti_e',
+            'ark_loyto.loytopaivamaara', 'ark_loyto.kappalemaara_arvio', 'ark_loyto.ark_tutkimusalue_id', 
+            'ark_loyto.paino_ennen',
+            'ark_loyto.paino_ennen_yksikko', 'ark_loyto.paino_jalkeen', 'ark_loyto.paino_jalkeen_yksikko');
+
+            $q->whereIn('ark_loyto.id', function($q) use ($ids) {
+                $q = self::joinTutkimus($q);
+                $q->whereIn('ark_tutkimus.id', $ids);
+            });
+            return $q->where('id', '=', $id);
+    }
+
+    /**
      * Haku luettelointinumeron mukaan.
      */
     public static function getSingleByLuettelointinumero($luettelointinumero) {
@@ -103,6 +134,45 @@ class Loyto extends Model
                                 else '0' -- jos ei kumpikaan (eli tyhjä) -> korvataan null 0:lla
                             end::int as luettelointinumero3");
         }
+
+    }
+
+    public static function getAllPublicInformation() {
+
+        // Käyttäjä näkee vain valmiit ja julkiset tutkimukset ja niihin liittyvät löydöt
+            // Tutkimusten id:t
+            $ids = Tutkimus::getAllIdsForPublic()->get();
+
+            $q = self::select('ark_loyto.id', 'ark_loyto.ark_tutkimusalue_yksikko_id', 'ark_loyto.ark_tutkimusalue_kerros_id',
+            'ark_loyto.ark_loyto_materiaalikoodi_id', 'ark_loyto.ark_loyto_tyyppi_id', 'ark_loyto.luettelointinumero',
+            'ark_loyto.alanumero', 'ark_loyto.loytopaikan_tarkenne', 'ark_loyto.koordinaatti_z',
+            'ark_loyto.kuvaus', 'ark_loyto.kappalemaara', 'ark_loyto.paino',
+            'ark_loyto.painoyksikko', 'ark_loyto.pituus', 'ark_loyto.pituusyksikko',
+            'ark_loyto.leveys', 'ark_loyto.leveysyksikko', 'ark_loyto.korkeus',
+            'ark_loyto.korkeusyksikko', 'ark_loyto.halkaisija', 'ark_loyto.halkaisijayksikko',
+            'ark_loyto.paksuus', 'ark_loyto.paksuusyksikko', 'ark_loyto.muut_mitat',
+            'ark_loyto.tulkinta', 'ark_loyto.alkuvuosi', 'ark_loyto.alkuvuosi_ajanlasku',
+            'ark_loyto.paatosvuosi', 'ark_loyto.paatosvuosi_ajanlasku', 'ark_loyto.ajoitus_kuvaus',
+            'ark_loyto.ajoituksen_perusteet',
+            'ark_loyto.ark_loyto_ensisijainen_materiaali_id', 'ark_loyto.koordinaatti_n', 'ark_loyto.koordinaatti_e',
+            'ark_loyto.loytopaivamaara', 'ark_loyto.kappalemaara_arvio', 'ark_loyto.ark_tutkimusalue_id', 
+            'ark_loyto.paino_ennen',
+            'ark_loyto.paino_ennen_yksikko', 'ark_loyto.paino_jalkeen', 'ark_loyto.paino_jalkeen_yksikko'
+            )
+                ->selectRaw("split_part(ark_loyto.luettelointinumero, ':', 1) as luettelointinumero1,
+                            split_part(ark_loyto.luettelointinumero, ':', 2) as luettelointinumero2,
+                            case when split_part(luettelointinumero, ':', 3) ~ '^[0-9\.]+$' -- sisältää pelkästään numeroita -> säilytetään originaali
+                                then split_part(luettelointinumero, ':', 3)
+                                when split_part(luettelointinumero, ':', 3) ~ '[0-9a-z]' -- sisältää numeroita tai kirjaimia -> korvataan kirjaimet ascii koodilla
+                                then regexp_replace(split_part(luettelointinumero, ':', 3), '[^0-9]', ascii(substring(split_part(luettelointinumero, ':', 3), '[^0-9]'))::text)
+                                else '0' -- jos ei kumpikaan (eli tyhjä) -> korvataan null 0:lla
+                            end::int as luettelointinumero3");
+
+            $q->whereIn('ark_loyto.id', function($q) use ($ids) {
+                $q = self::joinTutkimus($q);
+                $q->whereIn('ark_tutkimus.id', $ids);
+            });
+            return $q;
 
     }
 

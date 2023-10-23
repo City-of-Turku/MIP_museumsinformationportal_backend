@@ -64,6 +64,10 @@ class Kohde extends Model {
 		return self::select('ark_kohde.*')->where('id', '=', $id);
 	}
 
+	public static function getSinglePublicInformation($id) {
+		return self::select('ark_kohde.*')->where('id', '=', $id);
+	}
+
 	public static function getAll() {
 		$kuntakyla_sql  = "( select ark_kohde_id, ";
 		$kuntakyla_sql .= "  string_agg(ku.nimi, '\n') as kunnat, string_agg(ky.nimi, '\n') as kylat ";
@@ -105,6 +109,47 @@ class Kohde extends Model {
 		/* todo:
 		 * 	kiinteisto (kiinteistotunnus)
 		 */
+		return $qry;
+	}
+
+	public static function getAllPublicInformation() {
+		$kuntakyla_sql  = "( select ark_kohde_id, ";
+		$kuntakyla_sql .= "  string_agg(ku.nimi, '\n') as kunnat, string_agg(ky.nimi, '\n') as kylat ";
+		$kuntakyla_sql .= "  from ark_kohde_kuntakyla akk, kunta ku, kyla ky ";
+		$kuntakyla_sql .= "  where akk.kunta_id = ku.id ";
+		$kuntakyla_sql .= "  and akk.kyla_id = ky.id ";
+		$kuntakyla_sql .= "  group by ark_kohde_id ";
+		$kuntakyla_sql .= ") as kohde_kuntakyla ";
+
+		$tyyppi_sql  = "( select akt.ark_kohde_id, ";
+		$tyyppi_sql .= "  string_agg(kt.nimi_fi, '\n') as tyypit_fi, string_agg(kt.nimi_se, '\n') as tyypit_se ";
+		$tyyppi_sql .= "  from ark_kohde_tyyppi akt, ark_kohdetyyppi kt ";
+		$tyyppi_sql .= "  where akt.tyyppi_id = kt.id ";
+		$tyyppi_sql .= "  group by akt.ark_kohde_id ";
+		$tyyppi_sql .= ") as kohde_tyypit ";
+
+		$tyyppitarkenne_sql  = "( select akt.ark_kohde_id, ";
+		$tyyppitarkenne_sql .= "  string_agg(ktt.nimi_fi, '\n') as tyyppitarkenteet_fi, string_agg(ktt.nimi_se, '\n') as tyyppitarkenteet_se ";
+		$tyyppitarkenne_sql .= "  from ark_kohde_tyyppi akt, ark_kohdetyyppitarkenne ktt ";
+		$tyyppitarkenne_sql .= "  where akt.tyyppitarkenne_id = ktt.id ";
+		$tyyppitarkenne_sql .= "  group by akt.ark_kohde_id ";
+		$tyyppitarkenne_sql .= ") as kohde_tyyppitarkenteet ";
+
+		$ajoitus_sql  = "( select aka.ark_kohde_id, ";
+		$ajoitus_sql .= "  string_agg(a.nimi_fi, '\n') as ajoitukset_fi, string_agg(a.nimi_se, '\n') as ajoitukset_se ";
+		$ajoitus_sql .= "  from ark_kohde_ajoitus aka, ajoitus a ";
+		$ajoitus_sql .= "  where aka.ajoitus_id = a.id ";
+		$ajoitus_sql .= "  group by aka.ark_kohde_id ";
+		$ajoitus_sql .= ") as kohde_ajoitukset ";
+
+		$qry = Kohde::select("ark_kohde.*")
+		/* seuraavat ovat mukana vain sorttaustarkoituksessa */
+		->leftJoin('ark_kohdelaji', 'ark_kohde.ark_kohdelaji_id', '=', 'ark_kohdelaji.id')
+		->leftJoin(DB::raw($kuntakyla_sql), 'ark_kohde.id', '=', 'kohde_kuntakyla.ark_kohde_id')
+		->leftJoin(DB::raw($tyyppi_sql), 'ark_kohde.id', '=', 'kohde_tyypit.ark_kohde_id')
+		->leftJoin(DB::raw($tyyppitarkenne_sql), 'ark_kohde.id', '=', 'kohde_tyyppitarkenteet.ark_kohde_id')
+		->leftJoin(DB::raw($ajoitus_sql), 'ark_kohde.id', '=', 'kohde_ajoitukset.ark_kohde_id');
+
 		return $qry;
 	}
 
