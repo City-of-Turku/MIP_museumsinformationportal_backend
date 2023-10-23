@@ -193,6 +193,18 @@ class Rakennus extends Model {
 	}
 
 	/**
+	 * Get all public models from DB for the map
+	 */
+	public static function getAllPublicMapItems() {
+
+		$qry = Rakennus::select('rakennus.id', 'kiinteisto_id',
+				DB::raw(MipGis::getGeometryFieldQueryString("rakennuksen_sijainti", "sijainti"))
+				);
+
+		return $qry;
+	}
+
+	/**
 	 * Get all public information of Models from DB - order by given $order_field to given $order_direction
 	 *
 	 *

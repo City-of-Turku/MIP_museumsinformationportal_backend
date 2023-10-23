@@ -53,6 +53,7 @@ Route::get("/oaipmh/", "FinnaController@index");
  * Julkinen Kiinteisto
  */
 Route::get("/julkinenkiinteisto/",											"Julkinen\PublicKiinteistoController@index");
+Route::get("/julkinenkiinteisto/kartta",											"Julkinen\PublicKiinteistoController@getMapItems");
 Route::get("/julkinenkiinteisto/kiinteistotunnushaku/{kiinteistotunnus}",	"Julkinen\PublicKiinteistoController@getByIdentifier");
 Route::get("/julkinenkiinteisto/{kiinteisto_id}/",							"Julkinen\PublicKiinteistoController@show");
 Route::get("/julkinenkiinteisto/{kiinteisto_id}/rakennus/",					"Julkinen\PublicKiinteistoController@get_buildings");
@@ -61,6 +62,7 @@ Route::get("/julkinenkiinteisto/{kiinteisto_id}/rakennus/",					"Julkinen\Public
  * Julkinen Rakennus
  */
 Route::get("/julkinenrakennus/",												"Julkinen\PublicRakennusController@index");
+Route::get("/julkinenrakennus/kartta",											"Julkinen\PublicRakennusController@getMapItems");
 Route::get("/julkinenrakennus/{rakennus_id}/",									"Julkinen\PublicRakennusController@show");
 
 /*

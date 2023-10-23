@@ -132,6 +132,18 @@ class Kiinteisto extends Model {
     }
 
     /**
+     * Get all public models from DB for the map
+     */
+    public static function getAllPublicMapItems() {
+
+        $qry = Kiinteisto::select('kiinteisto.id',
+            DB::raw(MipGis::getGeometryFieldQueryString("kiinteiston_sijainti", "sijainti"))
+            );
+
+		return $qry;
+    }
+
+    /**
      * Method to get single entity with only public information with given ID
      */
     public static function getSinglePublicInformation($id) {

@@ -318,4 +318,26 @@ class PublicKiinteistoController extends Controller
         }
         return MipJson::getJson();
     }
+
+    /**
+     * Fetch only required values for displaying data on map
+     *
+     * @return MipJson
+     */
+    public function getMapItems(Request $request)
+    {
+        try {
+            $entities = Kiinteisto::getAllPublicMapItems();
+
+            $total_rows = Utils::getCount($entities);
+            $kiinteistot = $entities->get();
+
+            return $kiinteistot;
+        } catch (QueryException $e) {
+            MipJson::setGeoJsonFeature();
+            MipJson::addMessage(Lang::get('rakennus.search_failed'));
+            MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        return MipJson::getJson();
+    }
 }

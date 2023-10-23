@@ -328,7 +328,6 @@ class PublicValintaController extends Controller {
 		// Categories should be either rakennuskiinteisto or arkeologia (for now atleast)
 
 		try {
-			// TODO: redo the types depending on what filters we want to display
 			if ($type == 'rakennuskiinteisto') {
 
 				/* 
@@ -337,11 +336,7 @@ class PublicValintaController extends Controller {
 				 * controllers so the keys match.
 				 */
 				$types = [
-						"aluetyyppi" => Aluetyyppi::class,
-						"tilatyyppi" => Tilatyyppi::class,
-						"kiinteisto_kiinteistokulttuurihistoriallinenarvo" => KiinteistonKulttuurihistoriallinenArvo::class,
-						"rakennus_perustustyyppi" => Perustustyyppi::class,
-						"rakennuskulttuurihistoriallinenarvo" => RakennuksenKulttuurihistoriallinenArvo::class,
+						"perustustyyppi" => Perustustyyppi::class,
 						"rakennustyyppi" => Rakennustyyppi::class,
 						"runkotyyppi" => Runkotyyppi::class,
 						"tyylisuunta" => Tyylisuunta::class
