@@ -135,9 +135,6 @@ class PublicKiinteistoController extends Controller
             // calculate the total rows of the search results
             $total_rows = Utils::getCount($kiinteistot); //count($kiinteistot->get());
 
-            // ID:t listaan ennen rivien rajoitusta
-            $kori_id_lista = Utils::getIdLista($kiinteistot);
-
             // limit the results rows by given params
             $kiinteistot->withLimit($rivi, $riveja);
 
@@ -186,13 +183,13 @@ class PublicKiinteistoController extends Controller
             try {
                 $kiinteisto = Kiinteisto::getSinglePublicInformation($id)->with(array('kyla', 'kyla.kunta', 'kulttuurihistoriallisetarvot', 'arvotustyyppi'))->first();
 
-                //Unset values from array kyla
-                $kiinteisto->kyla->makeHidden(['luoja', 'luotu', 'muokkaaja', 'muokattu', 'poistettu', 'poistaja']);
-
-                //Unset same values from array kyla->kunta
-                $kiinteisto->kyla->kunta->makeHidden(['luoja', 'luotu', 'muokkaaja', 'muokattu', 'poistettu', 'poistaja']);
-
                 if ($kiinteisto) {
+
+                    //Unset values from array kyla
+                    $kiinteisto->kyla->makeHidden(['luoja', 'luotu', 'muokkaaja', 'muokattu', 'poistettu', 'poistaja']);
+
+                    //Unset same values from array kyla->kunta
+                    $kiinteisto->kyla->kunta->makeHidden(['luoja', 'luotu', 'muokkaaja', 'muokattu', 'poistettu', 'poistaja']);
 
                     $properties = clone ($kiinteisto);
                     unset($properties['sijainti']);
@@ -232,6 +229,15 @@ class PublicKiinteistoController extends Controller
             try {
                 $estate = Kiinteisto::find($id);
 
+                // If estate is not public return not found
+                if (!$estate->julkinen) {
+                    MipJson::setGeoJsonFeature();
+                    MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
+                    MipJson::addMessage(Lang::get('rakennus.search_not_found'));
+                    return MipJson::getJson();
+                }
+
+
                 if ($estate) {
 
                     $buildings = $estate->buildings()->with(array('osoitteet'))->orderby('inventointinumero')->get();
@@ -252,7 +258,9 @@ class PublicKiinteistoController extends Controller
                         'arvotus',
                         'arvotustyyppi_id',
                         'kulttuurihistoriallisetarvot_perustelut',
-                        'postinumero'
+                        'postinumero',
+                        'kuntotyyppi_id',
+                        'rakennushistoria'
                     ]);
 
                     // calculate the total rows of the search results

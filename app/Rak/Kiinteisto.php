@@ -126,7 +126,8 @@ class Kiinteisto extends Model {
             ->leftJoin('kunta', 'kyla.kunta_id', '=', 'kunta.id')
             ->addSelect('kunta.id as kunta_id','kunta.nimi as kunta', 'kunta.nimi_se as kunta_se', 'kyla.nimi as kyla', 'kunta.kuntanumero as kuntanumero', 'kyla.kylanumero as kylanumero')
             ->leftJoin('arvotustyyppi', 'kiinteisto.arvotustyyppi_id', '=', 'arvotustyyppi.id')
-            ->addSelect('arvotustyyppi.'.self::getLocalizedfieldname('nimi').' as arvotustyyppi_nimi');
+            ->addSelect('arvotustyyppi.'.self::getLocalizedfieldname('nimi').' as arvotustyyppi_nimi')
+            ->where('kiinteisto.julkinen', '=', true);
 
 		return $qry;
     }
@@ -138,9 +139,10 @@ class Kiinteisto extends Model {
         return Kiinteisto::select('kiinteisto.id', 'kiinteisto.kyla_id', 'kiinteisto.kiinteistotunnus', 'kiinteisto.nimi', 'kiinteisto.osoite',
         'kiinteisto.paikkakunta', 'kiinteisto.aluetyyppi', 'kiinteisto.arvotus',
         'kiinteisto.historiallinen_tilatyyppi', 'kiinteisto.kiinteiston_sijainti',
-        'kiinteisto.arkeologinen_intressi', 'kiinteisto.muu_historia', 'kiinteisto.data_sailo', 'kiinteisto.arvotustyyppi_id',
+        'kiinteisto.arvotustyyppi_id',
         DB::raw('ST_AsGeoJson(ST_transform(kiinteiston_sijainti, 4326)) as sijainti')
-        )->where('kiinteisto.id', '=', $id);
+        )->where('kiinteisto.id', '=', $id)
+        ->where('kiinteisto.julkinen', '=', true);
     }
 
     /**

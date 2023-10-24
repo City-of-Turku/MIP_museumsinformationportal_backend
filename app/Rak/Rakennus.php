@@ -318,6 +318,26 @@ class Rakennus extends Model {
 */
 		->where('rakennus.id', '=', $id);
 	}
+	
+	public static function getSinglePublicInformation($id) {
+		return Rakennus::select('rakennus.id', 'rakennus.kiinteisto_id', 'rakennus.inventointinumero',
+		'rakennus.rakennustyyppi_kuvaus', 'rakennus.kerroslukumaara', 'rakennus.alkuperainen_kaytto',
+		'rakennus.nykykaytto', 'rakennus.perustus', 'rakennus.runko',
+		'rakennus.vuoraus', 'rakennus.ulkovari', 'rakennus.katto',
+		'rakennus.kate', 'rakennus.rakennuksen_sijainti',
+		'rakennus.nykyinen_tyyli', 'rakennus.rakennustunnus',
+		'rakennus.rakennusvuosi_selite', 'rakennus.purettu',
+		'rakennus.rakennusvuosi_alku', 'rakennus.rakennusvuosi_loppu',
+				DB::raw(MipGis::getGeometryFieldQueryString("rakennuksen_sijainti", "sijainti"))
+		)
+		->join('kiinteisto', 'rakennus.kiinteisto_id', '=', 'kiinteisto.id')
+/*		->join('kyla', 'kiinteisto.kyla_id', '=', 'kyla.id')
+		->join('kunta', 'kyla.kunta_id', '=', 'kunta.id')
+		->addSelect('kunta.nimi as kunta','kyla.nimi as kyla')
+*/
+		->where('rakennus.id', '=', $id)
+		->where('kiinteisto.julkinen', '=', true);
+	}
 
 	/**
 	 * Method to get the Estate that this buiding belongs to

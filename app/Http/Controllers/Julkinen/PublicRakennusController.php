@@ -248,7 +248,7 @@ class PublicRakennusController extends Controller
         } else {
             try {
 
-                $entity = Rakennus::getSingle($id)
+                $entity = Rakennus::getSinglePublicInformation($id)
                     ->with(
                         array(
                             'nykyinentyyli',
@@ -270,29 +270,19 @@ class PublicRakennusController extends Controller
                         )
                     )->first();
 
+                // Return 404 if entity is not found
+                if (!$entity) {
+                    MipJson::setGeoJsonFeature();
+                    MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
+                    MipJson::addMessage(Lang::get('rakennus.search_not_found'));
+                    return MipJson::getJson();
+                }
+
                 //Unset values from array rakennustyypit
                 $entity->rakennustyypit->makeHidden(['luotu', 'muokattu', 'luoja', 'muokkaaja', 'poistaja', 'poistettu']);
 
                 //Unset values from array osoitteet
                 $entity->osoitteet->makeHidden(['muokattu', 'muokkaaja', 'luoja', 'luotu']);
-
-                //Unset values from entity
-                $entity->makeHidden(['kunto', 
-                                     'luotu', 
-                                     'muokattu', 
-                                     'luoja', 
-                                     'muokkaaja', 
-                                     'poistaja', 
-                                     'poistettu', 
-                                     'postinumero', 
-                                     'erityispiirteet', 
-                                     'sisatilakuvaus', 
-                                     'muut_tiedot', 
-                                     'asuin_ja_liikehuoneistoja',
-                                     'kuntotyyppi_id',
-                                     'arvotus',
-                                     'arvotustyyppi_id',
-                                     'kulttuurihistoriallisetarvot_perustelut']);
 
                 if ($entity) {
                     $properties = clone ($entity);
