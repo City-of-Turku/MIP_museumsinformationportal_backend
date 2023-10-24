@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Utils;
 use App\Library\String\MipJson;
 use App\Rak\Rakennus;
+use App\Rak\Kiinteisto;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Lang;
@@ -306,4 +307,55 @@ class PublicRakennusController extends Controller
         return MipJson::getJson();
     }
 
+    /**
+     * Fetch only required values for displaying data on map
+     * 
+     * Returns both rakennus and its linked kiinteisto entities
+     *
+     */
+    public function getMapItems(Request $request)
+    {
+        // if request is empty, return empty array. Only return items when
+        // searchParam is defined
+        if (empty($request->all())) {
+            return [];
+        }
+
+        try {
+            $entities = Rakennus::getAllPublicMapItems();
+
+            if ($request->perustustyyppi)
+                $entities->withPerustus($request->perustustyyppi);
+            if ($request->runkotyyppi)
+                $entities->withRunko($request->runkotyyppi);
+            if ($request->rakennustyyppi)
+                $entities->withBuildingTypeId($request->rakennustyyppi);
+            if ($request->tyylisuunta)
+                $entities->withNykytyyli($request->tyylisuunta);
+
+
+            $total_rows = Utils::getCount($entities);
+            $rakennukset = $entities->get();
+
+            $kiinteistoIds = $rakennukset->pluck('kiinteisto_id')->unique();
+            $kiinteistot = Kiinteisto::getAllPublicMapItems()->whereIn('id', $kiinteistoIds)->get();
+
+            $rakennuksetTransformed = $rakennukset->map(function ($rakennus) {
+                $rakennus->type = 'rakennus';
+                return $rakennus;
+            });
+            
+            $kiinteistotTransformed = $kiinteistot->map(function ($kiinteisto) {
+                $kiinteisto->type = 'kiinteisto';
+                return $kiinteisto;
+            });
+            
+            return $rakennuksetTransformed->concat($kiinteistotTransformed);
+        } catch (QueryException $e) {
+            MipJson::setGeoJsonFeature();
+            MipJson::addMessage(Lang::get('rakennus.search_failed'));
+            MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        return MipJson::getJson();
+    }
 }
