@@ -22,7 +22,7 @@ class InventointijulkaisuKuntakyla extends Model {
                 $inventointijulkaisuKuntaKyla = new InventointijulkaisuKuntakyla();
                 $inventointijulkaisuKuntaKyla->inventointijulkaisu_id = $inventointijulkaisu_id;
                 $inventointijulkaisuKuntaKyla->kunta_id = $kk['kunta']['id'];
-                array_key_exists('kyla', $kk) ? $inventointijulkaisuKuntaKyla->kyla_id = $kk['kyla']['id'] : null;
+                array_key_exists('kyla', $kk) && $kk['kyla'] != null ? $inventointijulkaisuKuntaKyla->kyla_id = $kk['kyla']['id'] : null;
                 $inventointijulkaisuKuntaKyla->luoja = Auth::user()->id;
                 $inventointijulkaisuKuntaKyla->save();
             }
