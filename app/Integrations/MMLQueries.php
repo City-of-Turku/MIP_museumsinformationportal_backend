@@ -131,16 +131,12 @@ class MMLQueries {
 	 * @throws Exception
 	 */
 	public static function getKiinteistoTunnusByPoint($point) {
-		$margin = 50;
+		$filter = "filter=S_INTERSECTS(geometry,POINT(" .$point ."))";
+		$url = config('app.mml_kiinteistotiedot_url') . $filter;
 
-		$lat = explode(" ", $point)[0];
-		$lon = explode(" ", $point)[1];
-		$bbox = implode(",", [$lat+$margin, $lon+$margin, $lat-$margin, $lon-$margin]);
-		$url = config('app.mml_kiinteistotiedot_url') .htmlentities($bbox);
 		$client = new Client();
-
 		$res = $client->request('GET', $url, [
-			'auth' => [config('app.mml_apikey_nimisto'), '']
+			'auth' => [config('app.mml_kiinteistotiedot_username'), config('app.mml_kiinteistotiedot_password')]
 		]);
 
 		if ($res->getStatusCode()!="200") {
@@ -161,12 +157,12 @@ class MMLQueries {
 		$poly = str_replace(",","+", $polygon);
 		$poly = str_replace(" ",",", $poly);
 		$filter = "filter=S_INTERSECTS(geometry,POLYGON((" .$poly .")))";
-		$url = config('app.mml_kiinteistotiedot_alue_url') . $filter;
+		$url = config('app.mml_kiinteistotiedot_url') . $filter;
 
 		$client = new Client();
 
 		$res = $client->request('GET', $url, [
-			'auth' => [config('app.mml_apikey_nimisto'), '']
+			'auth' => [config('app.mml_kiinteistotiedot_username'), config('app.mml_kiinteistotiedot_password')]
 		]);
 
 		if ($res->getStatusCode()!="200") {
@@ -321,7 +317,7 @@ class MMLQueries {
 							"MAXFEATURES" 	=> "30",
 							"RESULTTYPE" 	=> "results",
 							"EPSG" 			=> "3067",
-							"BBOX" 			=> $bb
+							"BBOX" 			=> "$bb"
 					]
 					,
 					"auth" => [
