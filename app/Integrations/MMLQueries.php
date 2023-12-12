@@ -131,16 +131,25 @@ class MMLQueries {
 	 * @throws Exception
 	 */
 	public static function getKiinteistoTunnusByPoint($point) {
-		$margin = 50;
+		if (!empty(config('app.mml_kiinteistotiedot_username')) && !empty(config('app.mml_kiinteistotiedot_password'))){
+			$filter = "filter=S_INTERSECTS(geometry,POINT(" .$point ."))";
+			$url = config('app.mml_kiinteistotiedot_url') . $filter;
+			$username = config('app.mml_kiinteistotiedot_username');
+			$password = config('app.mml_kiinteistotiedot_password');
+		}
+		else{
+			$margin = 50;
+			$lat = explode(" ", $point)[0];
+			$lon = explode(" ", $point)[1];
+			$bbox = implode(",", [$lat+$margin, $lon+$margin, $lat-$margin, $lon-$margin]);
+			$url = config('app.mml_kiinteistotiedot_url_avoin') ."bbox=" .htmlentities($bbox);
+			$username = config('app.mml_apikey_nimisto');
+			$password = '';
+		}
 
-		$lat = explode(" ", $point)[0];
-		$lon = explode(" ", $point)[1];
-		$bbox = implode(",", [$lat+$margin, $lon+$margin, $lat-$margin, $lon-$margin]);
-		$url = config('app.mml_kiinteistotiedot_url') .htmlentities($bbox);
 		$client = new Client();
-
 		$res = $client->request('GET', $url, [
-			'auth' => [config('app.mml_apikey_nimisto'), '']
+			'auth' => [$username, $password]
 		]);
 
 		if ($res->getStatusCode()!="200") {
@@ -161,12 +170,21 @@ class MMLQueries {
 		$poly = str_replace(",","+", $polygon);
 		$poly = str_replace(" ",",", $poly);
 		$filter = "filter=S_INTERSECTS(geometry,POLYGON((" .$poly .")))";
-		$url = config('app.mml_kiinteistotiedot_alue_url') . $filter;
+		if (!empty(config('app.mml_kiinteistotiedot_username')) && !empty(config('app.mml_kiinteistotiedot_password'))){
+			$url = config('app.mml_kiinteistotiedot_url') . $filter;
+			$username = config('app.mml_kiinteistotiedot_username');
+			$password = config('app.mml_kiinteistotiedot_password');
+		}
+		else{
+			$url = config('app.mml_kiinteistotiedot_url_avoin') . $filter;
+			$username = config('app.mml_apikey_nimisto');
+			$password = '';
+		}
 
 		$client = new Client();
 
 		$res = $client->request('GET', $url, [
-			'auth' => [config('app.mml_apikey_nimisto'), '']
+			'auth' => [$username, $password]
 		]);
 
 		if ($res->getStatusCode()!="200") {
@@ -321,7 +339,7 @@ class MMLQueries {
 							"MAXFEATURES" 	=> "30",
 							"RESULTTYPE" 	=> "results",
 							"EPSG" 			=> "3067",
-							"BBOX" 			=> $bb
+							"BBOX" 			=> "$bb"
 					]
 					,
 					"auth" => [

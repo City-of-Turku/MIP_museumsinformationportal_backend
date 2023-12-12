@@ -272,7 +272,7 @@ return [
     'mml_kiinteistotiedot_url' => env('MML_KIINTEISTOTIEDOT_URL'),
     'mml_kiinteistotiedot_username' => env('MML_KIINTEISTOTIEDOT_USERNAME'),
     'mml_kiinteistotiedot_password' => env('MML_KIINTEISTOTIEDOT_PASSWORD'),
-    'mml_kiinteistotiedot_alue_url' => env('MML_KIINTEISTOTIEDOT_ALUE_URL'),
+    'mml_kiinteistotiedot_url_avoin' => env('MML_KIINTEISTOTIEDOT_URL_AVOIN'),
 
     'mml_lainhuutotiedot_rest_url' => env('MML_LAINHUUTOTIEDOT_REST_URL'),
     'mml_lainhuutotiedot_rest_username' => env('MML_LAINHUUTOTIEDOT_REST_USERNAME'),
