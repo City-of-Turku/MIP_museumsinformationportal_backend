@@ -142,7 +142,7 @@ class MMLQueries {
 			$lat = explode(" ", $point)[0];
 			$lon = explode(" ", $point)[1];
 			$bbox = implode(",", [$lat+$margin, $lon+$margin, $lat-$margin, $lon-$margin]);
-			$url = config('app.mml_kiinteistotiedot_url_avoin') ."bbox=" .htmlentities($bbox);
+			$url = config('app.mml_kiinteistotiedot_url') ."bbox=" .htmlentities($bbox);
 			$username = config('app.mml_apikey_nimisto');
 			$password = '';
 		}
@@ -176,7 +176,7 @@ class MMLQueries {
 			$password = config('app.mml_kiinteistotiedot_password');
 		}
 		else{
-			$url = config('app.mml_kiinteistotiedot_url_avoin') . $filter;
+			$url = config('app.mml_kiinteistotiedot_url') . $filter;
 			$username = config('app.mml_apikey_nimisto');
 			$password = '';
 		}
