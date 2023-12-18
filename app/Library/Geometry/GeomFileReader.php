@@ -140,6 +140,12 @@ class GeomFileReader {
                  */
                 $properties = $record['dbf'];
 
+                //Tiedoston mukana tuleva id rikkoo tutkimusalueen lisäämisen.
+                //Jos id-kenttä tulisi tiedoston mukana, uuden tutkimusalueen luonnin sijaan muokattaisiin olemassaolevia (vääriä) tutkimusalueita.
+                if (array_key_exists('id', $properties)){
+                    $properties['tiedoston_id'] = $properties['id'];
+                    unset($properties['id']);
+                }
                 /*
                  * Tehdään tiedoista feature
                  */
