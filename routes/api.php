@@ -48,7 +48,7 @@ Route::get("/oaipmh/", "FinnaController@index");
 /*
  * Inside of this routeGroup All the routes require user to be authenticated
  */
-Route::group(['middleware' => 'auth.jwt'], function () {
+Route::group(['middleware' => ['auth.jwt', 'setLocale']], function () {
 
 	/*
 	 * Userguide
