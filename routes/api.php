@@ -45,6 +45,13 @@ Route::get("/raportti/ark_kuva/{id}/pieni",			"Ark\ArkKuvaController@viewSmall")
  */
 Route::get("/oaipmh/", "FinnaController@index");
 
+
+Route::group(['middleware' => ['prikka']], function () {
+	Route::get("/prikka/muisto/{id}/",			"MuistoController@getMuisto");
+	Route::post("/prikka/tallenamuisto",		"MuistoController@saveMuisto");
+});
+
+
 /*
  * Inside of this routeGroup All the routes require user to be authenticated
  */
