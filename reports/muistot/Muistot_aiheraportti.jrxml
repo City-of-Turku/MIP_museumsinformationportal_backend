@@ -110,9 +110,6 @@ ORDER BY ai.prikka_id ASC]]>
 			<property name="com.jaspersoft.studio.field.label" value="sulkeutuu"/>
 			<property name="com.jaspersoft.studio.field.tree.path" value="muistot_aihe"/>
 		</field>
-		<variable name="row_number" class="java.lang.Integer" calculation="Count">
-			<variableExpression><![CDATA[$F{id}]]></variableExpression>
-		</variable>
 	</subDataset>
 	<parameter name="inventointiprojekti_id" class="java.lang.Integer"/>
 	<parameter name="inventointipaiva_alku" class="java.lang.String">
@@ -205,37 +202,15 @@ ORDER BY ai.prikka_id ASC]]>
 						</datasetParameter>
 						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 					</datasetRun>
-					<jr:columnGroup width="860" uuid="ef41f737-dcad-452a-982f-40eaa43f4852">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [10]"/>
-						<jr:column width="40" uuid="b7705d79-bc46-4161-a599-9066c882c084">
-							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
-							<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
-							<jr:tableFooter style="Table_TH" height="0" rowSpan="1">
-								<property name="com.jaspersoft.studio.unit.height" value="px"/>
-							</jr:tableFooter>
-							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
-								<staticText>
-									<reportElement x="0" y="0" width="40" height="30" uuid="47e4bdc5-5863-4527-aa03-226a111b92b9"/>
-									<text><![CDATA[Nro]]></text>
-								</staticText>
-							</jr:columnHeader>
-							<jr:detailCell style="Table_TD" height="20">
-								<textField>
-									<reportElement x="0" y="0" width="40" height="20" uuid="0a5bf767-509f-49f9-8155-0ad5aa1c9e23"/>
-									<box>
-										<pen lineWidth="0.5"/>
-									</box>
-									<textFieldExpression><![CDATA[$V{row_number}]]></textFieldExpression>
-								</textField>
-							</jr:detailCell>
-						</jr:column>
+					<jr:columnGroup width="820" uuid="ef41f737-dcad-452a-982f-40eaa43f4852">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [9]"/>
 						<jr:column width="90" uuid="2bbd32b5-369e-464f-a95b-3b25c20f1057">
-							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
 							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
 							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 								<staticText>
 									<reportElement x="0" y="0" width="90" height="30" uuid="604f5205-4a8e-41ff-98d1-a8077d4b836f"/>
-									<text><![CDATA[Prikka ID]]></text>
+									<text><![CDATA[Aiheen ID]]></text>
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table_TD" height="20">
@@ -246,7 +221,7 @@ ORDER BY ai.prikka_id ASC]]>
 							</jr:detailCell>
 						</jr:column>
 						<jr:column width="100" uuid="ce3c9ece-2103-450e-a050-5b4f3403b822">
-							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
 							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
 							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 								<staticText>
@@ -255,14 +230,14 @@ ORDER BY ai.prikka_id ASC]]>
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table_TD" height="20">
-								<textField>
+								<textField textAdjust="StretchHeight" isBlankWhenNull="true">
 									<reportElement x="0" y="0" width="100" height="20" uuid="7f9c21ad-c7c2-4a0c-9039-f5c263ac6dde"/>
 									<textFieldExpression><![CDATA[$F{aihe_fi}]]></textFieldExpression>
 								</textField>
 							</jr:detailCell>
 						</jr:column>
 						<jr:column width="80" uuid="8d8f8634-abd5-4a10-9c08-5cb4e0b2893f">
-							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
 							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
 							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 								<staticText>
@@ -271,14 +246,14 @@ ORDER BY ai.prikka_id ASC]]>
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table_TD" height="20">
-								<textField>
+								<textField textAdjust="StretchHeight" isBlankWhenNull="true">
 									<reportElement x="0" y="0" width="80" height="20" uuid="266bc8e4-5482-49ca-b1b9-93faad026f8b"/>
 									<textFieldExpression><![CDATA[$F{aihe_sv}]]></textFieldExpression>
 								</textField>
 							</jr:detailCell>
 						</jr:column>
 						<jr:column width="80" uuid="45ac5514-e269-4ab3-9545-fc0802abec87">
-							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
 							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
 							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 								<staticText>
@@ -287,14 +262,14 @@ ORDER BY ai.prikka_id ASC]]>
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table_TD" height="20">
-								<textField>
+								<textField textAdjust="StretchHeight">
 									<reportElement x="0" y="0" width="80" height="20" uuid="9aba9c5a-1740-4034-a979-8afbe92029ce"/>
 									<textFieldExpression><![CDATA[$F{aihe_en}]]></textFieldExpression>
 								</textField>
 							</jr:detailCell>
 						</jr:column>
 						<jr:column width="90" uuid="8ce33ff2-fc08-4714-99cf-04dfd67d2cd2">
-							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column6"/>
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
 							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
 							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 								<staticText>
@@ -310,7 +285,7 @@ ORDER BY ai.prikka_id ASC]]>
 							</jr:detailCell>
 						</jr:column>
 						<jr:column width="100" uuid="8ba357bc-ebe8-49ff-a4ad-573d989fa8af">
-							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column7"/>
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column6"/>
 							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
 							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 								<staticText>
@@ -326,7 +301,7 @@ ORDER BY ai.prikka_id ASC]]>
 							</jr:detailCell>
 						</jr:column>
 						<jr:column width="120" uuid="c8f3a7ab-ed9c-4317-b1de-e0acd123a74a">
-							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column8"/>
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column7"/>
 							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
 							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 								<staticText>
@@ -335,14 +310,14 @@ ORDER BY ai.prikka_id ASC]]>
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table_TD" height="20">
-								<textField>
+								<textField textAdjust="StretchHeight" isBlankWhenNull="true">
 									<reportElement x="0" y="0" width="120" height="20" uuid="f0d79bd4-e06a-4cf4-ba02-d7ed5d5c908c"/>
 									<textFieldExpression><![CDATA[$F{esittely_fi}]]></textFieldExpression>
 								</textField>
 							</jr:detailCell>
 						</jr:column>
 						<jr:column width="80" uuid="19c47fb4-5917-4734-9ea1-a6e0078e624c">
-							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column9"/>
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column8"/>
 							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
 							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 								<staticText>
@@ -351,14 +326,14 @@ ORDER BY ai.prikka_id ASC]]>
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table_TD" height="20">
-								<textField>
+								<textField textAdjust="StretchHeight" isBlankWhenNull="true">
 									<reportElement x="0" y="0" width="80" height="20" uuid="9c8195e5-39b0-4f8b-be8d-6f878cc9fa15"/>
 									<textFieldExpression><![CDATA[$F{esittely_sv}]]></textFieldExpression>
 								</textField>
 							</jr:detailCell>
 						</jr:column>
 						<jr:column width="80" uuid="daa52798-c0a2-41d5-ab4a-72c1b35fd79f">
-							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column10"/>
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column9"/>
 							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
 							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 								<staticText>
@@ -367,7 +342,7 @@ ORDER BY ai.prikka_id ASC]]>
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table_TD" height="20">
-								<textField>
+								<textField textAdjust="StretchHeight" isBlankWhenNull="true">
 									<reportElement x="0" y="0" width="80" height="20" uuid="e62e6389-7bed-46b4-9de8-1a7afa858c83"/>
 									<textFieldExpression><![CDATA[$F{esittely_en}]]></textFieldExpression>
 								</textField>

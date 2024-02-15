@@ -55,6 +55,8 @@
 			<![CDATA[SELECT 
 	muisto.prikka_id,
 	aihe.aihe_fi as aihe,
+	muistelija.nimimerkki as nimimerkki,
+	muisto.kuvaus as otsikko,
 	muisto.luotu,
 	muisto.paivitetty,
 	muisto.alkaa,
@@ -68,6 +70,7 @@
 FROM 
 	muistot_muisto as muisto
 	left join muistot_aihe as aihe on muisto.muistot_aihe_id = aihe.prikka_id
+	left join muistot_henkilo as muistelija on muisto.muistot_henkilo_id = muistelija.prikka_id
 ORDER BY muisto.muistot_aihe_id ASC]]>
 		</queryString>
 		<field name="prikka_id" class="java.lang.Integer">
@@ -79,6 +82,16 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 			<property name="com.jaspersoft.studio.field.name" value="aihe"/>
 			<property name="com.jaspersoft.studio.field.label" value="aihe"/>
 			<property name="com.jaspersoft.studio.field.tree.path" value="muistot_aihe"/>
+		</field>
+		<field name="nimimerkki" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.name" value="nimimerkki"/>
+			<property name="com.jaspersoft.studio.field.label" value="nimimerkki"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="muistot_henkilo"/>
+		</field>
+		<field name="otsikko" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.name" value="otsikko"/>
+			<property name="com.jaspersoft.studio.field.label" value="otsikko"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
 		</field>
 		<field name="luotu" class="java.sql.Timestamp">
 			<property name="com.jaspersoft.studio.field.name" value="luotu"/>
@@ -130,9 +143,6 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 			<property name="com.jaspersoft.studio.field.label" value="tapahtumapaikka"/>
 			<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
 		</field>
-		<variable name="row_number" class="java.lang.Integer" calculation="Count">
-			<variableExpression><![CDATA[$F{id}]]></variableExpression>
-		</variable>
 	</subDataset>
 	<parameter name="inventointiprojekti_id" class="java.lang.Integer"/>
 	<parameter name="inventointipaiva_alku" class="java.lang.String">
@@ -250,37 +260,15 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 						</datasetParameter>
 						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 					</datasetRun>
-					<jr:columnGroup width="1270" uuid="ef41f737-dcad-452a-982f-40eaa43f4852">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [13]"/>
-						<jr:column width="40" uuid="b7705d79-bc46-4161-a599-9066c882c084">
-							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
-							<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
-							<jr:tableFooter style="Table_TH" height="0" rowSpan="1">
-								<property name="com.jaspersoft.studio.unit.height" value="px"/>
-							</jr:tableFooter>
-							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
-								<staticText>
-									<reportElement x="0" y="0" width="40" height="30" uuid="47e4bdc5-5863-4527-aa03-226a111b92b9"/>
-									<text><![CDATA[Nro]]></text>
-								</staticText>
-							</jr:columnHeader>
-							<jr:detailCell style="Table_TD" height="20">
-								<textField>
-									<reportElement x="0" y="0" width="40" height="20" uuid="0a5bf767-509f-49f9-8155-0ad5aa1c9e23"/>
-									<box>
-										<pen lineWidth="0.5"/>
-									</box>
-									<textFieldExpression><![CDATA[$V{row_number}]]></textFieldExpression>
-								</textField>
-							</jr:detailCell>
-						</jr:column>
+					<jr:columnGroup width="1450" uuid="ef41f737-dcad-452a-982f-40eaa43f4852">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [14]"/>
 						<jr:column width="80" uuid="624ee33d-7b27-4069-a468-102d75ddde80">
-							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
 							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
 							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 								<staticText>
 									<reportElement x="0" y="0" width="80" height="30" uuid="213017b9-4f6a-497c-8361-2ef6bcc4e7eb"/>
-									<text><![CDATA[Prikka ID]]></text>
+									<text><![CDATA[Muiston ID]]></text>
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table_TD" height="20">
@@ -291,7 +279,7 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 							</jr:detailCell>
 						</jr:column>
 						<jr:column width="150" uuid="2d188ab4-fd42-4398-b071-65b7b6f19feb">
-							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
 							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
 							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 								<staticText>
@@ -300,14 +288,46 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table_TD" height="20">
-								<textField>
+								<textField textAdjust="StretchHeight" isBlankWhenNull="true">
 									<reportElement x="0" y="0" width="150" height="20" uuid="b7ea3e34-9f08-4419-bcfb-c8029a8677ef"/>
 									<textFieldExpression><![CDATA[$F{aihe}]]></textFieldExpression>
 								</textField>
 							</jr:detailCell>
 						</jr:column>
-						<jr:column width="70" uuid="f4a729d5-9998-457c-84b4-551236983a38">
+						<jr:column width="110" uuid="ba6f18b3-e8b4-459d-a5b8-26d986170337">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="110" height="30" uuid="fcb41b2e-7cad-4454-9556-49942f50600b"/>
+									<text><![CDATA[Nimimerkki]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField textAdjust="StretchHeight">
+									<reportElement x="0" y="0" width="110" height="20" uuid="b5237f3a-c9dc-4f65-bb03-4ae8bcf381cc"/>
+									<textFieldExpression><![CDATA[$F{nimimerkki}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="110" uuid="255c2eb3-b1b3-42d2-b329-2c9a31d0c06c">
 							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="110" height="30" uuid="f63e48e9-5606-403d-a048-d7fc76bccabd"/>
+									<text><![CDATA[Otsikko]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="110" height="20" uuid="8ed4edac-d56c-4678-9cd0-97b61ed77b80"/>
+									<textFieldExpression><![CDATA[$F{otsikko}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="70" uuid="f4a729d5-9998-457c-84b4-551236983a38">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
 							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
 							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 								<staticText>
@@ -323,7 +343,7 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 							</jr:detailCell>
 						</jr:column>
 						<jr:column width="80" uuid="e9fd7fc0-fb27-49c8-b879-af9b45e57509">
-							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column6"/>
 							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
 							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 								<staticText>
@@ -339,7 +359,7 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 							</jr:detailCell>
 						</jr:column>
 						<jr:column width="90" uuid="5fe20fa3-97a2-4857-885f-92d0b31260b1">
-							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column6"/>
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column7"/>
 							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
 							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 								<staticText>
@@ -355,7 +375,7 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 							</jr:detailCell>
 						</jr:column>
 						<jr:column width="100" uuid="5d141c91-94f8-4402-9c6a-ea97a16479c7">
-							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column7"/>
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column8"/>
 							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
 							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 								<staticText>
@@ -371,7 +391,7 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 							</jr:detailCell>
 						</jr:column>
 						<jr:column width="100" uuid="eede3040-2db6-4c69-8ea4-e8541e4e047b">
-							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column8"/>
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column9"/>
 							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
 							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 								<staticText>
@@ -387,7 +407,7 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 							</jr:detailCell>
 						</jr:column>
 						<jr:column width="100" uuid="f689a33c-f1ba-4f4b-9b3c-ed12f0d5a595">
-							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column9"/>
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column10"/>
 							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
 							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 								<staticText>
@@ -403,7 +423,7 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 							</jr:detailCell>
 						</jr:column>
 						<jr:column width="110" uuid="ea12514e-3d4a-4506-b288-756f93cb1a22">
-							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column10"/>
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column11"/>
 							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
 							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 								<staticText>
@@ -419,7 +439,7 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 							</jr:detailCell>
 						</jr:column>
 						<jr:column width="110" uuid="57285b3c-4cf3-4cf8-9afe-5e5d2dd57663">
-							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column11"/>
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column12"/>
 							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
 							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 								<staticText>
@@ -435,7 +455,7 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 							</jr:detailCell>
 						</jr:column>
 						<jr:column width="130" uuid="dea56f67-c2e4-4b21-93f0-bd348c47b644">
-							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column12"/>
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column13"/>
 							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
 							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 								<staticText>
@@ -451,7 +471,7 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 							</jr:detailCell>
 						</jr:column>
 						<jr:column width="110" uuid="fe4c8d46-69da-47c1-b58e-96855d461433">
-							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column13"/>
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column14"/>
 							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
 							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 								<staticText>
@@ -460,7 +480,7 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table_TD" height="20">
-								<textField>
+								<textField textAdjust="StretchHeight" isBlankWhenNull="true">
 									<reportElement x="0" y="0" width="110" height="20" uuid="f74131a8-4005-4e5f-8dc7-f13199d0c5ca"/>
 									<textFieldExpression><![CDATA[$F{tapahtumapaikka}]]></textFieldExpression>
 								</textField>
