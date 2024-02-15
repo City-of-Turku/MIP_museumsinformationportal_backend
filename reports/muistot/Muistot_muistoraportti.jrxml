@@ -1,0 +1,474 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.21.1.final using JasperReports Library version 6.21.0-4f56c4f36cd19e17675219a9ac4692d5f0f13b06  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Muistot_muistoraportti" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" whenResourceMissingType="Error" isIgnorePagination="true" uuid="dea69c35-0e8e-453e-972c-f915cdff87f9">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="net.sf.jasperreports.export.xls.collapse.row.span" value="true"/>
+	<property name="com.jaspersoft.studio.report.description" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MIP-local-adapter.jrdax"/>
+	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_TD" mode="Transparent" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="Perustietoraportti_ds" uuid="e5498d72-613d-41ea-a70e-2b8eb01ec8d5">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MIP-local-adapter.jrdax"/>
+		<parameter name="valitutKentat_table" class="java.lang.String">
+			<defaultValueExpression><![CDATA[$P{valitutKentat_table}]]></defaultValueExpression>
+		</parameter>
+		<parameter name="valitutKentatArray_table" class="java.util.List" nestedType="java.lang.String" isForPrompting="false">
+			<defaultValueExpression><![CDATA[Arrays.asList($P{valitutKentat_table}.split(","))]]></defaultValueExpression>
+		</parameter>
+		<parameter name="inventointiprojekti_id_table" class="java.lang.Integer"/>
+		<parameter name="inventointipaiva_alku_table" class="java.util.Date"/>
+		<parameter name="inventointipaiva_loppu_table" class="java.util.Date"/>
+		<parameter name="inventointipaiva_alku_table_isEmpty" class="java.lang.Boolean">
+			<defaultValueExpression><![CDATA[$P{inventointipaiva_alku_table} == null]]></defaultValueExpression>
+		</parameter>
+		<parameter name="inventointipaiva_loppu_table_isEmpty" class="java.lang.Boolean">
+			<defaultValueExpression><![CDATA[$P{inventointipaiva_loppu_table} == null]]></defaultValueExpression>
+		</parameter>
+		<queryString language="SQL">
+			<![CDATA[SELECT 
+	muisto.prikka_id,
+	aihe.aihe_fi as aihe,
+	muisto.luotu,
+	muisto.paivitetty,
+	muisto.alkaa,
+	muisto.loppuu,
+	muisto.poistettu,
+	muisto.ilmiannettu,
+	muisto.julkinen,
+	muisto.kieli,
+	muisto.paikka_summittainen,
+	muisto.tapahtumapaikka
+FROM 
+	muistot_muisto as muisto
+	left join muistot_aihe as aihe on muisto.muistot_aihe_id = aihe.prikka_id
+ORDER BY muisto.muistot_aihe_id ASC]]>
+		</queryString>
+		<field name="prikka_id" class="java.lang.Integer">
+			<property name="com.jaspersoft.studio.field.name" value="prikka_id"/>
+			<property name="com.jaspersoft.studio.field.label" value="prikka_id"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
+		</field>
+		<field name="aihe" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.name" value="aihe"/>
+			<property name="com.jaspersoft.studio.field.label" value="aihe"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="muistot_aihe"/>
+		</field>
+		<field name="luotu" class="java.sql.Timestamp">
+			<property name="com.jaspersoft.studio.field.name" value="luotu"/>
+			<property name="com.jaspersoft.studio.field.label" value="luotu"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
+		</field>
+		<field name="paivitetty" class="java.sql.Timestamp">
+			<property name="com.jaspersoft.studio.field.name" value="paivitetty"/>
+			<property name="com.jaspersoft.studio.field.label" value="paivitetty"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
+		</field>
+		<field name="alkaa" class="java.sql.Timestamp">
+			<property name="com.jaspersoft.studio.field.name" value="alkaa"/>
+			<property name="com.jaspersoft.studio.field.label" value="alkaa"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
+		</field>
+		<field name="loppuu" class="java.sql.Timestamp">
+			<property name="com.jaspersoft.studio.field.name" value="loppuu"/>
+			<property name="com.jaspersoft.studio.field.label" value="loppuu"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
+		</field>
+		<field name="poistettu" class="java.lang.Boolean">
+			<property name="com.jaspersoft.studio.field.name" value="poistettu"/>
+			<property name="com.jaspersoft.studio.field.label" value="poistettu"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
+		</field>
+		<field name="ilmiannettu" class="java.lang.Boolean">
+			<property name="com.jaspersoft.studio.field.name" value="ilmiannettu"/>
+			<property name="com.jaspersoft.studio.field.label" value="ilmiannettu"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
+		</field>
+		<field name="julkinen" class="java.lang.Boolean">
+			<property name="com.jaspersoft.studio.field.name" value="julkinen"/>
+			<property name="com.jaspersoft.studio.field.label" value="julkinen"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
+		</field>
+		<field name="kieli" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.name" value="kieli"/>
+			<property name="com.jaspersoft.studio.field.label" value="kieli"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
+		</field>
+		<field name="paikka_summittainen" class="java.lang.Boolean">
+			<property name="com.jaspersoft.studio.field.name" value="paikka_summittainen"/>
+			<property name="com.jaspersoft.studio.field.label" value="paikka_summittainen"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
+		</field>
+		<field name="tapahtumapaikka" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.name" value="tapahtumapaikka"/>
+			<property name="com.jaspersoft.studio.field.label" value="tapahtumapaikka"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
+		</field>
+		<variable name="row_number" class="java.lang.Integer" calculation="Count">
+			<variableExpression><![CDATA[$F{id}]]></variableExpression>
+		</variable>
+	</subDataset>
+	<parameter name="inventointiprojekti_id" class="java.lang.Integer"/>
+	<parameter name="inventointipaiva_alku" class="java.lang.String">
+		<parameterDescription><![CDATA[]]></parameterDescription>
+	</parameter>
+	<parameter name="inventointipaiva_loppu" class="java.lang.String"/>
+	<parameter name="valitutKentat" class="java.lang.String"/>
+	<parameter name="valitutKentatArray" class="java.util.List" nestedType="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[Arrays.asList($P{valitutKentat}.split(","))]]></defaultValueExpression>
+	</parameter>
+	<queryString language="SQL">
+		<![CDATA[SELECT * from muistot_muisto limit 1]]>
+	</queryString>
+	<field name="prikka_id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="prikka_id"/>
+		<property name="com.jaspersoft.studio.field.label" value="prikka_id"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
+	</field>
+	<field name="muistot_aihe_id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="muistot_aihe_id"/>
+		<property name="com.jaspersoft.studio.field.label" value="muistot_aihe_id"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
+	</field>
+	<field name="muistot_henkilo_id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="muistot_henkilo_id"/>
+		<property name="com.jaspersoft.studio.field.label" value="muistot_henkilo_id"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
+	</field>
+	<field name="luotu" class="java.sql.Timestamp">
+		<property name="com.jaspersoft.studio.field.name" value="luotu"/>
+		<property name="com.jaspersoft.studio.field.label" value="luotu"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
+	</field>
+	<field name="paivitetty" class="java.sql.Timestamp">
+		<property name="com.jaspersoft.studio.field.name" value="paivitetty"/>
+		<property name="com.jaspersoft.studio.field.label" value="paivitetty"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
+	</field>
+	<field name="kuvaus" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="kuvaus"/>
+		<property name="com.jaspersoft.studio.field.label" value="kuvaus"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
+	</field>
+	<field name="alkaa" class="java.sql.Timestamp">
+		<property name="com.jaspersoft.studio.field.name" value="alkaa"/>
+		<property name="com.jaspersoft.studio.field.label" value="alkaa"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
+	</field>
+	<field name="loppuu" class="java.sql.Timestamp">
+		<property name="com.jaspersoft.studio.field.name" value="loppuu"/>
+		<property name="com.jaspersoft.studio.field.label" value="loppuu"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
+	</field>
+	<field name="poistettu" class="java.lang.Boolean">
+		<property name="com.jaspersoft.studio.field.name" value="poistettu"/>
+		<property name="com.jaspersoft.studio.field.label" value="poistettu"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
+	</field>
+	<field name="ilmiannettu" class="java.lang.Boolean">
+		<property name="com.jaspersoft.studio.field.name" value="ilmiannettu"/>
+		<property name="com.jaspersoft.studio.field.label" value="ilmiannettu"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
+	</field>
+	<field name="julkinen" class="java.lang.Boolean">
+		<property name="com.jaspersoft.studio.field.name" value="julkinen"/>
+		<property name="com.jaspersoft.studio.field.label" value="julkinen"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
+	</field>
+	<field name="kieli" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="kieli"/>
+		<property name="com.jaspersoft.studio.field.label" value="kieli"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
+	</field>
+	<field name="paikka_summittainen" class="java.lang.Boolean">
+		<property name="com.jaspersoft.studio.field.name" value="paikka_summittainen"/>
+		<property name="com.jaspersoft.studio.field.label" value="paikka_summittainen"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
+	</field>
+	<field name="tapahtumapaikka" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="tapahtumapaikka"/>
+		<property name="com.jaspersoft.studio.field.label" value="tapahtumapaikka"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
+	</field>
+	<detail>
+		<band height="40" splitType="Stretch">
+			<componentElement>
+				<reportElement x="0" y="0" width="2440" height="40" uuid="78c97f43-21d8-4d93-bbdf-725b4fbc95ea">
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.HorizontalRowLayout"/>
+					<property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
+					<property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
+					<property name="com.jaspersoft.studio.table.style.detail" value="Table_TD"/>
+				</reportElement>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="Perustietoraportti_ds" uuid="76175d29-fcc6-41fb-8b19-d5edc0156cdb">
+						<datasetParameter name="inventointiprojekti_id_table">
+							<datasetParameterExpression><![CDATA[$P{inventointiprojekti_id}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="valitutKentatArray_table">
+							<datasetParameterExpression><![CDATA[$P{valitutKentatArray}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="valitutKentat_table">
+							<datasetParameterExpression><![CDATA[$P{valitutKentat}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="inventointipaiva_alku_table">
+							<datasetParameterExpression><![CDATA[new SimpleDateFormat("yyyy-MM-dd").parse($P{inventointipaiva_alku})]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="inventointipaiva_loppu_table">
+							<datasetParameterExpression><![CDATA[new SimpleDateFormat("yyyy-MM-dd").parse($P{inventointipaiva_loppu})]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="inventointipaiva_alku_table_isEmpty">
+							<datasetParameterExpression><![CDATA[$P{inventointipaiva_alku}.toString().isEmpty()]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="inventointipaiva_loppu_table_isEmpty">
+							<datasetParameterExpression><![CDATA[$P{inventointipaiva_loppu}.toString().isEmpty()]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:columnGroup width="1270" uuid="ef41f737-dcad-452a-982f-40eaa43f4852">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [13]"/>
+						<jr:column width="40" uuid="b7705d79-bc46-4161-a599-9066c882c084">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+							<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.height" value="px"/>
+							</jr:tableFooter>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="40" height="30" uuid="47e4bdc5-5863-4527-aa03-226a111b92b9"/>
+									<text><![CDATA[Nro]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField>
+									<reportElement x="0" y="0" width="40" height="20" uuid="0a5bf767-509f-49f9-8155-0ad5aa1c9e23"/>
+									<box>
+										<pen lineWidth="0.5"/>
+									</box>
+									<textFieldExpression><![CDATA[$V{row_number}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="80" uuid="624ee33d-7b27-4069-a468-102d75ddde80">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="80" height="30" uuid="213017b9-4f6a-497c-8361-2ef6bcc4e7eb"/>
+									<text><![CDATA[Prikka ID]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField>
+									<reportElement x="0" y="0" width="80" height="20" uuid="a0d0909c-b642-45b9-8d56-cff7dd0994ce"/>
+									<textFieldExpression><![CDATA[$F{prikka_id}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="150" uuid="2d188ab4-fd42-4398-b071-65b7b6f19feb">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="150" height="30" uuid="c424348f-f394-4e62-9877-46f491d2d127"/>
+									<text><![CDATA[Aihe]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField>
+									<reportElement x="0" y="0" width="150" height="20" uuid="b7ea3e34-9f08-4419-bcfb-c8029a8677ef"/>
+									<textFieldExpression><![CDATA[$F{aihe}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="70" uuid="f4a729d5-9998-457c-84b4-551236983a38">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="70" height="30" uuid="9c5672d2-76cd-450b-b69f-e3b3b4a6dca1"/>
+									<text><![CDATA[Luotu]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField>
+									<reportElement x="0" y="0" width="70" height="20" uuid="14044483-1771-44c4-bda9-d66119c049d3"/>
+									<textFieldExpression><![CDATA[$F{luotu}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="80" uuid="e9fd7fc0-fb27-49c8-b879-af9b45e57509">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="80" height="30" uuid="5edc6123-30fe-411e-a122-0b6ff5d4407a"/>
+									<text><![CDATA[Päivitetty]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField>
+									<reportElement x="0" y="0" width="80" height="20" uuid="57a00ecd-9626-4eb0-93ec-3c70e9582066"/>
+									<textFieldExpression><![CDATA[$F{paivitetty}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="90" uuid="5fe20fa3-97a2-4857-885f-92d0b31260b1">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column6"/>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="90" height="30" uuid="407d4f2c-51c0-4484-98ae-21055b9e579d"/>
+									<text><![CDATA[Alkaa]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField>
+									<reportElement x="0" y="0" width="90" height="20" uuid="46e33057-2e03-452f-be39-952905860d23"/>
+									<textFieldExpression><![CDATA[$F{alkaa}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="5d141c91-94f8-4402-9c6a-ea97a16479c7">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column7"/>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="a1561367-52ed-4a57-81b8-ad2b6cb7a6c5"/>
+									<text><![CDATA[Loppuu]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField>
+									<reportElement x="0" y="0" width="100" height="20" uuid="e7129f0d-90f6-4363-82ff-0145b24ba6c6"/>
+									<textFieldExpression><![CDATA[$F{loppuu}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="eede3040-2db6-4c69-8ea4-e8541e4e047b">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column8"/>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="431db1d9-ea7c-4ad4-85f4-6c2b7f4e292e"/>
+									<text><![CDATA[Poistettu]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField>
+									<reportElement x="0" y="0" width="100" height="20" uuid="21532530-6b5b-4852-8321-8d948d17bba8"/>
+									<textFieldExpression><![CDATA[$F{poistettu}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="100" uuid="f689a33c-f1ba-4f4b-9b3c-ed12f0d5a595">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column9"/>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="30" uuid="1df9a1e7-2f5d-4ebb-8af3-a0d0f1834cb7"/>
+									<text><![CDATA[Ilmiannettu]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField>
+									<reportElement x="0" y="0" width="100" height="20" uuid="f49e997f-99df-48d2-b6f7-820d0ab2f04b"/>
+									<textFieldExpression><![CDATA[$F{ilmiannettu}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="110" uuid="ea12514e-3d4a-4506-b288-756f93cb1a22">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column10"/>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="110" height="30" uuid="674a20dc-6bbd-4fcc-9cf9-12d40421edde"/>
+									<text><![CDATA[Julkinen]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField>
+									<reportElement x="0" y="0" width="110" height="20" uuid="10c11542-6ab6-49cb-b884-5c37ae142430"/>
+									<textFieldExpression><![CDATA[$F{julkinen}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="110" uuid="57285b3c-4cf3-4cf8-9afe-5e5d2dd57663">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column11"/>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="110" height="30" uuid="e5dd3175-a1de-45aa-89f2-ee3d320eb31f"/>
+									<text><![CDATA[Kieli]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField>
+									<reportElement x="0" y="0" width="110" height="20" uuid="0d108af4-5556-4331-aeb4-1f9f646dd5c7"/>
+									<textFieldExpression><![CDATA[$F{kieli}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="130" uuid="dea56f67-c2e4-4b21-93f0-bd348c47b644">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column12"/>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="130" height="30" uuid="15abf83d-32bb-4353-9c9d-03d279a2415c"/>
+									<text><![CDATA[Paikka summittainen]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField>
+									<reportElement x="0" y="0" width="130" height="20" uuid="679a3ea4-1973-4957-a5cd-0077219a4ba1"/>
+									<textFieldExpression><![CDATA[$F{paikka_summittainen}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="110" uuid="fe4c8d46-69da-47c1-b58e-96855d461433">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column13"/>
+							<jr:tableFooter style="Table_TH" height="0" rowSpan="1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="110" height="30" uuid="257229c4-373c-4e3b-b85a-ee769ebbee22"/>
+									<text><![CDATA[Tapahtumapaikka]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField>
+									<reportElement x="0" y="0" width="110" height="20" uuid="f74131a8-4005-4e5f-8dc7-f13199d0c5ca"/>
+									<textFieldExpression><![CDATA[$F{tapahtumapaikka}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+					</jr:columnGroup>
+				</jr:table>
+			</componentElement>
+		</band>
+	</detail>
+</jasperReport>
