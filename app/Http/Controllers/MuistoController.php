@@ -160,7 +160,7 @@ class MuistoController extends Controller {
                         $henkiloEntity->$key = $value;
                     }
                     else if($key == 'syntymavuosi')
-                    {
+                    {   
                         $henkiloEntity->$key = $value;
                     }
                     else if($key == 'nimimerkki')
@@ -169,8 +169,10 @@ class MuistoController extends Controller {
                     }
                     else if($key == 'tapahtumapaikka')
                     {
-                        /*$geom = MipGis::getPointGeometryValue($value);
-                        $muistoEntity->$key = $geom;*/
+                        // MipGis assumes space between coordinates, Prikka uses semicolon
+                        $formattedValue = str_replace(';', ' ', $value);
+                        $geom = MipGis::getPointGeometryValue($formattedValue);
+                        $muistoEntity->$key = $geom;
                     }
                     else
                     {
