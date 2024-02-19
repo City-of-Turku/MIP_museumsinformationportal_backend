@@ -211,7 +211,11 @@ class MuistoController extends Controller {
                 {
                     foreach($muisto['valokuvat'] as $valokuva)
                     {
+                        $entityKuva = Muistot_kuva::find($valokuva['kuva_id']);
+                        if(!$entityKuva)
+                        {
                         $entityKuva = new Muistot_kuva();
+                        }
                         foreach($valokuva as $key=>$value)
                         {
                             if($key == 'kuva_id')

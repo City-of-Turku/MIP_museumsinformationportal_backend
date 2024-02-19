@@ -63,4 +63,16 @@ class Muistot_kuva extends Model {
         return Muistot_kuva::select('muistot_kuva.*')
             ->where('muistot_kuva.muistot_muisto_id', '=', $id);
     }
+
+    /**
+     * Method to get single entity from db with given ID
+     *
+     * @param int $id
+     * @version 1.0
+     * @since 1.0
+     */
+    public static function getSingle($id) {
+        return Muistot_kuva::select('muistot_kuva.*')
+            ->where('muistot_kuva.prikka_id', '=', $id);
+    }
 }
