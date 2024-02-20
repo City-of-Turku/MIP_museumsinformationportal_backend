@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 class Muistot_kuva extends Model {
 
     protected $table = "muistot_kuva";
-    protected $primaryKey = null;
+    protected $primaryKey = 'prikka_id';
     public $timestamps = false;
     public $incrementing = false;
 
@@ -21,17 +21,19 @@ class Muistot_kuva extends Model {
      * @var array
      */
     protected $fillable = [
+        'prikka_id',
         'muistot_muisto_id',
         'ccby',
         'ehdot',
-        'kuva',
+        'polku',
+        'nimi',
         'kuvaus',
         'ottohetki',
         'ottopaikka',
         'valokuvaaja'
     ];
 
-    public function kysymys() {
+    public function muisto() {
         return $this->belongsTo('App\Muistot\Muistot_muisto');
     }
 
@@ -43,7 +45,9 @@ class Muistot_kuva extends Model {
      */
     public static function getAll() {
 
-        $qry = Muistot_vastaus::select('muistot_kuva.*');
+        $qry = Muistot_kuva::select('muistot_kuva.*')
+            ->leftJoin('muistot_muisto', 'muistot_muisto.prikka_id', '=', 'muistot_kuva.muistot_muisto_id');
+
 
 		return $qry;
     }
@@ -56,7 +60,19 @@ class Muistot_kuva extends Model {
      * @since 1.0
      */
     public static function get($id) {
-        return Muistot_vastaus::select('muistot_kuva.*')
-            ->where('muistot_vastaus.muistot_muisto_id', '=', $id);
+        return Muistot_kuva::select('muistot_kuva.*')
+            ->where('muistot_kuva.muistot_muisto_id', '=', $id);
+    }
+
+    /**
+     * Method to get single entity from db with given ID
+     *
+     * @param int $id
+     * @version 1.0
+     * @since 1.0
+     */
+    public static function getSingle($id) {
+        return Muistot_kuva::select('muistot_kuva.*')
+            ->where('muistot_kuva.prikka_id', '=', $id);
     }
 }
