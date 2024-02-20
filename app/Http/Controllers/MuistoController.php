@@ -246,7 +246,6 @@ class MuistoController extends Controller {
             }
             catch(Exception $e)
             {
-                throw $e;
                 $newError = array($muisto['muisto_id'], 'Lis�ys ep�onnistui');
                 $errorArray = $errorArray + $newError;
                 DB::rollback();
@@ -450,9 +449,9 @@ class MuistoController extends Controller {
     
         foreach ($muistotKuvas as $muistotKuva) {
     
-   		    // delete file(s) from filesystem
-   		    $file_path		= storage_path()."/".getenv('IMAGE_UPLOAD_PATH').$muistotKuva->polku.explode(".", $muistotKuva->nimi)[0];
-   		    $file_extension = explode(".", $muistotKuva->nimi)[1];
+            // delete file(s) from filesystem
+   	        $file_path		= storage_path()."/".getenv('IMAGE_UPLOAD_PATH').$muistotKuva->polku.explode(".", $muistotKuva->nimi)[0];
+   	        $file_extension = explode(".", $muistotKuva->nimi)[1];
             if(File::exists($file_path.".".$file_extension))
                 File::delete($file_path.".".$file_extension);
             if(File::exists($file_path."_LARGE.".$file_extension))
