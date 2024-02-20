@@ -248,7 +248,6 @@ class MuistoController extends Controller {
             }
             catch(Exception $e)
             {
-                throw $e;
                 $newError = array($muisto['muisto_id'], 'Lis�ys ep�onnistui');
                 $errorArray = $errorArray + $newError;
                 DB::rollback();
