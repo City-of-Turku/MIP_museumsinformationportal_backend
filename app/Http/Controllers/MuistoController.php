@@ -209,13 +209,11 @@ class MuistoController extends Controller {
 
                 if(!is_null($muisto['valokuvat']))
                 {
+                    // In case Muisto has previous images, all of them need to be deleted
+                    $this->deleteAllImagesFromMuisto($muistoEntity->prikka_id);
                     foreach($muisto['valokuvat'] as $valokuva)
                     {
-                        $entityKuva = Muistot_kuva::find($valokuva['kuva_id']);
-                        if(!$entityKuva)
-                        {
                         $entityKuva = new Muistot_kuva();
-                        }
                         foreach($valokuva as $key=>$value)
                         {
                             if($key == 'kuva_id')
@@ -438,6 +436,37 @@ class MuistoController extends Controller {
     
     
                 
+    }
+
+    /**
+     * Delete all images related to one Muisto.
+     * Also all related image files are deleted, including the created tumbnails.
+     * @param $muistoId
+     */
+    private function deleteAllImagesFromMuisto($muistoId) {
+        // Retrieve the rows
+        $muistotKuvas = Muistot_kuva::where('muistot_muisto_id', $muistoId)->get();
+    
+        foreach ($muistotKuvas as $muistotKuva) {
+    
+            // delete file(s) from filesystem
+   	        $file_path		= storage_path()."/".getenv('IMAGE_UPLOAD_PATH').$muistotKuva->polku.explode(".", $muistotKuva->nimi)[0];
+   	        $file_extension = explode(".", $muistotKuva->nimi)[1];
+            if(File::exists($file_path.".".$file_extension))
+                File::delete($file_path.".".$file_extension);
+            if(File::exists($file_path."_LARGE.".$file_extension))
+                File::delete($file_path."_LARGE.".$file_extension);
+            if(File::exists($file_path."_MEDIUM.".$file_extension))
+                File::delete($file_path."_MEDIUM.".$file_extension);
+            if(File::exists($file_path."_SMALL.".$file_extension))
+                File::delete($file_path."_SMALL.".$file_extension);
+            if(File::exists($file_path."_TINY.".$file_extension))
+                File::delete($file_path."_TINY.".$file_extension);
+
+        }
+    
+        // Delete the rows
+        $res = Muistot_kuva::where('muistot_muisto_id', $muistoId)->delete();
     }
     
 
