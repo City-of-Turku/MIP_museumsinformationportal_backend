@@ -13,7 +13,16 @@ class muistot_kysymys extends Model {
     protected $table = "muistot_kysymys";
     protected $primaryKey = 'prikka_id';
     public $incrementing = false;
-    public $timestamps = false;
+
+    public $timestamps = true;
+
+    const CREATED_AT 		= 'luotu';
+    const UPDATED_AT 		= 'muokattu';
+    const DELETED_AT 		= "poistettu";
+
+    const CREATED_BY		= 'luoja';
+    const UPDATED_BY		= 'muokkaaja';
+    const DELETED_BY		= 'poistaja';
 
     /**
      * The attributes that are mass assignable.

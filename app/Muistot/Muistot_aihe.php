@@ -12,8 +12,17 @@ class Muistot_aihe extends Model {
 
     protected $table = "muistot_aihe";
     protected $primaryKey = 'prikka_id';
-    public $timestamps = false;
     public $incrementing = false;
+
+    public $timestamps = true;
+
+    const CREATED_AT 		= 'luotu';
+    const UPDATED_AT 		= 'muokattu';
+    const DELETED_AT 		= "poistettu";
+
+    const CREATED_BY		= 'luoja';
+    const UPDATED_BY		= 'muokkaaja';
+    const DELETED_BY		= 'poistaja';
 
     /**
      * The attributes that are mass assignable.
