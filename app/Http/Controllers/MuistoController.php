@@ -349,6 +349,43 @@ class MuistoController extends Controller {
 
     }
 
+    /**
+     * Used by report generation to get the image
+     * Might make sense to have own controller for images!
+     * @param $id Image ID
+     */
+    public function viewSmallImage($id) {
+
+    	if(!is_numeric($id)) {
+    		MipJson::setResponseStatus(Response::HTTP_BAD_REQUEST);
+    		return;
+    	}
+
+    	try {
+
+    		$entity = Muistot_kuva::getSingle($id)->first();
+    		if(!$entity) {
+    			MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
+    			return;
+    		}
+
+    		$images = Kuva::getImageUrls($entity->polku.$entity->nimi);
+    		$url = $images->medium;
+            Log::channel('prikka')->info("viewSmallImage url: " . $url);
+
+    		if ($url) {
+    			return redirect( $url );
+    		} else {
+    			MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
+    			return;
+    		}
+    	} catch(QueryException $e) {
+    		MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+    		return;
+    	}
+    }
+
+
 
 
     /**
