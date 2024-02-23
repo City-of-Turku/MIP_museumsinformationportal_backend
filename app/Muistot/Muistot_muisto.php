@@ -16,9 +16,9 @@ class Muistot_muisto extends Model {
 
     public $timestamps = true;
 
-    const CREATED_AT 		= 'luotu';
+    const CREATED_AT 		= 'luotu_mip';
     const UPDATED_AT 		= 'muokattu';
-    const DELETED_AT 		= "poistettu";
+    const DELETED_AT 		= "poistettu_mip";
 
     const CREATED_BY		= 'luoja';
     const UPDATED_BY		= 'muokkaaja';
