@@ -204,26 +204,30 @@ class ReportController extends Controller {
 						return MipJson::getJson();
 					}
 					break;
-				case 'Muistot_aiheraportti':
-					// Temp: Not done
-					MipJson::setGeoJsonFeature();
-					MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
-					MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
-					return MipJson::getJson();
+
+				case 'MuistotRaportti':
+
+					if(Auth::user()->rooli != 'tutkija' && Auth::user()->rooli != 'pääkäyttäjä') {
+						MipJson::setGeoJsonFeature();
+						MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+						MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+						return MipJson::getJson();
+					}
 
 
-					// Ainoastaan tutkijat ja pääkäyttäjät voivat tehdä ko. raportin
-					// TODO: Lisättävä muistot_rooli
-					// Sama muistoraportissa.
-					// if(Auth::user()->muistot_rooli != 'tutkija' && Auth::user()->muistot_rooli != 'pääkäyttäjä') {
-					// 	MipJson::setGeoJsonFeature();
-					// 	MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
-					// 	MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
-					// 	return MipJson::getJson();
-					// }
-					$parameters = ReportServer::generateMuistotAiheraporttiParameters($request->parameters);
+					$parameters = ReportServer::generateMuistotraporttiParameters($request->parameters);
 					break;
-				case 'Muistot_muistoraportti':
+
+				case 'Muistot_aiheraportti': // TODO: Tätä ei ehkä tarvita? 
+					// Temp: Not done
+					MipJson::setGeoJsonFeature();
+					MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+					MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+					return MipJson::getJson();
+
+//					$parameters = ReportServer::generateMuistotAiheraporttiParameters($request->parameters);
+					break;
+				case 'Muistot_muistoraportti': // TODO: Tätä ei ehkä tarvita?
 
 					// Temp: Not done
 					MipJson::setGeoJsonFeature();
@@ -231,17 +235,7 @@ class ReportController extends Controller {
 					MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
 					return MipJson::getJson();
 
-
-					// Ainoastaan tutkijat ja pääkäyttäjät voivat tehdä ko. raportin
-					// TODO: Lisättävä muistot_rooli
-					// Sama muistoraportissa.
-					// if(Auth::user()->muistot_rooli != 'tutkija' && Auth::user()->muistot_rooli != 'pääkäyttäjä') {
-					// 	MipJson::setGeoJsonFeature();
-					// 	MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
-					// 	MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
-					// 	return MipJson::getJson();
-					// }
-					$parameters = ReportServer::generateMuistotMuistoraporttiParameters($request->parameters);
+					//$parameters = ReportServer::generateMuistotMuistoraporttiParameters($request->parameters);
 					break;
 	
 			default:

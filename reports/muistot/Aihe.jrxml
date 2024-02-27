@@ -2,7 +2,7 @@
 <!-- Created with Jaspersoft Studio version 6.21.1.final using JasperReports Library version 6.21.0-4f56c4f36cd19e17675219a9ac4692d5f0f13b06  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Aihe_Raportti" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="a3058a9a-2e29-4811-9e08-1426e6e02029">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MIP-local-adapter.jrdax"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MipDev5DataAdapter.xml"/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
 	<style name="Base" isDefault="true" hTextAlign="Left" vTextAlign="Top" fontSize="10" isPdfEmbedded="false"/>
 	<style name="Table 1_TH" mode="Opaque" backcolor="#F0F8FF">

@@ -2,7 +2,7 @@
 <!-- Created with Jaspersoft Studio version 6.21.1.final using JasperReports Library version 6.21.0-4f56c4f36cd19e17675219a9ac4692d5f0f13b06  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Muisto_Kuvat" columnCount="2" pageWidth="595" pageHeight="842" whenNoDataType="NoPages" columnWidth="270" columnSpacing="17" leftMargin="0" rightMargin="20" topMargin="0" bottomMargin="0" uuid="679db95c-3767-4294-b355-8a0c92b0d7e1">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MIP-local-adapter.jrdax"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MipDev5DataAdapter.xml"/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
 	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
 	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.21.1.final using JasperReports Library version 6.21.0-4f56c4f36cd19e17675219a9ac4692d5f0f13b06  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Aihe_Book" pageWidth="595" pageHeight="842" sectionType="Part" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="30" bottomMargin="30" uuid="d2716064-8ae4-40cf-a575-33afba400e3a">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MipDev5DataAdapter.xml"/>
+	<property name="net.sf.jasperreports.print.create.bookmarks" value="true"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<parameter name="aihe_id" class="java.lang.Long">
+		<parameterDescription><![CDATA[Aiheen ID]]></parameterDescription>
+	</parameter>
+	<parameter name="MIP_BACKEND_URL" class="java.lang.String">
+		<parameterDescription><![CDATA[Backendin osoite]]></parameterDescription>
+	</parameter>
+	<parameter name="MIP_MAPSERVER_URL" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[select prikka_id from muistot_aihe where prikka_id = $P{aihe_id}]]>
+	</queryString>
+	<field name="prikka_id" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.name" value="prikka_id"/>
+		<property name="com.jaspersoft.studio.field.label" value="prikka_id"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_aihe"/>
+	</field>
+	<detail>
+		<part uuid="60ca7ecc-4197-4a30-8e2c-9aec7a4818ed">
+			<p:subreportPart xmlns:p="http://jasperreports.sourceforge.net/jasperreports/parts" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/parts http://jasperreports.sourceforge.net/xsd/parts.xsd">
+				<subreportParameter name="REPORT_CONNECTION">
+					<subreportParameterExpression><![CDATA[$P{REPORT_CONNECTION}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="aihe_id">
+					<subreportParameterExpression><![CDATA[$P{aihe_id}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="MIP_BACKEND_URL">
+					<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="MIP_MAPSERVER_URL">
+					<subreportParameterExpression><![CDATA[$P{MIP_MAPSERVER_URL}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportExpression><![CDATA["Aihe.jasper"]]></subreportExpression>
+			</p:subreportPart>
+		</part>
+		<part uuid="9f27bf73-1c69-44e5-87ad-30f889fbf53c">
+			<p:subreportPart xmlns:p="http://jasperreports.sourceforge.net/jasperreports/parts" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/parts http://jasperreports.sourceforge.net/xsd/parts.xsd">
+				<subreportParameter name="REPORT_CONNECTION">
+					<subreportParameterExpression><![CDATA[$P{REPORT_CONNECTION}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="aihe_id">
+					<subreportParameterExpression><![CDATA[$F{prikka_id}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="MIP_BACKEND_URL">
+					<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportExpression><![CDATA["Aihe_Muistot.jasper"]]></subreportExpression>
+			</p:subreportPart>
+		</part>
+	</detail>
+</jasperReport>

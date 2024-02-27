@@ -38,7 +38,7 @@ Route::get("/kartta/{taso}", 			"KarttaController@proxy");
  */
 Route::get("/raportti/kuva/{id}/pieni",			"Rak\KuvaController@viewSmall");
 Route::get("/raportti/ark_kuva/{id}/pieni",			"Ark\ArkKuvaController@viewSmall");
-//Route::get("/raportti/muistot_kuva/{id}/pieni",			"MuistoController@viewSmallImage");
+Route::get("/raportti/muistot_kuva/{id}/pieni",			"MuistoController@viewSmallImage");
 
 /*
  * OAI-PMH routes, currently do not require authentication
