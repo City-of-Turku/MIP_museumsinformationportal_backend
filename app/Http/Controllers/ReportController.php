@@ -204,6 +204,40 @@ class ReportController extends Controller {
 						return MipJson::getJson();
 					}
 					break;
+
+				case 'MuistotRaportti':
+
+					if(Auth::user()->rooli != 'tutkija' && Auth::user()->rooli != 'pääkäyttäjä') {
+						MipJson::setGeoJsonFeature();
+						MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+						MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+						return MipJson::getJson();
+					}
+
+
+					$parameters = ReportServer::generateMuistotraporttiParameters($request->parameters);
+					break;
+
+				case 'Muistot_aiheraportti': // TODO: Tätä ei ehkä tarvita? 
+					// Temp: Not done
+					MipJson::setGeoJsonFeature();
+					MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+					MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+					return MipJson::getJson();
+
+//					$parameters = ReportServer::generateMuistotAiheraporttiParameters($request->parameters);
+					break;
+				case 'Muistot_muistoraportti': // TODO: Tätä ei ehkä tarvita?
+
+					// Temp: Not done
+					MipJson::setGeoJsonFeature();
+					MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+					MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+					return MipJson::getJson();
+
+					//$parameters = ReportServer::generateMuistotMuistoraporttiParameters($request->parameters);
+					break;
+	
 			default:
 				MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
 				MipJson::addMessage(Lang::get('raportti.invalid_report_type'));

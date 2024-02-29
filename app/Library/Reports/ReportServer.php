@@ -422,4 +422,39 @@ class ReportServer {
 		return $parameters;
 	}
 
+	// Muistot (Prikka) - Document report for one Aihe with all Muistot
+	public static function generateMuistotraporttiParameters($inputParams) {
+		$parameters = array(
+			array(
+					'name' => 'aihe_id',
+					'value' => $inputParams['aihe_id']),
+			array(
+					'name' => 'reportDisplayName',
+					'value' => $inputParams['reportDisplayName']
+			)
+	);
+	return $parameters;
+}
+
+	// Muistot (Prikka) - Aihekohtainen raportti. TODO
+	public static function generateMuistotAiheraporttiParameters($inputParams) {
+
+		$parameters = array(
+				array('name' => 'reportDisplayName', 'value' => $inputParams['reportDisplayName'])
+		);
+
+		return $parameters;
+	}
+
+	// Muistot (Prikka) - Muistokohtainen raportti. TODO
+	public static function generateMuistotMuistoraporttiParameters($inputParams) {
+
+		$parameters = array(
+				array('name' => 'reportDisplayName', 'value' => $inputParams['reportDisplayName'])
+		);
+
+		return $parameters;
+	}
+
+
 }

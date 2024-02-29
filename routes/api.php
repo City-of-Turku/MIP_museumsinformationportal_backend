@@ -38,12 +38,20 @@ Route::get("/kartta/{taso}", 			"KarttaController@proxy");
  */
 Route::get("/raportti/kuva/{id}/pieni",			"Rak\KuvaController@viewSmall");
 Route::get("/raportti/ark_kuva/{id}/pieni",			"Ark\ArkKuvaController@viewSmall");
-
+Route::get("/raportti/muistot_kuva/{id}/pieni",			"MuistoController@viewSmallImage");
 
 /*
  * OAI-PMH routes, currently do not require authentication
  */
 Route::get("/oaipmh/", "FinnaController@index");
+
+
+Route::group(['middleware' => ['prikka']], function () {
+	Route::get("/prikka/muisto/{id}/",			"MuistoController@getMuisto");
+	Route::post("/prikka/tallennamuistot",		"MuistoController@saveMuistot");
+	Route::post("/prikka/tallennaaiheet",			"MuistoController@saveAiheet");
+});
+
 
 /*
  * Inside of this routeGroup All the routes require user to be authenticated
