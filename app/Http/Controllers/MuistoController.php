@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image;
 use Carbon\Carbon;
+use App\Kayttaja;
 use Exception;
 
 class MuistoController extends Controller {
@@ -39,71 +40,90 @@ class MuistoController extends Controller {
     public function saveAiheet(Request $request) 
     {
         $errorArray = array();
-        foreach($request->aiheet as $aiheArray)
+        foreach($request->aiheet as $aihe)
         {
             try
             {
                 DB::beginTransaction();
 
-                $aiheEntity = Muistot_aihe::find($aiheArray['aihe_id']);
-                if(!$aiheEntity)
+                if(!in_array('aihe_id', array_keys($aihe)))
                 {
-                    $aiheEntity = new Muistot_aihe();
+                    array_push($errorArray, 'No id in aihe');
                 }
-                foreach($aiheArray as $key=>$value) 
+                else 
                 {
-                    if($key == 'aihe_id')
+                    $validationResult = $this->validateAihe($aihe);
+                    if(!empty($validationResult))
                     {
-                        $aiheEntity->prikka_id = $value;
-                    }
-                    else if($key == 'kysymykset')
-                    {
-                        //do nothing for now
-                    }
-                    else
-                    {
-                         $aiheEntity->$key = $value;
-                    }
-                }
-
-                $aiheEntity->save();
-
-                foreach($aiheArray['kysymykset'] as $kysymys)
-                {
-                    $entityKysymys = Muistot_kysymys::find($kysymys['kysymys_id']);
-                    if(!$entityKysymys)
-                    {
-                        $entityKysymys = new Muistot_kysymys();
-                    }
-                    foreach($kysymys as $kysymKey=>$kysymValue)
-                    {
-                        if($kysymKey == 'kysymys_id')
+                        foreach($validationResult as $vresult)
                         {
-                            $entityKysymys->prikka_id = $kysymValue;
-                        }
-                        else
-                        {
-                            $entityKysymys->$kysymKey = $kysymValue;
+                            array_push($errorArray, $vresult);
                         }
                     }
-                    $entityKysymys->muistot_aihe_id = $aiheEntity->prikka_id;
+                    else 
+                    {
+                        $aiheEntity = Muistot_aihe::find($aihe['aihe_id']);
+                        if(!$aiheEntity)
+                        {
+                            $aiheEntity = new Muistot_aihe();
+                        }
 
-                    $entityKysymys->save();
+                        foreach($aihe as $key=>$value) 
+                        {
+                            if($key == 'aihe_id')
+                            {
+                                $aiheEntity->prikka_id = $value;
+                            }
+                            else if($key == 'kysymykset')
+                            {
+                                //do nothing for now
+                            }
+                            else
+                            {
+                                 $aiheEntity->$key = $value;
+                            }
+                        }
+
+                        $aiheEntity->save();
+
+                        if(!is_null($aihe['kysymykset']) && !empty($aihe['kysymykset']))
+                        {
+                            $res=Muistot_kysymys::where('muistot_aihe_id',$aiheEntity->prikka_id)->delete();
+
+                            foreach($aihe['kysymykset'] as $kysymys)
+                            {
+                                $entityKysymys = new Muistot_kysymys();
+                                foreach($kysymys as $kysymKey=>$kysymValue)
+                                {
+                                    if($kysymKey == 'kysymys_id')
+                                    {
+                                        $entityKysymys->prikka_id = $kysymValue;
+                                    }
+                                    else
+                                    {
+                                        $entityKysymys->$kysymKey = $kysymValue;
+                                    }
+                                }
+                                $entityKysymys->muistot_aihe_id = $aiheEntity->prikka_id;
+
+                                $entityKysymys->save();
+                            }
+                        }
+                    }
                 }
 
                 DB::commit();
             }
             catch(Exception $e)
             {
-                $newError = array($aiheArray['aihe_id'], 'Lis�ys ep�onnistui');
-                $errorArray = $errorArray + $newError;
+                throw $e;
+                array_push($errorArray, $aihe['aihe_id'] . ': failed to add');
                 DB::rollback();
             }
         }
 
-        MipJson::addMessage(json_encode($errorArray));
-
-        return MipJson::getJson();
+        $ret = (object) array('Errors' => $errorArray);
+        return $ret;
     }
 
     public function saveMuistot(Request $request) 
@@ -115,146 +135,164 @@ class MuistoController extends Controller {
             {
                 DB::beginTransaction();
 
-                $muistoEntity = Muistot_muisto::find($muisto['muisto_id']);
-                if(!$muistoEntity)
+                if(!in_array('muisto_id', array_keys($muisto)))
                 {
-                    $muistoEntity = new Muistot_muisto();
+                    array_push($errorArray, 'No id in muisto');
                 }
-                $henkiloEntity = Muistot_henkilo::find($muisto['henkiloid']);
-                if(!$henkiloEntity)
+                else 
                 {
-                    $henkiloEntity = new Muistot_henkilo();
-                }
-                foreach($muisto as $key=>$value) {
-                    if($key == 'muisto_id')
+                    $validationResult = $this->validateMuisto($muisto);
+                    if(!empty($validationResult))
                     {
-                         $muistoEntity->prikka_id = $value;
-                    }
-                    else if($key == 'aihe_id')
-                    {
-                        $muistoEntity->muistot_aihe_id = $value;
-                    }
-                    else if($key == 'vastaukset')
-                    {
-                        //do nothing for now
-                    }
-                    else if($key == 'valokuvat')
-                    {
-                        //do nothing for now
-                    }
-                    else if($key == 'henkiloid')
-                    {
-                        $henkiloEntity->prikka_id = $value;
-                        $muistoEntity->muistot_henkilo_id = $value;
-                    }
-                    else if($key == 'etunimi')
-                    {
-                        $henkiloEntity->$key = $value;
-                    }
-                    else if($key == 'sukunimi')
-                    {
-                        $henkiloEntity->$key = $value;
-                    }
-                    else if($key == 'sahkoposti')
-                    {
-                        $henkiloEntity->$key = $value;
-                    }
-                    else if($key == 'syntymavuosi')
-                    {   
-                        $henkiloEntity->$key = $value;
-                    }
-                    else if($key == 'nimimerkki')
-                    {
-                        $henkiloEntity->$key = $value;
-                    }
-                    else if($key == 'tapahtumapaikka')
-                    {
-                        // MipGis assumes space between coordinates, Prikka uses semicolon
-                        $formattedValue = str_replace(';', ' ', $value);
-                        $geom = MipGis::getPointGeometryValue($formattedValue);
-                        $muistoEntity->$key = $geom;
-                    }
-                    else
-                    {
-                         $muistoEntity->$key = $value;
-                    }
-                }
-
-                $henkiloEntity->save();
-                $muistoEntity->save();
-
-                if(!is_null($muisto['vastaukset']))
-                {
-                    $res=Muistot_vastaus::where('muistot_muisto_id',$muistoEntity->prikka_id)->delete();
-
-                    foreach($muisto['vastaukset'] as $vastaus)
-                    {
-                        $entityVastaus = new Muistot_vastaus();
-                        foreach($vastaus as $key=>$value)
+                        foreach($validationResult as $vresult)
                         {
-                            if($key == 'kysymys_id')
+                            array_push($errorArray, $vresult);
+                        }
+                    }
+                    else 
+                    {
+                        $muistoEntity = Muistot_muisto::find($muisto['muisto_id']);
+                        if(!$muistoEntity)
+                        {
+                            $muistoEntity = new Muistot_muisto();
+                        }
+                        $henkiloEntity = Muistot_henkilo::find($muisto['henkiloid']);
+                        if(!$henkiloEntity)
+                        {
+                            $henkiloEntity = new Muistot_henkilo();
+                        }
+                        foreach($muisto as $key=>$value) {
+                            if($key == 'muisto_id')
                             {
-                                $entityVastaus->muistot_kysymys_id = $value;
+                                 $muistoEntity->prikka_id = $value;
+                            }
+                            else if($key == 'aihe_id')
+                            {
+                                $muistoEntity->muistot_aihe_id = $value;
+                            }
+                            else if($key == 'vastaukset')
+                            {
+                                //do nothing for now
+                            }
+                            else if($key == 'valokuvat')
+                            {
+                                //do nothing for now
+                            }
+                            else if($key == 'henkiloid')
+                            {
+                                $henkiloEntity->prikka_id = $value;
+                                $muistoEntity->muistot_henkilo_id = $value;
+                            }
+                            else if($key == 'etunimi')
+                            {
+                                $henkiloEntity->$key = $value;
+                            }
+                            else if($key == 'sukunimi')
+                            {
+                                $henkiloEntity->$key = $value;
+                            }
+                            else if($key == 'sahkoposti')
+                            {
+                                $henkiloEntity->$key = $value;
+                            }
+                            else if($key == 'syntymavuosi')
+                            {   
+                                $henkiloEntity->$key = $value;
+                            }
+                            else if($key == 'nimimerkki')
+                            {
+                                $henkiloEntity->$key = $value;
+                            }
+                            else if($key == 'tapahtumapaikka')
+                            {
+                                // MipGis assumes space between coordinates, Prikka uses semicolon
+                                $formattedValue = str_replace(';', ' ', $value);
+                                $geom = MipGis::getPointGeometryValue($formattedValue);
+                                $muistoEntity->$key = $geom;
                             }
                             else
                             {
-                                $entityVastaus->$key = $value;
+                                 $muistoEntity->$key = $value;
                             }
                         }
-                        $entityVastaus->muistot_muisto_id = $muistoEntity->prikka_id;
 
-                        $entityVastaus->save();
-                    }
-                }
+                        $henkiloEntity->save();
+                        $muistoEntity->save();
 
-                if(!is_null($muisto['valokuvat']))
-                {
-                    // In case Muisto has previous images, all of them need to be deleted
-                    $this->deleteAllImagesFromMuisto($muistoEntity->prikka_id);
-                    foreach($muisto['valokuvat'] as $valokuva)
-                    {
-                        $entityKuva = new Muistot_kuva();
-                        foreach($valokuva as $key=>$value)
+                        if(!is_null($muisto['vastaukset']))
                         {
-                            if($key == 'kuva_id')
-                            {
-                                $entityKuva->prikka_id = $value;
-                            }
-                            else if($key == 'kuvatiedosto')
-                            {
-                                // TODO: Tarkista että ok
-                                $imageOk = $this->saveImage($value, $entityKuva);
-                                if (!$imageOk) {
-                                    // Logataan virhe
-                                    Log::channel('prikka')->info("Kuvan tallennus epäonnistui");
-                                }
-                            }
-                            else 
-                            {
-                                $entityKuva->$key = $value;
-                            }
+                            $res=Muistot_vastaus::where('muistot_muisto_id',$muistoEntity->prikka_id)->delete();
 
-                            $entityKuva->muistot_muisto_id = $muistoEntity->prikka_id;
+                            foreach($muisto['vastaukset'] as $vastaus)
+                            {
+                                $entityVastaus = new Muistot_vastaus();
+                                foreach($vastaus as $key=>$value)
+                                {
+                                    if($key == 'kysymys_id')
+                                    {
+                                        $entityVastaus->muistot_kysymys_id = $value;
+                                    }
+                                    else
+                                    {
+                                        $entityVastaus->$key = $value;
+                                    }
+                                }
+                                $entityVastaus->muistot_muisto_id = $muistoEntity->prikka_id;
+
+                                $entityVastaus->save();
+                            }
                         }
 
-                        $entityKuva->save();
+                        if(!is_null($muisto['valokuvat']))
+                        {
+                            // In case Muisto has previous images, all of them need to be deleted
+                            $this->deleteAllImagesFromMuisto($muistoEntity->prikka_id);
+                            foreach($muisto['valokuvat'] as $valokuva)
+                            {
+                                $entityKuva = new Muistot_kuva();
+                                foreach($valokuva as $key=>$value)
+                                {
+                                    if($key == 'kuva_id')
+                                    {
+                                        $entityKuva->prikka_id = $value;
+                                    }
+                                    else if($key == 'kuvatiedosto')
+                                    {
+                                        // TODO: Tarkista että ok
+                                        $imageOk = $this->saveImage($value, $entityKuva);
+                                        if (!$imageOk) {
+                                            // Logataan virhe
+                                            Log::channel('prikka')->info("Kuvan tallennus epäonnistui");
+                                        }
+                                    }
+                                    else 
+                                    {
+                                        $entityKuva->$key = $value;
+                                    }
+
+                                    $entityKuva->muistot_muisto_id = $muistoEntity->prikka_id;
+                                }
+
+                                $entityKuva->save();
+                            }
+                        }
                     }
                 }
+                
 
                 DB::commit();
                 
             }
             catch(Exception $e)
             {
-                $newError = array($muisto['muisto_id'], 'Lis�ys ep�onnistui');
-                $errorArray = $errorArray + $newError;
+                throw $e;
+                array_push($errorArray, $aihe['muisto_id'] . ': failed to add');
                 DB::rollback();
             }
         }
 
-        MipJson::addMessage(json_encode($errorArray));
-
-        return MipJson::getJson();
+        $ret = (object) array('Errors' => $errorArray);
+        return $ret;
     }
 
 
@@ -505,6 +543,400 @@ class MuistoController extends Controller {
         // Delete the rows
         $res = Muistot_kuva::where('muistot_muisto_id', $muistoId)->delete();
     }
-    
 
+    private function validateAihe($aihe) {
+        $errorArray = array();
+        $requiredValues = array('aukeaa', 'sulkeutuu', 'aihe_fi', 'esittely_fi', 'aiheen_vari');
+
+        if($aihe['aihe_id'] == null)
+        {
+            array_push($errorArray, 'id value null');
+            return $errorArray;
+        }
+
+        foreach ($aihe as $key => $value) {
+            if(in_array($key, $requiredValues) && ($value == null || $value == ''))
+            {
+                array_push($errorArray, $aihe['aihe_id'] . ' ' . $key . ' value null');
+            }
+        }
+
+        foreach($requiredValues as $rvalue)
+        {
+            if(!in_array($rvalue, array_keys($aihe)))
+            {
+                array_push($errorArray, $aihe['aihe_id'] . ' ' . $rvalue . ' value null');
+            }
+        }
+
+        foreach($aihe['kysymykset'] as $kysymys)
+        {
+            if(!in_array('kysymys_id', array_keys($kysymys)) || $kysymys['kysymys_id'] == null)
+            {
+                array_push($errorArray, $aihe['aihe_id'] . ' kysymys_id value null');
+            }
+        }
+
+        return $errorArray;
+    }
+
+    private function validateMuisto($muisto) {
+        $errorArray = array();
+        $requiredValues = array('aihe_id', 'luotu', 'paivitetty', 'alkaa', 'loppuu', 'julkinen', 'kieli', 'henkiloid', 'nimimerkki', 'etunimi', 'sukunimi', 'sahkoposti', 'syntymavuosi');
+
+        if($muisto['muisto_id'] == null)
+        {
+            array_push($errorArray, 'id value null');
+            return $errorArray;
+        }
+
+        foreach ($muisto as $key => $value) {
+            if(in_array($key, $requiredValues) && ($value == null || $value == ''))
+            {
+                array_push($errorArray, $muisto['muisto_id'] . ' ' . $key . ' value null');
+            }
+        }
+
+        foreach($requiredValues as $rvalue)
+        {
+            if(!in_array($rvalue, array_keys($muisto)))
+            {
+                array_push($errorArray, $muisto['muisto_id'] . ' ' . $rvalue . ' value null');
+            }
+        }
+
+        foreach($muisto['vastaukset'] as $vastaus)
+        {
+            if(!in_array('kysymys_id', array_keys($vastaus)) || $vastaus['kysymys_id'] == null)
+            {
+                array_push($errorArray, $muisto['muisto_id'] . ' vastaus kysymys_id value null');
+            }
+        }
+
+        foreach($muisto['valokuvat'] as $kuva)
+        {
+            if(!in_array('kuva_id', array_keys($kuva)) || $kuva['kuva_id'] == null)
+            {
+                array_push($errorArray, $muisto['muisto_id'] . ' kuva kuva_id value null');
+            }
+
+            if(!in_array('kuvatiedosto', array_keys($kuva)) || $kuva['kuvatiedosto'] == null)
+            {
+                array_push($errorArray, $muisto['muisto_id'] . ' kuva ' . $kuva['$kuva_id'] . ' Kuvatiedosto value null');
+            }
+        }
+
+        return $errorArray;
+    }
+    
+    public function index(Request $request) {
+
+        /*
+         * Role check
+         */
+
+        if(!Kayttaja::hasPermission('rakennusinventointi.kiinteisto.katselu')) {
+            MipJson::setGeoJsonFeature();
+            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+            return MipJson::getJson();
+        }
+
+        $validator = Validator::make($request->all(), [
+            "kiinteistotunnus"	=> "string",
+            "id"				=> "numeric|exists:kiinteisto,id",
+        ]);
+
+        if ($validator->fails()) {
+            MipJson::setGeoJsonFeature();
+            MipJson::addMessage(Lang::get('validation.custom.user_input_validation_failed'));
+            foreach($validator->errors()->all() as $error) {
+                MipJson::addMessage($error);
+            }
+            MipJson::setResponseStatus(Response::HTTP_BAD_REQUEST);
+            return MipJson::getJson();
+        }
+
+        try {
+            /*
+             * By default return ALL items from db (with LIMIT and ORDER options)
+             */
+            $rivi = (isset($request->rivi) && is_numeric($request->rivi)) ? $request->rivi : 0;
+            $riveja = (isset($request->rivit) && is_numeric($request->rivit)) ? $request->rivit : 100;
+            $jarjestys_kentta = (isset($request->jarjestys)) ? $request->jarjestys : "prikka_id";
+            $jarjestys_suunta = (isset($request->jarjestys_suunta)) ? ($request->jarjestys_suunta == "laskeva" ? "desc" : "asc") : "asc";
+
+            $muistot = Muistot_muisto::getAll();
+
+            $muistot = $muistot->with('muistot_henkilo');
+
+            /*
+             * If ANY search terms are given limit results by them
+             */
+            if($request->id) {
+                $muistot->withPrikkaId($request->id);
+            }
+            if($request->aihe) {
+                $muistot->withAihe($request->aihe);
+            }
+            if($request->henkilo) {
+                $muistot->withHenkilo($request->henkilo);
+            }
+            if($request->alkaa) {
+                $muistot->withAlkaa($request->alkaa);
+            }
+            if($request->loppuu) {
+                $muistot->withLoppuu($request->loppuu);
+            }
+            if($request->polygonrajaus) {
+                $muistot->withPolygon($request->polygonrajaus);
+            }
+            if($request->aluerajaus) {
+                $muistot->withBoundingBox($request->aluerajaus);
+            }
+
+            // order the results by given parameters
+            $muistot->withOrderBy($request->aluerajaus, $jarjestys_kentta, $jarjestys_suunta);
+
+            // calculate the total rows of the search results
+            $total_rows = Utils::getCount($muistot);//count($kiinteistot->get());
+
+            // ID:t listaan ennen rivien rajoitusta
+            $kori_id_lista = Utils::getPrikkaIdList($muistot);
+
+            // limit the results rows by given params
+            $muistot->withLimit($rivi, $riveja);
+
+            // Execute the query
+            $muistot = $muistot->get();
+
+            MipJson::initGeoJsonFeatureCollection(count($muistot), $total_rows);
+            foreach ($muistot as $muisto) {
+
+                /*
+                 * clone $kiinteisto so we can handle the "properties" separately
+                 * -> remove "sijainti" from props
+                 */
+                $properties = clone($muisto);
+                unset($properties['sijainti']);
+                //$properties->rakennukset = $buildings;
+                //$properties->test = $kiinteisto->test;
+                MipJson::addGeoJsonFeatureCollectionFeaturePoint(json_decode($muisto->sijainti), $properties);
+            }
+
+            /*
+             * Koritoiminnallisuus. Palautetaan id:t listana.
+             */
+            MipJson::setIdList($kori_id_lista);
+
+            MipJson::addMessage(Lang::get('kiinteisto.search_success'));
+
+        } catch(Exception $e) {
+            throw $e;
+            MipJson::setGeoJsonFeature();
+            MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+            MipJson::addMessage(Lang::get('kiinteisto.search_failed'));
+        }
+
+        return MipJson::getJson();
+    }
+
+    public function show($id) {
+
+        /*
+         * Role check
+         */
+        if(!Kayttaja::hasPermission('rakennusinventointi.kiinteisto.katselu')) {
+            MipJson::setGeoJsonFeature();
+            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+            return MipJson::getJson();
+        }
+
+        if(!is_numeric($id)) {
+            MipJson::setGeoJsonFeature();
+            MipJson::addMessage(Lang::get('validation.custom.user_input_validation_failed'));
+            MipJson::setResponseStatus(Response::HTTP_BAD_REQUEST);
+        }
+        else {
+            try {
+
+                $muisto = Muistot_muisto::getSingle($id)
+                ->with( array(
+                    'Muistot_vastaus',
+                    'Muistot_henkilo',
+                    'Muistot_vastaus.Muistot_kysymys',
+                    'Muistot_aihe'
+
+                ))->first();
+
+                if($muisto) {
+                    $properties = clone($muisto);
+                    unset($properties['sijainti']);
+
+                    MipJson::setGeoJsonFeature(json_decode($muisto->sijainti), $properties);
+                    MipJson::addMessage(Lang::get('kiinteisto.search_success'));
+                }
+                else {
+                    MipJson::setGeoJsonFeature();
+                    MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
+                    MipJson::addMessage(Lang::get('kiinteisto.search_not_found'));
+                }
+            }
+            catch(QueryException $e) {
+                MipJson::setGeoJsonFeature();
+                MipJson::addMessage(Lang::get('kiinteisto.search_failed'));
+                MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+        }
+        return MipJson::getJson();
+    }
+
+    public function indexAihe(Request $request) {
+
+        /*
+         * Role check
+         */
+
+        /*if(!Kayttaja::hasPermission('rakennusinventointi.kiinteisto.katselu')) {
+            MipJson::setGeoJsonFeature();
+            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+            return MipJson::getJson();
+        }
+
+        $validator = Validator::make($request->all(), [
+            "kiinteistotunnus"	=> "string",
+            "id"				=> "numeric|exists:kiinteisto,id",
+        ]);
+
+        if ($validator->fails()) {
+            MipJson::setGeoJsonFeature();
+            MipJson::addMessage(Lang::get('validation.custom.user_input_validation_failed'));
+            foreach($validator->errors()->all() as $error) {
+                MipJson::addMessage($error);
+            }
+            MipJson::setResponseStatus(Response::HTTP_BAD_REQUEST);
+            return MipJson::getJson();
+        }*/
+
+        try {
+            /*
+             * By default return ALL items from db (with LIMIT and ORDER options)
+             */
+            $rivi = (isset($request->rivi) && is_numeric($request->rivi)) ? $request->rivi : 0;
+            $riveja = (isset($request->rivit) && is_numeric($request->rivit)) ? $request->rivit : 100;
+            $jarjestys_kentta = (isset($request->jarjestys)) ? $request->jarjestys : "prikka_id";
+            $jarjestys_suunta = (isset($request->jarjestys_suunta)) ? ($request->jarjestys_suunta == "laskeva" ? "desc" : "asc") : "asc";
+
+            $aiheet = Muistot_aihe::getAll();
+
+            /*
+             * If ANY search terms are given limit results by them
+             */
+            if($request->id) {
+                $aiheet->withPrikkaId($request->id);
+            }
+            if($request->aukeaa) {
+                $aiheet->withAukeaa($request->alkaa);
+            }
+            if($request->sulkeutuu) {
+                $aiheet->withSulkeutuu($request->loppuu);
+            }
+            if($request->aiheFi) {
+                $aiheet->withAiheFi($request->aiheFi);
+            }
+            if($request->aiheEn) {
+                $aiheet->withAiheEn($request->aiheEn);
+            }
+            if($request->aiheSv) {
+                $aiheet->withAiheSv($request->aiheSv);
+            }
+
+            // order the results by given parameters
+            //$aiheet->withOrderBy($request->aluerajaus, $jarjestys_kentta, $jarjestys_suunta);
+
+            // calculate the total rows of the search results
+            $total_rows = Utils::getCount($aiheet);//count($kiinteistot->get());
+
+            // ID:t listaan ennen rivien rajoitusta
+            $kori_id_lista = Utils::getPrikkaIdList($aiheet);
+
+            // limit the results rows by given params
+            $aiheet->withLimit($rivi, $riveja);
+
+            // Execute the query
+            $aiheet = $aiheet->get();
+
+            MipJson::initGeoJsonFeatureCollection(count($aiheet), $total_rows);
+            foreach ($aiheet as $aihe)  {
+				MipJson::addGeoJsonFeatureCollectionFeaturePoint(null, $aihe);
+			}
+
+            /*
+             * Koritoiminnallisuus. Palautetaan id:t listana.
+             */
+            MipJson::setIdList($kori_id_lista);
+
+            MipJson::addMessage(Lang::get('kiinteisto.search_success'));
+
+        } catch(Exception $e) {
+            throw $e;
+            MipJson::setGeoJsonFeature();
+            MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+            MipJson::addMessage(Lang::get('kiinteisto.search_failed'));
+        }
+
+        return MipJson::getJson();
+    }
+
+    public function showAihe($id) {
+
+        /*
+         * Role check
+         */
+        if(!Kayttaja::hasPermission('rakennusinventointi.kiinteisto.katselu')) {
+            MipJson::setGeoJsonFeature();
+            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+            return MipJson::getJson();
+        }
+
+        if(!is_numeric($id)) {
+            MipJson::setGeoJsonFeature();
+            MipJson::addMessage(Lang::get('validation.custom.user_input_validation_failed'));
+            MipJson::setResponseStatus(Response::HTTP_BAD_REQUEST);
+        }
+        else {
+            try {
+
+                if(Auth::user()->rooli == 'katselija') {
+                    $muisto = Muistot_aihe::getSingle($id)->with(array('Muistot_kysymys', 'luoja', 'muokkaaja'))->first();
+                } else {
+                    $muisto = Kiinteisto::getSingle($id)
+                    ->with( array('Muistot_kysymys', 'luoja', 'muokkaaja'))->first();
+                }
+
+                if($muisto) {
+
+                    $properties = clone($muisto);
+                    unset($properties['sijainti']);
+
+                    MipJson::setGeoJsonFeature(json_decode($muisto->sijainti), $properties);
+                    MipJson::addMessage(Lang::get('kiinteisto.search_success'));
+                }
+                else {
+                    MipJson::setGeoJsonFeature();
+                    MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
+                    MipJson::addMessage(Lang::get('kiinteisto.search_not_found'));
+                }
+            }
+            catch(QueryException $e) {
+                MipJson::setGeoJsonFeature();
+                MipJson::addMessage(Lang::get('kiinteisto.search_failed'));
+                MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+        }
+        return MipJson::getJson();
+    }
 }

@@ -46,6 +46,21 @@ class Utils {
 	    return $idLista;
 	}
 	
+	public static function getPrikkaIdList($e) {
+	    $idResult = DB::select('select prikka_id from ('.$e->toSql().') as x', $e->getBindings());
+	    $idLista = [];
+	    
+	    // Tulosjoukko on stdClass array häkkyröitä, jotka käydään läpi
+	    if($idResult){
+	        foreach ($idResult as $row => $innerArray) {
+	            foreach ($innerArray as $innerRow => $value) {
+	                $idLista[] = $value;
+	            }
+	        }
+	    }
+	    return $idLista;
+	}
+
 	/*
 	 * Write selected fields from a select statement to a file, for example datamigration logging.
 	 * Output file is written to Laravel storage/app folder. App folder will be created if doesn't exist.

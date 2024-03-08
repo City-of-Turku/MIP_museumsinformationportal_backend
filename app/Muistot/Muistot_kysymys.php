@@ -40,12 +40,12 @@ class muistot_kysymys extends Model {
 
     public function aihe()
     {
-        $this->belongsTo('App\Muistot\Muistot_aihe');
+        $this->belongsTo('App\Muistot\Muistot_aihe', 'muistot_aihe_id', 'prikka_id');
     }
 
     public function vastaukset()
     {
-        $this->hasMany('App\Muistot\Muistot_vastaus');
+        $this->hasMany('App\Muistot\Muistot_vastaus', 'muistot_vastaus_id', 'prikka_id');
     }
 
     /**
