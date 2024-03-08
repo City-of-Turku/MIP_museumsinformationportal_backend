@@ -2,7 +2,7 @@
 <!-- Created with Jaspersoft Studio version 6.21.1.final using JasperReports Library version 6.21.0-4f56c4f36cd19e17675219a9ac4692d5f0f13b06  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Muisto" pageWidth="595" pageHeight="842" whenNoDataType="NoPages" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenResourceMissingType="Key" uuid="28bcff1d-b3ac-4d7c-87ec-1b0f5886a0de">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MIP-local-adapter.jrdax"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MipDev5DataAdapter.xml"/>
 	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
 		<box>
 			<pen lineWidth="0.5" lineColor="#000000"/>
@@ -400,7 +400,9 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 		<band height="20">
 			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 			<subreport isUsingCache="false" overflowType="Stretch">
-				<reportElement x="0" y="0" width="80" height="20" isRemoveLineWhenBlank="true" uuid="df80cf2c-d1a6-4d12-92d4-077c40017338"/>
+				<reportElement x="0" y="0" width="80" height="20" isRemoveLineWhenBlank="true" uuid="df80cf2c-d1a6-4d12-92d4-077c40017338">
+					<printWhenExpression><![CDATA[false]]></printWhenExpression>
+				</reportElement>
 				<subreportParameter name="muisto_id">
 					<subreportParameterExpression><![CDATA[$P{muisto_id}]]></subreportParameterExpression>
 				</subreportParameter>
