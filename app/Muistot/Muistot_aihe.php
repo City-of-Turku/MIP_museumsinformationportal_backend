@@ -83,23 +83,17 @@ class Muistot_aihe extends Model {
     }
 
     public function scopeWithAukeaa($query, $date) {
-        return $query->where('muistot_aihe.aukeaa', '>', $date);
+        return $query->where('muistot_aihe.aukeaa', '>=', $date);
     }
 
     public function scopeWithSulkeutuu($query, $date) {
-        return $query->where('muistot_aihe.sulkeutuu', '<', $date);
+        return $query->where('muistot_aihe.sulkeutuu', '<=', $date);
     }
 
-    public function scopeWithAiheFi($query, $keyword) {
-        return $query->where('muistot_aihe.aihe_fi', 'ILIKE', "%".$keyword."%");
-    }
-
-    public function scopeWithAiheEn($query, $keyword) {
-        return $query->where('muistot_aihe.aihe_en', 'ILIKE', "%".$keyword."%");
-    }
-
-    public function scopeWithAiheSv($query, $keyword) {
-        return $query->where('muistot_aihe.aihe_sv', 'ILIKE', "%".$keyword."%");
+    public function scopeWithAihe($query, $keyword) {
+        return $query->where('muistot_aihe.aihe_fi', 'ILIKE', "%".$keyword."%")
+            ->orWhere('muistot_aihe.aihe_en', 'ILIKE', "%".$keyword."%")
+            ->orWhere('muistot_aihe.aihe_sv', 'ILIKE', "%".$keyword."%");
     }
 
     public function scopeWithOrderBy($query, $bbox=null, $order_field=null, $order_direction=null) {

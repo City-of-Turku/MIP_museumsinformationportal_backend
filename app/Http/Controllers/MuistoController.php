@@ -798,7 +798,7 @@ class MuistoController extends Controller {
          * Role check
          */
 
-        /*if(!Kayttaja::hasPermission('rakennusinventointi.kiinteisto.katselu')) {
+        if(!Kayttaja::hasPermission('rakennusinventointi.kiinteisto.katselu')) {
             MipJson::setGeoJsonFeature();
             MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
             MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
@@ -818,7 +818,7 @@ class MuistoController extends Controller {
             }
             MipJson::setResponseStatus(Response::HTTP_BAD_REQUEST);
             return MipJson::getJson();
-        }*/
+        }
 
         try {
             /*
@@ -838,19 +838,13 @@ class MuistoController extends Controller {
                 $aiheet->withPrikkaId($request->id);
             }
             if($request->aukeaa) {
-                $aiheet->withAukeaa($request->alkaa);
+                $aiheet->withAukeaa($request->aukeaa);
             }
             if($request->sulkeutuu) {
-                $aiheet->withSulkeutuu($request->loppuu);
+                $aiheet->withSulkeutuu($request->sulkeutuu);
             }
-            if($request->aiheFi) {
-                $aiheet->withAiheFi($request->aiheFi);
-            }
-            if($request->aiheEn) {
-                $aiheet->withAiheEn($request->aiheEn);
-            }
-            if($request->aiheSv) {
-                $aiheet->withAiheSv($request->aiheSv);
+            if($request->aihe) {
+                $aiheet->withAihe($request->aihe);
             }
 
             // order the results by given parameters

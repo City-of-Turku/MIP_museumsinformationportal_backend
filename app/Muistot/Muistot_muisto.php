@@ -112,7 +112,14 @@ class Muistot_muisto extends Model {
     }
 
     public function scopeWithAihe($query, $keyword) {
-        return $query->where('muistot_muisto.muistot_aihe_id', '=', $keyword);
+        return $query->whereIn('muistot_muisto.muistot_aihe_id', function($q) use ($keyword) {
+			
+			$q->select('prikka_id')
+			->from('muistot_aihe')
+            ->where('muistot_aihe.aihe_fi', 'ILIKE', "%".$keyword."%")
+            ->orWhere('muistot_aihe.aihe_en', 'ILIKE', "%".$keyword."%")
+            ->orWhere('muistot_aihe.aihe_sv', 'ILIKE', "%".$keyword."%");
+		});
     }
 
     public function scopeWithHenkilo($query, $keyword) {
@@ -120,11 +127,11 @@ class Muistot_muisto extends Model {
     }
 
     public function scopeWithAlkaa($query, $date) {
-        return $query->where('muistot_muisto.alkaa', '>', $date);
+        return $query->where('muistot_muisto.alkaa', '>=', $date);
     }
 
     public function scopeWithLoppuu($query, $date) {
-        return $query->where('muistot_muisto.loppuu', '<', $date);
+        return $query->where('muistot_muisto.loppuu', '<=', $date);
     }
 
     public function scopeWithPolygon($query, $polygon) {
