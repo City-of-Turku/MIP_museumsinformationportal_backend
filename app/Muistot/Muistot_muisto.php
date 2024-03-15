@@ -82,9 +82,7 @@ class Muistot_muisto extends Model {
         $qry = Muistot_muisto::select('muistot_muisto.prikka_id', 'muistot_muisto.muistot_aihe_id', 'muistot_muisto.muistot_henkilo_id', 
             'muistot_muisto.luotu', 'muistot_muisto.paivitetty', 'muistot_muisto.kuvaus', 'muistot_muisto.alkaa', 'muistot_muisto.loppuu', 'muistot_muisto.poistettu', 
             'muistot_muisto.ilmiannettu', 'muistot_muisto.julkinen', 'muistot_muisto.kieli', 'muistot_muisto.paikka_summittainen',
-            DB::raw('ST_AsGeoJson(ST_transform(tapahtumapaikka, 4326)) as sijainti'))
-            ->leftJoin('muistot_aihe', 'muistot_aihe.prikka_id', '=', 'muistot_muisto.muistot_aihe_id')
-            ->leftJoin('muistot_vastaus', 'muistot_vastaus.muistot_muisto_id', '=', 'muistot_muisto.prikka_id');
+            DB::raw('ST_AsGeoJson(ST_transform(tapahtumapaikka, 4326)) as sijainti'));
 
 		return $qry;
     }

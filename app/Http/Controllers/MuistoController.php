@@ -649,8 +649,7 @@ class MuistoController extends Controller {
         }
 
         $validator = Validator::make($request->all(), [
-            "kiinteistotunnus"	=> "string",
-            "id"				=> "numeric|exists:kiinteisto,id",
+            "id"				=> "numeric|exists:muistot_muisto,prikka_id",
         ]);
 
         if ($validator->fails()) {
@@ -812,8 +811,7 @@ class MuistoController extends Controller {
         }
 
         $validator = Validator::make($request->all(), [
-            "kiinteistotunnus"	=> "string",
-            "id"				=> "numeric|exists:kiinteisto,id",
+            "id"				=> "numeric|exists:muistot_aihe,prikka_id",
         ]);
 
         if ($validator->fails()) {

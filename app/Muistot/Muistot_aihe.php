@@ -61,8 +61,7 @@ class Muistot_aihe extends Model {
     public static function getAll() {
 
         $qry = Muistot_aihe::select('muistot_aihe.prikka_id', 'muistot_aihe.aukeaa', 'muistot_aihe.sulkeutuu', 'muistot_aihe.aihe_fi', 'muistot_aihe.aihe_en', 'muistot_aihe.aihe_sv', 
-            'esittely_fi', 'muistot_aihe.esittely_en', 'muistot_aihe.esittely_sv', 'aiheen_vari')
-            ->leftJoin('muistot_kysymys', 'muistot_aihe.prikka_id', '=', 'muistot_kysymys.muistot_aihe_id');
+            'esittely_fi', 'muistot_aihe.esittely_en', 'muistot_aihe.esittely_sv', 'aiheen_vari');
 
 		return $qry;
     }
