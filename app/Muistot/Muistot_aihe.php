@@ -42,15 +42,23 @@ class Muistot_aihe extends Model {
         'aiheen_vari'
     ];
 
+    /**
+     * Method to get the muistot of this Aihe
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @version 1.0
+     * @since 1.0
+     */
     public function muistot()
     {
-        $this->hasMany('App\Muistot\Muistot_muisto', 'muistot_aihe_id', 'prikka_id');
+        return $this->hasMany('App\Muistot\Muistot_muisto', 'muistot_aihe_id', 'prikka_id');
+        // ->addSelect('*',DB::raw(MipGis::getGeometryFieldQueryString("rakennuksen_sijainti", "sijainti"))); // TODO
     }
 
-    public function kysymykset()
-    {
-        $this->hasMany('App\Muistot\Muistot_kysymys', 'muistot_aihe_id', 'prikka_id');
+    public function muistot_kysymys() {
+      return $this->hasMany('App\Muistot\Muistot_kysymys', 'muistot_aihe_id', 'prikka_id');
     }
+
 
     /**
      * Get all Models from DB - order by given $order_field to given $order_direction

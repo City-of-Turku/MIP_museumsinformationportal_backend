@@ -907,20 +907,19 @@ class MuistoController extends Controller {
         }
         else {
             try {
-
                 if(Auth::user()->rooli == 'katselija') {
-                    $muisto = Muistot_aihe::getSingle($id)->with(array('Muistot_kysymys', 'luoja', 'muokkaaja'))->first();
+                    $aihe = Muistot_aihe::getSingle($id)
+                      ->with(array('Muistot_kysymys'))->first();
                 } else {
-                    $muisto = Kiinteisto::getSingle($id)
-                    ->with( array('Muistot_kysymys', 'luoja', 'muokkaaja'))->first();
+                    $aihe = Muistot_aihe::getSingle($id)
+                      ->with(array('Muistot_kysymys'))->first();
                 }
 
-                if($muisto) {
-
-                    $properties = clone($muisto);
+                if($aihe) {
+                    $properties = clone($aihe);
                     unset($properties['sijainti']);
+                    MipJson::setGeoJsonFeature(json_decode($aihe->sijainti), $properties);
 
-                    MipJson::setGeoJsonFeature(json_decode($muisto->sijainti), $properties);
                     MipJson::addMessage(Lang::get('kiinteisto.search_success'));
                 }
                 else {
@@ -937,4 +936,66 @@ class MuistoController extends Controller {
         }
         return MipJson::getJson();
     }
+
+    public function get_memories_by_topic($aihe_id) {
+        /*
+         * Role check - HUOM. MUISTOT-ROOLI
+         */
+        if(!Kayttaja::hasPermission('rakennusinventointi.kiinteisto.katselu')) {
+          MipJson::setGeoJsonFeature();
+          MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+          MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+          return MipJson::getJson();
+      }
+
+      if(!is_numeric($aihe_id)) {
+          MipJson::setGeoJsonFeature();
+          MipJson::addMessage(Lang::get('validation.custom.user_input_validation_failed'));
+          MipJson::setResponseStatus(Response::HTTP_BAD_REQUEST);
+      }
+      else {
+          try {
+              $aihe = Muistot_aihe::find($aihe_id);
+              
+              if($aihe) {
+
+                  $muistot = $aihe->muistot()->with(array('muistot_henkilo'))->orderby('prikka_id')->get();
+                  
+                  // calculate the total rows of the search results
+                  $total_rows = count($muistot);
+
+                  if($total_rows > 0) {
+                      MipJson::initGeoJsonFeatureCollection(count($muistot), $total_rows);
+                      MipJson::addMessage(Lang::get('rakennus.search_success'));
+                      foreach ($muistot as $muisto) {
+
+                          /*
+                           * clone $muisto so we can handle the "properties" separately
+                           * -> remove "sijainti" from props
+                           */
+                          $properties = clone($muisto);
+                          unset($properties['sijainti']);
+                          MipJson::addGeoJsonFeatureCollectionFeaturePoint(json_decode($muisto->sijainti), $properties);
+                      }
+                  }
+                  if(count($muistot) <= 0) {
+                      MipJson::setGeoJsonFeature();
+                      //MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
+                      MipJson::addMessage(Lang::get('rakennus.search_not_found'));
+                  }
+              }
+              else {
+                  MipJson::setGeoJsonFeature();
+                  MipJson::addMessage(Lang::get('rakennus.search_not_found'));
+                  MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
+              }
+          }
+          catch(QueryException $e) {
+              MipJson::setGeoJsonFeature();
+              MipJson::addMessage(Lang::get('rakennus.search_failed'));
+              MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+          }
+      }
+      return MipJson::getJson();
+  }
 }
