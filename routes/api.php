@@ -710,4 +710,9 @@ Route::group(['middleware' => ['auth.jwt', 'setLocale']], function () {
 	*/
 	Route::get("/kyppi/paivitaMuinaisjaannokset/",				"Ark\KyppiController@muinaisjaannosPaivitys");
 
+	//Muistot
+	Route::get("/muistot/{muisto_id}/", "MuistoController@show");
+	Route::get("/muistot/", "MuistoController@index");
+	Route::get("/aiheet/{aihe_id}/", "MuistoController@showAihe");
+	Route::get("/aiheet/", "MuistoController@indexAihe");
 });

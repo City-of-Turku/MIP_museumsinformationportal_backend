@@ -41,7 +41,7 @@ class Muistot_henkilo extends Model {
 
     public function muistot()
     {
-        $this->hasMany('App\Muistot\Muistot_muisto');
+        $this->hasMany('App\Muistot\Muistot_muisto', 'muistot_henkilo_id');
     }
 
     /**

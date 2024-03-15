@@ -35,13 +35,13 @@ class Muistot_vastaus extends Model {
         'vastaus'
 
     ];
-
-    public function kysymys() {
-        return $this->belongsTo('App\Muistot\Muistot_kysymys');
+    
+    public function muistot_kysymys() {
+        return $this->belongsTo('App\Muistot\Muistot_kysymys', 'muistot_kysymys_id', 'prikka_id');
     }
 
-    public function muisto() {
-        return $this->belongsTo('App\Muistot\Muistot_aihe');
+    public function muistot_muisto() {
+        return $this->belongsTo('App\Muistot\Muistot_aihe', 'muistot_muisto_id', 'prikka_id');
     }
 
     /**

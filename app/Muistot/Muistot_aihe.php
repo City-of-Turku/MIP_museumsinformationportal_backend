@@ -44,12 +44,12 @@ class Muistot_aihe extends Model {
 
     public function muistot()
     {
-        $this->hasMany('App\Muistot\Muistot_muisto');
+        $this->hasMany('App\Muistot\Muistot_muisto', 'muistot_aihe_id', 'prikka_id');
     }
 
     public function kysymykset()
     {
-        $this->hasMany('App\Muistot\Muistot_kysymys');
+        $this->hasMany('App\Muistot\Muistot_kysymys', 'muistot_aihe_id', 'prikka_id');
     }
 
     /**
@@ -77,5 +77,42 @@ class Muistot_aihe extends Model {
     public static function getSingle($id) {
         return Muistot_aihe::select('muistot_aihe.*')
             ->where('muistot_aihe.prikka_id', '=', $id);
+    }
+    
+    public function scopeWithPrikkaId($query, $keyword) {
+        return $query->where('muistot_aihe.prikka_id', '=', $keyword);
+    }
+
+    public function scopeWithAukeaa($query, $date) {
+        return $query->where('muistot_aihe.aukeaa', '>=', $date);
+    }
+
+    public function scopeWithSulkeutuu($query, $date) {
+        return $query->where('muistot_aihe.sulkeutuu', '<=', $date);
+    }
+
+    public function scopeWithAihe($query, $keyword) {
+        return $query->where('muistot_aihe.aihe_fi', 'ILIKE', "%".$keyword."%")
+            ->orWhere('muistot_aihe.aihe_en', 'ILIKE', "%".$keyword."%")
+            ->orWhere('muistot_aihe.aihe_sv', 'ILIKE', "%".$keyword."%");
+    }
+
+    public function scopeWithOrderBy($query, $bbox=null, $order_field=null, $order_direction=null) {
+    	
+    	$order_table = "muistot_aihe";
+
+    	/*
+    	 * If orderfield AND orderDirection is given, ONLY then order the results by given field
+    	 */
+    	if ($order_field != null && $order_direction != null) {
+
+    		$query->orderBy($order_table.'.'.$order_field, $order_direction);
+    	}
+
+    	return $query;
+    }
+
+    public function scopeWithLimit($query, $start_row, $row_count) {
+        return $query->skip($start_row)->take($row_count);
     }
 }
