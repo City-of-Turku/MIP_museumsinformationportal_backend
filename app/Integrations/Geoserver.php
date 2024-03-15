@@ -2,6 +2,7 @@
 namespace App\Integrations;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\Log;
 use Exception;
 
@@ -878,10 +879,11 @@ class Geoserver {
 			]);
 
 			if($createRes->getStatusCode() !="201") {
-
+				Log::channel('geoserver')->error($julkaisuNimi . " " . $layerNimi . " luonti epäonnistui: " . $createRes->getStatusCode() . " : " . $createRes->getReasonPhrase());
 				throw new Exception($julkaisuNimi . " " . $layerNimi . " luonti epäonnistui: " . $createRes->getStatusCode() . " : " . $createRes->getReasonPhrase());
 			}
 		} catch(Exception $e) {
+			Log::channel('geoserver')->error($julkaisuNimi . " " . $layerNimi . " luonti epäonnistui.");
 			throw new Exception($julkaisuNimi . " " . $layerNimi . " luonti epäonnistui.");
 		}
 	}
@@ -975,6 +977,7 @@ class Geoserver {
 		]);
 
 		if($editRes->getStatusCode() !="200") {
+			Log::channel('geoserver')->error($nimiAlaviivoilla . " muokkaus epäonnistui: " . $editRes->getStatusCode() . " : " . $editRes->getReasonPhrase());
 			throw new Exception($nimiAlaviivoilla . " muokkaus epäonnistui: " . $editRes->getStatusCode() . " : " . $editRes->getReasonPhrase());
 		}
 	}
@@ -986,7 +989,9 @@ class Geoserver {
 		try {
 		    $this->addFeatureType($julkaisuNimi, $tasoNimi, $inventointiprojektit, $kentat, $kuntaIdt, $kylaIdt);
 			$this->editFeatureType($julkaisuNimi, $tasoNimi, $kentat);
+			Log::channel('geoserver')->info(self::generateLayernameWithUnderscores($julkaisuNimi, $tasoNimi) ." tason luonti onnistui");
 		} catch (Exception $e) {
+			Log::channel('geoserver')->error("Exception " . $e);
 			throw $e;
 		}
 	}
@@ -997,17 +1002,13 @@ class Geoserver {
 	private function deleteLayer($julkaisuNimi, $tasoNimi) {
 		$nimiAlaviivoilla = self::generateLayernameWithUnderscores($julkaisuNimi, $tasoNimi);
 		$deleteLayerAddress = $this->geoserverUri . "layers/" . $nimiAlaviivoilla;
-
-		//Send the delete layer request
-		$client = new Client();
-
-		$res = $client->request('DELETE', $deleteLayerAddress, [
-				'auth' => [$this->username, $this->password]
-		]);
-
-		if($res->getStatusCode() !="200") {
-			throw new Exception("Deleting layer " . $deleteLayerAddress. " failed: " . $res->getStatusCode() . " : " . $res->getReasonPhrase());
+		$res = self::deleteRequest($deleteLayerAddress);
+		if ($res == "404"){
+			$kokonimi = self::generateLayername($julkaisuNimi, $tasoNimi);
+			$deleteLayerAddress = $this->geoserverUri . "layers/" . $kokonimi;
+			$res = self::deleteRequest($deleteLayerAddress);
 		}
+		return $res;
 	}
 
 	/*
@@ -1016,19 +1017,34 @@ class Geoserver {
 	private function deleteFeatureType($julkaisuNimi, $tasoNimi) {
 
 		$nimiAlaviivoilla = self::generateLayernameWithUnderscores($julkaisuNimi, $tasoNimi);
-
 		$deleteFeatureTypeAddress = $this->geoserverUri . "workspaces/" . $this->workspace . "/datastores/" . $this->datastore . "/featuretypes/" . $nimiAlaviivoilla;
 
-		//Send the delete layer request
-		$client = new Client();
-
-		$res = $client->request('DELETE', $deleteFeatureTypeAddress, [
-				'auth' => [$this->username, $this->password]
-		]);
-
-		if($res->getStatusCode() !="200") {
-			throw new Exception("Deleting featuretype " . $nimiAlaviivoilla. " failed: " . $res->getStatusCode() . " : " . $res->getReasonPhrase());
+		$res = self::deleteRequest($deleteFeatureTypeAddress);
+		if ($res == "404"){
+			$kokonimi = self::generateLayername($julkaisuNimi, $tasoNimi);
+			$deleteFeatureTypeAddress = $this->geoserverUri . "workspaces/" . $this->workspace . "/datastores/" . $this->datastore . "/featuretypes/" . $kokonimi;
+			$res = self::deleteRequest($deleteFeatureTypeAddress);
 		}
+	}
+
+	private function deleteRequest($deleteAddress){
+		try{
+			$client = new Client();
+
+			$res = $client->request('DELETE', $deleteAddress, [
+					'auth' => [$this->username, $this->password]
+			]);
+		}
+		catch (ClientException $e) {
+			if($e->hasResponse()){
+				return $e->getResponse()->getStatusCode();
+			}
+		}
+		catch (Exception $e) {
+			Log::channel('geoserver')->error("Exception: " . $e->getMessage());
+			throw $e;
+		}
+		return $res->getStatusCode();
 	}
 
 	/*
@@ -1038,9 +1054,15 @@ class Geoserver {
 	 */
 	public function deleteLayerAndFeatureType($julkaisuNimi, $tasoNimi) {
 		try {
-			$this->deleteLayer($julkaisuNimi, $tasoNimi);
+			Log::channel('geoserver')->info("Deleting layer " . self::generateLayername($julkaisuNimi, $tasoNimi));
+			$response = $this->deleteLayer($julkaisuNimi, $tasoNimi);
+			if ($response != "200"){
+				Log::channel('geoserver')->error("Exception: Layer not deleted");
+				throw new Exception("Problem deleting layer.");
+			}
 			$this->deleteFeatureType($julkaisuNimi, $tasoNimi);
 		} catch (Exception $e) {
+			Log::channel('geoserver')->error("Exception: " . $e->getMessage());
 			throw $e;
 		}
 	}

@@ -81,10 +81,15 @@ return [
             'level' => 'debug',
             'days' => 365,
         ],
-
         'prikka' => [
             'driver' => 'daily',
             'path' => storage_path('logs/prikka.log'),
+            'level' => 'debug',
+            'days' => 365,
+        ],
+        'geoserver' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/geoserver.log'),
             'level' => 'debug',
             'days' => 365,
         ],
