@@ -88,25 +88,33 @@ class MuistoController extends Controller {
 
                         if(!is_null($aihe['kysymykset']) && !empty($aihe['kysymykset']))
                         {
-                            $res=Muistot_kysymys::where('muistot_aihe_id',$aiheEntity->prikka_id)->delete();
-
-                            foreach($aihe['kysymykset'] as $kysymys)
+                            $muistot=Muistot_muisto::where('muistot_aihe_id',$aiheEntity->prikka_id)->get();
+                            if(!$muistot->isEmpty())
                             {
-                                $entityKysymys = new Muistot_kysymys();
-                                foreach($kysymys as $kysymKey=>$kysymValue)
-                                {
-                                    if($kysymKey == 'kysymys_id')
-                                    {
-                                        $entityKysymys->prikka_id = $kysymValue;
-                                    }
-                                    else
-                                    {
-                                        $entityKysymys->$kysymKey = $kysymValue;
-                                    }
-                                }
-                                $entityKysymys->muistot_aihe_id = $aiheEntity->prikka_id;
+                                array_push($errorArray, $aihe['aihe_id'] . ': Cannot add questions, topic already has memories');
+                            }
+                            else
+                            {
+                                $res=Muistot_kysymys::where('muistot_aihe_id',$aiheEntity->prikka_id)->delete();
 
-                                $entityKysymys->save();
+                                foreach($aihe['kysymykset'] as $kysymys)
+                                {
+                                    $entityKysymys = new Muistot_kysymys();
+                                    foreach($kysymys as $kysymKey=>$kysymValue)
+                                    {
+                                        if($kysymKey == 'kysymys_id')
+                                        {
+                                            $entityKysymys->prikka_id = $kysymValue;
+                                        }
+                                        else
+                                        {
+                                            $entityKysymys->$kysymKey = $kysymValue;
+                                        }
+                                    }
+                                    $entityKysymys->muistot_aihe_id = $aiheEntity->prikka_id;
+
+                                    $entityKysymys->save();
+                                }
                             }
                         }
                     }
