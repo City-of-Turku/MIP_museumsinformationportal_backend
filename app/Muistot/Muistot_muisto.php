@@ -54,7 +54,7 @@ class Muistot_muisto extends Model {
         'paikka_summittainen'
 
     ];
-
+    
     public function muistot_vastaus() {
         return $this->hasMany('App\Muistot\Muistot_vastaus', 'muistot_muisto_id', 'prikka_id');
     }
@@ -83,7 +83,8 @@ class Muistot_muisto extends Model {
             'muistot_muisto.luotu', 'muistot_muisto.paivitetty', 'muistot_muisto.kuvaus', 'muistot_muisto.alkaa', 'muistot_muisto.loppuu', 'muistot_muisto.poistettu', 
             'muistot_muisto.ilmiannettu', 'muistot_muisto.julkinen', 'muistot_muisto.kieli', 'muistot_muisto.paikka_summittainen',
             DB::raw('ST_AsGeoJson(ST_transform(tapahtumapaikka, 4326)) as sijainti')
-            );
+            ->leftJoin('muistot_aihe', 'muistot_aihe.prikka_id', '=', 'muistot_muisto.muistot_aihe_id')
+            ->leftJoin('muistot_vastaus', 'muistot_vastaus.muistot_muisto_id', '=', 'muistot_muisto.prikka_id');
 
 		return $qry;
     }

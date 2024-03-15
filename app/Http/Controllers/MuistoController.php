@@ -45,7 +45,7 @@ class MuistoController extends Controller {
             try
             {
                 DB::beginTransaction();
-
+              
                 if(!in_array('aihe_id', array_keys($aihe)))
                 {
                     array_push($errorArray, 'No id in aihe');
@@ -110,18 +110,18 @@ class MuistoController extends Controller {
                             }
                         }
                     }
+
                 }
 
                 DB::commit();
             }
             catch(Exception $e)
             {
-                throw $e;
                 array_push($errorArray, $aihe['aihe_id'] . ': failed to add');
                 DB::rollback();
             }
         }
-
+      
         $ret = (object) array('Errors' => $errorArray);
         return $ret;
     }
@@ -134,7 +134,7 @@ class MuistoController extends Controller {
             try
             {
                 DB::beginTransaction();
-
+              
                 if(!in_array('muisto_id', array_keys($muisto)))
                 {
                     array_push($errorArray, 'No id in muisto');
@@ -278,19 +278,17 @@ class MuistoController extends Controller {
                         }
                     }
                 }
-                
-
+              
                 DB::commit();
                 
             }
             catch(Exception $e)
             {
-                throw $e;
                 array_push($errorArray, $aihe['muisto_id'] . ': failed to add');
                 DB::rollback();
             }
         }
-
+      
         $ret = (object) array('Errors' => $errorArray);
         return $ret;
     }

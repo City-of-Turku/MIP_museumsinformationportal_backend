@@ -35,7 +35,7 @@ class Muistot_vastaus extends Model {
         'vastaus'
 
     ];
-
+    
     public function muistot_kysymys() {
         return $this->belongsTo('App\Muistot\Muistot_kysymys', 'muistot_kysymys_id', 'prikka_id');
     }

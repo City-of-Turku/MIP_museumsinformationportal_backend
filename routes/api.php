@@ -53,8 +53,6 @@ Route::group(['middleware' => ['prikka']], function () {
 });
 
 
-
-
 /*
  * Inside of this routeGroup All the routes require user to be authenticated
  */
