@@ -78,9 +78,10 @@ class MMLQueries {
 		* Tuntematon henkilö TU on vielä epävarma, siksi lokitus
 		*/
 
+		$omistajaLoydetty = false;
 		foreach ($nodes as $node) {
 			$henkilolaji = self::elementsAsString($node->xpath('y:henkilolaji'));
-
+			$omistajaLoydetty = true;
 			switch ($henkilolaji){
 				case "LU": //Luonnollinen henkilö
 					$sukunimi = self::elementsAsString($node->xpath('y:sukunimi'));
@@ -100,13 +101,16 @@ class MMLQueries {
 				case "JU": //Juridinen henkilö
 					$ytunnus = self::elementsAsString($node->xpath('y:ytunnus'));
 					$nimi = self::elementsAsString($node->xpath('y:nimi'));
-					if (trim($ytunnus)!= '' && !in_array($ytunnus, $ytunnukset)) {
+					if ((trim($ytunnus)!= '' && trim($nimi)!= '') || (!in_array($ytunnus, $ytunnukset) || !in_array($nimi, $nimet))) {
 						$omistaja = array();
 						$omistaja['etunimet'] = $ytunnus;
 						$omistaja['sukunimi'] = $nimi;
 						$omistaja['ytunnus'] = $ytunnus;
 						$omistaja['nimi'] = $nimi;
 						array_push($omistajat, $omistaja);
+
+						array_push($ytunnukset, $ytunnus);
+						array_push($nimet, $nimi);
 					}
 
 				break;
@@ -146,8 +150,12 @@ class MMLQueries {
 					Log::channel('mml')->error("Omistajatiedot failed: Henkilölaji: " . $henkilolaji ." Kiinteistötunnus: " .$kiinteisto['kiinteistotunnus']);
 				break;
 			}
-
-
+		}
+		if ($omistajaLoydetty == false){
+			$omistaja = array();
+			$omistaja['sukunimi'] = "Omistajatietoa ei löydy";
+			array_push($omistajat, $omistaja);
+			$kiinteisto['omistajat'] = $omistajat;
 		}
 		$kiinteisto['omistajat'] = $omistajat;
 
