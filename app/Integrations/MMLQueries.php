@@ -67,22 +67,87 @@ class MMLQueries {
 
 		$omistajat = array();
 		$omistajatkokonimi = array(); // for duplicate checking
+		$ytunnukset = array();
+		$nimet = array();
+
+		/*
+		* Omistajatiedot parsitaan henkilölajin perusteella
+		* Kaikki tiedot asetataan etunimet ja sukunimet kenttään, jotta selvitään ilman UI-muutoksia
+		* React-versiota varten tiedot on myös järkevämmissä kentissä
+		* Kuolinpesän toimintaa ei ole saatu varmistettua
+		* Tuntematon henkilö TU on vielä epävarma, siksi lokitus
+		*/
 
 		foreach ($nodes as $node) {
+			$henkilolaji = self::elementsAsString($node->xpath('y:henkilolaji'));
 
-			$sukunimi = self::elementsAsString($node->xpath('y:sukunimi'));
-			$etunimet = self::elementsAsString($node->xpath('y:etunimet'));
-			$kokonimi = $sukunimi." ".$etunimet;
+			switch ($henkilolaji){
+				case "LU": //Luonnollinen henkilö
+					$sukunimi = self::elementsAsString($node->xpath('y:sukunimi'));
+					$etunimet = self::elementsAsString($node->xpath('y:etunimet'));
+					$kokonimi = $sukunimi." ".$etunimet;
 
-			if (trim($kokonimi)!= '' && !in_array($kokonimi, $omistajatkokonimi)) {
+					if (trim($kokonimi)!= '' && !in_array($kokonimi, $omistajatkokonimi)) {
 
-				$omistaja = array();
-				$omistaja['etunimet'] = $etunimet;
-				$omistaja['sukunimi'] = $sukunimi;
-				array_push($omistajat, $omistaja);
+						$omistaja = array();
+						$omistaja['etunimet'] = $etunimet;
+						$omistaja['sukunimi'] = $sukunimi;
+						array_push($omistajat, $omistaja);
 
-				array_push($omistajatkokonimi, $kokonimi);
+						array_push($omistajatkokonimi, $kokonimi);
+					}
+					break;
+				case "JU": //Juridinen henkilö
+					$ytunnus = self::elementsAsString($node->xpath('y:ytunnus'));
+					$nimi = self::elementsAsString($node->xpath('y:nimi'));
+					if (trim($ytunnus)!= '' && !in_array($ytunnus, $ytunnukset)) {
+						$omistaja = array();
+						$omistaja['etunimet'] = $ytunnus;
+						$omistaja['sukunimi'] = $nimi;
+						$omistaja['ytunnus'] = $ytunnus;
+						$omistaja['nimi'] = $nimi;
+						array_push($omistajat, $omistaja);
+					}
+
+				break;
+				case "VA": //Valtio
+					$nimi = self::elementsAsString($node->xpath('y:nimi'));
+					if (trim($nimi)!= '' && !in_array($nimi, $nimet)) {
+						$omistaja = array();
+						$omistaja['sukunimi'] = $nimi;
+						$omistaja['nimi'] = $nimi;
+						array_push($omistajat, $omistaja);
+					}
+				break;
+				case "KP": //Kuolinpesä (ei varmuutta toiminnasta) lokitetaan varmuuden vuoksi
+					$sukunimi = self::elementsAsString($node->xpath('y:sukunimi'));
+					$etunimet = self::elementsAsString($node->xpath('y:etunimet'));
+					$kokonimi = $sukunimi." ".$etunimet;
+
+					if (trim($kokonimi)!= '' && !in_array($kokonimi, $omistajatkokonimi)) {
+
+						$omistaja = array();
+						$omistaja['etunimet'] = $etunimet;
+						$omistaja['sukunimi'] = $sukunimi;
+						array_push($omistajat, $omistaja);
+
+						array_push($omistajatkokonimi, $kokonimi);
+					}
+					Log::channel('mml')->error("Omistajatiedot failed: Henkilölaji: " . $henkilolaji ." Kiinteistötunnus: " .$kiinteisto['kiinteistotunnus']);
+					break;
+				case "TU": //Tuntematon henkilö (ei varmuutta toiminnasta)
+					$nimi = self::elementsAsString($node->xpath('y:nimi'));
+					if (trim($nimi)!= '' && !in_array($nimi, $nimet)) {
+						$omistaja = array();
+						$omistaja['sukunimi'] = $nimi;
+						$omistaja['nimi'] = $nimi;
+						array_push($omistajat, $omistaja);
+					}
+					Log::channel('mml')->error("Omistajatiedot failed: Henkilölaji: " . $henkilolaji ." Kiinteistötunnus: " .$kiinteisto['kiinteistotunnus']);
+				break;
 			}
+
+
 		}
 		$kiinteisto['omistajat'] = $omistajat;
 
