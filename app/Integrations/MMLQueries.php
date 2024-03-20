@@ -150,6 +150,8 @@ class MMLQueries {
 					Log::channel('mml')->error("Omistajatiedot failed: Henkilölaji: " . $henkilolaji ." Kiinteistötunnus: " .$kiinteisto['kiinteistotunnus']);
 				break;
 			}
+
+
 		}
 		if ($omistajaLoydetty == false){
 			$omistaja = array();
