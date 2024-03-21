@@ -38,7 +38,7 @@ Route::get("/kartta/{taso}", 			"KarttaController@proxy");
  */
 Route::get("/raportti/kuva/{id}/pieni",			"Rak\KuvaController@viewSmall");
 Route::get("/raportti/ark_kuva/{id}/pieni",			"Ark\ArkKuvaController@viewSmall");
-Route::get("/raportti/muistot_kuva/{id}/pieni",			"MuistoController@viewSmallImage");
+Route::get("/raportti/muistot_kuva/{id}/pieni",			"Muistot\MuistotKuvaController@viewSmall");
 
 /*
  * OAI-PMH routes, currently do not require authentication
@@ -47,9 +47,9 @@ Route::get("/oaipmh/", "FinnaController@index");
 
 
 Route::group(['middleware' => ['prikka']], function () {
-	Route::get("/prikka/muisto/{id}/",			"MuistoController@getMuisto");
-	Route::post("/prikka/tallennamuistot",		"MuistoController@saveMuistot");
-	Route::post("/prikka/tallennaaiheet",			"MuistoController@saveAiheet");
+	Route::get("/prikka/muisto/{id}/",			"Muistot\MuistoController@getMuisto");
+	Route::post("/prikka/tallennamuistot",		"Muistot\MuistoController@saveMuistot");
+	Route::post("/prikka/tallennaaiheet",			"Muistot\AiheController@saveAiheet");
 });
 
 
@@ -711,9 +711,11 @@ Route::group(['middleware' => ['auth.jwt', 'setLocale']], function () {
 	Route::get("/kyppi/paivitaMuinaisjaannokset/",				"Ark\KyppiController@muinaisjaannosPaivitys");
 
 	//Muistot
-	Route::get("/muistot/{muisto_id}/", "MuistoController@show");
-	Route::get("/muistot/", "MuistoController@index");
-	Route::get("/aiheet/{aihe_id}/", "MuistoController@showAihe");
-  Route::get("/aiheet/{aihe_id}/muistot/",	"MuistoController@get_memories_by_topic");
-	Route::get("/aiheet/", "MuistoController@indexAihe");
+	Route::get("/muistot/{muisto_id}/", "Muistot\MuistoController@show");
+	Route::get("/muistot/", "Muistot\MuistoController@index");
+	Route::get("/aiheet/{aihe_id}/", "Muistot\AiheController@show");
+  Route::get("/aiheet/{aihe_id}/muistot/",	"Muistot\AiheController@get_memories_by_topic");
+	Route::get("/aiheet/", "Muistot\AiheController@index");
+	Route::get("/muistot_kuva/",						"Muistot\MuistotKuvaController@index");
+	Route::get("/muistot_kuva/{kuva_id}/",				"Muistot\MuistotKuvaController@show");
 });

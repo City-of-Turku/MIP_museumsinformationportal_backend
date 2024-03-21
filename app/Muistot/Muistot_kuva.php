@@ -61,6 +61,10 @@ class Muistot_kuva extends Model {
 		return $qry;
     }
 
+    public function scopeWithMemoryID($query, $memoryID) {
+      return $query->where('muistot_muisto_id', '=', $memoryID);
+    }
+
     /**
      * Method to get all related to one muisto
      *
