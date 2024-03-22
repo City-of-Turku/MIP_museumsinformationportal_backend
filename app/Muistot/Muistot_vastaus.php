@@ -41,7 +41,7 @@ class Muistot_vastaus extends Model {
     }
 
     public function muistot_muisto() {
-        return $this->belongsTo('App\Muistot\Muistot_aihe', 'muistot_muisto_id', 'prikka_id');
+        return $this->belongsTo('App\Muistot\Muistot_muisto', 'muistot_muisto_id', 'prikka_id');
     }
 
     /**
