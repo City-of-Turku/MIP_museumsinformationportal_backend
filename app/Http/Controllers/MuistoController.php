@@ -134,6 +134,109 @@ class MuistoController extends Controller {
         return $ret;
     }
 
+    public function saveAiheetForce(Request $request) 
+    {
+        $errorArray = array();
+        foreach($request->aiheet as $aihe)
+        {
+            try
+            {
+                DB::beginTransaction();
+              
+                if(!in_array('aihe_id', array_keys($aihe)))
+                {
+                    array_push($errorArray, 'No id in aihe');
+                }
+                else 
+                {
+                    $validationResult = $this->validateAihe($aihe);
+                    if(!empty($validationResult))
+                    {
+                        foreach($validationResult as $vresult)
+                        {
+                            array_push($errorArray, $vresult);
+                        }
+                    }
+                    else 
+                    {
+                        $aiheEntity = Muistot_aihe::find($aihe['aihe_id']);
+                        if(!$aiheEntity)
+                        {
+                            $aiheEntity = new Muistot_aihe();
+                        }
+
+                        foreach($aihe as $key=>$value) 
+                        {
+                            if($key == 'aihe_id')
+                            {
+                                $aiheEntity->prikka_id = $value;
+                            }
+                            else if($key == 'kysymykset')
+                            {
+                                //do nothing for now
+                            }
+                            else
+                            {
+                                 $aiheEntity->$key = $value;
+                            }
+                        }
+
+                        $aiheEntity->save();
+
+                        if(!is_null($aihe['kysymykset']) && !empty($aihe['kysymykset']))
+                        {
+                            $muistot=Muistot_muisto::where('muistot_aihe_id',$aiheEntity->prikka_id)->get();
+                            if(!$muistot->isEmpty())
+                            {
+                                foreach($muistot as $muisto)
+                                {
+                                    $this->deleteAllImagesFromMuisto($muisto->prikka_id);
+                                    $vastaukset=Muistot_vastaus::where('muistot_muisto_id',$muisto->prikka_id)->delete();
+                                }
+                                $muistot=Muistot_muisto::where('muistot_aihe_id',$aiheEntity->prikka_id)->delete();
+                            }
+                            else
+                            {
+                                $res=Muistot_kysymys::where('muistot_aihe_id',$aiheEntity->prikka_id)->delete();
+
+                                foreach($aihe['kysymykset'] as $kysymys)
+                                {
+                                    $entityKysymys = new Muistot_kysymys();
+                                    foreach($kysymys as $kysymKey=>$kysymValue)
+                                    {
+                                        if($kysymKey == 'kysymys_id')
+                                        {
+                                            $entityKysymys->prikka_id = $kysymValue;
+                                        }
+                                        else
+                                        {
+                                            $entityKysymys->$kysymKey = $kysymValue;
+                                        }
+                                    }
+                                    $entityKysymys->muistot_aihe_id = $aiheEntity->prikka_id;
+
+                                    $entityKysymys->save();
+                                }
+                            }
+                        }
+                    }
+
+                }
+
+                DB::commit();
+            }
+            catch(Exception $e)
+            {
+                throw $e;
+                array_push($errorArray, $aihe['aihe_id'] . ': failed to add');
+                DB::rollback();
+            }
+        }
+      
+        $ret = (object) array('Errors' => $errorArray);
+        return $ret;
+    }
+
     public function saveMuistot(Request $request) 
     {
         $errorArray = array();
@@ -156,6 +259,10 @@ class MuistoController extends Controller {
                         {
                             array_push($errorArray, $vresult);
                         }
+                    }
+                    else if(Muistot_aihe::where('prikka_id', $muisto['aihe_id'])->get()->first() == null)
+                    {
+                        array_push($errorArray, $muisto['muisto_id'] . ' aihe does not exist');
                     }
                     else 
                     {
@@ -292,7 +399,8 @@ class MuistoController extends Controller {
             }
             catch(Exception $e)
             {
-                array_push($errorArray, $aihe['muisto_id'] . ': failed to add');
+                throw $e;
+                array_push($errorArray, $muisto['muisto_id'] . ': failed to add');
                 DB::rollback();
             }
         }
@@ -561,7 +669,7 @@ class MuistoController extends Controller {
         }
 
         foreach ($aihe as $key => $value) {
-            if(in_array($key, $requiredValues) && ($value == null || $value == ''))
+            if(in_array($key, $requiredValues) && ($value != false && ($value == null || $value == '')))
             {
                 array_push($errorArray, $aihe['aihe_id'] . ' ' . $key . ' value null');
             }
@@ -597,7 +705,7 @@ class MuistoController extends Controller {
         }
 
         foreach ($muisto as $key => $value) {
-            if(in_array($key, $requiredValues) && ($value == null || $value == ''))
+            if(in_array($key, $requiredValues) && ($value != false && ($value == null || $value == '')))
             {
                 array_push($errorArray, $muisto['muisto_id'] . ' ' . $key . ' value null');
             }
@@ -674,6 +782,7 @@ class MuistoController extends Controller {
             $muistot = Muistot_muisto::getAll();
 
             $muistot = $muistot->with('muistot_henkilo');
+            $muistot = $muistot->with('muistot_aihe');
 
             /*
              * If ANY search terms are given limit results by them

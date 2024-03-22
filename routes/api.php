@@ -50,6 +50,7 @@ Route::group(['middleware' => ['prikka']], function () {
 	Route::get("/prikka/muisto/{id}/",			"MuistoController@getMuisto");
 	Route::post("/prikka/tallennamuistot",		"MuistoController@saveMuistot");
 	Route::post("/prikka/tallennaaiheet",			"MuistoController@saveAiheet");
+	Route::post("/prikka/tallennaaiheet/force",			"MuistoController@saveAiheetForce");
 });
 
 
