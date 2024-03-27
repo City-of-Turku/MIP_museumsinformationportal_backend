@@ -60,6 +60,10 @@ class MuistoController extends Controller {
                             array_push($errorArray, $vresult);
                         }
                     }
+                    else if(Muistot_aihe::where('prikka_id', $muisto['aihe_id'])->get()->first() == null)
+                    {
+                        array_push($errorArray, $muisto['muisto_id'] . ' aihe does not exist');
+                    }
                     else 
                     {
                         $muistoEntity = Muistot_muisto::find($muisto['muisto_id']);
@@ -195,7 +199,8 @@ class MuistoController extends Controller {
             }
             catch(Exception $e)
             {
-                array_push($errorArray, $aihe['muisto_id'] . ': failed to add');
+                throw $e;
+                array_push($errorArray, $muisto['muisto_id'] . ': failed to add');
                 DB::rollback();
             }
         }
@@ -428,7 +433,7 @@ class MuistoController extends Controller {
         }
 
         foreach ($muisto as $key => $value) {
-            if(in_array($key, $requiredValues) && ($value == null || $value == ''))
+            if(in_array($key, $requiredValues) && ($value != false && ($value == null || $value == '')))
             {
                 array_push($errorArray, $muisto['muisto_id'] . ' ' . $key . ' value null');
             }
@@ -510,6 +515,7 @@ class MuistoController extends Controller {
             $muistot = Muistot_muisto::getAll();
 
             $muistot = $muistot->with('muistot_henkilo');
+            $muistot = $muistot->with('muistot_aihe');
 
             /*
              * If ANY search terms are given limit results by them
