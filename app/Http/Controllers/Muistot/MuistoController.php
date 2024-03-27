@@ -612,8 +612,8 @@ class MuistoController extends Controller {
                     'Muistot_vastaus',
                     'Muistot_henkilo',
                     'Muistot_vastaus.Muistot_kysymys',
-                    'Muistot_aihe'
-
+                    'Muistot_aihe',
+                    'Kiinteistot'
                 ))->first();
 
                 if($muisto) {
@@ -637,5 +637,96 @@ class MuistoController extends Controller {
         }
         return MipJson::getJson();
     }
+
+  // TODO: Not final!
+  public function update_estates(Request $request, $muistoId)
+  {
+      Log::channel('prikka')->info("update_estates");
+      /*
+       * Käyttöoikeustarkistus
+       */
+      if(Auth::user()->rooli != 'tutkija' && Auth::user()->rooli != 'pääkäyttäjä') {
+          MipJson::setGeoJsonFeature();
+          MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+          MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+          return MipJson::getJson();
+      }
+
+      $validator = Validator::make($request->all()['properties'], [
+          // tämä oln kommenteissa myös toimenpidecontrollerissa
+          // josta tämä on kopioitu
+          // 'muisto_id'		=> 'required|string'
+      ]);
+
+      if ($validator->fails()) {
+        Log::channel('prikka')->info("update_estates validator fails");
+          MipJson::setGeoJsonFeature();
+          MipJson::addMessage(Lang::get('validation.custom.user_input_validation_failed'));
+          foreach($validator->errors()->all() as $error) {
+              MipJson::addMessage($error);
+          }
+          MipJson::setResponseStatus(Response::HTTP_BAD_REQUEST);
+          return MipJson::getJson();
+      }
+
+      try {
+
+          $muisto = Muistot_muisto::find($muistoId);
+
+          if(!$muisto){
+            Log::channel('prikka')->info("muisto not found");
+            MipJson::setGeoJsonFeature();
+            MipJson::addMessage(Lang::get('konservointiHallinta.operation_search_not_found'));
+            MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
+            return MipJson::getJson();
+          }
+
+          Log::channel('prikka')->info("muisto found");
+          try {
+            DB::beginTransaction();
+            Utils::setDBUser();
+
+                if($request->input('properties.kiinteistot')){
+                  // The request should contain an array of Kiinteisto objects
+                  $kiinteistoObjects = $request->input('properties.kiinteistot');
+
+                  Log::channel('prikka')->info("kiinteistoObjects: " . json_encode($kiinteistoObjects));
+              
+                  $kiinteistoIds = array_map(function ($kiinteisto) {
+                      return $kiinteisto['id'];
+                  }, $kiinteistoObjects);
+
+                 Log::channel('prikka')->info("updateKiinteistot " . $muistoId . " kiinteistoIds " . json_encode($kiinteistoIds));
+              
+                  // Sync the Kiinteisto items
+                 $muisto->kiinteistot()->sync($kiinteistoIds);
+              }   
+              else {
+                  // If the request does not contain Kiinteisto objects, remove all Kiinteisto items
+                  Log::channel('prikka')->info("updateKiinteistot " . $muistoId . " kiinteistoIds null");
+              }     
+
+            DB::commit();
+          } catch(Exception $e) {
+            DB::rollback();
+            Log::channel('prikka')->info("updateKiinteistot " . $muistoId . " failed " . $e->getMessage());
+            throw $e;
+          }
+
+          Log::channel('prikka')->info("updateKiinteistot " . $muistoId . " success");
+          MipJson::addMessage(Lang::get('konservointiHallinta.operation_save_success'));
+          MipJson::setGeoJsonFeature(null, $muisto);
+          MipJson::setResponseStatus(Response::HTTP_OK);
+
+      } catch(Exception $e) {
+
+        Log::channel('prikka')->info("updateKiinteistot " . $muistoId . " failed " . $e->getMessage());
+      MipJson::setGeoJsonFeature();
+      MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+      MipJson::addMessage(Lang::get('konservointiHallinta.operation_save_failed'));
+    }
+
+    return MipJson::getJson();
+  }
 
 }

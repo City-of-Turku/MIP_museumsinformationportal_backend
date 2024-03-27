@@ -718,4 +718,6 @@ Route::group(['middleware' => ['auth.jwt', 'setLocale']], function () {
 	Route::get("/aiheet/", "Muistot\AiheController@index");
 	Route::get("/muistot_kuva/",						"Muistot\MuistotKuvaController@index");
 	Route::get("/muistot_kuva/{kuva_id}/",				"Muistot\MuistotKuvaController@show");
+  // Todo: would be best to have dedicated route for updating estates
+  Route::put("/muistot/{muisto_id}/",      "Muistot\MuistoController@update_estates");
 });
