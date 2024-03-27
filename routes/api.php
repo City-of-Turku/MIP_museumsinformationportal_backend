@@ -174,6 +174,7 @@ Route::group(['middleware' => ['auth.jwt', 'setLocale']], function () {
 	Route::delete("/kiinteisto/{kiinteisto_id}/inventointiprojekti/",	"Rak\KiinteistoController@delete_inventoringproject");
 	Route::patch("/kiinteisto/{kiinteisto_id}/kuva/",					"Rak\KiinteistoController@updateKiinteistoImages");
 	Route::get("/kiinteisto/{kiinteisto_id}/historia/",					"Rak\KiinteistoController@historia");
+  Route::get("/kiinteisto/{kiinteisto_id}/muistot/",					"Rak\KiinteistoController@getMemories");
 
 	/*
 	 * KTJ Search
