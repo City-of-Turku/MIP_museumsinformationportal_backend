@@ -174,6 +174,7 @@ Route::group(['middleware' => ['auth.jwt', 'setLocale']], function () {
 	Route::delete("/kiinteisto/{kiinteisto_id}/inventointiprojekti/",	"Rak\KiinteistoController@delete_inventoringproject");
 	Route::patch("/kiinteisto/{kiinteisto_id}/kuva/",					"Rak\KiinteistoController@updateKiinteistoImages");
 	Route::get("/kiinteisto/{kiinteisto_id}/historia/",					"Rak\KiinteistoController@historia");
+  Route::get("/kiinteisto/{kiinteisto_id}/muistot/",					"Rak\KiinteistoController@getMemories");
 
 	/*
 	 * KTJ Search
@@ -719,4 +720,6 @@ Route::group(['middleware' => ['auth.jwt', 'setLocale']], function () {
 	Route::get("/aiheet/", "Muistot\AiheController@index");
 	Route::get("/muistot_kuva/",						"Muistot\MuistotKuvaController@index");
 	Route::get("/muistot_kuva/{kuva_id}/",				"Muistot\MuistotKuvaController@show");
+  // Todo: would be best to have dedicated route for updating estates
+  Route::put("/muistot/{muisto_id}/",      "Muistot\MuistoController@update_estates");
 });
