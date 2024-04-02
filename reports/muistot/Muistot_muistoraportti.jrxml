@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.21.1.final using JasperReports Library version 6.21.0-4f56c4f36cd19e17675219a9ac4692d5f0f13b06  -->
+<!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
+<!-- 2024-03-01T15:50:19 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Muistot_muistoraportti" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" whenResourceMissingType="Error" isIgnorePagination="true" uuid="dea69c35-0e8e-453e-972c-f915cdff87f9">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
 	<property name="net.sf.jasperreports.export.xls.collapse.row.span" value="true"/>
 	<property name="com.jaspersoft.studio.report.description" value=""/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MIP-local-adapter.jrdax"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
 	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
 		<box>
 			<pen lineWidth="0.5" lineColor="#000000"/>
@@ -288,7 +289,7 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table_TD" height="20">
-								<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+								<textField isBlankWhenNull="true">
 									<reportElement x="0" y="0" width="150" height="20" uuid="b7ea3e34-9f08-4419-bcfb-c8029a8677ef"/>
 									<textFieldExpression><![CDATA[$F{aihe}]]></textFieldExpression>
 								</textField>
@@ -304,7 +305,7 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table_TD" height="20">
-								<textField textAdjust="StretchHeight">
+								<textField>
 									<reportElement x="0" y="0" width="110" height="20" uuid="b5237f3a-c9dc-4f65-bb03-4ae8bcf381cc"/>
 									<textFieldExpression><![CDATA[$F{nimimerkki}]]></textFieldExpression>
 								</textField>
@@ -320,7 +321,7 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table_TD" height="20">
-								<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+								<textField isBlankWhenNull="true">
 									<reportElement x="0" y="0" width="110" height="20" uuid="8ed4edac-d56c-4678-9cd0-97b61ed77b80"/>
 									<textFieldExpression><![CDATA[$F{otsikko}]]></textFieldExpression>
 								</textField>
@@ -480,7 +481,7 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 								</staticText>
 							</jr:columnHeader>
 							<jr:detailCell style="Table_TD" height="20">
-								<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+								<textField isBlankWhenNull="true">
 									<reportElement x="0" y="0" width="110" height="20" uuid="f74131a8-4005-4e5f-8dc7-f13199d0c5ca"/>
 									<textFieldExpression><![CDATA[$F{tapahtumapaikka}]]></textFieldExpression>
 								</textField>

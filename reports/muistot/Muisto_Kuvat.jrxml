@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.21.1.final using JasperReports Library version 6.21.0-4f56c4f36cd19e17675219a9ac4692d5f0f13b06  -->
+<!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
+<!-- 2024-03-05T09:55:43 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Muisto_Kuvat" columnCount="2" pageWidth="595" pageHeight="842" whenNoDataType="NoPages" columnWidth="270" columnSpacing="17" leftMargin="0" rightMargin="20" topMargin="0" bottomMargin="0" uuid="679db95c-3767-4294-b355-8a0c92b0d7e1">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MipDev5DataAdapter.xml"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="New Local"/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
 	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
 	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
@@ -84,7 +85,7 @@ where
 					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#CCCCCC"/>
 					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#CCCCCC"/>
 				</box>
-				<image hAlign="Center" vAlign="Middle" onErrorType="Icon">
+				<image hAlign="Center" vAlign="Middle" onErrorType="Blank">
 					<reportElement x="0" y="0" width="270" height="190" uuid="a3fb77d4-6bdb-427b-824c-73a05c102229">
 						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
@@ -96,7 +97,7 @@ where
 					<imageExpression><![CDATA[$P{MIP_BACKEND_URL} + "/raportti/muistot_kuva/"+$F{kuva_id}+"/pieni"]]></imageExpression>
 				</image>
 			</frame>
-			<textField textAdjust="StretchHeight">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 				<reportElement x="0" y="190" width="270" height="19" isRemoveLineWhenBlank="true" uuid="54e06c7e-637a-4e10-9436-8def73da36bf">
 					<printWhenExpression><![CDATA[$F{otsikko}!=null && $F{otsikko}.trim().length()>0l]]></printWhenExpression>
 				</reportElement>
@@ -106,18 +107,18 @@ where
 			<frame>
 				<reportElement positionType="Float" x="0" y="210" width="270" height="20" uuid="b84f8eef-be6e-46ae-a017-4d43e2c7e356"/>
 				<textField isBlankWhenNull="true">
-					<reportElement x="0" y="0" width="170" height="20" isRemoveLineWhenBlank="true" uuid="55208865-d84e-479a-8427-edcedba7ecbb"/>
+					<reportElement positionType="Float" x="0" y="0" width="170" height="19" isRemoveLineWhenBlank="true" uuid="55208865-d84e-479a-8427-edcedba7ecbb"/>
 					<textFieldExpression><![CDATA[$F{kuvaaja}]]></textFieldExpression>
 				</textField>
 				<textField pattern="dd.MM.yyyy" isBlankWhenNull="true">
-					<reportElement x="170" y="0" width="100" height="20" isRemoveLineWhenBlank="true" uuid="8bd36710-c4a9-40f8-948e-bb79ac0d6ede">
+					<reportElement positionType="Float" x="170" y="0" width="100" height="19" isRemoveLineWhenBlank="true" uuid="8bd36710-c4a9-40f8-948e-bb79ac0d6ede">
 						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 					</reportElement>
 					<textElement textAlignment="Right"/>
 					<textFieldExpression><![CDATA[$F{pvm_kuvaus}]]></textFieldExpression>
 				</textField>
-				<textField textAdjust="StretchHeight">
-					<reportElement x="0" y="20" width="270" height="19" isRemoveLineWhenBlank="true" uuid="e6c4ad08-5f8a-41bb-9095-3d0b3d5da167">
+				<textField>
+					<reportElement positionType="Float" x="0" y="20" width="270" height="19" isRemoveLineWhenBlank="true" uuid="e6c4ad08-5f8a-41bb-9095-3d0b3d5da167">
 						<printWhenExpression><![CDATA[$F{ottopaikka}!=null && $F{ottopaikka}.trim().length()>0l]]></printWhenExpression>
 					</reportElement>
 					<textElement verticalAlignment="Middle"/>
@@ -125,42 +126,37 @@ where
 				</textField>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="0" y="249" width="270" height="20" isRemoveLineWhenBlank="true" uuid="54c8946b-ad9f-46b7-b28c-1da66659a1dd">
+				<reportElement positionType="Float" x="0" y="249" width="270" height="21" isRemoveLineWhenBlank="true" uuid="54c8946b-ad9f-46b7-b28c-1da66659a1dd">
 					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.HorizontalRowLayout"/>
 				</reportElement>
-				<textField textAdjust="StretchHeight" isBlankWhenNull="true">
-					<reportElement x="100" y="0" width="170" height="20" uuid="1eaaf6d2-5f35-48eb-a854-b604baee8367">
+				<staticText>
+					<reportElement x="0" y="0" width="69" height="19" uuid="a9332e58-3624-4008-8b67-3f4ca507e8ac"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[CCBY:]]></text>
+				</staticText>
+				<textField isBlankWhenNull="true">
+					<reportElement x="69" y="0" width="67" height="19" uuid="1eaaf6d2-5f35-48eb-a854-b604baee8367">
 						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					</reportElement>
 					<textFieldExpression><![CDATA[($F{ccby}==false)?"Ei":"Kyllä"]]></textFieldExpression>
 				</textField>
 				<staticText>
-					<reportElement x="0" y="0" width="100" height="20" uuid="a9332e58-3624-4008-8b67-3f4ca507e8ac"/>
+					<reportElement x="136" y="0" width="67" height="19" uuid="c8b34e2a-af30-4462-a231-d7f577b3a9d9"/>
 					<textElement>
 						<font isBold="true"/>
 					</textElement>
-					<text><![CDATA[CCBY]]></text>
+					<text><![CDATA[Ehdot:]]></text>
 				</staticText>
-			</frame>
-			<frame>
-				<reportElement positionType="Float" x="0" y="280" width="270" height="20" isRemoveLineWhenBlank="true" uuid="d8d9c383-fedd-4028-a139-19111c5d48b0">
-					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
-					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
-				</reportElement>
-				<textField textAdjust="StretchHeight" isBlankWhenNull="true">
-					<reportElement x="100" y="0" width="170" height="20" uuid="9da5dd06-069b-4de5-ad10-a1f35152d516">
+				<textField isBlankWhenNull="true">
+					<reportElement x="203" y="0" width="67" height="19" uuid="9da5dd06-069b-4de5-ad10-a1f35152d516">
 						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					</reportElement>
 					<textFieldExpression><![CDATA[($F{ehdot}==false)?"Ei":"Kyllä"]]></textFieldExpression>
 				</textField>
-				<staticText>
-					<reportElement x="0" y="0" width="100" height="20" uuid="c8b34e2a-af30-4462-a231-d7f577b3a9d9"/>
-					<textElement>
-						<font isBold="true"/>
-					</textElement>
-					<text><![CDATA[Ehdot]]></text>
-				</staticText>
 			</frame>
 		</band>
 	</detail>
