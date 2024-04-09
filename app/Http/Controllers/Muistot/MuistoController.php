@@ -568,7 +568,9 @@ class MuistoController extends Controller {
                 unset($properties['sijainti']);
                 //$properties->rakennukset = $buildings;
                 //$properties->test = $kiinteisto->test;
-                MipJson::addGeoJsonFeatureCollectionFeaturePoint(json_decode($muisto->sijainti), $properties);
+                $sijainti = (array) json_decode($muisto->sijainti);
+                $sijainti['coordinates'] = array_reverse($sijainti['coordinates']);
+                MipJson::addGeoJsonFeatureCollectionFeaturePoint($sijainti, $properties);
             }
 
             /*
@@ -626,7 +628,9 @@ class MuistoController extends Controller {
                     $properties = clone($muisto);
                     unset($properties['sijainti']);
 
-                    MipJson::setGeoJsonFeature(json_decode($muisto->sijainti), $properties);
+                    $sijainti = (array) json_decode($muisto->sijainti);
+                    $sijainti['coordinates'] = array_reverse($sijainti['coordinates']);
+                    MipJson::setGeoJsonFeature($sijainti, $properties);
                     MipJson::addMessage(Lang::get('kiinteisto.search_success'));
                 }
                 else {
