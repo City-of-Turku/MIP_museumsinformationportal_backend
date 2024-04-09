@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.21.1.final using JasperReports Library version 6.21.0-4f56c4f36cd19e17675219a9ac4692d5f0f13b06  -->
+<!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
+<!-- 2024-03-05T11:13:12 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Muisto" pageWidth="595" pageHeight="842" whenNoDataType="NoPages" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenResourceMissingType="Key" uuid="28bcff1d-b3ac-4d7c-87ec-1b0f5886a0de">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MipDev5DataAdapter.xml"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="New Local"/>
 	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
 		<box>
 			<pen lineWidth="0.5" lineColor="#000000"/>
@@ -182,39 +183,25 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 		<band splitType="Stretch"/>
 	</background>
 	<title>
-		<band height="354" splitType="Stretch">
-			<staticText>
-				<reportElement x="0" y="0" width="80" height="30" uuid="4fdd685c-3d1f-4e26-baf4-bb6aa476f54d"/>
-				<textElement>
-					<font size="16"/>
-				</textElement>
-				<text><![CDATA[Aihe]]></text>
-			</staticText>
+		<band height="289" splitType="Stretch">
 			<textField isBlankWhenNull="true">
-				<reportElement key="" x="80" y="0" width="474" height="30" uuid="852f52fd-eb0e-4165-83d8-9db519b2e0c6"/>
+				<reportElement key="" x="0" y="35" width="554" height="30" uuid="852f52fd-eb0e-4165-83d8-9db519b2e0c6"/>
 				<textElement textAlignment="Left">
-					<font size="16"/>
+					<font size="12"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{aihe}]]></textFieldExpression>
+				<textFieldExpression><![CDATA["Aihe: " + $F{aihe}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
 				<reportElement key="" x="150" y="70" width="230" height="20" uuid="07950983-5aa1-4fff-b19c-c309315044d3"/>
 				<textFieldExpression><![CDATA[$F{prikka_id}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement key="" x="80" y="30" width="474" height="30" uuid="196ade19-4574-4887-9f2d-9c0171b188b0"/>
+				<reportElement key="" x="0" y="4" width="554" height="30" uuid="196ade19-4574-4887-9f2d-9c0171b188b0"/>
 				<textElement>
 					<font size="16"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{otsikko}]]></textFieldExpression>
 			</textField>
-			<staticText>
-				<reportElement x="0" y="30" width="80" height="30" uuid="e744e4ee-1010-4cea-928d-0beb473b1068"/>
-				<textElement>
-					<font size="16"/>
-				</textElement>
-				<text><![CDATA[Otsikko]]></text>
-			</staticText>
 			<textField isBlankWhenNull="true">
 				<reportElement key="" x="150" y="90" width="230" height="20" uuid="8f3f4267-894d-4a62-b197-2c352b8b1cd8"/>
 				<textFieldExpression><![CDATA[$F{nimimerkki}]]></textFieldExpression>
@@ -234,7 +221,7 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 				<text><![CDATA[Nimimerkki]]></text>
 			</staticText>
 			<componentElement>
-				<reportElement x="0" y="154" width="544" height="200" uuid="382639d6-c2fe-4c02-959e-7f16200f8f58">
+				<reportElement x="0" y="154" width="544" height="106" uuid="382639d6-c2fe-4c02-959e-7f16200f8f58">
 					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
 					<property name="com.jaspersoft.studio.table.style.table_header" value="Table 2_TH"/>
 					<property name="com.jaspersoft.studio.table.style.column_header" value="Table 2_CH"/>
@@ -252,12 +239,14 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 						<jr:columnHeader style="Table 2_CH" height="30">
 							<staticText>
 								<reportElement x="0" y="0" width="220" height="30" uuid="e97067e6-7dc5-4f19-92a7-0cc9315c3f1b"/>
+								<box topPadding="2" leftPadding="4" bottomPadding="4" rightPadding="4"/>
 								<text><![CDATA[kysymys]]></text>
 							</staticText>
 						</jr:columnHeader>
 						<jr:detailCell style="Table 2_TD" height="30">
-							<textField textAdjust="StretchHeight">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 								<reportElement x="0" y="0" width="220" height="30" uuid="2fe46119-af3d-4b79-92ee-852ad2bfa565"/>
+								<box topPadding="2" leftPadding="4" bottomPadding="4" rightPadding="4"/>
 								<textFieldExpression><![CDATA[$F{kysymys}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -267,12 +256,14 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 						<jr:columnHeader style="Table 2_CH" height="30">
 							<staticText>
 								<reportElement x="0" y="0" width="324" height="30" uuid="d38a117b-3f4e-4a36-bfd2-aebb033e1897"/>
+								<box topPadding="2" leftPadding="4" bottomPadding="4" rightPadding="4"/>
 								<text><![CDATA[vastaus]]></text>
 							</staticText>
 						</jr:columnHeader>
 						<jr:detailCell style="Table 2_TD" height="30">
-							<textField textAdjust="StretchHeight">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 								<reportElement x="0" y="0" width="324" height="30" uuid="e10b602f-df7c-4b61-9be2-acc91cfedc9c"/>
+								<box topPadding="2" leftPadding="4" bottomPadding="4" rightPadding="4"/>
 								<textFieldExpression><![CDATA[$F{vastaus}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -282,27 +273,6 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 		</band>
 	</title>
 	<detail>
-		<band height="40" splitType="Stretch">
-			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
-			<frame>
-				<reportElement x="0" y="0" width="555" height="20" uuid="e8795d28-c1fe-428c-8fbe-83b7b108cb4b">
-					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
-				</reportElement>
-				<staticText>
-					<reportElement x="0" y="0" width="150" height="20" uuid="a54c13c2-f13f-4348-9a88-c97ad13bf76b"/>
-					<textElement>
-						<font isBold="true"/>
-					</textElement>
-					<text><![CDATA[Kieli]]></text>
-				</staticText>
-				<textField isBlankWhenNull="true">
-					<reportElement key="" x="150" y="0" width="405" height="20" uuid="e150eeaa-7127-4a9b-a7ac-20da68211f28">
-						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
-					</reportElement>
-					<textFieldExpression><![CDATA[$F{kieli}]]></textFieldExpression>
-				</textField>
-			</frame>
-		</band>
 		<band height="40">
 			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 			<frame>
@@ -318,18 +288,23 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 					</textElement>
 					<text><![CDATA[Ajankohta]]></text>
 				</staticText>
-				<textField isBlankWhenNull="true">
-					<reportElement key="" x="150" y="0" width="100" height="20" uuid="9fd411d2-d546-401a-aeea-ad518f0656bf"/>
-					<textFieldExpression><![CDATA[$F{alkaa}]]></textFieldExpression>
-				</textField>
-				<staticText>
-					<reportElement x="250" y="0" width="10" height="20" uuid="805e0dfe-7357-4754-a5d4-8b6477c37e84"/>
-					<text><![CDATA[-]]></text>
-				</staticText>
-				<textField isBlankWhenNull="true">
-					<reportElement key="" x="260" y="0" width="120" height="20" uuid="51b913ea-a387-4dd8-a5ca-4e31a4145628"/>
-					<textFieldExpression><![CDATA[$F{loppuu}]]></textFieldExpression>
-				</textField>
+				<frame>
+					<reportElement x="150" y="0" width="230" height="20" uuid="6f1fb281-6a79-4540-81c3-aad2eebad816">
+						<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+					</reportElement>
+					<textField isBlankWhenNull="true">
+						<reportElement key="" x="0" y="0" width="60" height="20" uuid="9fd411d2-d546-401a-aeea-ad518f0656bf"/>
+						<textFieldExpression><![CDATA[new SimpleDateFormat("yyyy").format($F{alkaa})]]></textFieldExpression>
+					</textField>
+					<staticText>
+						<reportElement x="72" y="0" width="12" height="20" uuid="805e0dfe-7357-4754-a5d4-8b6477c37e84"/>
+						<text><![CDATA[-]]></text>
+					</staticText>
+					<textField isBlankWhenNull="true">
+						<reportElement key="" x="97" y="0" width="76" height="20" uuid="51b913ea-a387-4dd8-a5ca-4e31a4145628"/>
+						<textFieldExpression><![CDATA[new SimpleDateFormat("yyyy").format($F{loppuu})]]></textFieldExpression>
+					</textField>
+				</frame>
 			</frame>
 		</band>
 		<band height="60">
@@ -340,7 +315,7 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					<printWhenExpression><![CDATA[$F{poistettu}!= null && $F{poistettu}==true]]></printWhenExpression>
 				</reportElement>
-				<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<textField isBlankWhenNull="true">
 					<reportElement x="150" y="0" width="405" height="20" uuid="28b2098e-8050-4a58-8b5c-558d6899c6f3">
 						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					</reportElement>
@@ -360,7 +335,7 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					<printWhenExpression><![CDATA[$F{ilmiannettu}!= null && $F{ilmiannettu}==true]]></printWhenExpression>
 				</reportElement>
-				<textField textAdjust="StretchHeight">
+				<textField>
 					<reportElement x="150" y="0" width="405" height="20" uuid="07b3144d-8011-436f-8f85-e861cbaa32a6">
 						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					</reportElement>
@@ -387,7 +362,7 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 					</textElement>
 					<text><![CDATA[Julkinen]]></text>
 				</staticText>
-				<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<textField isBlankWhenNull="true">
 					<reportElement x="150" y="0" width="405" height="20" uuid="58c4800a-8a72-4a43-a766-473de00a0443">
 						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					</reportElement>
@@ -400,9 +375,7 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 		<band height="20">
 			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 			<subreport isUsingCache="false" overflowType="Stretch">
-				<reportElement x="0" y="0" width="80" height="20" isRemoveLineWhenBlank="true" uuid="df80cf2c-d1a6-4d12-92d4-077c40017338">
-					<printWhenExpression><![CDATA[false]]></printWhenExpression>
-				</reportElement>
+				<reportElement x="0" y="0" width="80" height="20" isRemoveLineWhenBlank="true" uuid="df80cf2c-d1a6-4d12-92d4-077c40017338"/>
 				<subreportParameter name="muisto_id">
 					<subreportParameterExpression><![CDATA[$P{muisto_id}]]></subreportParameterExpression>
 				</subreportParameter>

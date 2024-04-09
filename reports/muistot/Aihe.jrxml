@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.21.1.final using JasperReports Library version 6.21.0-4f56c4f36cd19e17675219a9ac4692d5f0f13b06  -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Aihe_Raportti" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="a3058a9a-2e29-4811-9e08-1426e6e02029">
+<!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
+<!-- 2024-03-05T11:18:08 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Aihe" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="a3058a9a-2e29-4811-9e08-1426e6e02029">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MipDev5DataAdapter.xml"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="New Local"/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.report.description" value=""/>
 	<style name="Base" isDefault="true" hTextAlign="Left" vTextAlign="Top" fontSize="10" isPdfEmbedded="false"/>
 	<style name="Table 1_TH" mode="Opaque" backcolor="#F0F8FF">
 		<box>
@@ -32,51 +34,75 @@
 			<rightPen lineWidth="0.5" lineColor="#000000"/>
 		</box>
 	</style>
-	<style name="Table_TH" mode="Opaque" backcolor="#FAEBD7">
+	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
 		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
 			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
 			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
 		</box>
 	</style>
-	<style name="Table_CH" mode="Opaque" backcolor="#FFE4BF">
+	<style name="Table_CH" mode="Opaque" backcolor="#BFE1FF">
 		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
 			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
 			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
 		</box>
 	</style>
 	<style name="Table_TD" mode="Opaque" backcolor="#FFFFFF">
 		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
 			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
 			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table 2_TH" mode="Opaque" backcolor="#FAEBD7">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table 2_CH" mode="Opaque" backcolor="#FFE4BF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table 2_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
 		</box>
 	</style>
 	<subDataset name="Dataset-Aihe-Kysymykset" uuid="73d0b980-6644-4d19-ae92-2d7332b08be4">
 		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
-		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MIP-local-adapter.jrdax"/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="New Local"/>
 		<parameter name="KysymysAiheID" class="java.lang.Long"/>
 		<queryString language="SQL">
-			<![CDATA[SELECT kys.kysymysteksti_fi AS kysymys,
+			<![CDATA[SELECT kys.kysymysteksti_fi AS kysymys_fi,
 	kys.kysymysteksti_sv AS kysymys_sv,
 	kys.kysymysteksti_en AS kysymys_en
 FROM muistot_kysymys AS kys
 WHERE 
 	 kys.muistot_aihe_id = $P{KysymysAiheID}]]>
 		</queryString>
-		<field name="kysymys" class="java.lang.String">
-			<property name="com.jaspersoft.studio.field.name" value="kysymys"/>
-			<property name="com.jaspersoft.studio.field.label" value="kysymys"/>
-			<property name="com.jaspersoft.studio.field.tree.path" value="muistot_kysymys"/>
-		</field>
-		<field name="kysymys_sv" class="java.lang.String">
-			<property name="com.jaspersoft.studio.field.name" value="kysymys_sv"/>
-			<property name="com.jaspersoft.studio.field.label" value="kysymys_sv"/>
-			<property name="com.jaspersoft.studio.field.tree.path" value="muistot_kysymys"/>
-		</field>
-		<field name="kysymys_en" class="java.lang.String">
-			<property name="com.jaspersoft.studio.field.name" value="kysymys_en"/>
-			<property name="com.jaspersoft.studio.field.label" value="kysymys_en"/>
-			<property name="com.jaspersoft.studio.field.tree.path" value="muistot_kysymys"/>
-		</field>
+		<field name="kysymys_fi" class="java.lang.String"/>
+		<field name="kysymys_sv" class="java.lang.String"/>
+		<field name="kysymys_en" class="java.lang.String"/>
 	</subDataset>
 	<parameter name="aihe_id" class="java.lang.Long">
 		<parameterDescription><![CDATA[Aiheen ID]]></parameterDescription>
@@ -87,8 +113,12 @@ WHERE
 	<queryString language="SQL">
 		<![CDATA[SELECT 
         aihe.prikka_id as aihe_id,
-        aihe.aihe_fi as otsikko,
-        aihe.esittely_fi as esittely,
+        aihe.aihe_fi as otsikko_fi,
+        aihe.aihe_sv as otsikko_sv,
+        aihe.aihe_en as otsikko_en,
+        aihe.esittely_fi as esittely_fi,
+        aihe.esittely_sv as esittely_sv,
+        aihe.esittely_en as esittely_en,
         aihe.aukeaa,
         aihe.sulkeutuu
         FROM 
@@ -96,36 +126,20 @@ WHERE
         WHERE 
             aihe.prikka_id = $P{aihe_id}]]>
 	</queryString>
-	<field name="aihe_id" class="java.lang.Integer">
-		<property name="com.jaspersoft.studio.field.name" value="aihe_id"/>
-		<property name="com.jaspersoft.studio.field.label" value="aihe_id"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_aihe"/>
-	</field>
-	<field name="otsikko" class="java.lang.String">
-		<property name="com.jaspersoft.studio.field.name" value="otsikko"/>
-		<property name="com.jaspersoft.studio.field.label" value="otsikko"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_aihe"/>
-	</field>
-	<field name="esittely" class="java.lang.String">
-		<property name="com.jaspersoft.studio.field.name" value="esittely"/>
-		<property name="com.jaspersoft.studio.field.label" value="esittely"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_aihe"/>
-	</field>
-	<field name="aukeaa" class="java.sql.Timestamp">
-		<property name="com.jaspersoft.studio.field.name" value="aukeaa"/>
-		<property name="com.jaspersoft.studio.field.label" value="aukeaa"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_aihe"/>
-	</field>
-	<field name="sulkeutuu" class="java.sql.Timestamp">
-		<property name="com.jaspersoft.studio.field.name" value="sulkeutuu"/>
-		<property name="com.jaspersoft.studio.field.label" value="sulkeutuu"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_aihe"/>
-	</field>
+	<field name="aihe_id" class="java.lang.Integer"/>
+	<field name="otsikko_fi" class="java.lang.String"/>
+	<field name="otsikko_sv" class="java.lang.String"/>
+	<field name="otsikko_en" class="java.lang.String"/>
+	<field name="esittely_fi" class="java.lang.String"/>
+	<field name="esittely_sv" class="java.lang.String"/>
+	<field name="esittely_en" class="java.lang.String"/>
+	<field name="aukeaa" class="java.sql.Timestamp"/>
+	<field name="sulkeutuu" class="java.sql.Timestamp"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
 	<title>
-		<band height="79">
+		<band height="136">
 			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 			<frame>
 				<reportElement x="358" y="0" width="194" height="50" uuid="19a5e39f-0233-4a7e-9e19-5090b111fe74">
@@ -136,89 +150,164 @@ WHERE
 					<imageExpression><![CDATA["logo.png"]]></imageExpression>
 				</image>
 			</frame>
-			<textField>
+			<textField isStretchWithOverflow="true">
 				<reportElement x="0" y="0" width="358" height="30" uuid="8b37122c-c5e1-47e6-9c83-c99a359cd113"/>
 				<textElement>
 					<font size="18" isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{otsikko}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{otsikko_fi}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="3" y="40" width="87" height="20" uuid="11c2181b-164b-4f8a-9404-4af5d2b81a56"/>
+				<reportElement positionType="Float" x="1" y="34" width="87" height="20" uuid="11c2181b-164b-4f8a-9404-4af5d2b81a56"/>
 				<text><![CDATA[Aiheen ID:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="93" y="41" width="86" height="19" uuid="729306e2-c6c6-4c77-8758-f8d62a93fdb0"/>
+				<reportElement positionType="Float" x="91" y="35" width="86" height="19" uuid="729306e2-c6c6-4c77-8758-f8d62a93fdb0"/>
 				<textFieldExpression><![CDATA[$F{aihe_id}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="0" y="60" width="480" height="20" uuid="42e46cd3-a694-4f9b-b812-b146b377477f"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{otsikko_sv}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="0" y="93" width="480" height="17" uuid="46ed1018-6ac9-4393-b11b-99bd024a1277"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{otsikko_en}]]></textFieldExpression>
 			</textField>
 		</band>
 	</title>
 	<detail>
-		<band height="120">
+		<band height="113">
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
 			<frame>
-				<reportElement x="3" y="13" width="548" height="96" uuid="eb66d68a-dd40-4c09-80c3-040d856c3ffc"/>
-				<textField>
-					<reportElement x="0" y="0" width="548" height="96" uuid="a7946d2a-b8c6-43ed-954e-90c09c1fd52d"/>
-					<textFieldExpression><![CDATA[$F{esittely}]]></textFieldExpression>
+				<reportElement stretchType="ElementGroupHeight" x="0" y="0" width="555" height="113" isRemoveLineWhenBlank="true" uuid="eb66d68a-dd40-4c09-80c3-040d856c3ffc">
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+				</reportElement>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="0" y="0" width="555" height="20" isRemoveLineWhenBlank="true" uuid="a7946d2a-b8c6-43ed-954e-90c09c1fd52d">
+						<printWhenExpression><![CDATA[$F{esittely_fi} != null]]></printWhenExpression>
+					</reportElement>
+					<textElement>
+						<paragraph spacingAfter="30"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{esittely_fi}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="38" width="555" height="20" isRemoveLineWhenBlank="true" uuid="25bb8cd1-ad2a-4089-ba13-076e727bc0ac">
+						<printWhenExpression><![CDATA[$F{esittely_sv} != null && $F{esittely_sv} != ""]]></printWhenExpression>
+					</reportElement>
+					<textFieldExpression><![CDATA[$F{esittely_sv}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="76" width="555" height="20" isRemoveLineWhenBlank="true" uuid="ef513e06-7e1d-4032-92e3-aa986104d3f0">
+						<printWhenExpression><![CDATA[$F{esittely_en} != null]]></printWhenExpression>
+					</reportElement>
+					<textFieldExpression><![CDATA[$F{esittely_en}]]></textFieldExpression>
 				</textField>
 			</frame>
 		</band>
-		<band height="232">
+		<band height="50">
 			<frame>
-				<reportElement mode="Transparent" x="0" y="9" width="530" height="20" uuid="55759a85-8ce7-4749-b116-ace547ee7283">
+				<reportElement mode="Transparent" x="0" y="0" width="555" height="40" uuid="55759a85-8ce7-4749-b116-ace547ee7283">
 					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 				</reportElement>
 				<staticText>
-					<reportElement x="0" y="0" width="153" height="20" uuid="d6cfa9cc-e3ab-4ef6-91b1-bbf97bc46d5a">
+					<reportElement x="0" y="8" width="100" height="20" uuid="d6cfa9cc-e3ab-4ef6-91b1-bbf97bc46d5a">
 						<property name="com.jaspersoft.studio.unit.height" value="px"/>
 					</reportElement>
-					<text><![CDATA[Kyselyn ajankohta]]></text>
+					<text><![CDATA[Kyselyn ajankohta:]]></text>
 				</staticText>
 				<textField pattern="dd.MM.y">
-					<reportElement x="152" y="0" width="100" height="20" uuid="476b4053-87cf-4e01-be72-fbf8ab2f94c1">
+					<reportElement x="109" y="8" width="68" height="20" uuid="476b4053-87cf-4e01-be72-fbf8ab2f94c1">
 						<property name="com.jaspersoft.studio.unit.height" value="px"/>
 					</reportElement>
 					<textFieldExpression><![CDATA[$F{aukeaa}]]></textFieldExpression>
 				</textField>
 				<staticText>
-					<reportElement x="258" y="0" width="20" height="20" uuid="ee1086f6-9dd3-4626-a25b-72e4dd58d338">
+					<reportElement x="184" y="8" width="20" height="20" uuid="ee1086f6-9dd3-4626-a25b-72e4dd58d338">
 						<property name="com.jaspersoft.studio.unit.height" value="px"/>
 						<property name="com.jaspersoft.studio.unit.width" value="px"/>
 					</reportElement>
 					<text><![CDATA[ - ]]></text>
 				</staticText>
 				<textField pattern="dd.MM.y">
-					<reportElement x="287" y="0" width="100" height="20" uuid="0950bd95-294d-4bc3-935d-e9427708688b">
+					<reportElement x="209" y="8" width="100" height="20" uuid="0950bd95-294d-4bc3-935d-e9427708688b">
 						<property name="com.jaspersoft.studio.unit.height" value="px"/>
 					</reportElement>
 					<textFieldExpression><![CDATA[$F{sulkeutuu}]]></textFieldExpression>
 				</textField>
 			</frame>
+		</band>
+		<band height="291">
 			<componentElement>
-				<reportElement x="3" y="40" width="530" height="170" uuid="557d4073-d65d-4646-9c35-a111e7ec5694">
+				<reportElement x="0" y="2" width="555" height="119" uuid="dbc2df6c-a4e7-4b93-ae5d-6b9f91ef01a7">
 					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
-					<property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
-					<property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
-					<property name="com.jaspersoft.studio.table.style.detail" value="Table_TD"/>
+					<property name="com.jaspersoft.studio.table.style.table_header" value="Table 2_TH"/>
+					<property name="com.jaspersoft.studio.table.style.column_header" value="Table 2_CH"/>
+					<property name="com.jaspersoft.studio.table.style.detail" value="Table 2_TD"/>
 				</reportElement>
 				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
-					<datasetRun subDataset="Dataset-Aihe-Kysymykset" uuid="cab5c8cc-a0de-4128-9002-896ff69af9b7">
+					<datasetRun subDataset="Dataset-Aihe-Kysymykset" uuid="b98a0b77-f1ef-41b5-b4ac-8e28e65a9aea">
 						<datasetParameter name="KysymysAiheID">
 							<datasetParameterExpression><![CDATA[$P{aihe_id}]]></datasetParameterExpression>
 						</datasetParameter>
 						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 					</datasetRun>
-					<jr:column width="530" uuid="d0ba81e4-5dd0-401a-881e-251713b6ea30">
-						<jr:columnHeader style="Table_CH" height="30">
+					<jr:column width="160" uuid="b680606d-a15c-4e8e-b29c-098a938bdb48">
+						<jr:columnHeader style="Table 2_CH" height="30">
+							<box leftPadding="0" rightPadding="0"/>
 							<staticText>
-								<reportElement x="0" y="0" width="530" height="30" uuid="f2c88413-5166-4781-9db6-980315f4a5fc"/>
+								<reportElement x="0" y="0" width="160" height="30" uuid="5fa22ed0-c13e-4017-9f83-3cdac60c4cef"/>
+								<box topPadding="2" leftPadding="4" bottomPadding="2" rightPadding="4"/>
 								<text><![CDATA[Kysymykset]]></text>
 							</staticText>
 						</jr:columnHeader>
-						<jr:detailCell style="Table_TD" height="30">
-							<textField>
-								<reportElement x="0" y="0" width="530" height="30" uuid="a648488c-964a-4291-97af-74d3675d8b05"/>
-								<textFieldExpression><![CDATA[$F{kysymys}]]></textFieldExpression>
+						<jr:detailCell style="Table 2_TD" height="30">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="160" height="30" uuid="7bdb424c-a1a2-4eb4-9477-b17f8b438a02"/>
+								<box topPadding="2" leftPadding="4" bottomPadding="4" rightPadding="4"/>
+								<textFieldExpression><![CDATA[$F{kysymys_fi}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="200" uuid="97907afb-347b-4b0a-a47b-e00d3f94602e">
+						<jr:columnHeader style="Table 2_CH" height="30">
+							<box leftPadding="0" rightPadding="0"/>
+							<staticText>
+								<reportElement x="0" y="0" width="200" height="30" uuid="30b5e3eb-2b4b-4e47-a1b1-c96fadbd69ef"/>
+								<box topPadding="2" leftPadding="4" bottomPadding="2" rightPadding="4"/>
+								<text><![CDATA[Frågorna]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="Table 2_TD" height="30">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="200" height="30" uuid="8e90c0e0-e592-47fe-9f72-ad53bc4a93cf"/>
+								<box topPadding="2" leftPadding="4" bottomPadding="4" rightPadding="4"/>
+								<textFieldExpression><![CDATA[$F{kysymys_sv}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="200" uuid="a30eb9f2-8afb-4a1d-98e2-f8c2b60516e6">
+						<jr:columnHeader style="Table 2_CH" height="30">
+							<box leftPadding="0" rightPadding="0"/>
+							<staticText>
+								<reportElement x="0" y="0" width="200" height="30" uuid="4bb8d459-9918-4816-aff8-479d30b53c95"/>
+								<box topPadding="2" leftPadding="4" bottomPadding="2" rightPadding="4"/>
+								<text><![CDATA[Questions]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="Table 2_TD" height="30">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="200" height="30" uuid="8435df10-ccfb-413c-a7c2-b8e7ef45cc79"/>
+								<box topPadding="2" leftPadding="4" bottomPadding="4" rightPadding="4">
+									<pen lineWidth="1.0" lineStyle="Solid"/>
+								</box>
+								<textFieldExpression><![CDATA[$F{kysymys_en}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
 					</jr:column>

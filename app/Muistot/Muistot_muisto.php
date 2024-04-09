@@ -72,6 +72,16 @@ class Muistot_muisto extends Model {
     }
 
     /**
+     * Get the properties associated with this memory.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function kiinteistot()
+    {
+    return $this->belongsToMany('App\Rak\Kiinteisto', 'muistot_muisto_kiinteisto', 'muistot_muisto_id', 'kiinteisto_id');
+    }
+
+    /**
      * Get all Models from DB - order by given $order_field to given $order_direction
      *
      * @version 1.0
