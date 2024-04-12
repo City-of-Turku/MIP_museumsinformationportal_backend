@@ -71,6 +71,10 @@ class Muistot_muisto extends Model {
         return $this->belongsTo('App\Muistot\Muistot_henkilo', 'muistot_henkilo_id', 'prikka_id');
     }
 
+    public function muistot_henkilo_filtered() {
+        return $this->belongsTo('App\Muistot\Muistot_henkilo', 'muistot_henkilo_id', 'prikka_id')->select(array('prikka_id', 'nimimerkki'));
+    }
+
     /**
      * Get the properties associated with this memory.
      *
@@ -144,20 +148,25 @@ class Muistot_muisto extends Model {
     }
 
     public function scopeWithPolygon($query, $polygon) {
-        return $query->whereRaw(MipGis::getGeometryFieldPolygonQueryWhereString($polygon, "sijainti"));
+        return $query->whereRaw(MipGis::getGeometryFieldPolygonQueryWhereString($polygon, "tapahtumapaikka"));
     }
 
     public function scopeWithBoundingBox($query, $bbox) {
-        return $query->whereRaw(MipGis::getGeometryFieldBoundingBoxQueryWhereString("sijainti", $bbox));
+        return $query->whereRaw(MipGis::getGeometryFieldBoundingBoxQueryWhereString("tapahtumapaikka", $bbox));
     }
 
     public function scopeWithLimit($query, $start_row, $row_count) {
         return $query->skip($start_row)->take($row_count);
     }
 
+    public function scopeWithJulkinen($query, $bool)
+    {
+        return $query->where('muistot_muisto.julkinen', '=', $bool);
+    }
+
     public function scopeWithOrderBy($query, $bbox=null, $order_field=null, $order_direction=null) {
     	if ($order_field == "bbox_center" && !is_null($bbox)) {
-    		return $query->orderByRaw(MipGis::getGeometryFieldOrderByBoundingBoxCenterString("sijainti", $bbox));
+    		return $query->orderByRaw(MipGis::getGeometryFieldOrderByBoundingBoxCenterString("tapahtumapaikka", $bbox));
     	}
 
     	$order_table = "muistot_muisto";

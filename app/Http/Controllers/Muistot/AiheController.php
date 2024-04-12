@@ -294,7 +294,7 @@ class AiheController extends Controller {
          * Role check
          */
 
-        if(!Kayttaja::hasPermission('rakennusinventointi.kiinteisto.katselu')) {
+        if(!Kayttaja::hasPermission('muistot.muisto.katselu')) {
             MipJson::setGeoJsonFeature();
             MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
             MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
@@ -389,7 +389,7 @@ class AiheController extends Controller {
         /*
          * Role check
          */
-        if(!Kayttaja::hasPermission('rakennusinventointi.kiinteisto.katselu')) {
+        if(!Kayttaja::hasPermission('muistot.muisto.katselu')) {
             MipJson::setGeoJsonFeature();
             MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
             MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
@@ -442,7 +442,7 @@ class AiheController extends Controller {
         /*
          * Role check - HUOM. MUISTOT-ROOLI
          */
-        if(!Kayttaja::hasPermission('rakennusinventointi.kiinteisto.katselu')) {
+        if(!Kayttaja::hasPermission('muistot.muisto.katselu')) {
           MipJson::setGeoJsonFeature();
           MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
           MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
