@@ -514,7 +514,7 @@ class MuistoController extends Controller {
 
             $muistot = Muistot_muisto::getAll();
 
-            if(Kayttaja::hasPermission('muistot.yksityinen_muistol.katselu'))
+            if(Kayttaja::hasPermission('muistot.yksityinen_muisto.katselu'))
             {
                 $muistot = $muistot->with('muistot_henkilo');
             }
@@ -647,7 +647,7 @@ class MuistoController extends Controller {
                     //TODO: Leaves artefact in the return list
                     if($muisto->muistot_henkilo_filtered)
                     {
-                        $muisto->muistot_henkilo = muistot_henkilo_filtered;
+                        $muisto->muistot_henkilo = $muisto->muistot_henkilo_filtered;
                     }
                     $properties = clone($muisto);
                     unset($properties['sijainti']);
