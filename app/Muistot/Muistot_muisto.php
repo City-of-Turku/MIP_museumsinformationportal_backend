@@ -164,6 +164,16 @@ class Muistot_muisto extends Model {
         return $query->where('muistot_muisto.julkinen', '=', $bool);
     }
 
+    public function scopeWithIlmiannettu($query, $bool)
+    {
+        return $query->where('muistot_muisto.ilmiannettu', '=', $bool);
+    }
+
+    public function scopeWithPoistettu($query, $bool)
+    {
+        return $query->where('muistot_muisto.poistettu', '=', $bool);
+    }
+
     public function scopeWithOrderBy($query, $bbox=null, $order_field=null, $order_direction=null) {
     	if ($order_field == "bbox_center" && !is_null($bbox)) {
     		return $query->orderByRaw(MipGis::getGeometryFieldOrderByBoundingBoxCenterString("tapahtumapaikka", $bbox));

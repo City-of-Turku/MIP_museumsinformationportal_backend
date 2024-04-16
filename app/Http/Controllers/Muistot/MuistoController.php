@@ -549,6 +549,9 @@ class MuistoController extends Controller {
                 $muistot->withBoundingBox($request->aluerajaus);
             }
 
+            $muistot->withPoistettu('false');
+            $muistot->withIlmiannettu('false');
+
             if(!Kayttaja::hasPermission('muistot.yksityinen_muisto.katselu'))
             {
                 $muistot->withJulkinen('true');
@@ -637,6 +640,17 @@ class MuistoController extends Controller {
                     ->with( array(
                         'Muistot_vastaus',
                         'Muistot_henkilo',
+                        'Muistot_vastaus.Muistot_kysymys',
+                        'Muistot_aihe',
+                        'Kiinteistot'
+                    ))->first();
+                }
+                else
+                {
+                    $muisto = Muistot_muisto::getSingle($id)
+                    ->with( array(
+                        'Muistot_vastaus',
+                        'Muistot_henkilo_filtered',
                         'Muistot_vastaus.Muistot_kysymys',
                         'Muistot_aihe',
                         'Kiinteistot'
