@@ -633,7 +633,6 @@ class MuistoController extends Controller {
         }
         else {
             try {
-
                 if(Kayttaja::hasPermission('muistot.yksityinen_muisto.katselu'))
                 {
                     $muisto = Muistot_muisto::getSingle($id)
@@ -657,7 +656,14 @@ class MuistoController extends Controller {
                     ))->first();
                 }
 
-                if($muisto) {
+                if($muisto && !$muisto->ilmiannettu && !$muisto->poistettu) {
+                    if (!$muisto->julkinen && !Kayttaja::hasPermission('muistot.yksityinen_muisto.katselu')) {
+                      MipJson::setGeoJsonFeature();
+                      MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+                      MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+                      return MipJson::getJson();          
+                    }
+
                     //TODO: Leaves artefact in the return list
                     if($muisto->muistot_henkilo_filtered)
                     {
