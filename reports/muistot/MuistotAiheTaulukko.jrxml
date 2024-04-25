@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2024-04-25T11:45:11 -->
+<!-- 2024-04-25T14:58:37 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="MuistotAiheTaulukko" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" whenResourceMissingType="Error" isIgnorePagination="true" uuid="dea69c35-0e8e-453e-972c-f915cdff87f9">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
@@ -288,8 +288,23 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 							</textField>
 						</jr:detailCell>
 					</jr:column>
-					<jr:column width="160" uuid="18f2fc12-6dd9-4786-939b-166e75c39ee6">
+					<jr:column width="140" uuid="61c786d8-8510-4369-9e55-000bdbe9a65c">
 						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
+						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement x="0" y="0" width="140" height="30" uuid="e6232ee9-68ab-40f2-af2f-05bf6dd2bcfc"/>
+								<text><![CDATA[Muiston otsikko]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="Table 1_TD" height="30">
+							<textField isStretchWithOverflow="true">
+								<reportElement stretchType="ContainerHeight" x="0" y="0" width="140" height="30" uuid="ccc77436-125f-49c5-9601-7eb15945aca9"/>
+								<textFieldExpression><![CDATA[$F{otsikko}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="160" uuid="18f2fc12-6dd9-4786-939b-166e75c39ee6">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<textField isStretchWithOverflow="true">
 								<reportElement x="0" y="0" width="160" height="30" uuid="4d8eabed-38b6-4425-9700-dcadf1cfad5b"/>
@@ -304,7 +319,7 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="160" uuid="ec5baec1-533e-4ccf-bc89-74c028f3adb1">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column6"/>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 								<reportElement x="0" y="0" width="160" height="30" uuid="9b03ec97-190a-4c7e-be2f-fa0842ff9794"/>
@@ -319,7 +334,7 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="160" uuid="296762da-342c-404a-94a5-9e7e0baa6ec9">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column6"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column7"/>
 						<printWhenExpression><![CDATA[$F{kysymys3} != "" && $F{kysymys3} != null]]></printWhenExpression>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
@@ -339,7 +354,7 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="160" uuid="f0670490-2e19-4321-a9ce-42185dbd8e4c">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column7"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column8"/>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 								<reportElement x="0" y="0" width="160" height="30" uuid="5c0eb016-cb87-42ab-867a-c6cbb1b6f07c"/>
@@ -354,7 +369,7 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="160" uuid="3e220d78-d461-4085-987b-981dc2c984ed">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column8"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column9"/>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 								<reportElement x="0" y="0" width="160" height="30" uuid="e625e88c-f709-4668-b0f7-8d83f08c292f"/>
@@ -369,7 +384,7 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="50" uuid="4f34c08e-d971-4ef6-b783-4b183fc32704">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column9"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column10"/>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="50" height="30" uuid="fe0ffe13-dde7-4d00-a6d4-1616aca7783f"/>
@@ -384,7 +399,7 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="50" uuid="16ceafd4-0c3b-436a-b6b9-1a015e06f673">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column10"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column11"/>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="50" height="30" uuid="9b191255-1dfa-4db6-9f02-ac532c68a89d"/>
@@ -399,7 +414,7 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="80" uuid="a7c50714-f58a-4c4c-a1b2-918e6e4920e6">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column11"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column12"/>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="80" height="30" uuid="106d5c4d-c885-4b99-bd33-4ddbc5ee61af"/>
@@ -414,7 +429,7 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="70" uuid="cbaafab5-a84e-4763-86bb-f5dc2b99d18e">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column12"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column13"/>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="70" height="30" uuid="ba6a8d14-c8d6-4978-88dc-1fbe511e3166"/>
@@ -429,7 +444,7 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="100" uuid="33923603-9c94-49d8-a32d-f64880e9037c">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column13"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column14"/>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="100" height="30" uuid="2d65689e-1a8f-46b2-a502-3650d75c9faa"/>
@@ -446,7 +461,7 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="90" uuid="aee999e7-8ca1-401d-943e-e7cfa742ca0a">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column14"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column15"/>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="90" height="30" uuid="be6e3fdc-7586-4db1-a06f-3e9ad9e86979"/>
@@ -461,7 +476,7 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="40" uuid="8e324af8-97c8-4e56-b16f-cc44bfb9d7b8">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column15"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column16"/>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="40" height="30" uuid="8bd48da2-a89a-4197-85df-f0af5f7e3d62"/>
@@ -476,7 +491,7 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="60" uuid="b288e988-b43e-4c21-8398-3448406f9751">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column16"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column17"/>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="60" height="30" uuid="f2c0a507-2c54-4404-bebb-3d10f840413c"/>
@@ -491,7 +506,7 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="60" uuid="8e44d1df-c9fc-4738-870b-1d900a2037c4">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column17"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column18"/>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="60" height="30" uuid="f298deac-f3da-4786-8245-b51252d8038b"/>
@@ -506,7 +521,7 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="90" uuid="00d74c52-4c11-4968-b157-a29886924b48">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column18"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column19"/>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="90" height="30" uuid="d3770fe1-012c-4f6c-b951-d3355d0f9c4e"/>
@@ -521,7 +536,7 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="70" uuid="b9e12ddb-7642-4993-879d-ea9f9544fc0d">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column19"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column20"/>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="70" height="30" uuid="baf90331-3c46-4270-9c9f-13608177acfa"/>
@@ -536,7 +551,7 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="70" uuid="ef9224a9-0a53-4e29-b062-3990b1fe4363">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column20"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column21"/>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="70" height="30" uuid="295e8ef7-55b0-4717-9f72-854fba08028b"/>
@@ -551,7 +566,7 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="70" uuid="b140e0e1-01e6-40ae-bc58-6530165057ef">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column21"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column22"/>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="70" height="30" uuid="989d9d77-f0d0-4a96-b890-938ced38ebf9"/>
@@ -566,7 +581,7 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="70" uuid="1dc58e17-4f0e-45ce-a8ad-1e536d21d7da">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column22"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column23"/>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="70" height="30" uuid="e506b738-fa4a-421c-a209-cb2177c9c967"/>
@@ -581,7 +596,7 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="70" uuid="e6e77380-3d5f-4598-b616-e669f2a602b1">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column23"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column24"/>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="70" height="30" uuid="8c9802f0-ca8b-4f1b-a569-13b05c623324"/>
@@ -596,7 +611,7 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="70" uuid="b254ac07-321c-468a-bde9-6c1320ed67de">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column24"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column25"/>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="70" height="30" uuid="7b9f581a-af04-4069-b4e5-84fe7787d82c"/>
@@ -611,7 +626,7 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="70" uuid="2115fe3e-e091-4398-81dc-bb0dd949b455">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column25"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column26"/>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="70" height="30" uuid="245c155d-67f5-4cb8-84a8-e5e4fa458636"/>
@@ -626,7 +641,7 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="110" uuid="3156c011-ae11-4355-91ea-bb048119d5aa">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column26"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column27"/>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="110" height="30" uuid="75bcaa32-d818-47dd-907a-a70de9706cce"/>
@@ -641,7 +656,7 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="70" uuid="e85866df-a824-42fe-ab88-6a3cce5433b9">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column27"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column28"/>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="70" height="30" uuid="24ad8da7-ae5b-4066-bcbe-11ac7c5385f0"/>
@@ -656,7 +671,7 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 						</jr:detailCell>
 					</jr:column>
 					<jr:column width="50" uuid="7ae8accd-9a1e-448b-a67a-742bd083915c">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column28"/>
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column29"/>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="50" height="30" uuid="14150037-8272-464b-91e0-d54f129cb939"/>
