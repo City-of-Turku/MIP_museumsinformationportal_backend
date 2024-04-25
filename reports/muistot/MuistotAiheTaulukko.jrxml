@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2024-03-06T09:35:45 -->
+<!-- 2024-04-25T11:45:11 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="MuistotAiheTaulukko" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" whenResourceMissingType="Error" isIgnorePagination="true" uuid="dea69c35-0e8e-453e-972c-f915cdff87f9">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
@@ -83,6 +83,7 @@ COALESCE(k5.kys5, '') AS kysymys5,
 v5.vast5 as vastaus5,
 muisto.alkaa as muisto_alku,
 muisto.loppuu as muisto_loppu,
+muisto.julkinen as muisto_julkinen,
 st_x(muisto.tapahtumapaikka) as tapahtumapaikka_x, 
 st_y(muisto.tapahtumapaikka) as tapahtumapaikka_y,
 valokuva.kuvaus as kuva_kertomus,
@@ -105,7 +106,7 @@ from muistot_muisto as muisto
 left join (SELECT  kysymysteksti_fi as kys1, prikka_id as kysymys_id, muistot_aihe_id
 from
 	muistot_kysymys
-where muistot_aihe_id = $P{TaulukkoAiheID} 
+where muistot_aihe_id = $P{TaulukkoAiheID}
 order by kysymys_id
 limit 1) as k1 on k1.muistot_aihe_id = muisto.muistot_aihe_id 
 left join (SELECT  vastaus as vast1, muistot_muisto_id, muistot_kysymys_id
@@ -155,7 +156,7 @@ from
 left join muistot_aihe as aihe on aihe.prikka_id = muisto.muistot_aihe_id
 left join muistot_henkilo as muistelija on muisto.muistot_henkilo_id = muistelija.prikka_id
 left join muistot_kuva as valokuva on valokuva.muistot_muisto_id = muisto.prikka_id
-where muisto.muistot_aihe_id  = $P{TaulukkoAiheID}]]>
+where (muisto.muistot_aihe_id  = $P{TaulukkoAiheID} and muisto.ilmiannettu = false and muisto.poistettu = false)]]>
 		</queryString>
 		<field name="aihe_fi" class="java.lang.String"/>
 		<field name="aihe_esittely" class="java.lang.String"/>
@@ -174,6 +175,7 @@ where muisto.muistot_aihe_id  = $P{TaulukkoAiheID}]]>
 		<field name="vastaus5" class="java.lang.String"/>
 		<field name="muisto_alku" class="java.sql.Timestamp"/>
 		<field name="muisto_loppu" class="java.sql.Timestamp"/>
+		<field name="muisto_julkinen" class="java.lang.Boolean"/>
 		<field name="tapahtumapaikka_x" class="java.lang.Double"/>
 		<field name="tapahtumapaikka_y" class="java.lang.Double"/>
 		<field name="kuva_kertomus" class="java.lang.String"/>
@@ -650,6 +652,21 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 								<reportElement x="0" y="0" width="70" height="30" uuid="cf242312-727f-48a4-8cfb-ad76052f85ae"/>
 								<textFieldExpression><![CDATA[$F{syntymavuosi}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="50" uuid="7ae8accd-9a1e-448b-a67a-742bd083915c">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column28"/>
+						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement x="0" y="0" width="50" height="30" uuid="14150037-8272-464b-91e0-d54f129cb939"/>
+								<text><![CDATA[Julkinen muisto]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="Table 1_TD" height="30">
+							<textField>
+								<reportElement x="0" y="0" width="50" height="30" uuid="31660ac7-0314-409f-abc8-5894350704d8"/>
+								<textFieldExpression><![CDATA[$F{muisto_julkinen} ? "Kyllä" : "Ei"]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
 					</jr:column>

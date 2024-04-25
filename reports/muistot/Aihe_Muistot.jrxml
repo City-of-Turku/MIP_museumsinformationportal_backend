@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2024-03-05T09:51:18 -->
+<!-- 2024-04-25T12:48:29 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Aihe_Muistot" pageWidth="595" pageHeight="842" whenNoDataType="NoPages" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="f40fe409-8079-4dd0-9b9e-d3623807fe1a">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
@@ -20,7 +20,9 @@
 		<parameterDescription><![CDATA[Backendin osoite]]></parameterDescription>
 	</parameter>
 	<queryString language="SQL">
-		<![CDATA[select prikka_id from muistot_muisto where muistot_aihe_id = $P{aihe_id} order by prikka_id]]>
+		<![CDATA[select prikka_id from muistot_muisto 
+where (muistot_aihe_id = $P{aihe_id} and ilmiannettu = false and poistettu = false) 
+order by prikka_id]]>
 	</queryString>
 	<field name="prikka_id" class="java.lang.Long">
 		<property name="com.jaspersoft.studio.field.name" value="prikka_id"/>
