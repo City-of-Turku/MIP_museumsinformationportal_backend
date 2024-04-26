@@ -581,13 +581,11 @@ class MuistoController extends Controller {
                 }
 
                 /*
-                * clone $kiinteisto so we can handle the "properties" separately
+                * clone $muisto so we can handle the "properties" separately
                 * -> remove "sijainti" from props
                 */
                 $properties = clone($muisto);
                 unset($properties['sijainti']);
-                //$properties->rakennukset = $buildings;
-                //$properties->test = $kiinteisto->test;
                 $sijainti = (array) json_decode($muisto->sijainti);
                 $sijainti['coordinates'] = array_reverse($sijainti['coordinates']);
                 MipJson::addGeoJsonFeatureCollectionFeaturePoint($sijainti, $properties);

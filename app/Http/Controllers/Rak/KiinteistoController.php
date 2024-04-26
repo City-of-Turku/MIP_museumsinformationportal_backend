@@ -204,6 +204,7 @@ class KiinteistoController extends Controller {
      * @return MipJson
      */
     public function show($id) {
+      Log::channel('prikka')->info("show kiinteisto: " . $id);
 
         /*
          * Role check
@@ -1278,6 +1279,11 @@ class KiinteistoController extends Controller {
                     if ($count > 0) {
                       MipJson::initGeoJsonFeatureCollection(count($memories), count($memories));
                       foreach($memories as $memory) {
+                          if($memory->muistot_henkilo_filtered)
+                          {
+                              $memory->muistot_henkilo = $memory->muistot_henkilo_filtered;
+                          }
+
                           MipJson::addGeoJsonFeatureCollectionFeaturePoint(null, $memory);
                       }
                     }
