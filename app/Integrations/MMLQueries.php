@@ -67,22 +67,97 @@ class MMLQueries {
 
 		$omistajat = array();
 		$omistajatkokonimi = array(); // for duplicate checking
+		$ytunnukset = array();
+		$nimet = array();
 
+		/*
+		* Omistajatiedot parsitaan henkilölajin perusteella
+		* Kaikki tiedot asetataan etunimet ja sukunimet kenttään, jotta selvitään ilman UI-muutoksia
+		* React-versiota varten tiedot on myös järkevämmissä kentissä
+		* Kuolinpesän toimintaa ei ole saatu varmistettua
+		* Tuntematon henkilö TU on vielä epävarma, siksi lokitus
+		*/
+
+		$omistajaLoydetty = false;
 		foreach ($nodes as $node) {
+			$henkilolaji = self::elementsAsString($node->xpath('y:henkilolaji'));
+			$omistajaLoydetty = true;
+			switch ($henkilolaji){
+				case "LU": //Luonnollinen henkilö
+					$sukunimi = self::elementsAsString($node->xpath('y:sukunimi'));
+					$etunimet = self::elementsAsString($node->xpath('y:etunimet'));
+					$kokonimi = $sukunimi." ".$etunimet;
 
-			$sukunimi = self::elementsAsString($node->xpath('y:sukunimi'));
-			$etunimet = self::elementsAsString($node->xpath('y:etunimet'));
-			$kokonimi = $sukunimi." ".$etunimet;
+					if (trim($kokonimi)!= '' && !in_array($kokonimi, $omistajatkokonimi)) {
 
-			if (trim($kokonimi)!= '' && !in_array($kokonimi, $omistajatkokonimi)) {
+						$omistaja = array();
+						$omistaja['etunimet'] = $etunimet;
+						$omistaja['sukunimi'] = $sukunimi;
+						array_push($omistajat, $omistaja);
 
-				$omistaja = array();
-				$omistaja['etunimet'] = $etunimet;
-				$omistaja['sukunimi'] = $sukunimi;
-				array_push($omistajat, $omistaja);
+						array_push($omistajatkokonimi, $kokonimi);
+					}
+					break;
+				case "JU": //Juridinen henkilö
+					$ytunnus = self::elementsAsString($node->xpath('y:ytunnus'));
+					$nimi = self::elementsAsString($node->xpath('y:nimi'));
+					if ((trim($ytunnus)!= '' && trim($nimi)!= '') || (!in_array($ytunnus, $ytunnukset) || !in_array($nimi, $nimet))) {
+						$omistaja = array();
+						$omistaja['etunimet'] = $ytunnus;
+						$omistaja['sukunimi'] = $nimi;
+						$omistaja['ytunnus'] = $ytunnus;
+						$omistaja['nimi'] = $nimi;
+						array_push($omistajat, $omistaja);
 
-				array_push($omistajatkokonimi, $kokonimi);
+						array_push($ytunnukset, $ytunnus);
+						array_push($nimet, $nimi);
+					}
+
+				break;
+				case "VA": //Valtio
+					$nimi = self::elementsAsString($node->xpath('y:nimi'));
+					if (trim($nimi)!= '' && !in_array($nimi, $nimet)) {
+						$omistaja = array();
+						$omistaja['sukunimi'] = $nimi;
+						$omistaja['nimi'] = $nimi;
+						array_push($omistajat, $omistaja);
+					}
+				break;
+				case "KP": //Kuolinpesä (ei varmuutta toiminnasta) lokitetaan varmuuden vuoksi
+					$sukunimi = self::elementsAsString($node->xpath('y:sukunimi'));
+					$etunimet = self::elementsAsString($node->xpath('y:etunimet'));
+					$kokonimi = $sukunimi." ".$etunimet;
+
+					if (trim($kokonimi)!= '' && !in_array($kokonimi, $omistajatkokonimi)) {
+
+						$omistaja = array();
+						$omistaja['etunimet'] = $etunimet;
+						$omistaja['sukunimi'] = $sukunimi;
+						array_push($omistajat, $omistaja);
+
+						array_push($omistajatkokonimi, $kokonimi);
+					}
+					Log::channel('mml')->error("Omistajatiedot failed: Henkilölaji: " . $henkilolaji ." Kiinteistötunnus: " .$kiinteisto['kiinteistotunnus']);
+					break;
+				case "TU": //Tuntematon henkilö (ei varmuutta toiminnasta)
+					$nimi = self::elementsAsString($node->xpath('y:nimi'));
+					if (trim($nimi)!= '' && !in_array($nimi, $nimet)) {
+						$omistaja = array();
+						$omistaja['sukunimi'] = $nimi;
+						$omistaja['nimi'] = $nimi;
+						array_push($omistajat, $omistaja);
+					}
+					Log::channel('mml')->error("Omistajatiedot failed: Henkilölaji: " . $henkilolaji ." Kiinteistötunnus: " .$kiinteisto['kiinteistotunnus']);
+				break;
 			}
+
+
+		}
+		if ($omistajaLoydetty == false){
+			$omistaja = array();
+			$omistaja['sukunimi'] = "Omistajatietoa ei löydy";
+			array_push($omistajat, $omistaja);
+			$kiinteisto['omistajat'] = $omistajat;
 		}
 		$kiinteisto['omistajat'] = $omistajat;
 
@@ -131,16 +206,25 @@ class MMLQueries {
 	 * @throws Exception
 	 */
 	public static function getKiinteistoTunnusByPoint($point) {
-		$margin = 50;
+		if (!empty(config('app.mml_kiinteistotiedot_username')) && !empty(config('app.mml_kiinteistotiedot_password'))){
+			$filter = "filter=S_INTERSECTS(geometry,POINT(" .$point ."))";
+			$url = config('app.mml_kiinteistotiedot_url') . $filter;
+			$username = config('app.mml_kiinteistotiedot_username');
+			$password = config('app.mml_kiinteistotiedot_password');
+		}
+		else{
+			$margin = 50;
+			$lat = explode(" ", $point)[0];
+			$lon = explode(" ", $point)[1];
+			$bbox = implode(",", [$lat+$margin, $lon+$margin, $lat-$margin, $lon-$margin]);
+			$url = config('app.mml_kiinteistotiedot_url') ."bbox=" .htmlentities($bbox);
+			$username = config('app.mml_apikey_nimisto');
+			$password = '';
+		}
 
-		$lat = explode(" ", $point)[0];
-		$lon = explode(" ", $point)[1];
-		$bbox = implode(",", [$lat+$margin, $lon+$margin, $lat-$margin, $lon-$margin]);
-		$url = config('app.mml_kiinteistotiedot_url') .htmlentities($bbox);
 		$client = new Client();
-
 		$res = $client->request('GET', $url, [
-			'auth' => [config('app.mml_apikey_nimisto'), '']
+			'auth' => [$username, $password]
 		]);
 
 		if ($res->getStatusCode()!="200") {
@@ -161,12 +245,21 @@ class MMLQueries {
 		$poly = str_replace(",","+", $polygon);
 		$poly = str_replace(" ",",", $poly);
 		$filter = "filter=S_INTERSECTS(geometry,POLYGON((" .$poly .")))";
-		$url = config('app.mml_kiinteistotiedot_alue_url') . $filter;
+		if (!empty(config('app.mml_kiinteistotiedot_username')) && !empty(config('app.mml_kiinteistotiedot_password'))){
+			$url = config('app.mml_kiinteistotiedot_url') . $filter;
+			$username = config('app.mml_kiinteistotiedot_username');
+			$password = config('app.mml_kiinteistotiedot_password');
+		}
+		else{
+			$url = config('app.mml_kiinteistotiedot_url') . $filter;
+			$username = config('app.mml_apikey_nimisto');
+			$password = '';
+		}
 
 		$client = new Client();
 
 		$res = $client->request('GET', $url, [
-			'auth' => [config('app.mml_apikey_nimisto'), '']
+			'auth' => [$username, $password]
 		]);
 
 		if ($res->getStatusCode()!="200") {
@@ -321,7 +414,7 @@ class MMLQueries {
 							"MAXFEATURES" 	=> "30",
 							"RESULTTYPE" 	=> "results",
 							"EPSG" 			=> "3067",
-							"BBOX" 			=> $bb
+							"BBOX" 			=> "$bb"
 					]
 					,
 					"auth" => [
