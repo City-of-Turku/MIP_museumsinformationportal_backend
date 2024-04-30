@@ -445,7 +445,7 @@ class AiheController extends Controller {
      */
     public function get_memories_by_topic($aihe_id) {
         /*
-         * Role check - HUOM. MUISTOT-ROOLI
+         * Role check
          */
         if(!Kayttaja::hasPermission('muistot.muisto.katselu')) {
           MipJson::setGeoJsonFeature();
@@ -461,20 +461,33 @@ class AiheController extends Controller {
       }
       else {
           try {
-              $aihe = Muistot_aihe::find($aihe_id);
-              
+              $aihe = Muistot_aihe::getSingle($aihe_id)->first();
               if($aihe) {
 
-                  $muistot = $aihe->muistot()->with(array('muistot_henkilo'))->orderby('prikka_id')->get();
+                  $query = $aihe->muistot();
+                  $query->where('poistettu', false);
+                  $query->where('ilmiannettu', false);
+                
+                  if(!Kayttaja::hasPermission('muistot.yksityinen_muisto.katselu')) {
+                      $query->where('julkinen', true);
+                      $query->with('muistot_henkilo_filtered');
+                  } else {
+                      $query->with('muistot_henkilo');
+                  }
+
+                  $muistot = $query->orderby('prikka_id')->get();
                   
-                  // calculate the total rows of the search results
-                  $total_rows = count($muistot);
+                  $total_rows = ($muistot) ? count($muistot) : 0;
 
                   if($total_rows > 0) {
                       MipJson::initGeoJsonFeatureCollection(count($muistot), $total_rows);
-                      MipJson::addMessage(Lang::get('rakennus.search_success'));
+                      
                       foreach ($muistot as $muisto) {
-
+                          if($muisto->muistot_henkilo_filtered)
+                          {
+                              $muisto->muistot_henkilo = $muisto->muistot_henkilo_filtered;
+                          }
+        
                           /*
                            * clone $muisto so we can handle the "properties" separately
                            * -> remove "sijainti" from props
@@ -486,21 +499,17 @@ class AiheController extends Controller {
                           MipJson::addGeoJsonFeatureCollectionFeaturePoint($sijainti, $properties);
                       }
                   }
-                  if(count($muistot) <= 0) {
-                      MipJson::setGeoJsonFeature();
-                      //MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
-                      MipJson::addMessage(Lang::get('rakennus.search_not_found'));
-                  }
+                  MipJson::addMessage(Lang::get('muistot.search_success'));
               }
               else {
                   MipJson::setGeoJsonFeature();
-                  MipJson::addMessage(Lang::get('rakennus.search_not_found'));
+                  MipJson::addMessage(Lang::get('muistot.search_not_found'));
                   MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
               }
           }
           catch(QueryException $e) {
               MipJson::setGeoJsonFeature();
-              MipJson::addMessage(Lang::get('rakennus.search_failed'));
+              MipJson::addMessage(Lang::get('muistot.search_failed'));
               MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
           }
       }

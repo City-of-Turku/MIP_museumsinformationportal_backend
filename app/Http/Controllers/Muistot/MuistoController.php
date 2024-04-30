@@ -552,6 +552,9 @@ class MuistoController extends Controller {
                 $muistot->withBoundingBox($request->aluerajaus);
             }
 
+            $muistot->withPoistettu('false');
+            $muistot->withIlmiannettu('false');
+
             if(!Kayttaja::hasPermission('muistot.yksityinen_muisto.katselu'))
             {
                 $muistot->withJulkinen('true');
@@ -581,13 +584,11 @@ class MuistoController extends Controller {
                 }
 
                 /*
-                * clone $kiinteisto so we can handle the "properties" separately
+                * clone $muisto so we can handle the "properties" separately
                 * -> remove "sijainti" from props
                 */
                 $properties = clone($muisto);
                 unset($properties['sijainti']);
-                //$properties->rakennukset = $buildings;
-                //$properties->test = $kiinteisto->test;
                 $sijainti = (array) json_decode($muisto->sijainti);
                 $sijainti['coordinates'] = array_reverse($sijainti['coordinates']);
                 MipJson::addGeoJsonFeatureCollectionFeaturePoint($sijainti, $properties);
@@ -633,7 +634,6 @@ class MuistoController extends Controller {
         }
         else {
             try {
-
                 if(Kayttaja::hasPermission('muistot.yksityinen_muisto.katselu'))
                 {
                     $muisto = Muistot_muisto::getSingle($id)
@@ -645,8 +645,26 @@ class MuistoController extends Controller {
                         'Kiinteistot'
                     ))->first();
                 }
+                else
+                {
+                    $muisto = Muistot_muisto::getSingle($id)
+                    ->with( array(
+                        'Muistot_vastaus',
+                        'Muistot_henkilo_filtered',
+                        'Muistot_vastaus.Muistot_kysymys',
+                        'Muistot_aihe',
+                        'Kiinteistot'
+                    ))->first();
+                }
 
-                if($muisto) {
+                if($muisto && !$muisto->ilmiannettu && !$muisto->poistettu) {
+                    if (!$muisto->julkinen && !Kayttaja::hasPermission('muistot.yksityinen_muisto.katselu')) {
+                      MipJson::setGeoJsonFeature();
+                      MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+                      MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+                      return MipJson::getJson();          
+                    }
+
                     //TODO: Leaves artefact in the return list
                     if($muisto->muistot_henkilo_filtered)
                     {
@@ -675,95 +693,86 @@ class MuistoController extends Controller {
         return MipJson::getJson();
     }
 
-  // TODO: Not final!
-  public function update_estates(Request $request, $muistoId)
-  {
-      Log::channel('prikka')->info("update_estates");
-      /*
-       * Käyttöoikeustarkistus
-       */
-      if(Auth::user()->rooli != 'tutkija' && Auth::user()->rooli != 'pääkäyttäjä') {
-          MipJson::setGeoJsonFeature();
-          MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
-          MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
-          return MipJson::getJson();
-      }
-
-      $validator = Validator::make($request->all()['properties'], [
-          // tämä oln kommenteissa myös toimenpidecontrollerissa
-          // josta tämä on kopioitu
-          // 'muisto_id'		=> 'required|string'
-      ]);
-
-      if ($validator->fails()) {
-        Log::channel('prikka')->info("update_topics validator fails");
-          MipJson::setGeoJsonFeature();
-          MipJson::addMessage(Lang::get('validation.custom.user_input_validation_failed'));
-          foreach($validator->errors()->all() as $error) {
-              MipJson::addMessage($error);
-          }
-          MipJson::setResponseStatus(Response::HTTP_BAD_REQUEST);
-          return MipJson::getJson();
-      }
-
-      try {
-
-          $muisto = Muistot_muisto::find($muistoId);
-
-          if(!$muisto){
-            Log::channel('prikka')->info("muisto not found");
+    /**
+     * Update estates based on the provided data
+     *
+     * @param  Request $request The request object containing the update data
+     * @param  int $muistoId The ID of the memory to update
+     * @return \Illuminate\Http\Response
+     * @author
+     * @version 1.0
+     * @since 1.0
+     */  
+    public function update_estates(Request $request, $muistoId)
+    {
+        /*
+        * User rights
+        */
+        if(!Kayttaja::hasPermission('muistot.muisto.muokkaus')) {
             MipJson::setGeoJsonFeature();
-            MipJson::addMessage(Lang::get('konservointiHallinta.operation_search_not_found'));
-            MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
+            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
             return MipJson::getJson();
-          }
+        }
 
-          Log::channel('prikka')->info("muisto found");
-          try {
+        try {
+
+            $muisto = Muistot_muisto::find($muistoId);
+
+            if(!$muisto){
+                MipJson::setGeoJsonFeature();
+                MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
+                MipJson::addMessage(Lang::get('muistot.search_failed'));
+                return MipJson::getJson();
+            }
+          } catch(Exception $e) {
+            MipJson::setGeoJsonFeature();
+            MipJson::setResponseStatus ( Response::HTTP_INTERNAL_SERVER_ERROR );
+            MipJson::addMessage ( Lang::get ( 'muistot.search_failed' ) );
+            return MipJson::getJson();
+        }
+    
+
+        if (!$muisto->julkinen && !Kayttaja::hasPermission('muistot.yksityinen_muisto.muokkaus')) {
+            MipJson::setGeoJsonFeature();
+            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+            return MipJson::getJson();
+        }
+
+        try {
             DB::beginTransaction();
             Utils::setDBUser();
 
-                if($request->input('properties.kiinteistot')){
-                  // The request should contain an array of Kiinteisto objects
-                  $kiinteistoObjects = $request->input('properties.kiinteistot');
+            if($request->input('properties.kiinteistot')){
+                // The request should contain an array of Kiinteisto objects
+                $kiinteistoObjects = $request->input('properties.kiinteistot');
+            
+                $kiinteistoIds = array_map(function ($kiinteisto) {
+                    return $kiinteisto['id'];
+                }, $kiinteistoObjects);
 
-                  Log::channel('prikka')->info("kiinteistoObjects: " . json_encode($kiinteistoObjects));
-              
-                  $kiinteistoIds = array_map(function ($kiinteisto) {
-                      return $kiinteisto['id'];
-                  }, $kiinteistoObjects);
-
-                 Log::channel('prikka')->info("updateKiinteistot " . $muistoId . " kiinteistoIds " . json_encode($kiinteistoIds));
-              
-                  // Sync the Kiinteisto items
-                 $muisto->kiinteistot()->sync($kiinteistoIds);
-              }   
-              else {
-                  // If the request does not contain Kiinteisto objects, remove all Kiinteisto items
-                  Log::channel('prikka')->info("updateKiinteistot " . $muistoId . " kiinteistoIds null");
-              }     
+                // Sync the Kiinteisto items
+                $muisto->kiinteistot()->sync($kiinteistoIds);
+            }   
+            else {
+                // If the request does not contain Kiinteisto objects, remove all Kiinteisto items
+                $muisto->kiinteistot()->sync(null);
+            }     
 
             DB::commit();
-          } catch(Exception $e) {
+            MipJson::addMessage(Lang::get('muistot.save_success'));
+            MipJson::setGeoJsonFeature(null, array("id" => $muisto->prikka_id));
+            MipJson::setResponseStatus(Response::HTTP_OK);
+    
+        } catch(Exception $e) {
             DB::rollback();
-            Log::channel('prikka')->info("updateKiinteistot " . $muistoId . " failed " . $e->getMessage());
-            throw $e;
-          }
+            MipJson::setGeoJsonFeature ();
+            MipJson::setResponseStatus ( Response::HTTP_INTERNAL_SERVER_ERROR );
+            MipJson::addMessage ( Lang::get ( 'muistot.save_failed' ) );
+        }
 
-          Log::channel('prikka')->info("updateKiinteistot " . $muistoId . " success");
-          MipJson::addMessage(Lang::get('konservointiHallinta.operation_save_success'));
-          MipJson::setGeoJsonFeature(null, $muisto);
-          MipJson::setResponseStatus(Response::HTTP_OK);
-
-      } catch(Exception $e) {
-
-        Log::channel('prikka')->info("updateKiinteistot " . $muistoId . " failed " . $e->getMessage());
-      MipJson::setGeoJsonFeature();
-      MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
-      MipJson::addMessage(Lang::get('konservointiHallinta.operation_save_failed'));
+        return MipJson::getJson();
     }
-
-    return MipJson::getJson();
-  }
 
 }

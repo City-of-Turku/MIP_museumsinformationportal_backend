@@ -204,6 +204,7 @@ class KiinteistoController extends Controller {
      * @return MipJson
      */
     public function show($id) {
+      Log::channel('prikka')->info("show kiinteisto: " . $id);
 
         /*
          * Role check
@@ -1240,51 +1241,67 @@ class KiinteistoController extends Controller {
      */
     function getMemories($id) {
 
-      /*
-         * Role check - TODO MUISTOT-ROOLI
+        /*
+         * Role check
          */
-        if(!Kayttaja::hasPermission('rakennusinventointi.kiinteisto.katselu')) {
-          MipJson::setGeoJsonFeature();
-          MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
-          MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
-          return MipJson::getJson();
-      }
+        if(!Kayttaja::hasPermission('muistot.muisto.katselu')) {
+            MipJson::setGeoJsonFeature();
+            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+            return MipJson::getJson();
+        }
 
-      if(!is_numeric($id)) {
-          MipJson::setGeoJsonFeature();
-          MipJson::addMessage(Lang::get('validation.custom.user_input_validation_failed'));
-          MipJson::setResponseStatus(Response::HTTP_BAD_REQUEST);
-      }
-      else {
-          try {
-              $kiinteisto = Kiinteisto::getSingle($id)->first();
+        if(!is_numeric($id)) {
+            MipJson::setGeoJsonFeature();
+            MipJson::addMessage(Lang::get('validation.custom.user_input_validation_failed'));
+            MipJson::setResponseStatus(Response::HTTP_BAD_REQUEST);
+        }
+        else {
+            try {
+                $kiinteisto = Kiinteisto::getSingle($id)->first();
 
-              if($kiinteisto) {
-                  $memories = $kiinteisto->memories->load(['muistot_henkilo', 'muistot_aihe']);
-                  $count = ($memories) ? count($memories) : 0;
-                  if ($count > 0) {
-                    //Log::channel('prikka')->info("Found " . count($memories) . " memories for kiinteisto " . $kiinteisto->id);
-                    MipJson::initGeoJsonFeatureCollection(count($memories), count($memories));
-                    foreach($memories as $memory) {
-                        //Log::channel('prikka')->info("memory: " . json_encode($memory));
-                        MipJson::addGeoJsonFeatureCollectionFeaturePoint(null, $memory);
+                if($kiinteisto) {
+                    $query = $kiinteisto->memories();
+                    $query->where('poistettu', false);
+                    $query->where('ilmiannettu', false);
+                  
+                    if(!Kayttaja::hasPermission('muistot.yksityinen_muisto.katselu')) {
+                        $query->where('julkinen', true);
+                        $query->with('muistot_henkilo_filtered');
+                    } else {
+                        $query->with('muistot_henkilo');
                     }
-                  }
-                  MipJson::addMessage(Lang::get('kiinteisto.search_success'));
-              }
-              else {
-                  MipJson::setGeoJsonFeature();
-                  MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
-                  MipJson::addMessage(Lang::get('kiinteisto.search_not_found'));
-              }
-          }
-          catch(QueryException $e) {
-              MipJson::setGeoJsonFeature();
-              MipJson::addMessage(Lang::get('kiinteisto.search_failed'));
-              MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
-          }
-      }
-      return MipJson::getJson();
+                    
+                    $query->with('muistot_aihe');                    
+                    $memories = $query->get();
+                  
+                    $count = ($memories) ? count($memories) : 0;
+                    if ($count > 0) {
+                      MipJson::initGeoJsonFeatureCollection(count($memories), count($memories));
+                      foreach($memories as $memory) {
+                          if($memory->muistot_henkilo_filtered)
+                          {
+                              $memory->muistot_henkilo = $memory->muistot_henkilo_filtered;
+                          }
+
+                          MipJson::addGeoJsonFeatureCollectionFeaturePoint(null, $memory);
+                      }
+                    }
+                    MipJson::addMessage(Lang::get('kiinteisto.search_success'));
+                }
+                else {
+                    MipJson::setGeoJsonFeature();
+                    MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
+                    MipJson::addMessage(Lang::get('kiinteisto.search_not_found'));
+                }
+            }
+            catch(QueryException $e) {
+                MipJson::setGeoJsonFeature();
+                MipJson::addMessage(Lang::get('kiinteisto.search_failed'));
+                MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+        }
+        return MipJson::getJson();
 
     }
 }
