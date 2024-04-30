@@ -51,8 +51,8 @@ class Muistot_aihe extends Model {
      */
     public function muistot()
     {
-        return $this->hasMany('App\Muistot\Muistot_muisto', 'muistot_aihe_id', 'prikka_id');
-        // ->addSelect('*',DB::raw(MipGis::getGeometryFieldQueryString("rakennuksen_sijainti", "sijainti"))); // TODO
+        return $this->hasMany('App\Muistot\Muistot_muisto', 'muistot_aihe_id', 'prikka_id')
+            ->addSelect('*',DB::raw(MipGis::getGeometryFieldQueryString("tapahtumapaikka", "sijainti"))); // TODO
     }
 
     public function muistot_kysymys() {

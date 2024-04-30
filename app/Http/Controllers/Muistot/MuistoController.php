@@ -39,6 +39,8 @@ class MuistoController extends Controller {
 
     public function saveMuistot(Request $request) 
     {
+        Log::channel('prikka')->info("saveMuistot " . $request . " recieved");
+
         $errorArray = array();
         foreach($request->muistot as $muisto)
         {
@@ -206,6 +208,7 @@ class MuistoController extends Controller {
         }
       
         $ret = (object) array('Errors' => $errorArray);
+        Log::channel('prikka')->info("saveMuistot " . $ret . " success");
         return $ret;
     }
 

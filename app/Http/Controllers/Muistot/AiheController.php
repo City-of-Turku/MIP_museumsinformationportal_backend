@@ -38,6 +38,7 @@ class AiheController extends Controller {
     */
     public function saveAiheet(Request $request) 
     {
+        Log::channel('prikka')->info("saveAiheet " . $request . " recieved");
         $errorArray = array();
         foreach($request->aiheet as $aihe)
         {
@@ -125,11 +126,13 @@ class AiheController extends Controller {
             catch(Exception $e)
             {
                 array_push($errorArray, $aihe['aihe_id'] . ': failed to add');
+                Log::channel('prikka')->info("saveMuistot failed");
                 DB::rollback();
             }
         }
-      
+
         $ret = (object) array('Errors' => $errorArray);
+        Log::channel('prikka')->info("saveAiheetForce " . count((array) $ret) . " success");
         return $ret;
     }
 
@@ -141,6 +144,7 @@ class AiheController extends Controller {
     */
     public function saveAiheetForce(Request $request) 
     {
+        Log::channel('prikka')->info("saveAiheetForce " . $request . " recieved");
         $errorArray = array();
         foreach($request->aiheet as $aihe)
         {
@@ -232,13 +236,14 @@ class AiheController extends Controller {
             }
             catch(Exception $e)
             {
-                throw $e;
                 array_push($errorArray, $aihe['aihe_id'] . ': failed to add');
+                Log::channel('prikka')->info("saveAiheetForce failed");
                 DB::rollback();
             }
         }
-      
+
         $ret = (object) array('Errors' => $errorArray);
+        Log::channel('prikka')->info("saveAiheetForce " . count((array) $ret) . " success");
         return $ret;
     }
 
@@ -476,7 +481,9 @@ class AiheController extends Controller {
                            */
                           $properties = clone($muisto);
                           unset($properties['sijainti']);
-                          MipJson::addGeoJsonFeatureCollectionFeaturePoint(json_decode($muisto->sijainti), $properties);
+                          $sijainti = (array) json_decode($muisto->sijainti);
+                          $sijainti['coordinates'] = array_reverse($sijainti['coordinates']);
+                          MipJson::addGeoJsonFeatureCollectionFeaturePoint($sijainti, $properties);
                       }
                   }
                   if(count($muistot) <= 0) {
