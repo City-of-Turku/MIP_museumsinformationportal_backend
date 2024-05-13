@@ -201,7 +201,7 @@ class AiheController extends Controller {
                                 {
                                     $this->deleteAllImagesFromMuisto($muisto->prikka_id);
                                     $vastaukset=Muistot_vastaus::where('muistot_muisto_id',$muisto->prikka_id)->delete();
-                                    //$kiinteistot=Muistot_muisto_kiinteisto::where('muistot_muisto_id', $muist->prikka_id)->delete();
+                                    $kiinteistot=Muistot_muisto_kiinteisto::where('muistot_muisto_id', $muist->prikka_id)->delete();
                                 }
                                 $muistot=Muistot_muisto::where('muistot_aihe_id',$aiheEntity->prikka_id)->delete();
                             }
