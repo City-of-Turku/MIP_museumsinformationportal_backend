@@ -38,7 +38,7 @@ class AiheController extends Controller {
     */
     public function saveAiheet(Request $request) 
     {
-        Log::channel('prikka')->info("saveAiheet " . $request . " recieved");
+        Log::channel('prikka')->info("saveAiheet " . count($request->aiheet) . " recieved");
         $errorArray = array();
         foreach($request->aiheet as $aihe)
         {
@@ -126,13 +126,13 @@ class AiheController extends Controller {
             catch(Exception $e)
             {
                 array_push($errorArray, $aihe['aihe_id'] . ': failed to add');
-                Log::channel('prikka')->info("saveMuistot failed");
+                Log::channel('prikka')->info("SaveAiheet failed");
                 DB::rollback();
             }
         }
 
         $ret = (object) array('Errors' => $errorArray);
-        Log::channel('prikka')->info("saveAiheetForce " . count((array) $ret) . " success");
+        Log::channel('prikka')->info("saveAiheet success with: " . count($errorArray) . " errors");
         return $ret;
     }
 
@@ -144,7 +144,7 @@ class AiheController extends Controller {
     */
     public function saveAiheetForce(Request $request) 
     {
-        Log::channel('prikka')->info("saveAiheetForce " . $request . " recieved");
+        Log::channel('prikka')->info("saveAiheetForce " . count($request->aiheet) . " recieved");
         $errorArray = array();
         foreach($request->aiheet as $aihe)
         {
@@ -201,6 +201,7 @@ class AiheController extends Controller {
                                 {
                                     $this->deleteAllImagesFromMuisto($muisto->prikka_id);
                                     $vastaukset=Muistot_vastaus::where('muistot_muisto_id',$muisto->prikka_id)->delete();
+                                    //$kiinteistot=Muistot_muisto_kiinteisto::where('muistot_muisto_id', $muist->prikka_id)->delete();
                                 }
                                 $muistot=Muistot_muisto::where('muistot_aihe_id',$aiheEntity->prikka_id)->delete();
                             }
@@ -243,7 +244,7 @@ class AiheController extends Controller {
         }
 
         $ret = (object) array('Errors' => $errorArray);
-        Log::channel('prikka')->info("saveAiheetForce " . count((array) $ret) . " success");
+        Log::channel('prikka')->info("saveAiheetForce success with: " . count($errorArray) . " errors");
         return $ret;
     }
 
