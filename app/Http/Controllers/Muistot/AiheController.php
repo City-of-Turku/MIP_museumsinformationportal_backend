@@ -373,13 +373,13 @@ class AiheController extends Controller {
              */
             MipJson::setIdList($kori_id_lista);
 
-            MipJson::addMessage(Lang::get('kiinteisto.search_success'));
+            MipJson::addMessage(Lang::get('muistot_aihe.search_success'));
 
         } catch(Exception $e) {
             throw $e;
             MipJson::setGeoJsonFeature();
             MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
-            MipJson::addMessage(Lang::get('kiinteisto.search_failed'));
+            MipJson::addMessage(Lang::get('muistot_aihe.search_failed'));
         }
 
         return MipJson::getJson();
@@ -422,17 +422,17 @@ class AiheController extends Controller {
                     unset($properties['sijainti']);
                     MipJson::setGeoJsonFeature(json_decode($aihe->sijainti), $properties);
 
-                    MipJson::addMessage(Lang::get('kiinteisto.search_success'));
+                    MipJson::addMessage(Lang::get('muistot_aihe.search_success'));
                 }
                 else {
                     MipJson::setGeoJsonFeature();
                     MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
-                    MipJson::addMessage(Lang::get('kiinteisto.search_not_found'));
+                    MipJson::addMessage(Lang::get('muistot_aihe.search_not_found'));
                 }
             }
             catch(QueryException $e) {
                 MipJson::setGeoJsonFeature();
-                MipJson::addMessage(Lang::get('kiinteisto.search_failed'));
+                MipJson::addMessage(Lang::get('muistot_aihe.search_failed'));
                 MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
             }
         }

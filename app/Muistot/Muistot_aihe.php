@@ -2,11 +2,13 @@
 
 namespace App\Muistot;
 
+use DateTime;
 use App\Library\Gis\MipGis;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class Muistot_aihe extends Model {
 
@@ -95,7 +97,10 @@ class Muistot_aihe extends Model {
     }
 
     public function scopeWithSulkeutuu($query, $date) {
-        return $query->where('muistot_aihe.sulkeutuu', '<=', $date);
+        $dateObject = new DateTime($date);
+        $dateObject->modify('+1 day');
+        $nextDay = $dateObject->format('Y-m-d');
+        return $query->where('muistot_aihe.sulkeutuu', '<', $nextDay);
     }
 
     public function scopeWithAihe($query, $keyword) {

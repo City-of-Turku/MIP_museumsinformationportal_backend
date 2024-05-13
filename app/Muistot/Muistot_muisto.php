@@ -2,11 +2,13 @@
 
 namespace App\Muistot;
 
+use DateTime;
 use App\Library\Gis\MipGis;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class Muistot_muisto extends Model {
 
@@ -144,7 +146,11 @@ class Muistot_muisto extends Model {
     }
 
     public function scopeWithLoppuu($query, $date) {
-        return $query->where('muistot_muisto.loppuu', '<=', $date);
+        // Need to set to next day, so that all times will be included
+        $dateObject = new DateTime($date);
+        $dateObject->modify('+1 day');
+        $nextDay = $dateObject->format('Y-m-d');
+        return $query->where('muistot_muisto.loppuu', '<', $nextDay);
     }
 
     public function scopeWithPolygon($query, $polygon) {
