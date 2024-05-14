@@ -194,7 +194,7 @@ class Muistot_muisto extends Model {
 
     		//We may not be able to order the data by the bbox
     		if($order_field == 'bbox_center' && is_null($bbox)) {
-    			$order_field = 'id';
+    			$order_field = 'prikka_id';
     		}
 
     		$query->orderBy($order_table.'.'.$order_field, $order_direction);
