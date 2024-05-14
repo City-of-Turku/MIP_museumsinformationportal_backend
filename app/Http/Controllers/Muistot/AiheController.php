@@ -10,6 +10,7 @@ use App\Muistot\Muistot_kuva;
 use App\Muistot\Muistot_kysymys;
 use App\Muistot\Muistot_muisto;
 use App\Muistot\Muistot_vastaus;
+use App\Muistot\Muistot_muisto_kiinteisto;
 use App\Http\Controllers\Controller;
 use App\Library\Gis\MipGis;
 use App\Library\String\MipJson;
@@ -38,8 +39,9 @@ class AiheController extends Controller {
     */
     public function saveAiheet(Request $request) 
     {
-        Log::channel('prikka')->info("saveAiheet " . count($request->aiheet) . " recieved");
+        Log::channel('prikka')->info("saveAiheet " . count($request->aiheet) . " received");
         $errorArray = array();
+        $errorObjects = array();
         foreach($request->aiheet as $aihe)
         {
             try
@@ -49,6 +51,7 @@ class AiheController extends Controller {
                 if(!in_array('aihe_id', array_keys($aihe)))
                 {
                     array_push($errorArray, 'No id in aihe');
+                    array_push($errorObjects, 'N/A');
                 }
                 else 
                 {
@@ -58,6 +61,7 @@ class AiheController extends Controller {
                         foreach($validationResult as $vresult)
                         {
                             array_push($errorArray, $vresult);
+                            array_push($errorObjects, $aihe['aihe_id']);
                         }
                     }
                     else 
@@ -92,6 +96,7 @@ class AiheController extends Controller {
                             if(!$muistot->isEmpty())
                             {
                                 array_push($errorArray, $aihe['aihe_id'] . ': Cannot add questions, topic already has memories');
+                                array_push($errorObjects, $aihe['aihe_id']);
                             }
                             else
                             {
@@ -126,6 +131,7 @@ class AiheController extends Controller {
             catch(Exception $e)
             {
                 array_push($errorArray, $aihe['aihe_id'] . ': failed to add');
+                array_push($errorObjects, $aihe['aihe_id']);
                 Log::channel('prikka')->info("SaveAiheet failed");
                 DB::rollback();
             }
@@ -133,6 +139,10 @@ class AiheController extends Controller {
 
         $ret = (object) array('Errors' => $errorArray);
         Log::channel('prikka')->info("saveAiheet success with: " . count($errorArray) . " errors");
+        foreach(array_unique($errorObjects) as $object)
+        {
+            Log::channel('prikka')->info("Aihe " . $object . " was not added");
+        }
         return $ret;
     }
 
@@ -144,8 +154,9 @@ class AiheController extends Controller {
     */
     public function saveAiheetForce(Request $request) 
     {
-        Log::channel('prikka')->info("saveAiheetForce " . count($request->aiheet) . " recieved");
+        Log::channel('prikka')->info("saveAiheetForce " . count($request->aiheet) . " received");
         $errorArray = array();
+        $errorObjects = array();
         foreach($request->aiheet as $aihe)
         {
             try
@@ -155,6 +166,7 @@ class AiheController extends Controller {
                 if(!in_array('aihe_id', array_keys($aihe)))
                 {
                     array_push($errorArray, 'No id in aihe');
+                    array_push($errorObjects, 'N/A');
                 }
                 else 
                 {
@@ -164,6 +176,7 @@ class AiheController extends Controller {
                         foreach($validationResult as $vresult)
                         {
                             array_push($errorArray, $vresult);
+                            array_push($errorObjects, $aihe['aihe_id']);
                         }
                     }
                     else 
@@ -201,7 +214,7 @@ class AiheController extends Controller {
                                 {
                                     $this->deleteAllImagesFromMuisto($muisto->prikka_id);
                                     $vastaukset=Muistot_vastaus::where('muistot_muisto_id',$muisto->prikka_id)->delete();
-                                    $kiinteistot=Muistot_muisto_kiinteisto::where('muistot_muisto_id', $muist->prikka_id)->delete();
+                                    //$kiinteistot=Muistot_muisto_kiinteisto::where('muistot_muisto_id', $muisto->prikka_id)->delete();
                                 }
                                 $muistot=Muistot_muisto::where('muistot_aihe_id',$aiheEntity->prikka_id)->delete();
                             }
@@ -238,6 +251,7 @@ class AiheController extends Controller {
             catch(Exception $e)
             {
                 array_push($errorArray, $aihe['aihe_id'] . ': failed to add');
+                array_push($errorObjects, $aihe['aihe_id']);
                 Log::channel('prikka')->info("saveAiheetForce failed");
                 DB::rollback();
             }
@@ -245,6 +259,10 @@ class AiheController extends Controller {
 
         $ret = (object) array('Errors' => $errorArray);
         Log::channel('prikka')->info("saveAiheetForce success with: " . count($errorArray) . " errors");
+        foreach(array_unique($errorObjects) as $object)
+        {
+            Log::channel('prikka')->info("Aihe " . $object . " was not added");
+        }
         return $ret;
     }
 

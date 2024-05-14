@@ -39,9 +39,10 @@ class MuistoController extends Controller {
 
     public function saveMuistot(Request $request) 
     {
-        Log::channel('prikka')->info("saveMuistot " . count($request ->muistot) . " recieved");
+        Log::channel('prikka')->info("saveMuistot " . count($request ->muistot) . " received");
 
         $errorArray = array();
+        $errorObjects = array();
         foreach($request->muistot as $muisto)
         {
             try
@@ -51,6 +52,7 @@ class MuistoController extends Controller {
                 if(!in_array('muisto_id', array_keys($muisto)))
                 {
                     array_push($errorArray, 'No id in muisto');
+                    array_push($errorObjects, 'N/A');
                 }
                 else 
                 {
@@ -60,11 +62,13 @@ class MuistoController extends Controller {
                         foreach($validationResult as $vresult)
                         {
                             array_push($errorArray, $vresult);
+                            array_push($errorObjects, $muisto['muisto_id']);
                         }
                     }
                     else if(Muistot_aihe::where('prikka_id', $muisto['aihe_id'])->get()->first() == null)
                     {
                         array_push($errorArray, $muisto['muisto_id'] . ' aihe does not exist');
+                        array_push($errorObjects, $muisto['muisto_id']);
                     }
                     else 
                     {
@@ -203,12 +207,18 @@ class MuistoController extends Controller {
             {
                 throw $e;
                 array_push($errorArray, $muisto['muisto_id'] . ': failed to add');
+                array_push($errorObjects, $muisto['muisto_id']);
                 DB::rollback();
             }
         }
       
         $ret = (object) array('Errors' => $errorArray);
+
         Log::channel('prikka')->info("saveMuistot success with: " . count($errorArray) . " errors");
+        foreach(array_unique($errorObjects) as $object)
+        {
+            Log::channel('prikka')->info("Muisto " . $object . " was not added");
+        }
         return $ret;
     }
 
