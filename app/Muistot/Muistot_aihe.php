@@ -70,10 +70,20 @@ class Muistot_aihe extends Model {
      */
     public static function getAll() {
 
-        $qry = Muistot_aihe::select('muistot_aihe.prikka_id', 'muistot_aihe.aukeaa', 'muistot_aihe.sulkeutuu', 'muistot_aihe.aihe_fi', 'muistot_aihe.aihe_en', 'muistot_aihe.aihe_sv', 
+        $qry = Muistot_aihe::select('muistot_aihe.prikka_id', 'muistot_aihe.aukeaa', 'muistot_aihe.sulkeutuu', 'muistot_aihe.aihe_fi', 'muistot_aihe.aihe_en', 'muistot_aihe.aihe_sv',
             'esittely_fi', 'muistot_aihe.esittely_en', 'muistot_aihe.esittely_sv', 'aiheen_vari');
 
 		return $qry;
+    }
+
+    public static function getAllForVisitor($kayttaja_id) {
+        $qry = Muistot_aihe::select('muistot_aihe.prikka_id', 'muistot_aihe.aukeaa', 'muistot_aihe.sulkeutuu', 'muistot_aihe.aihe_fi', 'muistot_aihe.aihe_en', 'muistot_aihe.aihe_sv',
+            'esittely_fi', 'muistot_aihe.esittely_en', 'muistot_aihe.esittely_sv', 'muistot_aihe.aiheen_vari')
+            ->join('muistot_aihe_kayttaja', 'muistot_aihe.prikka_id', '=', 'muistot_aihe_kayttaja.muistot_aihe_id')
+            ->whereNull('muistot_aihe_kayttaja.poistettu')
+            ->where("muistot_aihe_kayttaja.kayttaja_id", "=", $kayttaja_id);
+
+        return $qry;
     }
 
     /**
@@ -87,7 +97,7 @@ class Muistot_aihe extends Model {
         return Muistot_aihe::select('muistot_aihe.*')
             ->where('muistot_aihe.prikka_id', '=', $id);
     }
-    
+
     public function scopeWithPrikkaId($query, $keyword) {
         return $query->where('muistot_aihe.prikka_id', '=', $keyword);
     }
@@ -110,7 +120,7 @@ class Muistot_aihe extends Model {
     }
 
     public function scopeWithOrderBy($query, $bbox=null, $order_field=null, $order_direction=null) {
-    	
+
     	$order_table = "muistot_aihe";
 
     	/*

@@ -10,6 +10,7 @@ use App\Muistot\Muistot_kuva;
 use App\Muistot\Muistot_kysymys;
 use App\Muistot\Muistot_muisto;
 use App\Muistot\Muistot_vastaus;
+use App\Muistot\Muistot_aihe_kayttaja;
 use App\Muistot\Muistot_muisto_kiinteisto;
 use App\Http\Controllers\Controller;
 use App\Library\Gis\MipGis;
@@ -37,7 +38,7 @@ class AiheController extends Controller {
     * @param  \Illuminate\Http\Request  $request
     * @return \Illuminate\Http\Response
     */
-    public function saveAiheet(Request $request) 
+    public function saveAiheet(Request $request)
     {
         Log::channel('prikka')->info("saveAiheet " . count($request->aiheet) . " received");
         $errorArray = array();
@@ -47,13 +48,13 @@ class AiheController extends Controller {
             try
             {
                 DB::beginTransaction();
-              
+
                 if(!in_array('aihe_id', array_keys($aihe)))
                 {
                     array_push($errorArray, 'No id in aihe');
                     array_push($errorObjects, 'N/A');
                 }
-                else 
+                else
                 {
                     $validationResult = $this->validateAihe($aihe);
                     if(!empty($validationResult))
@@ -64,7 +65,7 @@ class AiheController extends Controller {
                             array_push($errorObjects, $aihe['aihe_id']);
                         }
                     }
-                    else 
+                    else
                     {
                         $aiheEntity = Muistot_aihe::find($aihe['aihe_id']);
                         if(!$aiheEntity)
@@ -72,7 +73,7 @@ class AiheController extends Controller {
                             $aiheEntity = new Muistot_aihe();
                         }
 
-                        foreach($aihe as $key=>$value) 
+                        foreach($aihe as $key=>$value)
                         {
                             if($key == 'aihe_id')
                             {
@@ -152,7 +153,7 @@ class AiheController extends Controller {
     * @param  \Illuminate\Http\Request  $request
     * @return \Illuminate\Http\Response
     */
-    public function saveAiheetForce(Request $request) 
+    public function saveAiheetForce(Request $request)
     {
         Log::channel('prikka')->info("saveAiheetForce " . count($request->aiheet) . " received");
         $errorArray = array();
@@ -162,13 +163,13 @@ class AiheController extends Controller {
             try
             {
                 DB::beginTransaction();
-              
+
                 if(!in_array('aihe_id', array_keys($aihe)))
                 {
                     array_push($errorArray, 'No id in aihe');
                     array_push($errorObjects, 'N/A');
                 }
-                else 
+                else
                 {
                     $validationResult = $this->validateAihe($aihe);
                     if(!empty($validationResult))
@@ -179,7 +180,7 @@ class AiheController extends Controller {
                             array_push($errorObjects, $aihe['aihe_id']);
                         }
                     }
-                    else 
+                    else
                     {
                         $aiheEntity = Muistot_aihe::find($aihe['aihe_id']);
                         if(!$aiheEntity)
@@ -187,7 +188,7 @@ class AiheController extends Controller {
                             $aiheEntity = new Muistot_aihe();
                         }
 
-                        foreach($aihe as $key=>$value) 
+                        foreach($aihe as $key=>$value)
                         {
                             if($key == 'aihe_id')
                             {
@@ -311,7 +312,7 @@ class AiheController extends Controller {
      * Get all topics from the database
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
-     */    
+     */
     public function index(Request $request) {
 
         /*
@@ -348,7 +349,12 @@ class AiheController extends Controller {
             $jarjestys_kentta = (isset($request->jarjestys)) ? $request->jarjestys : "prikka_id";
             $jarjestys_suunta = (isset($request->jarjestys_suunta)) ? ($request->jarjestys_suunta == "laskeva" ? "desc" : "asc") : "asc";
 
-            $aiheet = Muistot_aihe::getAll();
+            if (Kayttaja::hasPermission('rakennusinventointi.kiinteisto.luonti')){
+                $aiheet = Muistot_aihe::getAll();
+            }
+            else{
+                $aiheet = Muistot_aihe::getAllForVisitor(Auth::user()->id);
+            }
 
             /*
              * If ANY search terms are given limit results by them
@@ -457,6 +463,61 @@ class AiheController extends Controller {
         return MipJson::getJson();
     }
 
+    public function editUsers($id, Request $request){
+
+        if(!Kayttaja::hasPermission('rakennusinventointi.kayttaja.luonti')) {
+            MipJson::setGeoJsonFeature();
+            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+            return MipJson::getJson();
+        }
+
+        try {
+            DB::beginTransaction();
+            Utils::setDBUser();
+            try{
+                for($i = 0; $i<sizeof($request->input('poistettavat')); $i++) {
+                    $mak = Muistot_aihe_kayttaja::getSingleByAiheIdAndUserId($id, $request->input('poistettavat')[$i])->first();
+
+                    $author_field = Muistot_aihe_kayttaja::DELETED_BY;
+                    $when_field = Muistot_aihe_kayttaja::DELETED_AT;
+                    $mak->$author_field = Auth::user()->id;
+                    $mak->$when_field = \Carbon\Carbon::now();
+                    $mak->save();
+                }
+
+                for($i = 0; $i<sizeof($request->input('lisattavat')); $i++) {
+                    $mak = new Muistot_aihe_kayttaja();
+                    $mak->kayttaja_id = $request->input('lisattavat')[$i];
+                    $mak->muistot_aihe_id = $id;
+
+                    $mak->luoja = Auth::user()->id;
+                    $mak->save();
+                }
+            } catch(Exception $e) {
+                DB::rollback();
+                MipJson::setGeoJsonFeature();
+                MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+                MipJson::addMessage(Lang::get('tutkimus.save_failed'));
+            }
+
+
+            DB::commit();
+
+            MipJson::addMessage(Lang::get('tutkimus.save_success'));
+            MipJson::setGeoJsonFeature(null, array("id" => $id));
+            MipJson::setResponseStatus(Response::HTTP_OK);
+        }
+        catch(Exception $e) {
+            MipJson::setGeoJsonFeature();
+            MipJson::setMessages(array(Lang::get('tutkimus.save_failed'),$e->getMessage()));
+            MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return MipJson::getJson();
+
+    }
+
     /**
      * Get memories by topic
      * @param $aihe_id int Topic id
@@ -486,7 +547,7 @@ class AiheController extends Controller {
                   $query = $aihe->muistot();
                   $query->where('poistettu', false);
                   $query->where('ilmiannettu', false);
-                
+
                   if(!Kayttaja::hasPermission('muistot.yksityinen_muisto.katselu')) {
                       $query->where('julkinen', true);
                       $query->with('muistot_henkilo_filtered');
@@ -495,18 +556,18 @@ class AiheController extends Controller {
                   }
 
                   $muistot = $query->orderby('prikka_id')->get();
-                  
+
                   $total_rows = ($muistot) ? count($muistot) : 0;
 
                   if($total_rows > 0) {
                       MipJson::initGeoJsonFeatureCollection(count($muistot), $total_rows);
-                      
+
                       foreach ($muistot as $muisto) {
                           if($muisto->muistot_henkilo_filtered)
                           {
                               $muisto->muistot_henkilo = $muisto->muistot_henkilo_filtered;
                           }
-        
+
                           /*
                            * clone $muisto so we can handle the "properties" separately
                            * -> remove "sijainti" from props
@@ -543,9 +604,9 @@ class AiheController extends Controller {
     private function deleteAllImagesFromMuisto($muistoId) {
         // Retrieve the rows
         $muistotKuvas = Muistot_kuva::where('muistot_muisto_id', $muistoId)->get();
-    
+
         foreach ($muistotKuvas as $muistotKuva) {
-    
+
             // delete file(s) from filesystem
    	        $file_path		= storage_path()."/".getenv('IMAGE_UPLOAD_PATH').$muistotKuva->polku.explode(".", $muistotKuva->nimi)[0];
    	        $file_extension = explode(".", $muistotKuva->nimi)[1];
@@ -561,7 +622,7 @@ class AiheController extends Controller {
                 File::delete($file_path."_TINY.".$file_extension);
 
         }
-    
+
         // Delete the rows
         $res = Muistot_kuva::where('muistot_muisto_id', $muistoId)->delete();
     }
