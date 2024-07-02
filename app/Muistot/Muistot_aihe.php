@@ -61,6 +61,10 @@ class Muistot_aihe extends Model {
       return $this->hasMany('App\Muistot\Muistot_kysymys', 'muistot_aihe_id', 'prikka_id');
     }
 
+    public function aihe_kayttajat() {
+    	return $this->hasMany('App\Muistot\Muistot_aihe_kayttaja', 'muistot_aihe_id')
+    	->join('kayttaja', 'kayttaja.id', '=', 'muistot_aihe_kayttaja.kayttaja_id')->whereNull('kayttaja.poistettu');
+    }
 
     /**
      * Get all Models from DB - order by given $order_field to given $order_direction

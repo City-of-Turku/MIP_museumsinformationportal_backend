@@ -204,7 +204,6 @@ class KiinteistoController extends Controller {
      * @return MipJson
      */
     public function show($id) {
-      Log::channel('prikka')->info("show kiinteisto: " . $id);
 
         /*
          * Role check
