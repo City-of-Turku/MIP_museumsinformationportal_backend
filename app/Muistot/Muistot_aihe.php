@@ -54,7 +54,15 @@ class Muistot_aihe extends Model {
     public function muistot()
     {
         return $this->hasMany('App\Muistot\Muistot_muisto', 'muistot_aihe_id', 'prikka_id')
-            ->addSelect('*',DB::raw(MipGis::getGeometryFieldQueryString("tapahtumapaikka", "sijainti"))); // TODO
+            ->addSelect('*',DB::raw(MipGis::getGeometryFieldQueryString("tapahtumapaikka", "sijainti"))) // TODO
+            ->whereNull('muistot_muisto.poistettu_mip') // either null or timestamp, mip specific
+            ->where('muistot_muisto.poistettu', false) // boolean, given by Prikka
+            ->where('muistot_muisto.ilmiannettu', false);
+    }
+
+    public function hasUser($userId)
+    {
+        return $this->aihe_kayttajat()->where('kayttaja_id', $userId)->exists();
     }
 
     public function muistot_kysymys() {
@@ -63,7 +71,9 @@ class Muistot_aihe extends Model {
 
     public function aihe_kayttajat() {
     	return $this->hasMany('App\Muistot\Muistot_aihe_kayttaja', 'muistot_aihe_id')
-    	->join('kayttaja', 'kayttaja.id', '=', 'muistot_aihe_kayttaja.kayttaja_id')->whereNull('kayttaja.poistettu');
+    	->join('kayttaja', 'kayttaja.id', '=', 'muistot_aihe_kayttaja.kayttaja_id')
+        ->whereNull('kayttaja.poistettu')
+        ->whereNull('muistot_aihe_kayttaja.poistettu');
     }
 
     /**

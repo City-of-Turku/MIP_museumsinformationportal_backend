@@ -134,7 +134,23 @@ class Muistot_muisto extends Model {
             ->where('muistot_aihe.aihe_fi', 'ILIKE', "%".$keyword."%")
             ->orWhere('muistot_aihe.aihe_en', 'ILIKE', "%".$keyword."%")
             ->orWhere('muistot_aihe.aihe_sv', 'ILIKE', "%".$keyword."%");
-		});
+		  });
+    }
+
+    public function scopeWithOtsikko($query, $keyword) {
+      return $query->where('muistot_muisto.kuvaus', 'ILIKE', "%".$keyword."%");
+    }
+
+    // Visitor (katselija) can see only public memories and memories where user is added
+    public function scopeWithVisitorUser($query, $userId)
+    {
+      // Get all aihe IDs that the user belongs to
+      $aiheIds = Muistot_aihe::all()->filter(function ($aihe) use ($userId) {
+        return $aihe->hasUser($userId);
+      })->pluck('prikka_id');
+
+      return $query->where('julkinen', 1)
+               ->orWhereIn('muistot_aihe_id', $aiheIds);
     }
 
     public function scopeWithHenkilo($query, $keyword) {

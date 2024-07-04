@@ -549,14 +549,14 @@ class AiheController extends Controller {
               if($aihe) {
 
                   $query = $aihe->muistot();
-                  $query->where('poistettu', false);
-                  $query->where('ilmiannettu', false);
 
-                  if(!Kayttaja::hasPermission('muistot.yksityinen_muisto.katselu')) {
+                  // Check user rights and refine the query
+                  if (Kayttaja::hasPermission('muistot.yksityinen_muisto.katselu')
+                       || $aihe->hasUser(Auth::user()->id)) {
+                      $query->with('muistot_henkilo');
+                  } else {
                       $query->where('julkinen', true);
                       $query->with('muistot_henkilo_filtered');
-                  } else {
-                      $query->with('muistot_henkilo');
                   }
 
                   $muistot = $query->orderby('prikka_id')->get();
