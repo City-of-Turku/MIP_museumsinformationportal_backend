@@ -893,9 +893,8 @@ class Kayttaja extends Model implements JWTSubject, Authenticatable {
     * @param Muistot_aihe $aihe
     */
     private static function getMuistotAihePermissionsForVisitor($aihe) {
-        Log::channel('prikka')->info("getMuistotAihePermissionsForVisitor " . $aihe->prikka_id);
+        
         if(!$aihe) {
-            Log::channel('prikka')->info("-- ei mitään ");
             return self::noPermissions();
         }
 
@@ -904,7 +903,6 @@ class Kayttaja extends Model implements JWTSubject, Authenticatable {
         // - ei näe muistojen henkilötietoja
         // - ei voi tulostaa raportteja
         $permissions['katselu'] = true;
-        Log::channel('prikka')->info("-- katseluoikat");
 
         // Muokkausoikeus = täydet oikeudet aiheeseen
         // Tämä tarkoittaa

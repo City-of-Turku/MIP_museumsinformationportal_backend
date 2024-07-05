@@ -494,7 +494,6 @@ class MuistoController extends Controller {
         /*
          * Role check
          */
-        Log::channel('prikka')->info("MuistoController index");
         if(!Kayttaja::hasPermission('muistot.muisto.katselu')) {
             MipJson::setGeoJsonFeature();
             MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
