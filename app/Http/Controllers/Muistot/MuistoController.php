@@ -494,7 +494,6 @@ class MuistoController extends Controller {
         /*
          * Role check
          */
-
         if(!Kayttaja::hasPermission('muistot.muisto.katselu')) {
             MipJson::setGeoJsonFeature();
             MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
@@ -546,6 +545,9 @@ class MuistoController extends Controller {
             if($request->aihe) {
                 $muistot->withAihe($request->aihe);
             }
+            if($request->otsikko) {
+                $muistot->withOtsikko($request->otsikko);
+            }
             if($request->henkilo) {
                 $muistot->withHenkilo($request->henkilo);
             }
@@ -565,16 +567,15 @@ class MuistoController extends Controller {
             $muistot->withPoistettu('false');
             $muistot->withIlmiannettu('false');
 
-            if(!Kayttaja::hasPermission('muistot.yksityinen_muisto.katselu'))
-            {
-                $muistot->withJulkinen('true');
+            if(!Kayttaja::hasPermission('muistot.yksityinen_muisto.katselu')) {
+                $muistot->withVisitorUser(Auth::user()->id);
             }
-
+ 
             // order the results by given parameters
             $muistot->withOrderBy($request->aluerajaus, $jarjestys_kentta, $jarjestys_suunta);
 
             // calculate the total rows of the search results
-            $total_rows = Utils::getCount($muistot);//count($kiinteistot->get());
+            $total_rows = Utils::getCount($muistot);
 
             // ID:t listaan ennen rivien rajoitusta
             $kori_id_lista = Utils::getPrikkaIdList($muistot);
@@ -644,29 +645,21 @@ class MuistoController extends Controller {
         }
         else {
             try {
-                if(Kayttaja::hasPermission('muistot.yksityinen_muisto.katselu'))
-                {
-                    $muisto = Muistot_muisto::getSingle($id)
+                $muisto = Muistot_muisto::getSingle($id)
                     ->with( array(
                         'Muistot_vastaus',
-                        'Muistot_henkilo',
                         'Muistot_vastaus.Muistot_kysymys',
                         'Muistot_aihe',
                         'Kiinteistot'
                     ))->first();
-                }
-                else
-                {
-                    $muisto = Muistot_muisto::getSingle($id)
-                    ->with( array(
-                        'Muistot_vastaus',
-                        'Muistot_henkilo_filtered',
-                        'Muistot_vastaus.Muistot_kysymys',
-                        'Muistot_aihe',
-                        'Kiinteistot'
-                    ))->first();
-                }
 
+                if (Kayttaja::hasPermission('muistot.yksityinen_muisto.katselu') 
+                  || $muisto->Muistot_aihe->hasUser(Auth::user()->id)) {
+                    $muisto->load('Muistot_henkilo');
+                } else {
+                    $muisto->load('Muistot_henkilo_filtered');
+                }
+                
                 if($muisto && !$muisto->ilmiannettu && !$muisto->poistettu) {
                     if (!$muisto->julkinen && !Kayttaja::hasPermission('muistot.yksityinen_muisto.katselu')) {
                       MipJson::setGeoJsonFeature();

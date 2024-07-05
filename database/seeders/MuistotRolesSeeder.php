@@ -22,7 +22,7 @@ class MuistotRolesSeeder extends Seeder
 
         try {
 
-            DB:Statement("")
+            DB:Statement("");
 
         } catch (Exception $e) {
             DB::rollback();

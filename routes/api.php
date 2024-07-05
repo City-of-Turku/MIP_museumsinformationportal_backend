@@ -281,7 +281,10 @@ Route::group(['middleware' => ['auth.jwt', 'setLocale']], function () {
 	 */
 	Route::get("/rooli/{osio}/{entiteetti}/",								"RooliController@show");
 
-	/* Oikeudet tietylle entiteetille, käytetään vain arkeologian puolella */
+	/* 
+   * Oikeudet tietylle entiteetille, käytetään vain arkeologian puolella 
+   * Myös Muistot käyttävät tätä entiteetillä 'muistot_aihe' tarkistamaan käyttäjän oikeuksia aiheeseen.
+   */
 	Route::get("/oikeus/{osio}/{entiteetti}/{id}",							"RooliController@showPermissionsForEntity");
 
 	/*
@@ -720,6 +723,7 @@ Route::group(['middleware' => ['auth.jwt', 'setLocale']], function () {
 	Route::get("/aiheet/", "Muistot\AiheController@index");
 	Route::get("/muistot_kuva/",						"Muistot\MuistotKuvaController@index");
 	Route::get("/muistot_kuva/{kuva_id}/",				"Muistot\MuistotKuvaController@show");
+	Route::post("aiheet/{aihe_id}/kayttaja",					"Muistot\AiheController@editUsers");
   // Todo: would be best to have dedicated route for updating estates
   Route::put("/muistot/{muisto_id}/",      "Muistot\MuistoController@update_estates");
 });
