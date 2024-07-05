@@ -7,7 +7,7 @@ use App\Library\Reports\ReportServer;
 use App\Library\String\MipJson;
 use App\Rak\Alue;
 use App\Rak\Kiinteisto;
-use App\muistot\Muistot_aihe;
+use App\Muistot\Muistot_aihe;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
