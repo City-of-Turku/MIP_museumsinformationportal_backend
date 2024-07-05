@@ -13,6 +13,8 @@ use App\Ark\Tutkimusalue;
 use App\Ark\TutkimusalueYksikko;
 use App\Ark\TutkimusKayttaja;
 use App\Rak\Kuva;
+use App\Muistot\Muistot_aihe;
+use App\Muistot\Muistot_aihe_kayttaja;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -859,6 +861,71 @@ class Kayttaja extends Model implements JWTSubject, Authenticatable {
         return 'id';
     }
 
+    /**
+    * getMuistotAihePermissions
+    * Palauttaa käyttäjän oikeudet tiettyyn muistojen aiheeseen
+    * @param int $aiheId Aiheen id
+    */
+    public static function getMuistotAihePermissions($aiheId) {
+        if(Auth::user()->rooli == "pääkäyttäjä") {
+            return self::allPermissions();
+        }
+        // Rakennuspuolen tutkijalla kaikki oikeudet
+        if(Auth::user()->rooli == 'tutkija') {
+            return self::allPermissions();
+        }
 
+        $muistot_aihe = Muistot_aihe::getSingle($aiheId)->first();
+        $permissions = self::getMuistotAihePermissionsForVisitor($muistot_aihe);
+
+        return $permissions;
+    }
+
+    /**
+    * getMuistotAihePermissionsForVisitor
+    * Myös katselijalla on täydet oikeudet tiettyyn muistojen aiheeseen
+    * jos pääkäyttäjä on lisännyt hänet aiheeseen.
+    * Huom. Muistot: Kenelläkään ei ole oikeuksiä lisätä, muokata tai poistaa muistoja
+    * vaan ne lähetetään Prikka-systeemistä.
+    * "Täydet" oikeudet liittyvät vain MIPissä sallittuihin muokkauksiin
+    * (kiinteistölinkkaus, laajempi tietojen näkyvyys, raporttien tulostus,
+    * myöhemmin mahdollisesti muistiinpanot)
+    * @param Muistot_aihe $aihe
+    */
+    private static function getMuistotAihePermissionsForVisitor($aihe) {
+        Log::channel('prikka')->info("getMuistotAihePermissionsForVisitor " . $aihe->prikka_id);
+        if(!$aihe) {
+            Log::channel('prikka')->info("-- ei mitään ");
+            return self::noPermissions();
+        }
+
+        // Katseluoikeus = rajattu oikeus aiheeseen
+        // - ei näe yksityisiä muistoja
+        // - ei näe muistojen henkilötietoja
+        // - ei voi tulostaa raportteja
+        $permissions['katselu'] = true;
+        Log::channel('prikka')->info("-- katseluoikat");
+
+        // Muokkausoikeus = täydet oikeudet aiheeseen
+        // Tämä tarkoittaa
+        // - myös yksityiset muistot listataan
+        // - muistojen henkilötiedot näkyvissä
+        // - raporttien teko sallittu
+
+      // Käyttäjällä on täydet oikeudet jos pääkäyttäjä on lisännyt hänet aiheeseen:
+        $aiheKayttaja = Muistot_aihe_kayttaja::getSingleByAiheIdAndUserId($aihe->prikka_id, Auth::user()->id)->first();
+
+        if($aiheKayttaja && $aiheKayttaja->id) {
+            $permissions['luonti'] = true;
+            $permissions['muokkaus'] = true;
+            $permissions['poisto'] = true;
+        } else {
+            $permissions['luonti'] = false;
+            $permissions['muokkaus'] = false;
+            $permissions['poisto'] = false;
+        }
+
+        return $permissions;
+    }
 
 }

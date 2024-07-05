@@ -588,7 +588,7 @@ class ReportController extends Controller {
       $aihe = Muistot_aihe::getSingle($aiheId)->first();
 
       // If the aihe has the user, they have the rights
-      if ($aihe->hasUser($kayttajaId)) {
+      if ($aihe && $aihe->hasUser($kayttajaId)) {
           return true;
       }
 

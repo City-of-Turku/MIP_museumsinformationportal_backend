@@ -281,7 +281,10 @@ Route::group(['middleware' => ['auth.jwt', 'setLocale']], function () {
 	 */
 	Route::get("/rooli/{osio}/{entiteetti}/",								"RooliController@show");
 
-	/* Oikeudet tietylle entiteetille, käytetään vain arkeologian puolella */
+	/* 
+   * Oikeudet tietylle entiteetille, käytetään vain arkeologian puolella 
+   * Myös Muistot käyttävät tätä entiteetillä 'muistot_aihe' tarkistamaan käyttäjän oikeuksia aiheeseen.
+   */
 	Route::get("/oikeus/{osio}/{entiteetti}/{id}",							"RooliController@showPermissionsForEntity");
 
 	/*
