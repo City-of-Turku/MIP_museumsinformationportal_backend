@@ -120,7 +120,7 @@ class ark_kohdeNightlySeeder extends Seeder
                 $message_content = "Kohde nightly seeder fail. \n" . $e;
 
                 $mail_sent = Mail::raw($message_content, function($message) {
-                $message->from(config('app.env_desc'), config('app.email_from'));
+                $message->from(config('app.email_from'), config('app.email_from'));
                 $message->to(config('app.kyppi_admin_email'))->subject("MIP / " . App::environment());
                 });
             } catch (Exception $e) {
