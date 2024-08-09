@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+use App\Kunta;
+
 class Muistot_muisto extends Model {
 
     protected $table = "muistot_muisto";
@@ -77,6 +79,24 @@ class Muistot_muisto extends Model {
         return $this->belongsTo('App\Muistot\Muistot_henkilo', 'muistot_henkilo_id', 'prikka_id')->select(array('prikka_id', 'nimimerkki'));
     }
 
+    public function kunta()
+    {
+        return $this->hasOneThrough(
+            Kunta::class,
+            Muistot_muisto_kunta::class,
+            'muisto_id', // Foreign key on muistot_muisto_kunta table...
+            'id', // Foreign key on kunta table...
+            'prikka_id', // Local key on muistot_muisto table...
+            'kunta_id' // Local key on muistot_muisto_kunta table...
+        );
+    }
+
+    // Needed to access kiinteistotunnus from this pivot table
+    public function muistotMuistoKunta()
+    {
+        return $this->hasOne(Muistot_muisto_kunta::class, 'muisto_id', 'prikka_id');
+    }
+    
     /**
      * Get the properties associated with this memory.
      *
@@ -218,4 +238,35 @@ class Muistot_muisto extends Model {
 
     	return $query;
     }
+
+        /**
+     * Limit results to only for those rows which MUNICIPALITY matches the given keyword
+     *
+     * @param $query
+     * @param String $keyword
+     * @version 1.0
+     * @since 1.0
+     */
+    public function scopeWithMunicipality($query, $keyword) {
+        if(App::getLocale()=="se"){
+
+            return $query->whereHas('kunta', function ($query) use ($keyword) {
+                $query->where('kunta.nimi_se', 'ILIKE', $keyword . "%")
+                    ->orWhere('kunta.nimi', 'ILIKE', $keyword . "%");
+            });
+        }
+
+        return $query->whereHas('kunta', function ($query) use ($keyword) {
+            $query->where('kunta.nimi', 'ILIKE', $keyword . "%");
+        });
+    }
+
+  public function scopeWithMunicipalityNumber($query, $keyword) {
+      return $query->where('kunta.kuntanumero', '=', $keyword);
+  }
+
+  public function scopeWithMunicipalityId($query, $keyword) {
+      return $query->where('kunta.id', '=', $keyword);
+  }
+
 }

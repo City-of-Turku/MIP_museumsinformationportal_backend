@@ -25,6 +25,23 @@ class MMLQueries {
 		return $data_array;
 	}
 
+  // returns null or non-empty kiinteistotunnus
+  private static function parseFirstKiinteistoTunnus($rawJSONString) {
+    $data = json_decode($rawJSONString);
+    if($data->features) {
+        foreach($data->features as $kiinteisto) {
+            $ktunnus = (string)$kiinteisto->properties->kiinteistotunnus;
+            if ($ktunnus!="") {
+                $result = substr($ktunnus, 0, 3). "-". substr($ktunnus, 3, 3). "-".  substr($ktunnus, 6, 4). "-".  substr($ktunnus, 10, 4);
+                return $result; // Return the first kiinteistotunnus value
+            } else {
+                $result = "";
+            }
+        }
+    }
+    return null; // Return null if there are no features
+}
+
 	private static function elementsAsString($elementArray) {
 		$ret = "";
 		foreach ($elementArray as $elem) {
@@ -198,6 +215,68 @@ class MMLQueries {
 
 		return self::parseKiinteistoTiedot($res->getBody());
 	}
+
+	/**
+	 * Get the kiinteistotunnus of kiinteisto located in a point
+	 * Returns ... where there is 'kiinteistotunnus' key
+   * Katso malllia atr_mip_tornio kiinteisto_migrator_from_json
+	 *
+	 * @param $point
+	 * @throws Exception
+	 */
+	public static function getKiinteistoTunnusByPoint2($point) {
+    // $point = "POINT(4107236.842942664 2940214.480095705)";
+    Log::channel('prikka')->info('getKiinteistoTunnusByPoint2: ' . $point);
+
+    // $urltest = config('app.mml_kiinteistotiedot_url');
+    // Log::channel('prikka')->info('KATSO TÄÄ: ' . $urltest);
+
+
+    // $filter = "filter=S_INTERSECTS(geometry,POINT(" .$point ."))";
+    $filter = "filter=S_INTERSECTS(geometry, " . $point . ")";
+    Log::channel('prikka')->info('Filter: ' . $filter);
+    // POINT(565448.001 6992568.973))";
+    //$apikey = config('app.mml_apikey_nimisto');
+    $apikey = "35190020-cb62-4e2f-91b7-ead9301d276a";
+    $url = "https://avoin-paikkatieto.maanmittauslaitos.fi/kiinteisto-avoin/simple-features/v3/collections/PalstanSijaintitiedot/items?&filter-crs=http://www.opengis.net/def/crs/EPSG/0/3067&filter-lang=cql2-text&" . $filter . "&api-key=" . $apikey;    
+
+    //Log::channel('prikka')->info('getKiinteistoTunnusByPoint2: ' . $url . ' ' . $username . ' ' . $password);
+
+		// if (!empty(config('app.mml_kiinteistotiedot_username')) && !empty(config('app.mml_kiinteistotiedot_password'))){
+		// 	$filter = "filter=S_INTERSECTS(geometry,POINT(" .$point ."))";
+		// 	$url = config('app.mml_kiinteistotiedot_url') . $filter;
+		// 	$username = config('app.mml_kiinteistotiedot_username');
+		// 	$password = config('app.mml_kiinteistotiedot_password');
+		// }
+		// else{
+		// 	$margin = 50;
+		// 	$lat = explode(" ", $point)[0];
+		// 	$lon = explode(" ", $point)[1];
+		// 	$bbox = implode(",", [$lat+$margin, $lon+$margin, $lat-$margin, $lon-$margin]);
+		// 	$url = config('app.mml_kiinteistotiedot_url') ."bbox=" .htmlentities($bbox);
+		// 	$username = config('app.mml_apikey_nimisto');
+		// 	$password = '';
+		// }
+
+		$client = new Client();
+    // $res = $client->request("GET", $url);
+		$res = $client->request('GET', $url, [
+			'verify' => false,
+     // 'debug' => true,
+     // 'auth' => [$username, $password]
+		]);
+
+
+		if ($res->getStatusCode()!="200") {
+      Log::channel('prikka')->info('FAILED: ' . $res->getStatusCode() . ' ' . $res->getReasonPhrase());
+			throw new Exception("KiinteistoTunnus failed: ".$res->getStatusCode()." : ".$res->getReasonPhrase());
+		}
+
+    $result = self::parseFirstKiinteistoTunnus($res->getBody());
+    Log::channel('prikka')->info('Result: ' . json_encode($result));
+    return $result;
+	}
+
 
 	/**
 	 * Get the kiinteistotunnus of kiinteistos located in a point
