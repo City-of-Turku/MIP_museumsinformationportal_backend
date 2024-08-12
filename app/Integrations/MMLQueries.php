@@ -25,23 +25,6 @@ class MMLQueries {
 		return $data_array;
 	}
 
-  // returns null or non-empty kiinteistotunnus
-  private static function parseFirstKiinteistoTunnus($rawJSONString) {
-    $data = json_decode($rawJSONString);
-    if($data->features) {
-        foreach($data->features as $kiinteisto) {
-            $ktunnus = (string)$kiinteisto->properties->kiinteistotunnus;
-            if ($ktunnus!="") {
-                $result = substr($ktunnus, 0, 3). "-". substr($ktunnus, 3, 3). "-".  substr($ktunnus, 6, 4). "-".  substr($ktunnus, 10, 4);
-                return $result; // Return the first kiinteistotunnus value
-            } else {
-                $result = "";
-            }
-        }
-    }
-    return null; // Return null if there are no features
-}
-
 	private static function elementsAsString($elementArray) {
 		$ret = "";
 		foreach ($elementArray as $elem) {
@@ -217,65 +200,73 @@ class MMLQueries {
 	}
 
 	/**
-	 * Get the kiinteistotunnus of kiinteisto located in a point
-	 * Returns ... where there is 'kiinteistotunnus' key
-   * Katso malllia atr_mip_tornio kiinteisto_migrator_from_json
+	 * Uses MML API to get kiinteistotunnus of kiinteisto located in a point
+	 * Returns kiinteistotunnus if it's found, otherwise null
+   * This method is used by Prikka integration (muistot)
 	 *
-	 * @param $point
+	 * @param $point Lat Long Coordinate point as EPSG 3067 format
 	 * @throws Exception
 	 */
-	public static function getKiinteistoTunnusByPoint2($point) {
-    // $point = "POINT(4107236.842942664 2940214.480095705)";
-    Log::channel('prikka')->info('getKiinteistoTunnusByPoint2: ' . $point);
+	public static function getKiinteistoTunnusByPointPrikka($point) {
 
-    // $urltest = config('app.mml_kiinteistotiedot_url');
-    // Log::channel('prikka')->info('KATSO TÄÄ: ' . $urltest);
+    // Log::channel('prikka')->info('getKiinteistoTunnusByPointPrikka POINT: ' . $point);
 
+    if (empty(config('app.prikka_mml_apikey')) || empty(config('app.prikka_mml_url'))) {
+      Log::channel('prikka')->info('getKiinteistoTunnusByPointPrikka: Missing config');
+      return null;
+    }
 
-    // $filter = "filter=S_INTERSECTS(geometry,POINT(" .$point ."))";
-    $filter = "filter=S_INTERSECTS(geometry, " . $point . ")";
-    Log::channel('prikka')->info('Filter: ' . $filter);
-    // POINT(565448.001 6992568.973))";
-    //$apikey = config('app.mml_apikey_nimisto');
-    $apikey = "35190020-cb62-4e2f-91b7-ead9301d276a";
-    $url = "https://avoin-paikkatieto.maanmittauslaitos.fi/kiinteisto-avoin/simple-features/v3/collections/PalstanSijaintitiedot/items?&filter-crs=http://www.opengis.net/def/crs/EPSG/0/3067&filter-lang=cql2-text&" . $filter . "&api-key=" . $apikey;    
+    $filter = "&filter=S_INTERSECTS(geometry, " . $point . ")";
+    //$apikey = config('app.prikka_mml_apikey');
+    //$apikey = "35190020-cb62-4e2f-91b7-ead9301d276a"; // Miisan testiavain
+    $apikey = "&api-key=" . config('app.prikka_mml_apikey');
+    $url = config('app.prikka_mml_url') . $filter . $apikey;
+    // $url = "https://avoin-paikkatieto.maanmittauslaitos.fi/kiinteisto-avoin/simple-features/v3/collections/PalstanSijaintitiedot/items?&filter-crs=http://www.opengis.net/def/crs/EPSG/0/3067&filter-lang=cql2-text&" . $filter . "&api-key=" . $apikey;    
 
-    //Log::channel('prikka')->info('getKiinteistoTunnusByPoint2: ' . $url . ' ' . $username . ' ' . $password);
-
-		// if (!empty(config('app.mml_kiinteistotiedot_username')) && !empty(config('app.mml_kiinteistotiedot_password'))){
-		// 	$filter = "filter=S_INTERSECTS(geometry,POINT(" .$point ."))";
-		// 	$url = config('app.mml_kiinteistotiedot_url') . $filter;
-		// 	$username = config('app.mml_kiinteistotiedot_username');
-		// 	$password = config('app.mml_kiinteistotiedot_password');
-		// }
-		// else{
-		// 	$margin = 50;
-		// 	$lat = explode(" ", $point)[0];
-		// 	$lon = explode(" ", $point)[1];
-		// 	$bbox = implode(",", [$lat+$margin, $lon+$margin, $lat-$margin, $lon-$margin]);
-		// 	$url = config('app.mml_kiinteistotiedot_url') ."bbox=" .htmlentities($bbox);
-		// 	$username = config('app.mml_apikey_nimisto');
-		// 	$password = '';
-		// }
+    // Log::channel('prikka')->info('getKiinteistoTunnusByPointPrikka URL: ' . $url);
 
 		$client = new Client();
     // $res = $client->request("GET", $url);
 		$res = $client->request('GET', $url, [
-			'verify' => false,
+			'verify' => false, // Disable SSL verification - FIX THIS
      // 'debug' => true,
-     // 'auth' => [$username, $password]
 		]);
 
 
 		if ($res->getStatusCode()!="200") {
-      Log::channel('prikka')->info('FAILED: ' . $res->getStatusCode() . ' ' . $res->getReasonPhrase());
-			throw new Exception("KiinteistoTunnus failed: ".$res->getStatusCode()." : ".$res->getReasonPhrase());
+      // Log::channel('prikka')->info('-- MML request failed: ' . $res->getStatusCode() . ' ' . $res->getReasonPhrase());
+			throw new Exception("getKiinteistoTunnusByPointPrikka failed: ".$res->getStatusCode()." : ".$res->getReasonPhrase());
 		}
 
+    // Parse and return the first kiinteistotunnus
     $result = self::parseFirstKiinteistoTunnus($res->getBody());
-    Log::channel('prikka')->info('Result: ' . json_encode($result));
+    // Log::channel('prikka')->info('-- kiinteistotunnus: ' . json_encode($result));
+
     return $result;
 	}
+
+  /**
+   * From given http return string parses the first found kiinteistotunnus
+   * 
+   * @param $rawJSONString
+   * @return string|null
+   */
+  private static function parseFirstKiinteistoTunnus($rawJSONString) {
+    $data = json_decode($rawJSONString);
+    if($data->features) {
+        foreach($data->features as $kiinteisto) {
+            $ktunnus = (string)$kiinteisto->properties->kiinteistotunnus;
+            if ($ktunnus!="") {
+                $result = substr($ktunnus, 0, 3). "-". substr($ktunnus, 3, 3). "-".  substr($ktunnus, 6, 4). "-".  substr($ktunnus, 10, 4);
+                return $result; // Return the first kiinteistotunnus value
+            } else {
+                $result = "";
+            }
+        }
+    }
+    return null; // Return null if there are no features
+}
+
 
 
 	/**
