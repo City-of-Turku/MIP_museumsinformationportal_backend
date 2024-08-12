@@ -217,30 +217,20 @@ class MMLQueries {
     }
 
     $filter = "&filter=S_INTERSECTS(geometry, " . $point . ")";
-    //$apikey = config('app.prikka_mml_apikey');
-    //$apikey = "35190020-cb62-4e2f-91b7-ead9301d276a"; // Miisan testiavain
     $apikey = "&api-key=" . config('app.prikka_mml_apikey');
     $url = config('app.prikka_mml_url') . $filter . $apikey;
-    // $url = "https://avoin-paikkatieto.maanmittauslaitos.fi/kiinteisto-avoin/simple-features/v3/collections/PalstanSijaintitiedot/items?&filter-crs=http://www.opengis.net/def/crs/EPSG/0/3067&filter-lang=cql2-text&" . $filter . "&api-key=" . $apikey;    
 
     // Log::channel('prikka')->info('getKiinteistoTunnusByPointPrikka URL: ' . $url);
 
 		$client = new Client();
-    // $res = $client->request("GET", $url);
-		$res = $client->request('GET', $url, [
-			'verify' => false, // Disable SSL verification - FIX THIS
-     // 'debug' => true,
-		]);
-
+    $res = $client->request("GET", $url);
 
 		if ($res->getStatusCode()!="200") {
-      // Log::channel('prikka')->info('-- MML request failed: ' . $res->getStatusCode() . ' ' . $res->getReasonPhrase());
 			throw new Exception("getKiinteistoTunnusByPointPrikka failed: ".$res->getStatusCode()." : ".$res->getReasonPhrase());
 		}
 
     // Parse and return the first kiinteistotunnus
     $result = self::parseFirstKiinteistoTunnus($res->getBody());
-    // Log::channel('prikka')->info('-- kiinteistotunnus: ' . json_encode($result));
 
     return $result;
 	}
