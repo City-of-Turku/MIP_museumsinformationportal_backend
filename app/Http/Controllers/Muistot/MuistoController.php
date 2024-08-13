@@ -42,8 +42,6 @@ class MuistoController extends Controller {
     public function saveMuistot(Request $request) 
     {
         Log::channel('prikka')->info("saveMuistot " . count($request ->muistot) . " received");
-        // 		if(config('app.mml_kiinteisto_queries_enabled') == false) {
-
 
         $errorArray = array();
         $errorObjects = array();
@@ -93,6 +91,7 @@ class MuistoController extends Controller {
                             if($key == 'muisto_id')
                             {
                                  $muistoEntity->prikka_id = $value;
+                                 Log::channel('prikka')->info("Processing muisto " . $value);
                             }
                             else if($key == 'aihe_id')
                             {
@@ -228,7 +227,7 @@ class MuistoController extends Controller {
                                         $imageOk = $this->saveImage($value, $entityKuva);
                                         if (!$imageOk) {
                                             // Logataan virhe
-                                            Log::channel('prikka')->info("Kuvan tallennus epäonnistui");
+                                            Log::channel('prikka')->info("Picture save failed for muisto" . $muistoEntity->prikka_id);
                                         }
                                     }
                                     else 
@@ -272,26 +271,16 @@ class MuistoController extends Controller {
 
         // Check it's not empty
         if (empty($imageStringBase64)) {
-            Log::channel('prikka')->info("Kuvaa ei ole");
-                return false;
+            return false;
         }
     
-        // Kuvan koko pitäisi tarkistaa, mutta varsinaisen kuvatiedoston kokoa on vaikea päätellä,
-        // ennen kuin kuva on talletettu tiedostoon.
-        // Base64-koodattu kuvadata ei kerro kuvan tavukokoa. 
-        //  Käytännössä ongelmaa ei pitäisi olla, 
-        // koska Prikka rajoittaa kuvakoon 10 megatavuun, joka on MIPin rajoitusta pienempi.
-        //Log::channel('prikka')->info("Kuvaa on, pituus " . strlen($imageStringBase64) . " merkkiä");
-
         // Decode the base64 string to a binary string and save to file
         $decodedString = base64_decode($imageStringBase64);
-        //Log::channel('prikka')->info("isImage function decodedString pituus: " . strlen($decodedString));
 
         $image = Image::make($decodedString);
 
         // Check if the string contains a valid image
         if (!$image) {
-            Log::channel('prikka')->info("Kuvatiedosto ei sisällä kuvaa");
             return false;
         }
 
@@ -331,13 +320,10 @@ class MuistoController extends Controller {
             $image->save($file_fullname);
             if (File::exists($file_fullname)) {
 
-
             // File is saved.    
             $fileSize = filesize($file_fullname);
-           // Log::channel('prikka')->info("saveImage function saved image file to: " . $file_fullname . " size: " . $fileSize . " bytes");
             }
             else {
-                //Log::channel('prikka')->info("saveImage function failed to save image to file: " . $file_fullname);
                 return false;
             }
 
@@ -352,7 +338,7 @@ class MuistoController extends Controller {
 
         }            
         catch (Exception $e) {
-            //Log::channel('prikka')->info("saveImage function failed to save image to file: " . $e->getMessage());
+            Log::channel('prikka')->info("saveImage function failed to save image to file: " . $e->getMessage());
             return false;
         }            
 

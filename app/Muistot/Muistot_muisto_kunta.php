@@ -25,10 +25,6 @@ class Muistot_muisto_kunta extends Model
     const UPDATED_BY		= 'muokkaaja';
     const DELETED_BY		= 'poistaja';
 
-    // public static function getSingleByAiheIdAndUserId($aiheId, $kayttajaId) {
-    //     return self::select('muistot_aihe_kayttaja.*')->where('muistot_aihe_id', '=', $aiheId)->where('kayttaja_id', '=', $kayttajaId);
-    // }
-
     public function muisto(){
         return $this->belongsTo("App\Muistot\Muistot_muisto", "muisto_id");
     }
@@ -48,9 +44,5 @@ class Muistot_muisto_kunta extends Model
     public function poistaja() {
         return $this->belongsTo('App\Kayttaja', 'poistaja');
     }
-
-    // public function scopeWithAihe($query, $id) {
-    //     return $query->where('muistot_aihe_id', '=', $id);
-    // }
 
 }
