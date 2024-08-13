@@ -10,9 +10,11 @@ use App\Muistot\Muistot_kuva;
 use App\Muistot\Muistot_kysymys;
 use App\Muistot\Muistot_muisto;
 use App\Muistot\Muistot_vastaus;
+use App\Muistot\Muistot_muisto_kunta;
 use App\Http\Controllers\Controller;
 use App\Library\Gis\MipGis;
 use App\Library\String\MipJson;
+use App\Integrations\MMLQueries;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -72,6 +74,9 @@ class MuistoController extends Controller {
                     }
                     else 
                     {
+                        $mmlKiinteistotunnus = null;
+                        $mmlKuntanumero = null;
+                        $kuntaId = null;
                         $muistoEntity = Muistot_muisto::find($muisto['muisto_id']);
                         if(!$muistoEntity)
                         {
@@ -86,6 +91,7 @@ class MuistoController extends Controller {
                             if($key == 'muisto_id')
                             {
                                  $muistoEntity->prikka_id = $value;
+                                 Log::channel('prikka')->info("Processing muisto " . $value);
                             }
                             else if($key == 'aihe_id')
                             {
@@ -130,6 +136,29 @@ class MuistoController extends Controller {
                                 $formattedValue = str_replace(';', ' ', $value);
                                 $geom = MipGis::getPointGeometryValue($formattedValue);
                                 $muistoEntity->$key = $geom;
+
+                                // MML query for kiinteistotunnus:
+                                $coordinates = explode(';', $value);
+                                $lat = $coordinates[0];
+                                $lon = $coordinates[1];
+                                $pointstring = 'POINT('.$lon .' '. $lat .')';
+                                $convertedCoords = MipGis::transformSSRID(4326, 3067, $pointstring);
+                                try {
+                                  $mmlKiinteistotunnus = MMLQueries::getKiinteistoTunnusByPointPrikka($convertedCoords);
+                                  if($mmlKiinteistotunnus != null)
+                                  {
+                                      $mmlKuntanumero = explode('-', $mmlKiinteistotunnus)[0];
+                                      $kuntaId = DB::table('kunta')->where('kuntanumero', $mmlKuntanumero)->value('id');
+                                      Log::channel('prikka')->info("Found kiinteistotunnus " . $mmlKiinteistotunnus . " for point " . $value);
+                                  }
+                                  else {
+                                    Log::channel('prikka')->info("Unable to find kiinteistotunnus for " . $value);
+                                  }  
+                                }
+                                catch(Exception $e) {
+                                  $mmlKiinteistotunnus = null;
+                                  Log::error("MuistoController - getKiinteistoTunnusByPointPrikka: " . $e->getMessage());
+                                }
                             }
                             else
                             {
@@ -139,6 +168,21 @@ class MuistoController extends Controller {
 
                         $henkiloEntity->save();
                         $muistoEntity->save();
+
+                        if (($mmlKiinteistotunnus != null) && ($mmlKuntanumero != null) && ($kuntaId != null)) {
+                            try {
+                                // Create entry in muistot_muisto_kunta table or update existing
+                                Muistot_muisto_kunta::updateOrCreate(
+                                  ['muisto_id' => $muistoEntity->prikka_id], // Columns to find
+                                  ['kunta_id' => $kuntaId, 'kiinteistotunnus' => $mmlKiinteistotunnus] // Columns to update
+                                );
+                                Log::channel('prikka')->info("Kiinteistotunnus " . $mmlKiinteistotunnus . " mapped to MIP kunta id: " . $kuntaId);
+                            }
+                            catch(Exception $e) {
+                                // Kunta mapping fail will not fail the saving of muisto but let's log it
+                                Log::error("MuistoController - saveMuistot kunta mapping: " . $e->getMessage());
+                            }
+                        }
 
                         if(!is_null($muisto['vastaukset']))
                         {
@@ -183,7 +227,7 @@ class MuistoController extends Controller {
                                         $imageOk = $this->saveImage($value, $entityKuva);
                                         if (!$imageOk) {
                                             // Logataan virhe
-                                            Log::channel('prikka')->info("Kuvan tallennus epäonnistui");
+                                            Log::channel('prikka')->info("Picture save failed for muisto" . $muistoEntity->prikka_id);
                                         }
                                     }
                                     else 
@@ -227,26 +271,16 @@ class MuistoController extends Controller {
 
         // Check it's not empty
         if (empty($imageStringBase64)) {
-            Log::channel('prikka')->info("Kuvaa ei ole");
-                return false;
+            return false;
         }
     
-        // Kuvan koko pitäisi tarkistaa, mutta varsinaisen kuvatiedoston kokoa on vaikea päätellä,
-        // ennen kuin kuva on talletettu tiedostoon.
-        // Base64-koodattu kuvadata ei kerro kuvan tavukokoa. 
-        //  Käytännössä ongelmaa ei pitäisi olla, 
-        // koska Prikka rajoittaa kuvakoon 10 megatavuun, joka on MIPin rajoitusta pienempi.
-        //Log::channel('prikka')->info("Kuvaa on, pituus " . strlen($imageStringBase64) . " merkkiä");
-
         // Decode the base64 string to a binary string and save to file
         $decodedString = base64_decode($imageStringBase64);
-        //Log::channel('prikka')->info("isImage function decodedString pituus: " . strlen($decodedString));
 
         $image = Image::make($decodedString);
 
         // Check if the string contains a valid image
         if (!$image) {
-            Log::channel('prikka')->info("Kuvatiedosto ei sisällä kuvaa");
             return false;
         }
 
@@ -286,13 +320,10 @@ class MuistoController extends Controller {
             $image->save($file_fullname);
             if (File::exists($file_fullname)) {
 
-
             // File is saved.    
             $fileSize = filesize($file_fullname);
-           // Log::channel('prikka')->info("saveImage function saved image file to: " . $file_fullname . " size: " . $fileSize . " bytes");
             }
             else {
-                //Log::channel('prikka')->info("saveImage function failed to save image to file: " . $file_fullname);
                 return false;
             }
 
@@ -307,7 +338,7 @@ class MuistoController extends Controller {
 
         }            
         catch (Exception $e) {
-            //Log::channel('prikka')->info("saveImage function failed to save image to file: " . $e->getMessage());
+            Log::channel('prikka')->info("saveImage function failed to save image to file: " . $e->getMessage());
             return false;
         }            
 
@@ -534,7 +565,8 @@ class MuistoController extends Controller {
             {
                 $muistot = $muistot->with('muistot_henkilo_filtered');
             }
-            $muistot = $muistot->with('muistot_aihe');
+
+            $muistot = $muistot->with(['muistot_aihe', 'kunta']);
 
             /*
              * If ANY search terms are given limit results by them
@@ -547,6 +579,15 @@ class MuistoController extends Controller {
             }
             if($request->otsikko) {
                 $muistot->withOtsikko($request->otsikko);
+            }
+            if($request->kunta) {
+                $muistot->withMunicipality($request->kunta);
+            }
+            if($request->kuntanumero) {
+                $muistot->withMunicipalityNumber($request->kuntanumero);
+            }
+            if($request->kuntaId) {
+                $muistot->withMunicipalityId($request->kuntaId);
             }
             if($request->henkilo) {
                 $muistot->withHenkilo($request->henkilo);
@@ -647,19 +688,25 @@ class MuistoController extends Controller {
             try {
                 $muisto = Muistot_muisto::getSingle($id)
                     ->with( array(
-                        'Muistot_vastaus',
-                        'Muistot_vastaus.Muistot_kysymys',
-                        'Muistot_aihe',
-                        'Kiinteistot'
+                        'muistot_vastaus',
+                        'muistot_vastaus.muistot_kysymys',
+                        'muistot_aihe',
+                        'kiinteistot',
+                        'kunta',
                     ))->first();
 
                 if (Kayttaja::hasPermission('muistot.yksityinen_muisto.katselu') 
                   || $muisto->Muistot_aihe->hasUser(Auth::user()->id)) {
-                    $muisto->load('Muistot_henkilo');
+                    $muisto->load('muistot_henkilo');
                 } else {
-                    $muisto->load('Muistot_henkilo_filtered');
+                    $muisto->load('muistot_henkilo_filtered');
                 }
                 
+                if ($muisto->muistotMuistoKunta)
+                {
+                    $muisto->paikka_kiinteistotunnus = $muisto->muistotMuistoKunta->kiinteistotunnus;
+                }
+
                 if($muisto && !$muisto->ilmiannettu && !$muisto->poistettu) {
                     if (!$muisto->julkinen && !Kayttaja::hasPermission('muistot.yksityinen_muisto.katselu')) {
                       MipJson::setGeoJsonFeature();

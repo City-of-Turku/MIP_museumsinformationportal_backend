@@ -332,5 +332,7 @@ return [
     'email_from' => env('EMAIL_FROM'),
     'kyppi_nightly_starttime' => env('KYPPI_NIGHTLY_STARTTIME'),
     'mml_kiinteisto_queries_enabled' => env('MML_KIINTEISTO_QUERIES_ENABLED'),
-    'prikka_api_key' => env('PRIKKA_API_KEY')
+    'prikka_api_key' => env('PRIKKA_API_KEY'),
+    'prikka_mml_url' => env('PRIKKA_MML_URL'),
+    'prikka_mml_apikey' => env('PRIKKA_MML_APIKEY')
 ];
