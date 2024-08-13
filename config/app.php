@@ -330,6 +330,7 @@ return [
 
     'frontend_url' => env('FRONTEND_URL'),
     'email_from' => env('EMAIL_FROM'),
+    'env_desc' => env('ENV_DESC'),
     'kyppi_nightly_starttime' => env('KYPPI_NIGHTLY_STARTTIME'),
     'mml_kiinteisto_queries_enabled' => env('MML_KIINTEISTO_QUERIES_ENABLED'),
     'prikka_api_key' => env('PRIKKA_API_KEY'),
