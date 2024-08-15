@@ -78,10 +78,18 @@ class AiheController extends Controller {
                             if($key == 'aihe_id')
                             {
                                 $aiheEntity->prikka_id = $value;
+                                Log::channel('prikka')->info("Processing aihe " . $value);
                             }
                             else if($key == 'kysymykset')
                             {
                                 //do nothing for now
+                            }
+                            else if($key == 'esittely_fi' || $key == 'esittely_sv' || $key == 'esittely_en')
+                            {
+                                // Strip html tags. First replace separately a few characters to get readable text.
+                                $htmlString = str_replace(['&nbsp;', '<li>', '</li>', '<p>', '</p>'], [' ', "- ", "\n", '', "\n"], $value);
+                                $stripped = strip_tags($htmlString);
+                                $aiheEntity->$key = $stripped;
                             }
                             else
                             {
