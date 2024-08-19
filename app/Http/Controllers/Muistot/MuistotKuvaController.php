@@ -6,13 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Kayttaja;
 use App\Rak\Kuva;
 use App\Muistot\Muistot_kuva;
-use App\Rak\Kiinteisto;
-use App\Rak\Rakennus;
-use App\Rak\Arvoalue;
-use App\Rak\Porrashuone;
-use App\Rak\Alue;
-use App\Kyla;
-use App\Rak\Suunnittelija;
 use App\Library\String\MipJson;
 use App\Utils;
 use Illuminate\Support\Facades\Auth;
@@ -29,13 +22,6 @@ use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Str;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Validator;
-use App\Rak\KuvaKiinteisto;
-use App\Rak\KuvaAlue;
-use App\Rak\KuvaArvoalue;
-use App\KuvaKyla;
-use App\Rak\KuvaPorrashuone;
-use App\Rak\KuvaRakennus;
-use App\Rak\KuvaSuunnittelija;
 
 
 class MuistotKuvaController extends Controller {
@@ -47,10 +33,9 @@ class MuistotKuvaController extends Controller {
     public function index(Request $request) {
 
     	/*
-    	 * Role check - TODO: MUISTOT-ROOLIT
+    	 * Role check
     	 */
-      Log::channel('prikka')->info("Kuvien haku muistolle: " . $request->input("muisto_id"));
-    	if(!Kayttaja::hasPermission('rakennusinventointi.kuva.katselu')) {
+      if(!Kayttaja::hasPermission('muistot.muisto.katselu')) {
     		MipJson::setGeoJsonFeature();
     		MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
     		MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
@@ -76,7 +61,7 @@ class MuistotKuvaController extends Controller {
           $jarjestys_kentta = "prikka_id";
     			$jarjestys_suunta = (isset($request->jarjestys_suunta)) ? ($request->jarjestys_suunta == "laskeva" ? "desc" : "asc") : "asc";
 
-    			$entities = Muistot_kuva::orderBy($jarjestys_kentta, $jarjestys_suunta);
+    			$entities = Muistot_kuva::with('muisto')->orderBy($jarjestys_kentta, $jarjestys_suunta);
           
     			if($request->input("muisto_id")) {
     				$entities->withMemoryID($request->input("muisto_id"));
@@ -99,7 +84,10 @@ class MuistotKuvaController extends Controller {
     					$entity->url_small = $images->small;
     					$entity->url_medium = $images->medium;
     					$entity->url_large = $images->large;
-
+              // a few props needed for UI
+              $entity->id = $entity->prikka_id; 
+              $entity->otsikko = $entity->ottopaikka . " " . $entity->ottohetki; // modal title
+              $entity->muisto_otsikko = $entity->muisto->kuvaus;
     					MipJson::addGeoJsonFeatureCollectionFeaturePoint(null, $entity);
     				}
     				MipJson::addMessage(Lang::get('kuva.found_count',["count" => count($entities)]));
@@ -125,7 +113,7 @@ class MuistotKuvaController extends Controller {
     	/*
     	 * Role check
     	 */
-    	if(!Kayttaja::hasPermission('rakennusinventointi.kuva.katselu')) {
+    	if(!Kayttaja::hasPermission('muistot.muisto.katselu')) {
     		MipJson::setGeoJsonFeature();
     		MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
     		MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
@@ -139,7 +127,7 @@ class MuistotKuvaController extends Controller {
     	else {
     		try {
 
-    			$entity = Muistot_kuva::getSingle($id)->first();
+    			$entity = Muistot_kuva::getSingle($id)->with('muisto')->first();
     			if(!$entity) {
     				MipJson::setGeoJsonFeature();
     				MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
@@ -155,6 +143,10 @@ class MuistotKuvaController extends Controller {
     				$entity->url_small = $images->small;
     				$entity->url_medium = $images->medium;
     				$entity->url_large = $images->large;
+            // a few props needed for UI handling for images
+            $entity->id = $entity->prikka_id; 
+            $entity->otsikko = $entity->ottopaikka . " " . $entity->ottohetki; // modal title
+            $entity->muisto_otsikko = $entity->muisto->kuvaus;
 
     				MipJson::setGeoJsonFeature(null, $entity);
     				MipJson::addMessage(Lang::get('kuva.search_success'));

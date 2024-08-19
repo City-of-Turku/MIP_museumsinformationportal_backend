@@ -43,7 +43,7 @@ class Muistot_kuva extends Model {
     ];
 
     public function muisto() {
-        return $this->belongsTo('App\Muistot\Muistot_muisto');
+        return $this->belongsTo('App\Muistot\Muistot_muisto', 'muistot_muisto_id', 'prikka_id');
     }
 
     /**
