@@ -359,13 +359,6 @@ class AiheController extends Controller {
 
             $aiheet = Muistot_aihe::getAll();
 
-            // if (Kayttaja::hasPermission('rakennusinventointi.kiinteisto.luonti')){ // ..
-            //     $aiheet = Muistot_aihe::getAll();
-            // }
-            // else{
-            //     $aiheet = Muistot_aihe::getAllForVisitor(Auth::user()->id);
-            // }
-
             /*
              * If ANY search terms are given limit results by them
              */
@@ -386,7 +379,7 @@ class AiheController extends Controller {
             //$aiheet->withOrderBy($request->aluerajaus, $jarjestys_kentta, $jarjestys_suunta);
 
             // calculate the total rows of the search results
-            $total_rows = Utils::getCount($aiheet);//count($kiinteistot->get());
+            $total_rows = Utils::getCount($aiheet);
 
             // ID:t listaan ennen rivien rajoitusta
             $kori_id_lista = Utils::getPrikkaIdList($aiheet);
@@ -399,8 +392,8 @@ class AiheController extends Controller {
 
             MipJson::initGeoJsonFeatureCollection(count($aiheet), $total_rows);
             foreach ($aiheet as $aihe)  {
-				MipJson::addGeoJsonFeatureCollectionFeaturePoint(null, $aihe);
-			}
+				      MipJson::addGeoJsonFeatureCollectionFeaturePoint(null, $aihe);
+			      }
 
             /*
              * Koritoiminnallisuus. Palautetaan id:t listana.

@@ -613,7 +613,7 @@ class MuistoController extends Controller {
             }
  
             // order the results by given parameters
-            $muistot->withOrderBy($request->aluerajaus, $jarjestys_kentta, $jarjestys_suunta);
+            // $muistot->withOrderBy($request->aluerajaus, $jarjestys_kentta, $jarjestys_suunta);
 
             // calculate the total rows of the search results
             $total_rows = Utils::getCount($muistot);
@@ -709,10 +709,13 @@ class MuistoController extends Controller {
 
                 if($muisto && !$muisto->ilmiannettu && !$muisto->poistettu) {
                     if (!$muisto->julkinen && !Kayttaja::hasPermission('muistot.yksityinen_muisto.katselu')) {
-                      MipJson::setGeoJsonFeature();
-                      MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
-                      MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
-                      return MipJson::getJson();          
+                      // If user is added to aihe, he has the right to view
+                      if (!$muisto->Muistot_aihe->hasUser(Auth::user()->id)) {
+                        MipJson::setGeoJsonFeature();
+                        MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+                        MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+                        return MipJson::getJson();
+                      }
                     }
 
                     //TODO: Leaves artefact in the return list
@@ -755,15 +758,6 @@ class MuistoController extends Controller {
      */  
     public function update_estates(Request $request, $muistoId)
     {
-        /*
-        * User rights
-        */
-        if(!Kayttaja::hasPermission('muistot.muisto.muokkaus')) {
-            MipJson::setGeoJsonFeature();
-            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
-            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
-            return MipJson::getJson();
-        }
 
         try {
 
@@ -781,13 +775,21 @@ class MuistoController extends Controller {
             MipJson::addMessage ( Lang::get ( 'muistot.search_failed' ) );
             return MipJson::getJson();
         }
-    
 
-        if (!$muisto->julkinen && !Kayttaja::hasPermission('muistot.yksityinen_muisto.muokkaus')) {
-            MipJson::setGeoJsonFeature();
-            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
-            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
-            return MipJson::getJson();
+        /*
+        * User rights check, need to have muisto entity before checking rights
+        */
+        if(!Kayttaja::hasPermission('muistot.yksityinen_muisto.muokkaus')) {
+          // 
+          if ((!$muisto->julkinen) || !Kayttaja::hasPermission('muistot.muisto.muokkaus')) {
+            // If user is added to aihe, he has the right to modify
+            if (!$muisto->Muistot_aihe->hasUser(Auth::user()->id)) {
+              MipJson::setGeoJsonFeature();
+              MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+              MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+              return MipJson::getJson();
+            }
+          }
         }
 
         try {
