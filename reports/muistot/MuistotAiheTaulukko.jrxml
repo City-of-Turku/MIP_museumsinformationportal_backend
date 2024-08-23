@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2024-04-25T14:58:37 -->
+<!-- 2024-08-22T14:27:44 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="MuistotAiheTaulukko" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" whenResourceMissingType="Error" isIgnorePagination="true" uuid="dea69c35-0e8e-453e-972c-f915cdff87f9">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
@@ -465,7 +465,7 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="90" height="30" uuid="be6e3fdc-7586-4db1-a06f-3e9ad9e86979"/>
-								<text><![CDATA[Kuvan kertomus]]></text>
+								<text><![CDATA[Kerro kuvasta]]></text>
 							</staticText>
 						</jr:columnHeader>
 						<jr:detailCell style="Table 1_TD" height="30">
@@ -505,17 +505,17 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 							</textField>
 						</jr:detailCell>
 					</jr:column>
-					<jr:column width="60" uuid="8e44d1df-c9fc-4738-870b-1d900a2037c4">
+					<jr:column width="90" uuid="8e44d1df-c9fc-4738-870b-1d900a2037c4">
 						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column18"/>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<staticText>
-								<reportElement x="0" y="0" width="60" height="30" uuid="f298deac-f3da-4786-8245-b51252d8038b"/>
-								<text><![CDATA[Kuvan ottohetki]]></text>
+								<reportElement x="0" y="0" width="90" height="30" uuid="f298deac-f3da-4786-8245-b51252d8038b"/>
+								<text><![CDATA[Valokuvan ottamisajankohta]]></text>
 							</staticText>
 						</jr:columnHeader>
 						<jr:detailCell style="Table 1_TD" height="30">
 							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-								<reportElement x="0" y="0" width="60" height="30" uuid="ec638469-6d3d-4248-9763-96394615f8cf"/>
+								<reportElement x="0" y="0" width="90" height="30" uuid="ec638469-6d3d-4248-9763-96394615f8cf"/>
 								<textFieldExpression><![CDATA[$F{kuva_ottohetki}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -525,7 +525,7 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 						<jr:columnHeader style="Table 1_CH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="90" height="30" uuid="d3770fe1-012c-4f6c-b951-d3355d0f9c4e"/>
-								<text><![CDATA[Kuvan ottopaikka]]></text>
+								<text><![CDATA[Valokuvan ottamispaikka]]></text>
 							</staticText>
 						</jr:columnHeader>
 						<jr:detailCell style="Table 1_TD" height="30">

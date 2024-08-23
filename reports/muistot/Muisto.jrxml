@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2024-03-05T11:13:12 -->
+<!-- 2024-08-23T09:08:22 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Muisto" pageWidth="595" pageHeight="842" whenNoDataType="NoPages" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenResourceMissingType="Key" uuid="28bcff1d-b3ac-4d7c-87ec-1b0f5886a0de">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="New Local"/>
@@ -183,7 +183,8 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 		<band splitType="Stretch"/>
 	</background>
 	<title>
-		<band height="289" splitType="Stretch">
+		<band height="120" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 			<textField isBlankWhenNull="true">
 				<reportElement key="" x="0" y="35" width="554" height="30" uuid="852f52fd-eb0e-4165-83d8-9db519b2e0c6"/>
 				<textElement textAlignment="Left">
@@ -192,7 +193,7 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 				<textFieldExpression><![CDATA["Aihe: " + $F{aihe}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement key="" x="150" y="70" width="230" height="20" uuid="07950983-5aa1-4fff-b19c-c309315044d3"/>
+				<reportElement key="" x="80" y="70" width="300" height="20" uuid="07950983-5aa1-4fff-b19c-c309315044d3"/>
 				<textFieldExpression><![CDATA[$F{prikka_id}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
@@ -203,179 +204,151 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 				<textFieldExpression><![CDATA[$F{otsikko}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement key="" x="150" y="90" width="230" height="20" uuid="8f3f4267-894d-4a62-b197-2c352b8b1cd8"/>
+				<reportElement key="" x="80" y="90" width="300" height="20" uuid="8f3f4267-894d-4a62-b197-2c352b8b1cd8"/>
 				<textFieldExpression><![CDATA[$F{nimimerkki}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="0" y="70" width="150" height="20" uuid="6e792b59-da11-4373-a686-ad3c3b8d5507"/>
+				<reportElement x="0" y="70" width="80" height="20" uuid="6e792b59-da11-4373-a686-ad3c3b8d5507"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Muisto ID]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="90" width="150" height="20" uuid="78aa6788-2ae9-4eed-a0ba-bd2941def54c"/>
+				<reportElement x="0" y="90" width="80" height="20" uuid="78aa6788-2ae9-4eed-a0ba-bd2941def54c"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Nimimerkki]]></text>
 			</staticText>
-			<componentElement>
-				<reportElement x="0" y="154" width="544" height="106" uuid="382639d6-c2fe-4c02-959e-7f16200f8f58">
-					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
-					<property name="com.jaspersoft.studio.table.style.table_header" value="Table 2_TH"/>
-					<property name="com.jaspersoft.studio.table.style.column_header" value="Table 2_CH"/>
-					<property name="com.jaspersoft.studio.table.style.detail" value="Table 2_TD"/>
-				</reportElement>
-				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
-					<datasetRun subDataset="MuistonVastauksetDataset" uuid="7b14319d-7c06-4a3b-97cd-dc303e436904">
-						<datasetParameter name="VastausMuistoID">
-							<datasetParameterExpression><![CDATA[$P{muisto_id}]]></datasetParameterExpression>
-						</datasetParameter>
-						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
-					</datasetRun>
-					<jr:column width="220" uuid="c19f0188-f2b7-474d-9775-6e47f1470993">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
-						<jr:columnHeader style="Table 2_CH" height="30">
-							<staticText>
-								<reportElement x="0" y="0" width="220" height="30" uuid="e97067e6-7dc5-4f19-92a7-0cc9315c3f1b"/>
-								<box topPadding="2" leftPadding="4" bottomPadding="4" rightPadding="4"/>
-								<text><![CDATA[kysymys]]></text>
-							</staticText>
-						</jr:columnHeader>
-						<jr:detailCell style="Table 2_TD" height="30">
-							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-								<reportElement x="0" y="0" width="220" height="30" uuid="2fe46119-af3d-4b79-92ee-852ad2bfa565"/>
-								<box topPadding="2" leftPadding="4" bottomPadding="4" rightPadding="4"/>
-								<textFieldExpression><![CDATA[$F{kysymys}]]></textFieldExpression>
-							</textField>
-						</jr:detailCell>
-					</jr:column>
-					<jr:column width="324" uuid="ceebe2f1-aa7a-4509-abf4-8f4b921e9d2b">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
-						<jr:columnHeader style="Table 2_CH" height="30">
-							<staticText>
-								<reportElement x="0" y="0" width="324" height="30" uuid="d38a117b-3f4e-4a36-bfd2-aebb033e1897"/>
-								<box topPadding="2" leftPadding="4" bottomPadding="4" rightPadding="4"/>
-								<text><![CDATA[vastaus]]></text>
-							</staticText>
-						</jr:columnHeader>
-						<jr:detailCell style="Table 2_TD" height="30">
-							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-								<reportElement x="0" y="0" width="324" height="30" uuid="e10b602f-df7c-4b61-9be2-acc91cfedc9c"/>
-								<box topPadding="2" leftPadding="4" bottomPadding="4" rightPadding="4"/>
-								<textFieldExpression><![CDATA[$F{vastaus}]]></textFieldExpression>
-							</textField>
-						</jr:detailCell>
-					</jr:column>
-				</jr:table>
-			</componentElement>
 		</band>
 	</title>
 	<detail>
-		<band height="40">
+		<band height="200">
 			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
 			<frame>
-				<reportElement x="0" y="0" width="555" height="40" isRemoveLineWhenBlank="true" uuid="0f98cc4a-c37c-4129-9543-d90c255ae010">
-					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
-					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
-					<printWhenExpression><![CDATA[$F{alkaa}!=null || $F{loppuu}!=null]]></printWhenExpression>
+				<reportElement x="0" y="0" width="555" height="70" uuid="a7d30f52-a5df-4775-afdf-1191b11a12c0">
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.HorizontalRowLayout"/>
 				</reportElement>
-				<staticText>
-					<reportElement x="0" y="0" width="150" height="20" uuid="48c04edb-5148-4c4f-9e77-acf7406c8a7c"/>
-					<textElement>
-						<font isBold="true"/>
-					</textElement>
-					<text><![CDATA[Ajankohta]]></text>
-				</staticText>
-				<frame>
-					<reportElement x="150" y="0" width="230" height="20" uuid="6f1fb281-6a79-4540-81c3-aad2eebad816">
-						<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+				<componentElement>
+					<reportElement stretchType="ContainerHeight" x="0" y="0" width="555" height="70" uuid="382639d6-c2fe-4c02-959e-7f16200f8f58">
+						<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+						<property name="com.jaspersoft.studio.table.style.table_header" value="Table 2_TH"/>
+						<property name="com.jaspersoft.studio.table.style.column_header" value="Table 2_CH"/>
+						<property name="com.jaspersoft.studio.table.style.detail" value="Table 2_TD"/>
 					</reportElement>
-					<textField isBlankWhenNull="true">
-						<reportElement key="" x="0" y="0" width="60" height="20" uuid="9fd411d2-d546-401a-aeea-ad518f0656bf"/>
-						<textFieldExpression><![CDATA[new SimpleDateFormat("yyyy").format($F{alkaa})]]></textFieldExpression>
-					</textField>
+					<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+						<datasetRun subDataset="MuistonVastauksetDataset" uuid="7b14319d-7c06-4a3b-97cd-dc303e436904">
+							<datasetParameter name="VastausMuistoID">
+								<datasetParameterExpression><![CDATA[$P{muisto_id}]]></datasetParameterExpression>
+							</datasetParameter>
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+						<jr:column width="220" uuid="c19f0188-f2b7-474d-9775-6e47f1470993">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+							<jr:columnHeader style="Table 2_CH" height="30">
+								<staticText>
+									<reportElement x="0" y="0" width="220" height="30" uuid="e97067e6-7dc5-4f19-92a7-0cc9315c3f1b"/>
+									<box topPadding="2" leftPadding="4" bottomPadding="4" rightPadding="4"/>
+									<text><![CDATA[Kysymys]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table 2_TD" height="30">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="220" height="30" uuid="2fe46119-af3d-4b79-92ee-852ad2bfa565"/>
+									<box topPadding="2" leftPadding="4" bottomPadding="4" rightPadding="4"/>
+									<textFieldExpression><![CDATA[$F{kysymys}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="324" uuid="ceebe2f1-aa7a-4509-abf4-8f4b921e9d2b">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+							<jr:columnHeader style="Table 2_CH" height="30">
+								<staticText>
+									<reportElement x="0" y="0" width="324" height="30" uuid="d38a117b-3f4e-4a36-bfd2-aebb033e1897"/>
+									<box topPadding="2" leftPadding="4" bottomPadding="4" rightPadding="4"/>
+									<text><![CDATA[Vastaus]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table 2_TD" height="30">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="324" height="30" uuid="e10b602f-df7c-4b61-9be2-acc91cfedc9c"/>
+									<box topPadding="2" leftPadding="4" bottomPadding="4" rightPadding="4"/>
+									<textFieldExpression><![CDATA[$F{vastaus}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+					</jr:table>
+				</componentElement>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="79" width="555" height="55" uuid="567dc51c-8318-469b-b90a-bc36f3b15672">
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<frame>
+					<reportElement x="0" y="0" width="555" height="20" isRemoveLineWhenBlank="true" uuid="0f98cc4a-c37c-4129-9543-d90c255ae010">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+						<printWhenExpression><![CDATA[$F{alkaa}!=null || $F{loppuu}!=null]]></printWhenExpression>
+					</reportElement>
 					<staticText>
-						<reportElement x="72" y="0" width="12" height="20" uuid="805e0dfe-7357-4754-a5d4-8b6477c37e84"/>
-						<text><![CDATA[-]]></text>
+						<reportElement x="0" y="0" width="80" height="20" uuid="48c04edb-5148-4c4f-9e77-acf7406c8a7c"/>
+						<textElement>
+							<font isBold="true"/>
+						</textElement>
+						<text><![CDATA[Ajankohta]]></text>
+					</staticText>
+					<frame>
+						<reportElement x="80" y="0" width="230" height="20" uuid="6f1fb281-6a79-4540-81c3-aad2eebad816">
+							<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+						</reportElement>
+						<textField isBlankWhenNull="true">
+							<reportElement key="" x="0" y="0" width="50" height="20" uuid="9fd411d2-d546-401a-aeea-ad518f0656bf">
+								<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							</reportElement>
+							<textFieldExpression><![CDATA[new SimpleDateFormat("yyyy").format($F{alkaa})]]></textFieldExpression>
+						</textField>
+						<staticText>
+							<reportElement x="50" y="0" width="12" height="20" uuid="805e0dfe-7357-4754-a5d4-8b6477c37e84"/>
+							<text><![CDATA[-]]></text>
+						</staticText>
+						<textField isBlankWhenNull="true">
+							<reportElement key="" x="63" y="0" width="60" height="20" uuid="51b913ea-a387-4dd8-a5ca-4e31a4145628">
+								<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							</reportElement>
+							<textFieldExpression><![CDATA[new SimpleDateFormat("yyyy").format($F{loppuu})]]></textFieldExpression>
+						</textField>
+					</frame>
+				</frame>
+				<frame>
+					<reportElement x="0" y="20" width="555" height="20" isRemoveLineWhenBlank="true" uuid="97136066-b039-4398-9045-3577f9955620">
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<printWhenExpression><![CDATA[$F{ilmiannettu}!= null && $F{julkinen}==true]]></printWhenExpression>
+					</reportElement>
+					<staticText>
+						<reportElement x="0" y="0" width="80" height="20" uuid="a3e7c2da-9dcd-4fc4-b3dc-36014aa9c885"/>
+						<textElement>
+							<font isBold="true"/>
+						</textElement>
+						<text><![CDATA[Julkinen]]></text>
 					</staticText>
 					<textField isBlankWhenNull="true">
-						<reportElement key="" x="97" y="0" width="76" height="20" uuid="51b913ea-a387-4dd8-a5ca-4e31a4145628"/>
-						<textFieldExpression><![CDATA[new SimpleDateFormat("yyyy").format($F{loppuu})]]></textFieldExpression>
+						<reportElement x="80" y="0" width="475" height="20" uuid="58c4800a-8a72-4a43-a766-473de00a0443">
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+						</reportElement>
+						<textElement textAlignment="Justified"/>
+						<textFieldExpression><![CDATA[($F{julkinen}==false)?"Ei":"Kyllä"]]></textFieldExpression>
 					</textField>
 				</frame>
 			</frame>
-		</band>
-		<band height="60">
-			<property name="com.jaspersoft.studio.unit.height" value="px"/>
-			<frame>
-				<reportElement x="0" y="20" width="555" height="20" isRemoveLineWhenBlank="true" uuid="ddfaa332-347e-4183-963d-cdf817cd8bd6">
-					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
-					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
-					<printWhenExpression><![CDATA[$F{poistettu}!= null && $F{poistettu}==true]]></printWhenExpression>
-				</reportElement>
-				<textField isBlankWhenNull="true">
-					<reportElement x="150" y="0" width="405" height="20" uuid="28b2098e-8050-4a58-8b5c-558d6899c6f3">
-						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
-					</reportElement>
-					<textFieldExpression><![CDATA[($F{poistettu}==false)?"Ei":"Kyllä"]]></textFieldExpression>
-				</textField>
-				<staticText>
-					<reportElement x="0" y="0" width="150" height="20" uuid="fa70c1cd-849c-49bc-bff8-26cd205a28d8"/>
-					<textElement>
-						<font isBold="true"/>
-					</textElement>
-					<text><![CDATA[Poistettu]]></text>
-				</staticText>
-			</frame>
-			<frame>
-				<reportElement x="0" y="0" width="555" height="20" isRemoveLineWhenBlank="true" uuid="64d048bb-9a70-44c9-a1c8-d2f8aef55e3f">
-					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
-					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
-					<printWhenExpression><![CDATA[$F{ilmiannettu}!= null && $F{ilmiannettu}==true]]></printWhenExpression>
-				</reportElement>
-				<textField>
-					<reportElement x="150" y="0" width="405" height="20" uuid="07b3144d-8011-436f-8f85-e861cbaa32a6">
-						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
-					</reportElement>
-					<textFieldExpression><![CDATA[($F{ilmiannettu}==false)?"Ei":"Kyllä"]]></textFieldExpression>
-				</textField>
-				<staticText>
-					<reportElement x="0" y="0" width="150" height="20" uuid="b4761ac3-02ce-41b6-b1ae-64222ef53175"/>
-					<textElement>
-						<font isBold="true"/>
-					</textElement>
-					<text><![CDATA[Ilmiannettu]]></text>
-				</staticText>
-			</frame>
-			<frame>
-				<reportElement x="0" y="40" width="555" height="20" isRemoveLineWhenBlank="true" uuid="97136066-b039-4398-9045-3577f9955620">
-					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
-					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
-					<printWhenExpression><![CDATA[$F{ilmiannettu}!= null && $F{julkinen}==true]]></printWhenExpression>
-				</reportElement>
-				<staticText>
-					<reportElement x="0" y="0" width="150" height="20" uuid="a3e7c2da-9dcd-4fc4-b3dc-36014aa9c885"/>
-					<textElement>
-						<font isBold="true"/>
-					</textElement>
-					<text><![CDATA[Julkinen]]></text>
-				</staticText>
-				<textField isBlankWhenNull="true">
-					<reportElement x="150" y="0" width="405" height="20" uuid="58c4800a-8a72-4a43-a766-473de00a0443">
-						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
-					</reportElement>
-					<textElement textAlignment="Justified"/>
-					<textFieldExpression><![CDATA[($F{julkinen}==false)?"Ei":"Kyllä"]]></textFieldExpression>
-				</textField>
-			</frame>
-		</band>
-		<band height="20"/>
-		<band height="20">
-			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 			<subreport isUsingCache="false" overflowType="Stretch">
-				<reportElement x="0" y="0" width="80" height="20" isRemoveLineWhenBlank="true" uuid="df80cf2c-d1a6-4d12-92d4-077c40017338"/>
+				<reportElement positionType="Float" x="0" y="138" width="555" height="50" isRemoveLineWhenBlank="true" uuid="df80cf2c-d1a6-4d12-92d4-077c40017338">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
 				<subreportParameter name="muisto_id">
 					<subreportParameterExpression><![CDATA[$P{muisto_id}]]></subreportParameterExpression>
 				</subreportParameter>
