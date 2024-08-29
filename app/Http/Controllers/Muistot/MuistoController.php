@@ -132,19 +132,22 @@ class MuistoController extends Controller {
                             }
                             else if($key == 'tapahtumapaikka')
                             {
-                                // MipGis assumes space between coordinates, Prikka uses semicolon
-                                $formattedValue = str_replace(';', ' ', $value);
-                                $geom = MipGis::getPointGeometryValue($formattedValue);
-                                $muistoEntity->$key = $geom;
+                                // Save the original value to tapahtumapaikka_prikka
+                                $muistoEntity->tapahtumapaikka_prikka = $value;
 
-                                // MML query for kiinteistotunnus:
+                                // For handling the map data, we need to convert the coordinates to a point geometry
+                                // This is also needed for MML query. 
                                 $coordinates = explode(';', $value);
                                 $lat = $coordinates[0];
                                 $lon = $coordinates[1];
-                                $pointstring = 'POINT('.$lon .' '. $lat .')';
-                                $convertedCoords = MipGis::transformSSRID(4326, 3067, $pointstring);
+                                $flippedCoords = $lon . ' ' . $lat;
+                                $geom = MipGis::getPointGeometryValue($flippedCoords);
+                                $muistoEntity->$key = $geom;
+                                
+                                // MML query for kiinteistotunnus, needed for mapping to MIP kunta:
+                                $coordAsText = MipGis::getGeometryAsText($geom);
                                 try {
-                                  $mmlKiinteistotunnus = MMLQueries::getKiinteistoTunnusByPointPrikka($convertedCoords);
+                                  $mmlKiinteistotunnus = MMLQueries::getKiinteistoTunnusByPointPrikka($coordAsText);
                                   if($mmlKiinteistotunnus != null)
                                   {
                                       $mmlKuntanumero = explode('-', $mmlKiinteistotunnus)[0];
@@ -642,7 +645,6 @@ class MuistoController extends Controller {
                 $properties = clone($muisto);
                 unset($properties['sijainti']);
                 $sijainti = (array) json_decode($muisto->sijainti);
-                $sijainti['coordinates'] = array_reverse($sijainti['coordinates']);
                 MipJson::addGeoJsonFeatureCollectionFeaturePoint($sijainti, $properties);
             }
 
@@ -727,7 +729,6 @@ class MuistoController extends Controller {
                     unset($properties['sijainti']);
 
                     $sijainti = (array) json_decode($muisto->sijainti);
-                    $sijainti['coordinates'] = array_reverse($sijainti['coordinates']);
                     MipJson::setGeoJsonFeature($sijainti, $properties);
                     MipJson::addMessage(Lang::get('muistot.search_success'));
                 }
