@@ -580,7 +580,6 @@ class AiheController extends Controller {
                           $properties = clone($muisto);
                           unset($properties['sijainti']);
                           $sijainti = (array) json_decode($muisto->sijainti);
-                          $sijainti['coordinates'] = array_reverse($sijainti['coordinates']);
                           MipJson::addGeoJsonFeatureCollectionFeaturePoint($sijainti, $properties);
                       }
                   }
