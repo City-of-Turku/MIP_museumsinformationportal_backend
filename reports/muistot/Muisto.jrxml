@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2024-08-23T09:08:22 -->
+<!-- 2024-08-30T13:39:25 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Muisto" pageWidth="595" pageHeight="842" whenNoDataType="NoPages" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenResourceMissingType="Key" uuid="28bcff1d-b3ac-4d7c-87ec-1b0f5886a0de">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="New Local"/>
@@ -83,6 +83,7 @@ WHERE
 		<![CDATA[SELECT 
 	muisto.prikka_id,
 	aihe.aihe_fi as aihe,
+	kunta.nimi as kunta_nimi,
 	muisto.kuvaus as otsikko,
 	muistelija.nimimerkki as nimimerkki,
 	muisto.kuvaus as otsikko,
@@ -95,90 +96,35 @@ WHERE
 	muisto.julkinen,
 	muisto.kieli,
 	muisto.paikka_summittainen,
-	muisto.tapahtumapaikka
+	muisto.tapahtumapaikka,
+	muisto.tapahtumapaikka_prikka
 FROM 
 	muistot_muisto as muisto
 	left join muistot_aihe as aihe on muisto.muistot_aihe_id = aihe.prikka_id
 	left join muistot_henkilo as muistelija on muisto.muistot_henkilo_id = muistelija.prikka_id
+	left join muistot_muisto_kunta as muistokunta on muisto.prikka_id = muistokunta.muisto_id
+	left join kunta on  kunta.id = muistokunta.kunta_id
 WHERE
     muisto.prikka_id = $P{muisto_id}
 ORDER BY muisto.muistot_aihe_id ASC]]>
 	</queryString>
-	<field name="prikka_id" class="java.lang.Integer">
-		<property name="com.jaspersoft.studio.field.name" value="prikka_id"/>
-		<property name="com.jaspersoft.studio.field.label" value="prikka_id"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
-	</field>
-	<field name="aihe" class="java.lang.String">
-		<property name="com.jaspersoft.studio.field.name" value="aihe"/>
-		<property name="com.jaspersoft.studio.field.label" value="aihe"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_aihe"/>
-	</field>
-	<field name="otsikko" class="java.lang.String">
-		<property name="com.jaspersoft.studio.field.name" value="otsikko"/>
-		<property name="com.jaspersoft.studio.field.label" value="otsikko"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
-	</field>
-	<field name="nimimerkki" class="java.lang.String">
-		<property name="com.jaspersoft.studio.field.name" value="nimimerkki"/>
-		<property name="com.jaspersoft.studio.field.label" value="nimimerkki"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_henkilo"/>
-	</field>
-	<field name="COLUMN_5" class="java.lang.String">
-		<property name="com.jaspersoft.studio.field.name" value="otsikko"/>
-		<property name="com.jaspersoft.studio.field.label" value="otsikko"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
-	</field>
-	<field name="luotu" class="java.sql.Timestamp">
-		<property name="com.jaspersoft.studio.field.name" value="luotu"/>
-		<property name="com.jaspersoft.studio.field.label" value="luotu"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
-	</field>
-	<field name="paivitetty" class="java.sql.Timestamp">
-		<property name="com.jaspersoft.studio.field.name" value="paivitetty"/>
-		<property name="com.jaspersoft.studio.field.label" value="paivitetty"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
-	</field>
-	<field name="alkaa" class="java.sql.Timestamp">
-		<property name="com.jaspersoft.studio.field.name" value="alkaa"/>
-		<property name="com.jaspersoft.studio.field.label" value="alkaa"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
-	</field>
-	<field name="loppuu" class="java.sql.Timestamp">
-		<property name="com.jaspersoft.studio.field.name" value="loppuu"/>
-		<property name="com.jaspersoft.studio.field.label" value="loppuu"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
-	</field>
-	<field name="poistettu" class="java.lang.Boolean">
-		<property name="com.jaspersoft.studio.field.name" value="poistettu"/>
-		<property name="com.jaspersoft.studio.field.label" value="poistettu"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
-	</field>
-	<field name="ilmiannettu" class="java.lang.Boolean">
-		<property name="com.jaspersoft.studio.field.name" value="ilmiannettu"/>
-		<property name="com.jaspersoft.studio.field.label" value="ilmiannettu"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
-	</field>
-	<field name="julkinen" class="java.lang.Boolean">
-		<property name="com.jaspersoft.studio.field.name" value="julkinen"/>
-		<property name="com.jaspersoft.studio.field.label" value="julkinen"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
-	</field>
-	<field name="kieli" class="java.lang.String">
-		<property name="com.jaspersoft.studio.field.name" value="kieli"/>
-		<property name="com.jaspersoft.studio.field.label" value="kieli"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
-	</field>
-	<field name="paikka_summittainen" class="java.lang.Boolean">
-		<property name="com.jaspersoft.studio.field.name" value="paikka_summittainen"/>
-		<property name="com.jaspersoft.studio.field.label" value="paikka_summittainen"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
-	</field>
-	<field name="tapahtumapaikka" class="java.lang.String">
-		<property name="com.jaspersoft.studio.field.name" value="tapahtumapaikka"/>
-		<property name="com.jaspersoft.studio.field.label" value="tapahtumapaikka"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="muistot_muisto"/>
-	</field>
+	<field name="prikka_id" class="java.lang.Integer"/>
+	<field name="aihe" class="java.lang.String"/>
+	<field name="kunta_nimi" class="java.lang.String"/>
+	<field name="otsikko" class="java.lang.String"/>
+	<field name="nimimerkki" class="java.lang.String"/>
+	<field name="COLUMN_6" class="java.lang.String"/>
+	<field name="luotu" class="java.sql.Timestamp"/>
+	<field name="paivitetty" class="java.sql.Timestamp"/>
+	<field name="alkaa" class="java.sql.Timestamp"/>
+	<field name="loppuu" class="java.sql.Timestamp"/>
+	<field name="poistettu" class="java.lang.Boolean"/>
+	<field name="ilmiannettu" class="java.lang.Boolean"/>
+	<field name="julkinen" class="java.lang.Boolean"/>
+	<field name="kieli" class="java.lang.String"/>
+	<field name="paikka_summittainen" class="java.lang.Boolean"/>
+	<field name="tapahtumapaikka" class="java.lang.String"/>
+	<field name="tapahtumapaikka_prikka" class="java.lang.String"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
@@ -212,19 +158,19 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
-				<text><![CDATA[Muisto ID]]></text>
+				<text><![CDATA[Muisto ID:]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="0" y="90" width="80" height="20" uuid="78aa6788-2ae9-4eed-a0ba-bd2941def54c"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
-				<text><![CDATA[Nimimerkki]]></text>
+				<text><![CDATA[Nimimerkki:]]></text>
 			</staticText>
 		</band>
 	</title>
 	<detail>
-		<band height="200">
+		<band height="240">
 			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
 			<frame>
@@ -251,6 +197,9 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 								<staticText>
 									<reportElement x="0" y="0" width="220" height="30" uuid="e97067e6-7dc5-4f19-92a7-0cc9315c3f1b"/>
 									<box topPadding="2" leftPadding="4" bottomPadding="4" rightPadding="4"/>
+									<textElement>
+										<font isBold="true"/>
+									</textElement>
 									<text><![CDATA[Kysymys]]></text>
 								</staticText>
 							</jr:columnHeader>
@@ -268,6 +217,9 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 								<staticText>
 									<reportElement x="0" y="0" width="324" height="30" uuid="d38a117b-3f4e-4a36-bfd2-aebb033e1897"/>
 									<box topPadding="2" leftPadding="4" bottomPadding="4" rightPadding="4"/>
+									<textElement>
+										<font isBold="true"/>
+									</textElement>
 									<text><![CDATA[Vastaus]]></text>
 								</staticText>
 							</jr:columnHeader>
@@ -283,7 +235,7 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 				</componentElement>
 			</frame>
 			<frame>
-				<reportElement positionType="Float" x="0" y="79" width="555" height="55" uuid="567dc51c-8318-469b-b90a-bc36f3b15672">
+				<reportElement positionType="Float" x="0" y="79" width="555" height="91" uuid="567dc51c-8318-469b-b90a-bc36f3b15672">
 					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>
@@ -298,7 +250,7 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 						<textElement>
 							<font isBold="true"/>
 						</textElement>
-						<text><![CDATA[Ajankohta]]></text>
+						<text><![CDATA[Ajankohta:]]></text>
 					</staticText>
 					<frame>
 						<reportElement x="80" y="0" width="230" height="20" uuid="6f1fb281-6a79-4540-81c3-aad2eebad816">
@@ -334,7 +286,7 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 						<textElement>
 							<font isBold="true"/>
 						</textElement>
-						<text><![CDATA[Julkinen]]></text>
+						<text><![CDATA[Julkinen:]]></text>
 					</staticText>
 					<textField isBlankWhenNull="true">
 						<reportElement x="80" y="0" width="475" height="20" uuid="58c4800a-8a72-4a43-a766-473de00a0443">
@@ -344,10 +296,61 @@ ORDER BY muisto.muistot_aihe_id ASC]]>
 						<textFieldExpression><![CDATA[($F{julkinen}==false)?"Ei":"Kyllä"]]></textFieldExpression>
 					</textField>
 				</frame>
+				<frame>
+					<reportElement x="0" y="40" width="555" height="20" isRemoveLineWhenBlank="true" uuid="f2cb66b8-dd92-4fcc-8043-544dd960876a">
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<printWhenExpression><![CDATA[$F{kunta_nimi} != null]]></printWhenExpression>
+					</reportElement>
+					<staticText>
+						<reportElement x="0" y="0" width="80" height="20" uuid="65626ed4-8c8a-440d-9c59-019cbeeedbff">
+							<printWhenExpression><![CDATA[$F{kunta_nimi} != null]]></printWhenExpression>
+						</reportElement>
+						<textElement>
+							<font isBold="true"/>
+						</textElement>
+						<text><![CDATA[Kunta:]]></text>
+					</staticText>
+					<textField isBlankWhenNull="true">
+						<reportElement x="80" y="0" width="475" height="20" uuid="f17e8cfc-d759-47e8-ac3f-763b1e52d433">
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$F{kunta_nimi} != null]]></printWhenExpression>
+						</reportElement>
+						<textElement textAlignment="Justified"/>
+						<textFieldExpression><![CDATA[$F{kunta_nimi}]]></textFieldExpression>
+					</textField>
+				</frame>
+				<frame>
+					<reportElement x="0" y="60" width="555" height="20" isRemoveLineWhenBlank="true" uuid="d62b9335-4a76-45d4-94bc-eb3fb6a3ca57">
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<printWhenExpression><![CDATA[$F{tapahtumapaikka_prikka} != null]]></printWhenExpression>
+					</reportElement>
+					<staticText>
+						<reportElement x="0" y="0" width="120" height="20" uuid="988604d3-33f7-495d-a78f-d4f0a141c8cb">
+							<printWhenExpression><![CDATA[$F{tapahtumapaikka_prikka} != null]]></printWhenExpression>
+						</reportElement>
+						<textElement>
+							<font isBold="true"/>
+						</textElement>
+						<text><![CDATA[Tapahtumapaikka:]]></text>
+					</staticText>
+					<textField isBlankWhenNull="true">
+						<reportElement x="120" y="0" width="435" height="20" uuid="48ae2ce2-85c5-4260-85d4-ac437c57d77f">
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$F{tapahtumapaikka_prikka} != null]]></printWhenExpression>
+						</reportElement>
+						<textElement textAlignment="Justified"/>
+						<textFieldExpression><![CDATA[$F{tapahtumapaikka_prikka}]]></textFieldExpression>
+					</textField>
+				</frame>
 			</frame>
 			<subreport isUsingCache="false" overflowType="Stretch">
-				<reportElement positionType="Float" x="0" y="138" width="555" height="50" isRemoveLineWhenBlank="true" uuid="df80cf2c-d1a6-4d12-92d4-077c40017338">
+				<reportElement positionType="Float" x="0" y="180" width="555" height="50" isRemoveLineWhenBlank="true" uuid="df80cf2c-d1a6-4d12-92d4-077c40017338">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
 				</reportElement>
 				<subreportParameter name="muisto_id">
 					<subreportParameterExpression><![CDATA[$P{muisto_id}]]></subreportParameterExpression>
