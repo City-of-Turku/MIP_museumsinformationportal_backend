@@ -632,7 +632,7 @@ class MuistoController extends Controller {
 
             MipJson::initGeoJsonFeatureCollection(count($muistot), $total_rows);
             foreach ($muistot as $muisto) {
-                //TODO: Leaves artefact in the return list
+                $muisto->aiheen_vari = $muisto->Muistot_aihe->aiheen_vari;
                 if($muisto->muistot_henkilo_filtered)
                 {
                     $muisto->muistot_henkilo = $muisto->muistot_henkilo_filtered;

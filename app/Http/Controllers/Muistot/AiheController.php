@@ -568,6 +568,7 @@ class AiheController extends Controller {
                       MipJson::initGeoJsonFeatureCollection(count($muistot), $total_rows);
 
                       foreach ($muistot as $muisto) {
+                          $muisto->aiheen_vari = $aihe->aiheen_vari;
                           if($muisto->muistot_henkilo_filtered)
                           {
                               $muisto->muistot_henkilo = $muisto->muistot_henkilo_filtered;
