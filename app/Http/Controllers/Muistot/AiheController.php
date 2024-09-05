@@ -495,7 +495,11 @@ class AiheController extends Controller {
                   }
 
                   $muistot = $query->orderby('prikka_id')->get();
-                  
+
+                  foreach ($muistot as $value) {
+                      $value->aiheen_vari = $aihe->aiheen_vari;
+                  }
+
                   $total_rows = ($muistot) ? count($muistot) : 0;
 
                   if($total_rows > 0) {
