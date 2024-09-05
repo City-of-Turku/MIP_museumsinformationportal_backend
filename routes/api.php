@@ -716,7 +716,7 @@ Route::group(['middleware' => ['auth.jwt', 'setLocale']], function () {
 	Route::get("/muistot/{muisto_id}/", "Muistot\MuistoController@show");
 	Route::get("/muistot/", "Muistot\MuistoController@index");
 	Route::get("/aiheet/{aihe_id}/", "Muistot\AiheController@show");
-  Route::get("/aiheet/{aihe_id}/muistot/",	"Muistot\AiheController@get_memories_by_topic");
+	Route::get("/aiheet/{aihe_id}/muistot/",	"Muistot\AiheController@get_memories_by_topic");
 	Route::get("/aiheet/", "Muistot\AiheController@index");
 	Route::get("/muistot_kuva/",						"Muistot\MuistotKuvaController@index");
 	Route::get("/muistot_kuva/{kuva_id}/",				"Muistot\MuistotKuvaController@show");
