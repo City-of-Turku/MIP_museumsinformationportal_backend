@@ -703,6 +703,7 @@ class MuistoController extends Controller {
                 } else {
                     $muisto->load('muistot_henkilo_filtered');
                 }
+                $muisto->aiheen_vari = $muisto->Muistot_aihe->aiheen_vari;
                 
                 if ($muisto->muistotMuistoKunta)
                 {
