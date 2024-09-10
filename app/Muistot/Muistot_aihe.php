@@ -141,6 +141,18 @@ class Muistot_aihe extends Model {
     	 * If orderfield AND orderDirection is given, ONLY then order the results by given field
     	 */
     	if ($order_field != null && $order_direction != null) {
+        // Get correct field name according to selected language
+        if ($order_field == "aihe") {
+          if(App::getLocale()=="se"){
+            $order_field = "aihe_sv";
+          }
+          elseif (App::getLocale()=="en") {
+            $order_field = "aihe_en";
+          }         
+          else {
+            $order_field = "aihe_fi";
+          }
+        }
 
     		$query->orderBy($order_table.'.'.$order_field, $order_direction);
     	}

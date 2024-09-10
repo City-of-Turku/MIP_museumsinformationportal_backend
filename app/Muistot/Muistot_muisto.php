@@ -119,9 +119,13 @@ class Muistot_muisto extends Model {
             'muistot_muisto.luotu', 'muistot_muisto.paivitetty', 'muistot_muisto.kuvaus', 'muistot_muisto.alkaa', 'muistot_muisto.loppuu', 'muistot_muisto.poistettu', 
             'muistot_muisto.ilmiannettu', 'muistot_muisto.julkinen', 'muistot_muisto.kieli', 'muistot_muisto.paikka_summittainen','muistot_muisto.tapahtumapaikka_prikka',
             DB::raw('ST_AsGeoJson(ST_transform(tapahtumapaikka, 4326)) as sijainti')
-            );
+            )
+            ->leftJoin('muistot_aihe', 'muistot_muisto.muistot_aihe_id', '=', 'muistot_aihe.prikka_id')
+            ->leftJoin('muistot_henkilo', 'muistot_muisto.muistot_henkilo_id', '=', 'muistot_henkilo.prikka_id');
+            // ->leftJoin('muistot_muisto_kunta', 'muistot_muisto.prikka_id', '=', 'muistot_muisto_kunta.muisto_id')
+            // ->leftJoin('kunta', 'muistot_muisto_kunta.kunta_id', '=', 'kunta.id');
 
-		return $qry;
+		    return $qry;
     }
 
     /**
@@ -233,6 +237,36 @@ class Muistot_muisto extends Model {
     		if($order_field == 'bbox_center' && is_null($bbox)) {
     			$order_field = 'prikka_id';
     		}
+
+
+        if ($order_field == "nimimerkki") {
+          $order_table = "muistot_henkilo";
+          $order_field = "nimimerkki";
+        }
+
+        if ($order_field == "aihe") {
+          $order_table = "muistot_aihe";
+          
+          if(App::getLocale()=="se"){
+            $order_field = "aihe_sv";
+          }
+          elseif (App::getLocale()=="en") {
+            $order_field = "aihe_en";
+          }         
+          else {
+            $order_field = "aihe_fi";
+          }
+        }
+
+        // TODO: Needs fixing
+        // if ($order_field == "kunta") {
+        //   $order_table = "kunta";
+        //   if(App::getLocale()=="se"){
+        //     $order_field = "nimi_se";
+        //   } else {
+        //     $order_field = "nimi";
+        //   }
+        // }
 
     		$query->orderBy($order_table.'.'.$order_field, $order_direction);
     	}
