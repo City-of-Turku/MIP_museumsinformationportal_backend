@@ -376,7 +376,7 @@ class AiheController extends Controller {
             }
 
             // order the results by given parameters
-            //$aiheet->withOrderBy($request->aluerajaus, $jarjestys_kentta, $jarjestys_suunta);
+            $aiheet->withOrderBy($request->aluerajaus, $jarjestys_kentta, $jarjestys_suunta);
 
             // calculate the total rows of the search results
             $total_rows = Utils::getCount($aiheet);
