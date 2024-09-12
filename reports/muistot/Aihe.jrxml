@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2024-08-30T12:56:24 -->
+<!-- 2024-09-12T13:27:18 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Aihe" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isTitleNewPage="true" uuid="a3058a9a-2e29-4811-9e08-1426e6e02029">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="New Local"/>
@@ -125,16 +125,21 @@ WHERE
 		st_xmin(bbox) as bbox_xmin, 
         st_ymin(bbox) as bbox_ymin, 
         st_xmax(bbox) as bbox_xmax, 
-        st_ymax(bbox) as bbox_ymax
+        st_ymax(bbox) as bbox_ymax,
+        COALESCE(memory_count, 0) AS memory_count  -- To handle cases with no children, set count to 0
         FROM 
             muistot_aihe as aihe
            	LEFT JOIN (
-        		SELECT muistot_aihe_id, ST_Extent(tapahtumapaikka) as bbox
+        		SELECT 
+        			muistot_aihe_id, 
+        			ST_Extent(tapahtumapaikka) as bbox,
+        			COUNT(*) AS memory_count
         		FROM muistot_muisto
         		GROUP BY muistot_aihe_id
     		) SQ_BBOX on (SQ_BBOX.muistot_aihe_id = aihe.prikka_id)	
         WHERE 
-        		aihe.prikka_id = $P{aihe_id}]]>
+        		aihe.prikka_id = $P{aihe_id}
+]]>
 	</queryString>
 	<field name="aihe_id" class="java.lang.Integer"/>
 	<field name="otsikko_fi" class="java.lang.String"/>
@@ -149,6 +154,7 @@ WHERE
 	<field name="bbox_ymin" class="java.lang.Double"/>
 	<field name="bbox_xmax" class="java.lang.Double"/>
 	<field name="bbox_ymax" class="java.lang.Double"/>
+	<field name="memory_count" class="java.lang.Long"/>
 	<variable name="MAP_WIDTH" class="java.lang.Double">
 		<variableExpression><![CDATA[600.0]]></variableExpression>
 	</variable>
@@ -159,7 +165,7 @@ WHERE
 		<variableExpression><![CDATA[1.2 * ($F{bbox_xmax}-$F{bbox_xmin})]]></variableExpression>
 	</variable>
 	<variable name="oh" class="java.lang.Double">
-		<variableExpression><![CDATA[1.1 * ($F{bbox_ymax}-$F{bbox_ymin})]]></variableExpression>
+		<variableExpression><![CDATA[1.2 * ($F{bbox_ymax}-$F{bbox_ymin})]]></variableExpression>
 	</variable>
 	<variable name="w" class="java.lang.Double">
 		<variableExpression><![CDATA[$V{ow} < 500.0 ? 500.0 : $V{ow}]]></variableExpression>
@@ -231,11 +237,12 @@ WHERE
 				<textFieldExpression><![CDATA[$F{otsikko_fi}]]></textFieldExpression>
 			</textField>
 			<frame>
-				<reportElement positionType="Float" x="1" y="34" width="209" height="20" uuid="815f256d-017d-464b-b0f1-5a34587e0ac8">
+				<reportElement positionType="Float" x="1" y="34" width="160" height="20" uuid="815f256d-017d-464b-b0f1-5a34587e0ac8">
 					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 				</reportElement>
 				<staticText>
-					<reportElement positionType="Float" x="0" y="0" width="100" height="20" uuid="11c2181b-164b-4f8a-9404-4af5d2b81a56">
+					<reportElement positionType="Float" x="0" y="0" width="80" height="20" uuid="11c2181b-164b-4f8a-9404-4af5d2b81a56">
 						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					</reportElement>
 					<textElement>
@@ -244,10 +251,30 @@ WHERE
 					<text><![CDATA[Aiheen ID:]]></text>
 				</staticText>
 				<textField>
-					<reportElement positionType="Float" x="100" y="0" width="94" height="20" uuid="729306e2-c6c6-4c77-8758-f8d62a93fdb0">
+					<reportElement positionType="Float" x="84" y="0" width="76" height="20" uuid="729306e2-c6c6-4c77-8758-f8d62a93fdb0">
 						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
 					</reportElement>
 					<textFieldExpression><![CDATA[$F{aihe_id}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="175" y="35" width="175" height="20" uuid="d5f6a9e0-7ecf-4c42-a08a-d2719a23e76d">
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+				</reportElement>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="0" width="80" height="20" uuid="317b0c81-b947-4a18-87d5-b27c6372cd80">
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Muistoja:]]></text>
+				</staticText>
+				<textField>
+					<reportElement positionType="Float" x="84" y="0" width="68" height="20" uuid="2c4aad27-38fa-437c-bc21-031907f1e13a">
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					</reportElement>
+					<textFieldExpression><![CDATA[$F{memory_count}]]></textFieldExpression>
 				</textField>
 			</frame>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
