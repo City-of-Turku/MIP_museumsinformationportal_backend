@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
-<!-- 2024-08-30T14:12:41 -->
+<!-- 2024-09-12T14:03:43 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="MuistotAiheTaulukko" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" whenResourceMissingType="Error" isIgnorePagination="true" uuid="dea69c35-0e8e-453e-972c-f915cdff87f9">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
@@ -196,6 +196,14 @@ where (muisto.muistot_aihe_id  = $P{TaulukkoAiheID} and muisto.ilmiannettu = fal
 		<field name="syntymavuosi" class="java.lang.Integer"/>
 		<field name="sahkoposti" class="java.lang.String"/>
 		<field name="kunta_nimi" class="java.lang.String"/>
+		<variable name="Variable_1" class="java.lang.Integer">
+			<variableExpression><![CDATA[1]]></variableExpression>
+			<initialValueExpression><![CDATA[1]]></initialValueExpression>
+		</variable>
+		<variable name="Variable_0" class="java.lang.Integer">
+			<variableExpression><![CDATA[0]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
 	</subDataset>
 	<parameter name="aihe_id" class="java.lang.Long"/>
 	<queryString language="SQL">
@@ -424,9 +432,11 @@ where aihe.prikka_id  = $P{aihe_id}]]>
 							</staticText>
 						</jr:columnHeader>
 						<jr:detailCell style="Table 1_TD" height="30">
-							<textField>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 								<reportElement x="0" y="0" width="130" height="30" uuid="dd5b7d40-ca7d-4ac0-b616-393371f3bc63"/>
-								<textFieldExpression><![CDATA[$F{muisto_paikka}]]></textFieldExpression>
+								<textFieldExpression><![CDATA["https://www.google.com/maps?q=" +$F{muisto_paikka}.substring($V{Variable_0},$F{muisto_paikka}.indexOf(";")).trim() + 
+"," + 
+$F{muisto_paikka}.substring($F{muisto_paikka}.indexOf(";") + $V{Variable_1}).trim()]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
 					</jr:column>
