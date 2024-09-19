@@ -47,15 +47,15 @@
                 </AnchorPoint>
               </PointPlacement>
             </LabelPlacement>
-            <Fill>
-              <CssParameter name="fill">#000000</CssParameter> <!-- Text color -->
-            </Fill>
             <Halo>
               <Radius>1</Radius> <!-- Width of the halo (background) around the text -->
               <Fill>
                 <CssParameter name="fill">#FFFFFF</CssParameter> <!-- White background color -->
               </Fill>
             </Halo>
+            <Fill>
+              <CssParameter name="fill">#000000</CssParameter> <!-- Text color -->
+            </Fill>			
           </TextSymbolizer>        
         </Rule>
       </FeatureTypeStyle>
