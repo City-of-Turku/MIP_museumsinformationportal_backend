@@ -540,22 +540,8 @@ class KyppiService{
             }
 
             // Alakohteiden käsittelyt.
-            /*
-             * Toistaiseksi vain uusien lisäyksessä tallennetaan alakohteet.
-             * Hankala tunnistaa päivitettävä alakohde, pitäisi nimen, kuvauksen ja sijainnin mukaan tunnistaa?
-             */
-            if(!$isUpdate){
-                // US11140
-                // Muuten sama kuin uuden luonti, mutta alakohteen nimen lukemisen jälkeen
-                // koitetaan jos kohteelta löytyy samanniminen alakohde.
-                //      Jos löytyy, kohdistetaan arvojen asettaminen tähän alakohteeseen. huom (mm. ajoitukset ja sijainnit voidaan poistaa ensin ja lisätä uudelleen)
-                //      Jos ei löydy, luodaan uusi kohde kuten lisäystilanteessa
-                //
-                // Passataan isUpdate mukaan muodostaAlakohteet metodille ja siellä tehdään tarvittavat asiat.
-                $this->muodostaAlakohteet($kohde, $dom, $muinaisjaannos);
-            }
-
-
+            $this->muodostaAlakohteet($kohde, $dom, $muinaisjaannos, $isUpdate);
+            
             // Kohteen tutkimustiedot
             $this->muodostaTutkimukset($kohde, $muinaisjaannos);
 
@@ -1008,13 +994,24 @@ class KyppiService{
      * Alakohde sisältää paikkatietoja ja ajoitustietoja.
      * Haku xpath:lla.
      */
-    private function muodostaAlakohteet($kohde, $dom, $muinaisjaannos){
+    private function muodostaAlakohteet($kohde, $dom, $muinaisjaannos, $isUpdate){
 
         $xpath = $this->luoXpath($dom);
 
         // <alakohteet> <alakohde>
         $query = './kyppi:alakohteet/kyppi:alakohde';
-        $alakohteet = $xpath->query($query, $muinaisjaannos);
+        $alakohteet = $xpath->query($query, contextNode: $muinaisjaannos);
+        
+        if ($isUpdate) {
+            // Poistetaan kannasta alakohteet ja korvataan uusilla rekisteristä
+            // Ensiksi poistetaan alakohteen ajoitukset ja sijainnit, jotta foreign key rajoitteet eivät estä poistoa
+            $alakohdeIds = KohdeAlakohde::where('ark_kohde_id', $kohde->id)->pluck('id')->toArray();
+            AlakohdeAjoitus::whereIn('ark_kohde_alakohde_id', $alakohdeIds)->delete();
+            AlakohdeSijainti::whereIn('ark_kohde_alakohde_id', $alakohdeIds)->delete();
+            // Sitten itse alakohteet
+            KohdeAlakohde::where('ark_kohde_id', $kohde->id)->delete();
+            Log::channel('kyppi')->debug('Poistettu alakohteet kannasta kohteelta ' . $kohde->muinaisjaannostunnus);
+        }
 
         foreach ($alakohteet as $alakohdeDom) {
 
@@ -1064,7 +1061,7 @@ class KyppiService{
 
             // Sijainnin tallennus alakohteelle
             if( !empty($kohdePiste)){
-                $kohdeAlakohde->sijainnit()->save($kohdePiste);
+                 $kohdeAlakohde->sijainnit()->save($kohdePiste);
             }
         }
     }
