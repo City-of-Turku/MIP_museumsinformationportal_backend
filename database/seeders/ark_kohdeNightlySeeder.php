@@ -191,7 +191,7 @@ class ark_kohdeNightlySeeder extends Seeder
                 Log::channel('kyppi')->info('ark_kohdeNightlySeeder paivitetaan kohteen status: ' .$muinaisjaannostunnus);
 
                 // Päivitetään vain status
-                $kyppiService->paivitaKohteenStatus($kohde);
+                $kyppiService->lisaaTaiPaivitaKohde($muinaisjaannosDom, $kohde, false);
 
                 // laskuri
                 global $paivitettyja;
