@@ -159,7 +159,7 @@ class KyppiService{
             $kohde->kyppi_status = '2';
         }
 
-        // Tästä tunnistetaan että ollaan valittu tietojen tuonti (Päivitä) UI:n kautta.
+        // Tätä käytettiin aiemmin tunnistamaan, että ollaan valittu tietojen tuonti (Päivitä) UI:n kautta.
         if($mipTallennus){
             $kohde->kyppi_status = null;
         }
