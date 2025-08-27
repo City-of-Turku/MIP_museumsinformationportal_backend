@@ -94,13 +94,13 @@ class MMLBuildingMapper
     // Mapper: Muunna open_building XML:n kentät selkokielisiksi
     public static function mapBuilding($fields)
     {
-        // Muunna valmistumisnut dd.mm.yyyy-muotoon
-        $valmistumisnut_raw = (string)($fields->completion_date ?? '');
-        $valmistumisnut = '';
-        if (!empty($valmistumisnut_raw)) {
-            $dt = date_create($valmistumisnut_raw);
+        // Muunna valmistunut dd.mm.yyyy-muotoon
+        $valmistunut_raw = (string)($fields->completion_date ?? '');
+        $valmistunut = '';
+        if (!empty($valmistunut_raw)) {
+            $dt = date_create($valmistunut_raw);
             if ($dt) {
-                $valmistumisnut = $dt->format('d.m.Y');
+                $valmistunut = $dt->format('d.m.Y');
             }
         }
         // Muunna muokattu dd.mm.yyyy-muotoon
@@ -117,7 +117,7 @@ class MMLBuildingMapper
             'postinumero' => '',
             'rakennustunnus' => (string)($fields->permanent_building_identifier ?? ''),
             'kiinteistötunnus' => (string)($fields->property_identifier ?? ''),
-            'valmistumisnut' => $valmistumisnut,
+            'valmistunut' => $valmistunut,
             'käyttötarkoitus' => self::mapUri('main_purpose', (string)($fields->main_purpose ?? '')),
             'käytössäolotilanne' => self::mapUri('usage_status', (string)($fields->usage_status ?? '')),
             'julkisivumateriaali' => self::mapUri('facade_material', (string)($fields->facade_material ?? '')),
@@ -134,9 +134,9 @@ class MMLBuildingMapper
             //'is_accessible' => isset($fields->is_accessible) ? (string)$fields->is_accessible : null,
             //'point_location_srid' => (string)($fields->point_location_srid ?? ''),
             'muokattu' => $muokattu,
-            'aanestysalue' => (string)($fields->voting_district_number ?? ''),
+            'äänestysalue' => (string)($fields->voting_district_number ?? ''),
             'suojelutapa' => isset($fields->protection_method) ? (string)$fields->protection_method : null,
-            'kulttuurihistoriallinen_arvo' => isset($fields->culture_historical_significance) ? (string)$fields->culture_historical_significance : null,
+            'kulttuurihistoriallinen arvo' => isset($fields->culture_historical_significance) ? (string)$fields->culture_historical_significance : null,
             'sijainti' => isset($fields->point_location_geometry_data->Point->pos)
                 ? (string)$fields->point_location_geometry_data->Point->pos : '',
             'rakennusavain' => (string)($fields->building_key ?? ''),
