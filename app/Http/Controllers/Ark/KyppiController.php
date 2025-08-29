@@ -109,19 +109,9 @@ class KyppiController extends Controller{
 
         // Haku MIP:stä
         $kohde = Kohde::where('muinaisjaannostunnus', $id)->first();
-        //var_dump($kohde);
 
-        // Tuodaan uusi kohde.
-        if (empty($kohde)) {
-            $response = $kyppiService->lisaaTaiPaivitaKohde($dom, null, true);
-
-            return $response;
-        } else {
-            // Päivitetään kohde
-            $response = $kyppiService->lisaaTaiPaivitaKohde($dom, $kohde, true);
-
-            return $response;
-        }
+        $response = $kyppiService->lisaaTaiPaivitaKohde($dom, $kohde, true);
+        return $response;
     }
 
     /**

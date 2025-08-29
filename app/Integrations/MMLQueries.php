@@ -359,98 +359,153 @@ class MMLQueries {
 		return self::parseKiinteistoTiedot($res->getBody());
 	}
 
-	private static function parseRakennusTiedot($rawXmlString) {
+public static function getOsoiteTiedotByBuildingKey($buildingKey) {
+    $url = config('app.mml_rakennustiedot_url');
+    $username = config('app.mml_rakennustiedot_username');
+    $client = new Client(['verify' => false]);
 
-		$xml_string = str_replace(array("rhr:", "gml:","wfs:"), "", $rawXmlString);
+    $queryParams = [
+        "f" => "application/gml+xml;version=3.2",
+        "limit" => "10",
+        "sykeuserid" => $username,
+        "filter" => "building_key = '" . $buildingKey . "'",
+    ];
+    $fullUrl = $url . "open_address/items?" . http_build_query($queryParams);
+    Log::info('Rakennustiedot osoitehaku GET osoite', ['url' => $fullUrl]);
 
-		$data = new \SimpleXmlElement($xml_string);
+    $open_address_res = $client->request("GET", $url . "open_address/items", [
+        "query" => $queryParams
+    ]);
+    if ($open_address_res->getStatusCode() != "200") {
+        throw new Exception("OsoiteTiedot failed: ".$open_address_res->getStatusCode()." : ".$open_address_res->getReasonPhrase());
+    }
 
-		$data_array = array();
-		if($data->featureMember) {
-			foreach($data->featureMember as $building) {
-				$result = array(); //Rakennus
-				$osoitteet = array();
-				$omistajat = array();
+    $osoiteXml = $open_address_res->getBody()->getContents();
+    $osoiteXmlObj = simplexml_load_string($osoiteXml);
+    $osoiteXmlObj->registerXPathNamespace('wfs', 'http://www.opengis.net/wfs/2.0');
+    $osoiteXmlObj->registerXPathNamespace('ryhti_building', 'http://paikkatiedot.ymparisto.fi/ryhti_building');
 
-				foreach($building->RakennuksenOmistajatiedot as $omistajatiedot) {
-					foreach($omistajatiedot as $key => $value) {
-						if($key == 'sijainti') {
-							//Get the location from sijainti/Point/pos
-							$result[(string)$key] = (string)$value->Point->pos;
+    $osoitteet = [];
+	$jarjestysnumero=1;
+    foreach ($osoiteXmlObj->xpath('//wfs:member/ryhti_building:open_address') as $address) {
+        $fields = $address->children('ryhti_building', true);
 
-						} else if($key == 'osoite') {
-							//Get 1..n amount of addresses and add them to the result
-							$osoite = array();
+        // Osoite FI
+        $osoite_fi = [
+            'jarjestysnumero' => $jarjestysnumero,
+            'kieli' => "fin",
+            'katunimi' => (string)($fields->address_name_fin ?? ''),
+            'katunumero' => (string)($fields->number_part_of_address_number ?? ''),
+            'kuntatunnus' => (string)($fields->municipality_number ?? ''),
+            'kuntanimi' => (string)($fields->postal_office_fin ?? ''),
+            'postinumero' => (string)($fields->postal_code ?? ''),
+        ];
+        $osoitteet[] = $osoite_fi;
 
-							foreach($value as $ok => $ov) {
-								$osoite['jarjestysnumero'] = (string)$ov->jarjestysnumero;
-								$osoite['kieli'] = (string)$ov->kieli;
-								$osoite['katunimi'] = (string)$ov->katunimi;
-								$osoite['katunumero'] = (string)$ov->katunumero;
-								array_push($osoitteet, $osoite);
-							}
+        // Jos löytyy ruotsinkielinen osoite, lisää se osoitteisiin
+        if (!empty($fields->address_name_swe)) {
+            $osoite_swe = [
+                'jarjestysnumero' => $jarjestysnumero,
+                'kieli' => "swe",
+                'katunimi' => (string)$fields->address_name_swe,
+                'katunumero' => (string)($fields->number_part_of_address_number ?? ''),
+                'kuntatunnus' => (string)($fields->municipality_number ?? ''),
+                'kuntanimi' => (string)($fields->postal_office_swe ?? ''),
+                'postinumero' => (string)($fields->postal_code ?? ''),
+            ];
+            $osoitteet[] = $osoite_swe;
+        }
 
-							$result['osoitteet'] = $osoitteet;
+        $jarjestysnumero++;
+    }
 
-						} else if($key =='omistaja') {
-							//Get 1..n amount of owners and add them to the result
-							$omistaja = array();
+    return $osoitteet;
+}
 
-							foreach($value as $ok => $ov) {
-								$omistaja['sukunimi'] = (string)$ov->sukunimi;
-								$omistaja['etunimi'] = (string)$ov->etunimi;
-								array_push($omistajat, $omistaja);
-							}
+private static function parseRakennusTiedot($rawXmlString) {
+    // Jos data on muotoa {"response": "<?xml ..."}
+    if (is_string($rawXmlString)) {
+        $json = json_decode($rawXmlString);
+        if (is_object($json) && isset($json->response)) {
+            $rawXmlString = $json->response;
+        }
+    }
 
-							$result['omistajat'] = $omistajat;
+    $xml = simplexml_load_string($rawXmlString);
+    $xml->registerXPathNamespace('wfs', 'http://www.opengis.net/wfs/2.0');
+    $xml->registerXPathNamespace('ryhti_building', 'http://paikkatiedot.ymparisto.fi/ryhti_building');
+    $xml->registerXPathNamespace('gml', 'http://www.opengis.net/gml/3.2');
 
-						} else {
-							//Normal case, XML doesn't contain children.
-							//Do mapping for the value and return it.
-							$val = MMLRakennustietoMapper::map((string)$key, (string)$value);
+    $data_array = [];
+    $jarjestysnumero = 1;
 
-							$result[(string)$key] = $val;
-						}
-					}
-				}
+    foreach ($xml->xpath('//wfs:member/ryhti_building:open_building') as $rakennus) {
+        $fields = $rakennus->children('ryhti_building', true);
 
-				array_push($data_array, $result);
+        // Käytä mapperia
+        $rakennusData = \App\Integrations\MMLBuildingMapper::mapBuilding($fields);
+
+		// Osoitteet
+		$rakennusData['osoitteet'] = [];
+		if (!empty($fields->building_key)) {
+			try {
+				$rakennusData['osoitteet'] = self::getOsoiteTiedotByBuildingKey((string)$fields->building_key);
+				$rakennusData['postinumero'] = $rakennusData['osoitteet'][0]['postinumero'] ?? null;
+			} catch (\Exception $e) {
+				\Log::error('Rakennustiedot osoitehaku epäonnistui: ' . $e->getMessage());
 			}
 		}
-		return $data_array;
-	}
+
+        // Sijainti
+        $location_geometry_data = $fields->point_location_geometry_data ?? null;
+        $sijainti = null;
+        if ($location_geometry_data) {
+            $gmlPoint = $location_geometry_data->children('gml', true)->Point ?? null;
+            if ($gmlPoint && isset($gmlPoint->pos)) {
+                $sijainti = (string)$gmlPoint->pos;
+            }
+        }
+        $rakennusData['sijainti'] = $sijainti;
+
+        $rakennusData['MMLFeatureIndex'] = $jarjestysnumero;
+        $rakennusData['showLabel'] = true;
+
+
+        $data_array[] = $rakennusData;
+        $jarjestysnumero++;
+    }
+
+    Log::info('parseRakennusTiedot: rakennukset', ['rakennukset' => $data_array]);
+    return $data_array;
+}
 
 	public static function getRakennusTiedot($kiinteistotunnus, $sijainti) {
 
 		$url = config('app.mml_rakennustiedot_url');
 		$username = config('app.mml_rakennustiedot_username');
-		$password = config('app.mml_rakennustiedot_password');
-
-		$client = new Client();
+		$client = new Client(['verify' => false]);
 
 		if($kiinteistotunnus != 'null') {
-			$parsedKiinteistotunnus = str_replace('-', '', $kiinteistotunnus);
-			$filter = "<Filter><PropertyIsEqualTo><PropertyName>rhr:kiinteistotunnus</PropertyName><Literal>" . $parsedKiinteistotunnus . "</Literal></PropertyIsEqualTo></Filter>";
+			$parsedKiinteistotunnus = str_replace('-', '', $kiinteistotunnus);	
 
-			//Get the rakennus information with with owner information (rhr:RakennuksenOmistajatiedot)
-			$res = $client->request("GET", $url, [
-					"query" => [
-							"SERVICE" 		=> "WFS",
-							"REQUEST" 		=> "GetFeature",
-							"VERSION" 		=> "1.1.0",
-							"NAMESPACE" 	=> "xmlns(rhr:http://xml.nls.fi/Rakennustiedot/VTJRaHu/2009/2)",
-							"TYPENAME" 		=> "rhr:RakennuksenOmistajatiedot",
-							"SRSNAME" 		=> "EPSG:3067",
-							"MAXFEATURES" 	=> "500",
-							"RESULTTYPE" 	=> "results",
-							"EPSG" 			=> "3067",
-							"Filter" 		=> $filter
-					]
-					,
-					"auth" => [
-							$username, $password
-					]
+			// Hae kaikki rakennukset kiinteistötunnuksella open_building-rajapinnasta (XML)
+			$queryParams = [
+				"f" => "application/gml+xml;version=3.2",
+				"limit" => "10",
+				"sykeuserid" => $username,
+				"filter" => "property_identifier = '" . $parsedKiinteistotunnus . "'",
+			];
+			$fullUrl = $url . "open_building/items?" . http_build_query($queryParams);
+			Log::info('Rakennustiedot GET osoite', ['url' => $fullUrl]);
+
+			$open_building_res = $client->request("GET", $url . "open_building/items", [
+				"query" => $queryParams
 			]);
+			if ($open_building_res->getStatusCode() != "200") {
+				throw new Exception("Rakennustiedot failed: ".$open_building_res->getStatusCode()." : ".$open_building_res->getReasonPhrase());
+			}
+
+			return self::parseRakennusTiedot($open_building_res->getBody());
 
 		} else {
 			$lon = explode(" ", $sijainti)[0];
@@ -463,32 +518,26 @@ class MMLQueries {
 			$maxlat = $lat + 20;
 
 			$bb = $minlon . "," . $minlat . "," . $maxlon . "," . $maxlat;
-			//Get the rakennus information with with owner information (rhr:RakennuksenOmistajatiedot)
-			$res = $client->request("GET", $url, [
+
+			Log::info('Rakennustiedot sijainti', ['bbox ' => $lon . " " . $lat]);
+			Log::info('Rakennustiedot sijainti', ['bbox ' => $bb]);
+			$open_building_res = $client->request("GET", $url ."open_building/items", [
 					"query" => [
-							"SERVICE" 		=> "WFS",
-							"REQUEST" 		=> "GetFeature",
-							"VERSION" 		=> "1.1.0",
-							"NAMESPACE" 	=> "xmlns(rhr:http://xml.nls.fi/Rakennustiedot/VTJRaHu/2009/2)",
-							"TYPENAME" 		=> "rhr:RakennuksenOmistajatiedot",
-							"SRSNAME" 		=> "EPSG:3067",
-							"MAXFEATURES" 	=> "30",
-							"RESULTTYPE" 	=> "results",
-							"EPSG" 			=> "3067",
-							"BBOX" 			=> "$bb"
-					]
-					,
-					"auth" => [
-							$username, $password
+							"f"             => "application/gml+xml;version=3.2",
+							"bbox-crs"      => "EPSG:3067",
+							"limit"         => "10",
+							"RESULTTYPE"    => "results",
+							"filter-lang"   => "ecql-text",
+							"sykeuserid"    => $username,
+							"bbox"          => "$bb"
 					]
 			]);
-		}
+			if ($open_building_res === null || $open_building_res->getStatusCode()!="200") {
+				throw new Exception("Rakennustiedot failed: ".$open_building_res->getStatusCode()." : ".$open_building_res->getReasonPhrase());
+			}
 
-		if ($res->getStatusCode()!="200") {
-			throw new Exception("Rakennustiedot failed: ".$res->getStatusCode()." : ".$res->getReasonPhrase());
+			return self::parseRakennusTiedot($open_building_res->getBody());
 		}
-
-		return self::parseRakennusTiedot($res->getBody());
 	}
 
 	private static function parseOsoiteTiedot($rawJSONString) {
