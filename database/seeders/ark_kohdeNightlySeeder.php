@@ -187,11 +187,10 @@ class ark_kohdeNightlySeeder extends Seeder
                 $uusia++;
 
             }else{
-                // echo 'Kohde on jo MIP:ssa, paivitetaan kohteen status: ' .$muinaisjaannostunnus .PHP_EOL;
-                Log::channel('kyppi')->info('ark_kohdeNightlySeeder paivitetaan kohteen status: ' .$muinaisjaannostunnus);
+                Log::channel('kyppi')->info('ark_kohdeNightlySeeder paivitetaan kohde: ' .$muinaisjaannostunnus);
 
-                // Päivitetään vain status
-                $kyppiService->paivitaKohteenStatus($kohde);
+                // Päivitetään kohde
+                $kyppiService->lisaaTaiPaivitaKohde($muinaisjaannosDom, $kohde, true);
 
                 // laskuri
                 global $paivitettyja;
