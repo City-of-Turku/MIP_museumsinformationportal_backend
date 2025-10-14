@@ -13,6 +13,6 @@ return [
     'status_change_failed'  => 'Löytöjen tilan muutos epäonnistui.',
     'list_number_changed'   => 'Luettelointinumeron vaihto onnistui',
     'list_number_failed'    => 'Luettelointinumeron vaihto epäonnistui',
-    'list_number_failed_no_tmk' => 'Luettelointinumeron vaihto epäonnistui - Kokoelman pitää olla TMK.',
+    'list_number_failed_no_tkm' => 'Luettelointinumeron vaihto epäonnistui - Kokoelman pitää olla TKM.',
     'no_modify_permission'  => 'Ei muokkausoikeutta löytöön'
 ];
