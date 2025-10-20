@@ -992,7 +992,7 @@ class LoytoController extends Controller
             $vaihto = false;
 
             $alkuosa = substr( $request->input('properties.luettelointinumero'), 0, 3 );
-            if($alkuosa == 'TKM'){
+            if($alkuosa == 'TKM' || $alkuosa == 'TMK'){
                 $vaihto = true;
             }
 
