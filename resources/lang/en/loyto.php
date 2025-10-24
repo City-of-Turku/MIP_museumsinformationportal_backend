@@ -13,6 +13,6 @@ return [
     'status_change_failed'  => 'Discovery status change failed.',
     'list_number_changed'   => 'List number succesfully changed',
     'list_number_failed'    => 'List number change failed',
-    'list_number_failed_no_tmk' => 'List number change failed - Collection must be TMK',
+    'list_number_failed_no_tkm' => 'List number change failed - Collection must be TKM',
     'no_modify_permission'  => 'No modify permission to discovery'
 ];
