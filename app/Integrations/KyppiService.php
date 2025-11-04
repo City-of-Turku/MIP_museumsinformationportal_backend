@@ -1054,7 +1054,7 @@ class KyppiService{
 
             // Sijainnin tallennus alakohteelle
             if( !empty($kohdePiste)){
-                $kohdeAlakohde->sijainnit()->save($kohdePiste);
+                 $kohdeAlakohde->sijainnit()->save($kohdePiste);
             }
         }
     }

@@ -583,8 +583,8 @@ class LoytoController extends Controller
                 // Juokseva alanumero per yksikkö ja materiaalikoodi
                 //TAI jos ark_tutkimusalue_id on asetettu, tiedetään että löytö kuuluu suoraan tutkimusalueeseen
                 //ja on siis irtolöytötyyppiseen tutkimukseen kuuluva löytö (=yksikköä ei ole)
-                // TMK saa erilliskäsittelyn, muilla luettelointinumero muodostetaan pelkästään juoksevasti.
-                if($tutkimus['loyto_kokoelmalaji'] && $tutkimus['loyto_kokoelmalaji']['tunnus'] == 'TMK') {
+                // TKM saa erilliskäsittelyn, muilla luettelointinumero muodostetaan pelkästään juoksevasti.
+                if($tutkimus['loyto_kokoelmalaji'] && $tutkimus['loyto_kokoelmalaji']['tunnus'] == 'TKM') {
                     if($request->input('properties.ark_tutkimus_id') && $request->input('properties.ark_tutkimusalue_id')) {
                         $alanumero = $loyto::getAlanumero(null, null, $request->input('properties.ark_tutkimus_id'), $request->input('properties.ark_tutkimusalue_id'));
                     } else {
@@ -939,7 +939,7 @@ class LoytoController extends Controller
      * Uusi alanumero generoidaan aina.
      *
      * Säännöt:
-     * Mikäli tutkimuksen löytöjen kokoelmatunnus on TMK, luettelointinumero muodostetaan kolmesta kentästä:
+     * Mikäli tutkimuksen löytöjen kokoelmatunnus on TKM, luettelointinumero muodostetaan kolmesta kentästä:
      * kokoelmatunnus + löytöjen päänumero (tutkimukselta)
      * materiaalikoodi + yksikkötunnus ilman yksikkötyypin kirjainta
      * juokseva alanumero (per materiaali + yksikkö)
@@ -992,13 +992,13 @@ class LoytoController extends Controller
             $vaihto = false;
 
             $alkuosa = substr( $request->input('properties.luettelointinumero'), 0, 3 );
-            if($alkuosa == 'TMK'){
+            if($alkuosa == 'TKM' || $alkuosa == 'TMK'){
                 $vaihto = true;
             }
 
-            // Muodostetaan TMK luettelointinumero§
+            // Muodostetaan TKM luettelointinumero
             if($vaihto){
-                // Kaivaustutkimuksen löytö esim: TMK12345:KA271:1
+                // Kaivaustutkimuksen löytö esim: TKM12345:KA271:1
                 if($request->input('properties.yksikko')){
                     // Juokseva alanumero per yksikkö ja materiaalikoodi
                     $alanumero = $loyto::getAlanumero($request->input('properties.ark_tutkimusalue_yksikko_id'), $request->input('properties.materiaalikoodi.id'), null, null);
@@ -1009,7 +1009,7 @@ class LoytoController extends Controller
                         . $request->input('properties.yksikko.yksikon_numero') . ':'
                         . (string)$alanumero;
                 } else if(!$request->input('properties.yksikko')){
-                    // Irtolöytö tai tarkastustutkimus esim: TMK222:1 (alkuosa + löydön päänumero + alanumero)
+                    // Irtolöytö tai tarkastustutkimus esim: TKM222:1 (alkuosa + löydön päänumero + alanumero)
                     if($request->input('properties.tutkimusalue.ark_tutkimus_id') && $request->input('properties.ark_tutkimusalue_id')) {
                         $alanumero = $loyto::getAlanumero(null, null, $request->input('properties.tutkimusalue.ark_tutkimus_id'), $request->input('properties.ark_tutkimusalue_id'));
                         $loyto->alanumero = $alanumero;
@@ -1074,7 +1074,7 @@ class LoytoController extends Controller
             } else {
                 DB::rollback();
                 MipJson::setGeoJsonFeature();
-                MipJson::addMessage(Lang::get('loyto.list_number_failed_no_tmk'));
+                MipJson::addMessage(Lang::get('loyto.list_number_failed_no_tkm'));
                 MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
 
             }
