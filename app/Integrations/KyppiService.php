@@ -581,34 +581,27 @@ class KyppiService{
      * Kohteen tai alakohteen pisteen sijainnin muodostus
      * <paikkatiedot> elementin alta haetaan piste
      */
-    private function muodostaKohteenPisteSijainti($kohde, $alakohde, $dom, $muinaisjaannos){
-
+    private function muodostaKohteenPisteSijainti($kohde, $alakohde, $dom, $contextNode)
+    {
         $xpath = $this->luoXpath($dom);
-
-        // <paikkatiedot> elementin alta saadaan kohteen pisteen sijainti. Pisteitä on vain yksi per muinaisjäännös
         $query = './kyppi:paikkatiedot/kyppi:pistetieto/gml:pos';
-        $gmlPos = $xpath->query($query, $muinaisjaannos);
+        $gmlPos = $xpath->query($query, $contextNode);
 
-        if($gmlPos->length > 0){
-            // Longitudi - Latitudi arvot
+        if ($gmlPos->length > 0) {
             $lonLat = explode(" ", $gmlPos->item(0)->nodeValue);
-
-            // Haetaan geometry sijainti EPSG:3067 koordinaateilla
-            $kohdepisteGeom = MipGis::haeEpsg3067Sijainti($lonLat[0], $lonLat[1]);
-
-            if(empty($alakohde)){
-                $kohdePiste = $this->muodostaKohdesijainti($kohde, $kohdepisteGeom);
-            }else{
-                // Alakohteelle sijainti
-                $kohdePiste = $this->muodostaAlakohdesijainti($alakohde, $kohdepisteGeom);
+            $geom = MipGis::haeEpsg3067Sijainti($lonLat[0], $lonLat[1]);
+            if ($alakohde) {
+                return $this->muodostaAlakohdesijainti($alakohde, $geom);
+            } else {
+                return $this->muodostaKohdesijainti($kohde, $geom);
             }
-
-            return $kohdePiste;
-
-        }else{
-            Log::channel('kyppi')->error('Sijaintitieto puuttuu: '.$kohde->muinaisjaannostunnus);
+        } else {
+            if ($alakohde) {
+                Log::channel('kyppi')->error('Alakohteen sijaintitieto puuttuu: ' . $alakohde->id);
+            } else {
+                Log::channel('kyppi')->error('Sijaintitieto puuttuu: ' . $kohde->muinaisjaannostunnus);
+            }
         }
-
     }
 
     /**
@@ -1057,7 +1050,7 @@ class KyppiService{
             }
 
             // Hae alakohteen pisteen sijainti
-            $kohdePiste = $this->muodostaKohteenPisteSijainti($kohde, $kohdeAlakohde, $dom, $muinaisjaannos);
+            $kohdePiste = $this->muodostaKohteenPisteSijainti($kohde, $kohdeAlakohde, $dom, $alakohdeDom);
 
             // Sijainnin tallennus alakohteelle
             if( !empty($kohdePiste)){
