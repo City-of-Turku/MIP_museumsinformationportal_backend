@@ -93,14 +93,6 @@ return [
             'level' => 'debug',
             'days' => 365,
         ],
-
-        'prikka' => [
-            'driver' => 'daily',
-            'path' => storage_path('logs/prikka.log'),
-            'level' => 'debug',
-            'days' => 365,
-        ],
-
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),
