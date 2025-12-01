@@ -189,6 +189,16 @@ class Kiinteisto extends Model {
     }
 
     /**
+     * Get the memories associated with this property.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function memories()
+    {
+      return $this->belongsToMany('App\Muistot\Muistot_muisto', 'muistot_muisto_kiinteisto', 'kiinteisto_id', 'muistot_muisto_id');
+    }
+
+    /**
      * Method to get the buildings of this Property
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

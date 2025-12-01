@@ -7,6 +7,7 @@ use App\Library\Reports\ReportServer;
 use App\Library\String\MipJson;
 use App\Rak\Alue;
 use App\Rak\Kiinteisto;
+use App\Muistot\Muistot_aihe;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -204,6 +205,19 @@ class ReportController extends Controller {
 						return MipJson::getJson();
 					}
 					break;
+
+			case 'MuistotRaportti': // PDF/Word report of one Aihe with all Muisto items
+			case 'MuistotRaporttiTaulukko': // Excel report of one Aihe with all Muisto items
+        if (!self::userHasMemoryReportRights($request)) {
+            MipJson::setGeoJsonFeature();
+            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+            return MipJson::getJson();
+        }
+
+				$parameters = ReportServer::generateMuistotraporttiParameters($request->parameters);
+				break;	
+	
 			default:
 				MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
 				MipJson::addMessage(Lang::get('raportti.invalid_report_type'));
@@ -562,4 +576,22 @@ class ReportController extends Controller {
 
 	}
 
+  // Tutkija or pääkäyttäjä, or user who is added to aihe is allowed to create a report
+  public static function userHasMemoryReportRights(Request $request) {
+      if(Auth::user()->rooli == 'tutkija' || Auth::user()->rooli == 'pääkäyttäjä') {
+          return true;
+      }
+
+      // Otherwise, check if the user has rights based on the aihe id
+      $aiheId = $request->parameters['aihe_id'];
+      $kayttajaId = Auth::user()->id;
+      $aihe = Muistot_aihe::getSingle($aiheId)->first();
+
+      // If the aihe has the user, they have the rights
+      if ($aihe && $aihe->hasUser($kayttajaId)) {
+          return true;
+      }
+
+      return false;
+  }
 }

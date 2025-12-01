@@ -45,7 +45,12 @@ class RooliController extends Controller{
 		//pyydettyyn arkeologiseen tutkimukseen liittyviin datoihin.
 		if($entity == 'ark_tutkimus_sub') {
 			$data = Kayttaja::getArkTutkimusSubPermissions($id);
-		} else {
+		} 
+    elseif ($entity == 'muistot_aihe') {
+      // Muistojen aiheeseen liitetyn käyttäjän oikeudet:
+      $data = Kayttaja::getMuistotAihePermissions($id);
+    }
+    else {
 			$data = Kayttaja::getPermissionsByEntity($section, $entity, $id);
 		}
 

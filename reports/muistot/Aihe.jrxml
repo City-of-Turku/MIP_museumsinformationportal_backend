@@ -1,0 +1,580 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
+<!-- 2024-09-12T13:27:18 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Aihe" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isTitleNewPage="true" uuid="a3058a9a-2e29-4811-9e08-1426e6e02029">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="New Local"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.report.description" value=""/>
+	<style name="Base" isDefault="true" hTextAlign="Left" vTextAlign="Top" fontSize="10" isPdfEmbedded="false"/>
+	<style name="Table 1_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table 1_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table 1_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table 2_TH" mode="Opaque" backcolor="#FAEBD7">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table 2_CH" mode="Opaque" backcolor="#FFE4BF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table 2_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="Dataset-Aihe-Kysymykset" uuid="73d0b980-6644-4d19-ae92-2d7332b08be4">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="New Local"/>
+		<parameter name="KysymysAiheID" class="java.lang.Long"/>
+		<queryString language="SQL">
+			<![CDATA[SELECT kys.kysymysteksti_fi AS kysymys_fi,
+	kys.kysymysteksti_sv AS kysymys_sv,
+	kys.kysymysteksti_en AS kysymys_en
+FROM muistot_kysymys AS kys
+WHERE 
+	 kys.muistot_aihe_id = $P{KysymysAiheID}]]>
+		</queryString>
+		<field name="kysymys_fi" class="java.lang.String"/>
+		<field name="kysymys_sv" class="java.lang.String"/>
+		<field name="kysymys_en" class="java.lang.String"/>
+	</subDataset>
+	<parameter name="aihe_id" class="java.lang.Long">
+		<parameterDescription><![CDATA[Aiheen ID]]></parameterDescription>
+	</parameter>
+	<parameter name="MIP_BACKEND_URL" class="java.lang.String">
+		<parameterDescription><![CDATA[Backendin osoite]]></parameterDescription>
+	</parameter>
+	<parameter name="MIP_MAPSERVER_URL" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[SELECT 
+        aihe.prikka_id as aihe_id,
+        aihe.aihe_fi as otsikko_fi,
+        aihe.aihe_sv as otsikko_sv,
+        aihe.aihe_en as otsikko_en,
+        aihe.esittely_fi as esittely_fi,
+        aihe.esittely_sv as esittely_sv,
+        aihe.esittely_en as esittely_en,
+        aihe.aukeaa,
+        aihe.sulkeutuu,
+		st_xmin(bbox) as bbox_xmin, 
+        st_ymin(bbox) as bbox_ymin, 
+        st_xmax(bbox) as bbox_xmax, 
+        st_ymax(bbox) as bbox_ymax,
+        COALESCE(memory_count, 0) AS memory_count  -- To handle cases with no children, set count to 0
+        FROM 
+            muistot_aihe as aihe
+           	LEFT JOIN (
+        		SELECT 
+        			muistot_aihe_id, 
+        			ST_Extent(tapahtumapaikka) as bbox,
+        			COUNT(*) AS memory_count
+        		FROM muistot_muisto
+        		GROUP BY muistot_aihe_id
+    		) SQ_BBOX on (SQ_BBOX.muistot_aihe_id = aihe.prikka_id)	
+        WHERE 
+        		aihe.prikka_id = $P{aihe_id}
+]]>
+	</queryString>
+	<field name="aihe_id" class="java.lang.Integer"/>
+	<field name="otsikko_fi" class="java.lang.String"/>
+	<field name="otsikko_sv" class="java.lang.String"/>
+	<field name="otsikko_en" class="java.lang.String"/>
+	<field name="esittely_fi" class="java.lang.String"/>
+	<field name="esittely_sv" class="java.lang.String"/>
+	<field name="esittely_en" class="java.lang.String"/>
+	<field name="aukeaa" class="java.sql.Timestamp"/>
+	<field name="sulkeutuu" class="java.sql.Timestamp"/>
+	<field name="bbox_xmin" class="java.lang.Double"/>
+	<field name="bbox_ymin" class="java.lang.Double"/>
+	<field name="bbox_xmax" class="java.lang.Double"/>
+	<field name="bbox_ymax" class="java.lang.Double"/>
+	<field name="memory_count" class="java.lang.Long"/>
+	<variable name="MAP_WIDTH" class="java.lang.Double">
+		<variableExpression><![CDATA[600.0]]></variableExpression>
+	</variable>
+	<variable name="MAP_HEIGHT" class="java.lang.Double">
+		<variableExpression><![CDATA[359.0]]></variableExpression>
+	</variable>
+	<variable name="ow" class="java.lang.Double">
+		<variableExpression><![CDATA[1.2 * ($F{bbox_xmax}-$F{bbox_xmin})]]></variableExpression>
+	</variable>
+	<variable name="oh" class="java.lang.Double">
+		<variableExpression><![CDATA[1.2 * ($F{bbox_ymax}-$F{bbox_ymin})]]></variableExpression>
+	</variable>
+	<variable name="w" class="java.lang.Double">
+		<variableExpression><![CDATA[$V{ow} < 500.0 ? 500.0 : $V{ow}]]></variableExpression>
+	</variable>
+	<variable name="h" class="java.lang.Double">
+		<variableExpression><![CDATA[$V{oh} < 299.0 ? 299.0 : $V{oh}]]></variableExpression>
+	</variable>
+	<variable name="scale_y" class="java.lang.Double">
+		<variableExpression><![CDATA[$V{MAP_HEIGHT}/($V{h})]]></variableExpression>
+	</variable>
+	<variable name="scale_x" class="java.lang.Double">
+		<variableExpression><![CDATA[$V{MAP_WIDTH}/($V{w})]]></variableExpression>
+	</variable>
+	<variable name="xc" class="java.lang.Double">
+		<variableExpression><![CDATA[($F{bbox_xmax}+$F{bbox_xmin})/2.0]]></variableExpression>
+	</variable>
+	<variable name="yc" class="java.lang.Double">
+		<variableExpression><![CDATA[($F{bbox_ymax}+$F{bbox_ymin})/2.0]]></variableExpression>
+	</variable>
+	<variable name="x1" class="java.lang.Double">
+		<variableExpression><![CDATA[$V{scale_x}<=$V{scale_y}?$V{xc} - $V{w}/2.0:$V{xc} - $V{MAP_WIDTH}/$V{MAP_HEIGHT}*$V{h}/2.0]]></variableExpression>
+	</variable>
+	<variable name="x2" class="java.lang.Double">
+		<variableExpression><![CDATA[$V{scale_x}<=$V{scale_y}?$V{xc} + $V{w}/2.0:$V{xc} + $V{MAP_WIDTH}/$V{MAP_HEIGHT}*$V{h}/2.0]]></variableExpression>
+	</variable>
+	<variable name="y1" class="java.lang.Double">
+		<variableExpression><![CDATA[$V{scale_x}>=$V{scale_y}?$V{yc} - $V{h}/2.0:$V{yc} - $V{MAP_HEIGHT}/$V{MAP_WIDTH}*$V{w}/2.0]]></variableExpression>
+	</variable>
+	<variable name="y2" class="java.lang.Double">
+		<variableExpression><![CDATA[$V{scale_x}>=$V{scale_y}?$V{yc} + $V{h}/2.0:$V{yc} + $V{MAP_HEIGHT}/$V{MAP_WIDTH}*$V{w}/2.0]]></variableExpression>
+	</variable>
+	<variable name="MAP_SX1" class="java.lang.String">
+		<variableExpression><![CDATA[$V{x1}==null?null:new DecimalFormat("00.#######").format($V{x1}).replace( ',', '.')]]></variableExpression>
+	</variable>
+	<variable name="MAP_SX2" class="java.lang.String">
+		<variableExpression><![CDATA[$V{x2}==null?null:new DecimalFormat("00.#######").format($V{x2}).replace( ',', '.')]]></variableExpression>
+	</variable>
+	<variable name="MAP_SY1" class="java.lang.String">
+		<variableExpression><![CDATA[$V{y1}==null?null:new DecimalFormat("00.#######").format($V{y1}).replace( ',', '.')]]></variableExpression>
+	</variable>
+	<variable name="MAP_SY2" class="java.lang.String">
+		<variableExpression><![CDATA[$V{y2}==null?null:new DecimalFormat("00.#######").format($V{y2}).replace( ',', '.')]]></variableExpression>
+	</variable>
+	<variable name="MAP_BBOX" class="java.lang.String">
+		<variableExpression><![CDATA[$V{MAP_SX1}+"%2C"+$V{MAP_SY1}+"%2C"+$V{MAP_SX2}+"%2C"+$V{MAP_SY2}]]></variableExpression>
+	</variable>
+	<variable name="MAP_URL" class="java.lang.String">
+		<variableExpression><![CDATA[$V{MAP_BBOX}==null?null:$P{MIP_MAPSERVER_URL} + "/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&FORMAT=image%2Fpng&TRANSPARENT=true&STYLES&LAYERS=mip%3Amml_taustakartta,mip%3Amuistot_aihe&CQL_FILTER=INCLUDE;aihe_id%20%3D%20"+$F{aihe_id}+"&SRS=EPSG%3A3067&WIDTH=1605&HEIGHT=960&format_options=dpi%3A270&BBOX="+$V{MAP_BBOX}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="540">
+			<frame>
+				<reportElement x="358" y="0" width="194" height="50" uuid="19a5e39f-0233-4a7e-9e19-5090b111fe74">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<image scaleImage="RetainShape" hAlign="Right" vAlign="Middle">
+					<reportElement x="0" y="0" width="194" height="50" uuid="94bde58c-577f-4c8b-9599-f31f8a028536"/>
+					<imageExpression><![CDATA["logo.png"]]></imageExpression>
+				</image>
+			</frame>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="0" y="0" width="358" height="30" uuid="8b37122c-c5e1-47e6-9c83-c99a359cd113"/>
+				<textElement>
+					<font size="18" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{otsikko_fi}]]></textFieldExpression>
+			</textField>
+			<frame>
+				<reportElement positionType="Float" x="1" y="34" width="160" height="20" uuid="815f256d-017d-464b-b0f1-5a34587e0ac8">
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="0" width="80" height="20" uuid="11c2181b-164b-4f8a-9404-4af5d2b81a56">
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Aiheen ID:]]></text>
+				</staticText>
+				<textField>
+					<reportElement positionType="Float" x="84" y="0" width="76" height="20" uuid="729306e2-c6c6-4c77-8758-f8d62a93fdb0">
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					</reportElement>
+					<textFieldExpression><![CDATA[$F{aihe_id}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="175" y="35" width="175" height="20" uuid="d5f6a9e0-7ecf-4c42-a08a-d2719a23e76d">
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+				</reportElement>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="0" width="80" height="20" uuid="317b0c81-b947-4a18-87d5-b27c6372cd80">
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Muistoja:]]></text>
+				</staticText>
+				<textField>
+					<reportElement positionType="Float" x="84" y="0" width="68" height="20" uuid="2c4aad27-38fa-437c-bc21-031907f1e13a">
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					</reportElement>
+					<textFieldExpression><![CDATA[$F{memory_count}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="0" y="60" width="480" height="20" uuid="42e46cd3-a694-4f9b-b812-b146b377477f"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{otsikko_sv}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="0" y="85" width="480" height="17" uuid="46ed1018-6ac9-4393-b11b-99bd024a1277"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{otsikko_en}]]></textFieldExpression>
+			</textField>
+			<frame>
+				<reportElement positionType="Float" x="0" y="111" width="555" height="337" uuid="688a4368-48e3-4b56-9ad0-4635920769bd">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="1.0" lineColor="#CCCCCC"/>
+				</box>
+				<image hAlign="Center" isUsingCache="false" onErrorType="Blank" evaluationTime="Report">
+					<reportElement key="" stretchType="ContainerHeight" x="9" y="5" width="535" height="320" uuid="4b7e53c9-a438-4111-b16a-90cdc14ff3b7">
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+						<printWhenExpression><![CDATA[$F{bbox_xmin}!=null]]></printWhenExpression>
+					</reportElement>
+					<box>
+						<pen lineColor="#CCCCCC"/>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<imageExpression><![CDATA[$V{MAP_URL}]]></imageExpression>
+				</image>
+				<staticText>
+					<reportElement x="3" y="81" width="550" height="30" uuid="c9845c7b-4f64-43e3-87de-3149dc051acd">
+						<printWhenExpression><![CDATA[$F{bbox_xmin}==null]]></printWhenExpression>
+					</reportElement>
+					<box>
+						<pen lineColor="#CCCCCC"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<text><![CDATA[Sijaintitietoja ei löydetty]]></text>
+				</staticText>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="462" width="555" height="70" isRemoveLineWhenBlank="true" uuid="eb66d68a-dd40-4c09-80c3-040d856c3ffc">
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+				</reportElement>
+				<frame>
+					<reportElement x="0" y="0" width="555" height="20" uuid="803090d4-f782-4795-b8a9-33c6b13471f4">
+						<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+					</reportElement>
+					<staticText>
+						<reportElement x="0" y="0" width="100" height="20" isRemoveLineWhenBlank="true" uuid="e5242a4a-c57e-437b-a5b8-f20feeec2192"/>
+						<textElement>
+							<font isBold="true"/>
+						</textElement>
+						<text><![CDATA[Esittely:]]></text>
+					</staticText>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement x="100" y="0" width="455" height="20" isRemoveLineWhenBlank="true" uuid="a7946d2a-b8c6-43ed-954e-90c09c1fd52d">
+							<printWhenExpression><![CDATA[$F{esittely_fi} != null]]></printWhenExpression>
+						</reportElement>
+						<textElement>
+							<paragraph spacingAfter="30"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{esittely_fi}]]></textFieldExpression>
+					</textField>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" x="0" y="25" width="555" height="20" isRemoveLineWhenBlank="true" uuid="adc2066d-5fdc-4183-92ab-e9c0e65d34f4">
+						<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+						<printWhenExpression><![CDATA[$F{esittely_sv} != null && $F{esittely_sv} != ""]]></printWhenExpression>
+					</reportElement>
+					<staticText>
+						<reportElement x="0" y="0" width="100" height="20" isRemoveLineWhenBlank="true" uuid="4a5e6cf9-a387-4b5a-9e52-2e6585939c79">
+							<printWhenExpression><![CDATA[$F{esittely_sv} != null && $F{esittely_sv} != ""]]></printWhenExpression>
+						</reportElement>
+						<textElement>
+							<font isBold="true"/>
+						</textElement>
+						<text><![CDATA[Introduktion:]]></text>
+					</staticText>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+						<reportElement positionType="Float" x="100" y="0" width="455" height="20" isRemoveLineWhenBlank="true" uuid="25bb8cd1-ad2a-4089-ba13-076e727bc0ac">
+							<printWhenExpression><![CDATA[$F{esittely_sv} != null && $F{esittely_sv} != ""]]></printWhenExpression>
+						</reportElement>
+						<textFieldExpression><![CDATA[$F{esittely_sv}]]></textFieldExpression>
+					</textField>
+				</frame>
+				<frame>
+					<reportElement positionType="Float" x="0" y="50" width="555" height="20" isRemoveLineWhenBlank="true" uuid="82df85fc-6a7d-4c8c-882d-a3ac7d8d0cc4">
+						<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+						<printWhenExpression><![CDATA[$F{esittely_en} != null && $F{esittely_en} != ""]]></printWhenExpression>
+					</reportElement>
+					<staticText>
+						<reportElement x="0" y="0" width="100" height="20" isRemoveLineWhenBlank="true" uuid="e51ec78b-091b-4f02-9b8c-2668e47a51ee">
+							<printWhenExpression><![CDATA[$F{esittely_en} != null && $F{esittely_en} != ""]]></printWhenExpression>
+						</reportElement>
+						<textElement>
+							<font isBold="true"/>
+						</textElement>
+						<text><![CDATA[Introduction:]]></text>
+					</staticText>
+					<textField isStretchWithOverflow="true" isBlankWhenNull="true" hyperlinkType="">
+						<reportElement positionType="Float" x="100" y="0" width="455" height="20" isRemoveLineWhenBlank="true" uuid="ef513e06-7e1d-4032-92e3-aa986104d3f0">
+							<printWhenExpression><![CDATA[$F{esittely_en} != null && $F{esittely_en} != ""]]></printWhenExpression>
+						</reportElement>
+						<textFieldExpression><![CDATA[$F{esittely_en}]]></textFieldExpression>
+					</textField>
+				</frame>
+			</frame>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="30">
+			<staticText>
+				<reportElement x="0" y="0" width="30" height="20" uuid="edf3ac74-d291-4689-a0bd-d1c5f4245454">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<text><![CDATA[Aihe]]></text>
+			</staticText>
+			<frame>
+				<reportElement x="50" y="0" width="504" height="20" uuid="6ea4af95-1f8d-4f4a-ab37-c14c4e0fadca">
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+				</reportElement>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement key="" positionType="Float" x="-20" y="0" width="97" height="20" uuid="f21817b2-18e1-4e40-bcc1-82b28ddd29c1">
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Left"/>
+					<textFieldExpression><![CDATA[$F{aihe_id}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement positionType="Float" x="77" y="0" width="427" height="20" uuid="6698231d-2ee1-4335-b7a2-1289601d5d01">
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<textElement textAlignment="Center"/>
+					<textFieldExpression><![CDATA[$F{otsikko_fi}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</pageHeader>
+	<detail>
+		<band height="230">
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+			<frame>
+				<reportElement positionType="Float" mode="Transparent" x="0" y="2" width="555" height="36" uuid="55759a85-8ce7-4749-b116-ace547ee7283">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<staticText>
+					<reportElement x="0" y="8" width="115" height="20" uuid="d6cfa9cc-e3ab-4ef6-91b1-bbf97bc46d5a">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Kyselyn ajankohta:]]></text>
+				</staticText>
+				<textField pattern="dd.MM.y">
+					<reportElement x="115" y="8" width="60" height="20" uuid="476b4053-87cf-4e01-be72-fbf8ab2f94c1">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<textFieldExpression><![CDATA[$F{aukeaa}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="175" y="8" width="16" height="20" uuid="ee1086f6-9dd3-4626-a25b-72e4dd58d338">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<textElement textAlignment="Left"/>
+					<text><![CDATA[ - ]]></text>
+				</staticText>
+				<textField pattern="dd.MM.y">
+					<reportElement x="191" y="8" width="65" height="20" uuid="0950bd95-294d-4bc3-935d-e9427708688b">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<textFieldExpression><![CDATA[$F{sulkeutuu}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<componentElement>
+				<reportElement positionType="Float" x="0" y="39" width="555" height="97" uuid="dbc2df6c-a4e7-4b93-ae5d-6b9f91ef01a7">
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+					<property name="com.jaspersoft.studio.table.style.table_header" value="Table 2_TH"/>
+					<property name="com.jaspersoft.studio.table.style.column_header" value="Table 2_CH"/>
+					<property name="com.jaspersoft.studio.table.style.detail" value="Table 2_TD"/>
+				</reportElement>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="Dataset-Aihe-Kysymykset" uuid="b98a0b77-f1ef-41b5-b4ac-8e28e65a9aea">
+						<datasetParameter name="KysymysAiheID">
+							<datasetParameterExpression><![CDATA[$P{aihe_id}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="160" uuid="b680606d-a15c-4e8e-b29c-098a938bdb48">
+						<jr:columnHeader style="Table 2_CH" height="30">
+							<box leftPadding="0" rightPadding="0"/>
+							<staticText>
+								<reportElement x="0" y="0" width="160" height="30" uuid="5fa22ed0-c13e-4017-9f83-3cdac60c4cef"/>
+								<box topPadding="2" leftPadding="4" bottomPadding="2" rightPadding="4"/>
+								<textElement>
+									<font isBold="true"/>
+								</textElement>
+								<text><![CDATA[Kysymykset]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="Table 2_TD" height="30">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="160" height="30" uuid="7bdb424c-a1a2-4eb4-9477-b17f8b438a02"/>
+								<box topPadding="2" leftPadding="4" bottomPadding="4" rightPadding="4"/>
+								<textFieldExpression><![CDATA[$F{kysymys_fi}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="200" uuid="97907afb-347b-4b0a-a47b-e00d3f94602e">
+						<jr:columnHeader style="Table 2_CH" height="30">
+							<box leftPadding="0" rightPadding="0"/>
+							<staticText>
+								<reportElement x="0" y="0" width="200" height="30" uuid="30b5e3eb-2b4b-4e47-a1b1-c96fadbd69ef"/>
+								<box topPadding="2" leftPadding="4" bottomPadding="2" rightPadding="4"/>
+								<textElement>
+									<font isBold="true"/>
+								</textElement>
+								<text><![CDATA[Frågorna]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="Table 2_TD" height="30">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="200" height="30" uuid="8e90c0e0-e592-47fe-9f72-ad53bc4a93cf"/>
+								<box topPadding="2" leftPadding="4" bottomPadding="4" rightPadding="4"/>
+								<textFieldExpression><![CDATA[$F{kysymys_sv}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="200" uuid="a30eb9f2-8afb-4a1d-98e2-f8c2b60516e6">
+						<jr:columnHeader style="Table 2_CH" height="30">
+							<box leftPadding="0" rightPadding="0"/>
+							<staticText>
+								<reportElement x="0" y="0" width="200" height="30" uuid="4bb8d459-9918-4816-aff8-479d30b53c95"/>
+								<box topPadding="2" leftPadding="4" bottomPadding="2" rightPadding="4"/>
+								<textElement>
+									<font isBold="true"/>
+								</textElement>
+								<text><![CDATA[Questions]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell style="Table 2_TD" height="30">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="200" height="30" uuid="8435df10-ccfb-413c-a7c2-b8e7ef45cc79"/>
+								<box topPadding="2" leftPadding="4" bottomPadding="4" rightPadding="4">
+									<pen lineWidth="0.0" lineStyle="Solid"/>
+								</box>
+								<textFieldExpression><![CDATA[$F{kysymys_en}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="23" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<textField evaluationTime="Master">
+				<reportElement x="352" y="3" width="158" height="20" uuid="03f41f6b-0384-430b-9cf9-e350ffe850f5"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Sivu " + $V{MASTER_CURRENT_PAGE} + " / "]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Master">
+				<reportElement x="510" y="3" width="44" height="20" uuid="ab6a712d-3228-4c99-af68-e11af37866d2"/>
+				<textElement textAlignment="Left"/>
+				<textFieldExpression><![CDATA[$V{MASTER_TOTAL_PAGES}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="0" width="150" height="20" uuid="875480a5-c740-4347-82e6-570194702827">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[Museon Informaatioportaali]]></text>
+			</staticText>
+			<textField pattern="dd.MM.yyyy">
+				<reportElement x="150" y="0" width="110" height="20" uuid="13fab945-179d-475d-a6e7-143e7f9e0a72">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>

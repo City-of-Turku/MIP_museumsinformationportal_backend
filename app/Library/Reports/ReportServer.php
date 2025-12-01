@@ -422,4 +422,18 @@ class ReportServer {
 		return $parameters;
 	}
 
+	// Muistot (Prikka) - Document report for one Aihe with all Muistot
+	public static function generateMuistotraporttiParameters($inputParams) {
+		$parameters = array(
+			array(
+					'name' => 'aihe_id',
+					'value' => $inputParams['aihe_id']),
+			array(
+					'name' => 'reportDisplayName',
+					'value' => $inputParams['reportDisplayName']
+			)
+	);
+	return $parameters;
+}
+
 }

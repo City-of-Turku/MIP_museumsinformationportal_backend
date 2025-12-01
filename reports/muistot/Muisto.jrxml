@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
+<!-- 2024-09-06T10:45:07 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Muisto" pageWidth="595" pageHeight="842" whenNoDataType="NoPages" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenResourceMissingType="Key" uuid="28bcff1d-b3ac-4d7c-87ec-1b0f5886a0de">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="New Local"/>
+	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table 2_TH" mode="Opaque" backcolor="#FAEBD7">
+		<box>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table 2_CH" mode="Opaque" backcolor="#FFE4BF">
+		<box>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table 2_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="MuistonVastauksetDataset" uuid="1cf93037-9bd8-4329-b6ef-9eb022a77b19">
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MIP-local-adapter.jrdax"/>
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<parameter name="VastausMuistoID" class="java.lang.Long"/>
+		<queryString>
+			<![CDATA[SELECT kysymysteksti_fi AS kysymys,
+	v.vastaus
+FROM muistot_vastaus v
+	LEFT JOIN muistot_kysymys k ON 
+	 k.prikka_id = v.muistot_kysymys_id 
+WHERE 
+	 v.muistot_muisto_id = $P{VastausMuistoID}]]>
+		</queryString>
+		<field name="kysymys" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.name" value="kysymys"/>
+			<property name="com.jaspersoft.studio.field.label" value="kysymys"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="muistot_kysymys"/>
+		</field>
+		<field name="vastaus" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.name" value="vastaus"/>
+			<property name="com.jaspersoft.studio.field.label" value="vastaus"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="muistot_vastaus"/>
+		</field>
+	</subDataset>
+	<parameter name="muisto_id" class="java.lang.Long">
+		<parameterDescription><![CDATA[Muiston ID]]></parameterDescription>
+	</parameter>
+	<parameter name="MIP_BACKEND_URL" class="java.lang.String">
+		<parameterDescription><![CDATA[Backendin osoite]]></parameterDescription>
+	</parameter>
+	<queryString language="SQL">
+		<![CDATA[SELECT 
+	muisto.prikka_id,
+	aihe.aihe_fi as aihe,
+	kunta.nimi as kunta_nimi,
+	muisto.kuvaus as otsikko,
+	muistelija.nimimerkki as nimimerkki,
+	muisto.kuvaus as otsikko,
+	muisto.luotu,
+	muisto.paivitetty,
+	muisto.alkaa,
+	muisto.loppuu,
+	muisto.poistettu,
+	muisto.ilmiannettu,
+	muisto.julkinen,
+	muisto.kieli,
+	muisto.paikka_summittainen,
+	muisto.tapahtumapaikka,
+	muisto.tapahtumapaikka_prikka
+FROM 
+	muistot_muisto as muisto
+	left join muistot_aihe as aihe on muisto.muistot_aihe_id = aihe.prikka_id
+	left join muistot_henkilo as muistelija on muisto.muistot_henkilo_id = muistelija.prikka_id
+	left join muistot_muisto_kunta as muistokunta on muisto.prikka_id = muistokunta.muisto_id
+	left join kunta on  kunta.id = muistokunta.kunta_id
+WHERE
+    muisto.prikka_id = $P{muisto_id}
+ORDER BY muisto.muistot_aihe_id ASC]]>
+	</queryString>
+	<field name="prikka_id" class="java.lang.Integer"/>
+	<field name="aihe" class="java.lang.String"/>
+	<field name="kunta_nimi" class="java.lang.String"/>
+	<field name="otsikko" class="java.lang.String"/>
+	<field name="nimimerkki" class="java.lang.String"/>
+	<field name="COLUMN_6" class="java.lang.String"/>
+	<field name="luotu" class="java.sql.Timestamp"/>
+	<field name="paivitetty" class="java.sql.Timestamp"/>
+	<field name="alkaa" class="java.sql.Timestamp"/>
+	<field name="loppuu" class="java.sql.Timestamp"/>
+	<field name="poistettu" class="java.lang.Boolean"/>
+	<field name="ilmiannettu" class="java.lang.Boolean"/>
+	<field name="julkinen" class="java.lang.Boolean"/>
+	<field name="kieli" class="java.lang.String"/>
+	<field name="paikka_summittainen" class="java.lang.Boolean"/>
+	<field name="tapahtumapaikka" class="java.lang.String"/>
+	<field name="tapahtumapaikka_prikka" class="java.lang.String"/>
+	<variable name="Variable_1" class="java.lang.Integer">
+		<variableExpression><![CDATA[1]]></variableExpression>
+		<initialValueExpression><![CDATA[1]]></initialValueExpression>
+	</variable>
+	<variable name="Variable_0" class="java.lang.Integer">
+		<variableExpression><![CDATA[0]]></variableExpression>
+		<initialValueExpression><![CDATA[0]]></initialValueExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="120" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<textField isBlankWhenNull="true">
+				<reportElement key="" x="0" y="35" width="554" height="30" uuid="852f52fd-eb0e-4165-83d8-9db519b2e0c6"/>
+				<textElement textAlignment="Left">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Aihe: " + $F{aihe}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="" x="80" y="70" width="300" height="20" uuid="07950983-5aa1-4fff-b19c-c309315044d3"/>
+				<textFieldExpression><![CDATA[$F{prikka_id}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="" x="0" y="4" width="554" height="30" uuid="196ade19-4574-4887-9f2d-9c0171b188b0"/>
+				<textElement>
+					<font size="16"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{otsikko}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="" x="80" y="90" width="300" height="20" uuid="8f3f4267-894d-4a62-b197-2c352b8b1cd8"/>
+				<textFieldExpression><![CDATA[$F{nimimerkki}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="70" width="80" height="20" uuid="6e792b59-da11-4373-a686-ad3c3b8d5507"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Muisto ID:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="90" width="80" height="20" uuid="78aa6788-2ae9-4eed-a0ba-bd2941def54c"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nimimerkki:]]></text>
+			</staticText>
+		</band>
+	</title>
+	<detail>
+		<band height="240">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+			<frame>
+				<reportElement x="0" y="0" width="555" height="70" uuid="a7d30f52-a5df-4775-afdf-1191b11a12c0">
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.HorizontalRowLayout"/>
+				</reportElement>
+				<componentElement>
+					<reportElement stretchType="ContainerHeight" x="0" y="0" width="555" height="70" uuid="382639d6-c2fe-4c02-959e-7f16200f8f58">
+						<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+						<property name="com.jaspersoft.studio.table.style.table_header" value="Table 2_TH"/>
+						<property name="com.jaspersoft.studio.table.style.column_header" value="Table 2_CH"/>
+						<property name="com.jaspersoft.studio.table.style.detail" value="Table 2_TD"/>
+					</reportElement>
+					<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+						<datasetRun subDataset="MuistonVastauksetDataset" uuid="7b14319d-7c06-4a3b-97cd-dc303e436904">
+							<datasetParameter name="VastausMuistoID">
+								<datasetParameterExpression><![CDATA[$P{muisto_id}]]></datasetParameterExpression>
+							</datasetParameter>
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+						<jr:column width="220" uuid="c19f0188-f2b7-474d-9775-6e47f1470993">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+							<jr:columnHeader style="Table 2_CH" height="30">
+								<staticText>
+									<reportElement x="0" y="0" width="220" height="30" uuid="e97067e6-7dc5-4f19-92a7-0cc9315c3f1b"/>
+									<box topPadding="2" leftPadding="4" bottomPadding="4" rightPadding="4"/>
+									<textElement>
+										<font isBold="true"/>
+									</textElement>
+									<text><![CDATA[Kysymys]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table 2_TD" height="30">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="220" height="30" uuid="2fe46119-af3d-4b79-92ee-852ad2bfa565"/>
+									<box topPadding="2" leftPadding="4" bottomPadding="4" rightPadding="4"/>
+									<textFieldExpression><![CDATA[$F{kysymys}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="324" uuid="ceebe2f1-aa7a-4509-abf4-8f4b921e9d2b">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+							<jr:columnHeader style="Table 2_CH" height="30">
+								<staticText>
+									<reportElement x="0" y="0" width="324" height="30" uuid="d38a117b-3f4e-4a36-bfd2-aebb033e1897"/>
+									<box topPadding="2" leftPadding="4" bottomPadding="4" rightPadding="4"/>
+									<textElement>
+										<font isBold="true"/>
+									</textElement>
+									<text><![CDATA[Vastaus]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table 2_TD" height="30">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="324" height="30" uuid="e10b602f-df7c-4b61-9be2-acc91cfedc9c"/>
+									<box topPadding="2" leftPadding="4" bottomPadding="4" rightPadding="4"/>
+									<textFieldExpression><![CDATA[$F{vastaus}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+					</jr:table>
+				</componentElement>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="79" width="555" height="91" uuid="567dc51c-8318-469b-b90a-bc36f3b15672">
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<frame>
+					<reportElement x="0" y="0" width="555" height="20" isRemoveLineWhenBlank="true" uuid="0f98cc4a-c37c-4129-9543-d90c255ae010">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+						<printWhenExpression><![CDATA[$F{alkaa}!=null || $F{loppuu}!=null]]></printWhenExpression>
+					</reportElement>
+					<staticText>
+						<reportElement x="0" y="0" width="80" height="20" uuid="48c04edb-5148-4c4f-9e77-acf7406c8a7c"/>
+						<textElement>
+							<font isBold="true"/>
+						</textElement>
+						<text><![CDATA[Ajankohta:]]></text>
+					</staticText>
+					<frame>
+						<reportElement x="80" y="0" width="230" height="20" uuid="6f1fb281-6a79-4540-81c3-aad2eebad816">
+							<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+						</reportElement>
+						<textField isBlankWhenNull="true">
+							<reportElement key="" x="0" y="0" width="50" height="20" uuid="9fd411d2-d546-401a-aeea-ad518f0656bf">
+								<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							</reportElement>
+							<textFieldExpression><![CDATA[new SimpleDateFormat("yyyy").format($F{alkaa})]]></textFieldExpression>
+						</textField>
+						<staticText>
+							<reportElement x="50" y="0" width="12" height="20" uuid="805e0dfe-7357-4754-a5d4-8b6477c37e84"/>
+							<text><![CDATA[-]]></text>
+						</staticText>
+						<textField isBlankWhenNull="true">
+							<reportElement key="" x="63" y="0" width="60" height="20" uuid="51b913ea-a387-4dd8-a5ca-4e31a4145628">
+								<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							</reportElement>
+							<textFieldExpression><![CDATA[new SimpleDateFormat("yyyy").format($F{loppuu})]]></textFieldExpression>
+						</textField>
+					</frame>
+				</frame>
+				<frame>
+					<reportElement x="0" y="20" width="555" height="20" isRemoveLineWhenBlank="true" uuid="97136066-b039-4398-9045-3577f9955620">
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<printWhenExpression><![CDATA[$F{ilmiannettu}!= null && $F{julkinen}==true]]></printWhenExpression>
+					</reportElement>
+					<staticText>
+						<reportElement x="0" y="0" width="80" height="20" uuid="a3e7c2da-9dcd-4fc4-b3dc-36014aa9c885"/>
+						<textElement>
+							<font isBold="true"/>
+						</textElement>
+						<text><![CDATA[Julkinen:]]></text>
+					</staticText>
+					<textField isBlankWhenNull="true">
+						<reportElement x="80" y="0" width="475" height="20" uuid="58c4800a-8a72-4a43-a766-473de00a0443">
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+						</reportElement>
+						<textElement textAlignment="Justified"/>
+						<textFieldExpression><![CDATA[($F{julkinen}==false)?"Ei":"Kyllä"]]></textFieldExpression>
+					</textField>
+				</frame>
+				<frame>
+					<reportElement x="0" y="40" width="555" height="20" isRemoveLineWhenBlank="true" uuid="f2cb66b8-dd92-4fcc-8043-544dd960876a">
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<printWhenExpression><![CDATA[$F{kunta_nimi} != null]]></printWhenExpression>
+					</reportElement>
+					<staticText>
+						<reportElement x="0" y="0" width="80" height="20" uuid="65626ed4-8c8a-440d-9c59-019cbeeedbff">
+							<printWhenExpression><![CDATA[$F{kunta_nimi} != null]]></printWhenExpression>
+						</reportElement>
+						<textElement>
+							<font isBold="true"/>
+						</textElement>
+						<text><![CDATA[Kunta:]]></text>
+					</staticText>
+					<textField isBlankWhenNull="true">
+						<reportElement x="80" y="0" width="475" height="20" uuid="f17e8cfc-d759-47e8-ac3f-763b1e52d433">
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$F{kunta_nimi} != null]]></printWhenExpression>
+						</reportElement>
+						<textElement textAlignment="Justified"/>
+						<textFieldExpression><![CDATA[$F{kunta_nimi}]]></textFieldExpression>
+					</textField>
+				</frame>
+				<frame>
+					<reportElement x="0" y="60" width="555" height="20" isRemoveLineWhenBlank="true" uuid="d62b9335-4a76-45d4-94bc-eb3fb6a3ca57">
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<printWhenExpression><![CDATA[$F{tapahtumapaikka_prikka} != null]]></printWhenExpression>
+					</reportElement>
+					<staticText>
+						<reportElement x="0" y="0" width="120" height="20" uuid="988604d3-33f7-495d-a78f-d4f0a141c8cb">
+							<printWhenExpression><![CDATA[$F{tapahtumapaikka_prikka} != null]]></printWhenExpression>
+						</reportElement>
+						<textElement>
+							<font isBold="true"/>
+						</textElement>
+						<text><![CDATA[Tapahtumapaikka:]]></text>
+					</staticText>
+					<textField isBlankWhenNull="true">
+						<reportElement x="120" y="0" width="435" height="20" uuid="48ae2ce2-85c5-4260-85d4-ac437c57d77f">
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<printWhenExpression><![CDATA[$F{tapahtumapaikka_prikka} != null]]></printWhenExpression>
+						</reportElement>
+						<textElement textAlignment="Justified"/>
+						<textFieldExpression><![CDATA["https://www.google.com/maps?q=" +$F{tapahtumapaikka_prikka}.substring($V{Variable_0},$F{tapahtumapaikka_prikka}.indexOf(";")).trim() + 
+"," + 
+$F{tapahtumapaikka_prikka}.substring($F{tapahtumapaikka_prikka}.indexOf(";") + $V{Variable_1}).trim()]]></textFieldExpression>
+					</textField>
+				</frame>
+			</frame>
+			<subreport isUsingCache="false" overflowType="Stretch">
+				<reportElement positionType="Float" x="0" y="180" width="555" height="50" isRemoveLineWhenBlank="true" uuid="df80cf2c-d1a6-4d12-92d4-077c40017338">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<subreportParameter name="muisto_id">
+					<subreportParameterExpression><![CDATA[$P{muisto_id}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="MIP_BACKEND_URL">
+					<subreportParameterExpression><![CDATA[$P{MIP_BACKEND_URL}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA["Muisto_Kuvat.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="23" splitType="Stretch">
+			<textField evaluationTime="Master">
+				<reportElement x="352" y="3" width="158" height="20" uuid="6d26fce8-2102-4c4b-b11e-eb6c5a7dd2d5"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Sivu " + $V{MASTER_CURRENT_PAGE} + " / "]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Master">
+				<reportElement x="510" y="3" width="44" height="20" uuid="73f12a5a-cc57-4e75-9fee-2dc34903d772"/>
+				<textElement textAlignment="Left"/>
+				<textFieldExpression><![CDATA[$V{MASTER_TOTAL_PAGES}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="0" width="150" height="20" uuid="8286a52a-ed06-49ea-8e0e-3fae724ea389">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[Museon Informaatioportaali]]></text>
+			</staticText>
+			<textField pattern="dd.MM.yyyy">
+				<reportElement x="150" y="0" width="110" height="20" uuid="38b39aa8-9d1e-463b-9c19-202a26a93b4b">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>
