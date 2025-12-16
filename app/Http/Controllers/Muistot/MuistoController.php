@@ -55,6 +55,7 @@ class MuistoController extends Controller {
                 {
                     array_push($errorArray, 'No id in muisto');
                     array_push($errorObjects, 'N/A');
+                    throw new Exception("Muisto id missing");
                 }
                 else 
                 {
@@ -65,12 +66,16 @@ class MuistoController extends Controller {
                         {
                             array_push($errorArray, $vresult);
                             array_push($errorObjects, $muisto['muisto_id']);
+                            Log::channel('prikka')->info("Muisto " . $muisto['muisto_id'] . " validation error: " . $vresult);
+                            throw new Exception("Muisto validation error" . $vresult);
                         }
                     }
                     else if(Muistot_aihe::where('prikka_id', $muisto['aihe_id'])->get()->first() == null)
                     {
-                        array_push($errorArray, $muisto['muisto_id'] . ' aihe does not exist');
+                        Log::channel('prikka')->info("Muisto " . $muisto['muisto_id'] . " aihe " . $muisto['aihe_id'] . " does not exist");
+                        array_push($errorArray, $muisto['muisto_id'] . ': Aihe does not exist: ' . $muisto['aihe_id']);
                         array_push($errorObjects, $muisto['muisto_id']);
+                        throw new Exception("Muisto aihe does not exist");
                     }
                     else 
                     {
@@ -214,10 +219,13 @@ class MuistoController extends Controller {
                                     $entityVastaus->muistot_muisto_id = $muistoEntity->prikka_id;
 
                                     $entityVastaus->save();
-                                    // Log::channel('prikka')->info("Saved vastaus for muisto " . $muistoEntity->prikka_id . " kysymys_id " . $vastaus['kysymys_id']);
+                                    // Log::channel('prikka')->info($muisto['muisto_id'] . ": Saved answer for kysymys_id " . $vastaus['kysymys_id']);
                                 }
                                 catch(Exception $e) {
-                                    Log::channel('prikka')->error("Failed to save vastaus for muisto " . $muistoEntity->prikka_id . " kysymys_id " . $vastaus['kysymys_id'] . ": " . $e->getMessage());
+                                    Log::channel('prikka')->error("Failed to save vastaus for muisto " . $muisto['muisto_id'] . " kysymys_id " . $vastaus['kysymys_id'] . ": " . $e->getMessage());
+                                    array_push($errorArray, $muisto['muisto_id'] . ': Could not save answer for question ' . $vastaus['kysymys_id']);
+                                    array_push($errorObjects, $muisto['muisto_id']);
+                                    throw $e;
                                 }
                             }
                         }
@@ -254,10 +262,13 @@ class MuistoController extends Controller {
                                   }
 
                                   $entityKuva->save();
-                                  // Log::channel('prikka')->info("Saved picture for muisto " . $muistoEntity->prikka_id);
+                                  Log::channel('prikka')->info($muistoEntity->prikka_id . ": Saved picture for muisto ");
                                 }
                                 catch(Exception $e) {
-                                    Log::channel('prikka')->error("Failed to save picture for muisto " . $muistoEntity->prikka_id . ": " . $e->getMessage());
+                                    Log::channel('prikka')->error($muistoEntity->prikka_id . ": Failed to save picture: " . $e->getMessage());
+                                    array_push($errorArray, $muisto['muisto_id'] . ': Failed to save picture');
+                                    array_push($errorObjects, $muisto['muisto_id']);
+                                    throw $e;
                                 }
                             }
                         }
@@ -265,21 +276,25 @@ class MuistoController extends Controller {
                 }
               
                 DB::commit(); // Commit all changes for this muisto
-                
+                Log::channel('prikka')->info("saveMuistot: Muisto " . $muisto['muisto_id'] . " saved successfully");
             }
             catch(Exception $e)
-            {
-                throw $e;
-                array_push($errorArray, $muisto['muisto_id'] . ': failed to add');
-                array_push($errorObjects, $muisto['muisto_id']);
-                Log::channel('prikka')->error("saveMuistot failed to save muisto " . $muisto['muisto_id'] . ": " . $e->getMessage());
+            { 
+                // muisto_id might be missing, check before logging
+                if (isset($muisto['muisto_id'])) {
+                  array_push($errorArray, $muisto['muisto_id'] . ': Failed to save this memory');
+                  array_push($errorObjects, $muisto['muisto_id']);
+                  Log::channel('prikka')->error("saveMuistot failed to save muisto " . $muisto['muisto_id'] . ": " . $e->getMessage());
+                } else {
+                  Log::channel('prikka')->error($e->getMessage());
+                }
                 DB::rollback();
             }
         }
       
         $ret = (object) array('Errors' => $errorArray);
 
-        Log::channel('prikka')->info("saveMuistot success with: " . count($errorArray) . " errors");
+        Log::channel('prikka')->info("saveMuistot finished with: " . count($errorArray) . " errors");
         foreach(array_unique($errorObjects) as $object)
         {
             Log::channel('prikka')->info("Muisto " . $object . " was not added");
