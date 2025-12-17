@@ -200,6 +200,66 @@ class MMLQueries {
 	}
 
 	/**
+	 * Uses MML API to get kiinteistotunnus of kiinteisto located in a point
+	 * Returns kiinteistotunnus if it's found, otherwise null
+   * This method is used by Prikka integration (muistot)
+	 *
+	 * @param $point Lat Long Coordinate point as EPSG 3067 format
+	 * @throws Exception
+	 */
+	public static function getKiinteistoTunnusByPointPrikka($point) {
+
+    // Log::channel('prikka')->info('getKiinteistoTunnusByPointPrikka POINT: ' . $point);
+
+    if (empty(config('app.prikka_mml_apikey')) || empty(config('app.prikka_mml_url'))) {
+      Log::channel('prikka')->info('getKiinteistoTunnusByPointPrikka: Missing config');
+      return null;
+    }
+
+    $filter = "&filter=S_INTERSECTS(geometry, " . $point . ")";
+    $apikey = "&api-key=" . config('app.prikka_mml_apikey');
+    $url = config('app.prikka_mml_url') . $filter . $apikey;
+
+    // Log::channel('prikka')->info('getKiinteistoTunnusByPointPrikka URL: ' . $url);
+
+		$client = new Client();
+    $res = $client->request("GET", $url);
+
+		if ($res->getStatusCode()!="200") {
+			throw new Exception("getKiinteistoTunnusByPointPrikka failed: ".$res->getStatusCode()." : ".$res->getReasonPhrase());
+		}
+
+    // Parse and return the first kiinteistotunnus
+    $result = self::parseFirstKiinteistoTunnus($res->getBody());
+
+    return $result;
+	}
+
+  /**
+   * From given http return string parses the first found kiinteistotunnus
+   * 
+   * @param $rawJSONString
+   * @return string|null
+   */
+  private static function parseFirstKiinteistoTunnus($rawJSONString) {
+    $data = json_decode($rawJSONString);
+    if($data->features) {
+        foreach($data->features as $kiinteisto) {
+            $ktunnus = (string)$kiinteisto->properties->kiinteistotunnus;
+            if ($ktunnus!="") {
+                $result = substr($ktunnus, 0, 3). "-". substr($ktunnus, 3, 3). "-".  substr($ktunnus, 6, 4). "-".  substr($ktunnus, 10, 4);
+                return $result; // Return the first kiinteistotunnus value
+            } else {
+                $result = "";
+            }
+        }
+    }
+    return null; // Return null if there are no features
+}
+
+
+
+	/**
 	 * Get the kiinteistotunnus of kiinteistos located in a point
 	 * Returns an array of kiinteistos where there is 'kiinteistotunnus' key
 	 *

@@ -42,6 +42,9 @@ class Kernel extends HttpKernel
             'throttle:3000,1',
             'bindings',
         ],
+        'prikka' => [
+            \App\Http\Middleware\ApiKeyMiddleware::class
+        ],
     ];
 
     /**
@@ -63,6 +66,7 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'setLocale' => \App\Http\Middleware\SetLocale::class,
+        'prikka' => \App\Http\Middleware\ApiKeyMiddleware::class,
 
         /*
     	 * Add JWT auth middleware
@@ -73,7 +77,7 @@ class Kernel extends HttpKernel
         'auth.jwt' => \PHPOpenSourceSaver\JWTAuth\Http\Middleware\Authenticate::class
     	//'jwt.auth' => PHPOpenSourceSaver\JWTAuth\Middleware\GetUserFromToken::class,
     	//'jwt.refresh' => PHPOpenSourceSaver\JWTAuth\Middleware\RefreshToken::class,
-    		
+
     ];
 
     /**

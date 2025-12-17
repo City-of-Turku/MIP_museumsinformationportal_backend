@@ -38,12 +38,21 @@ Route::get("/kartta/{taso}", 			"KarttaController@proxy");
  */
 Route::get("/raportti/kuva/{id}/pieni",			"Rak\KuvaController@viewSmall");
 Route::get("/raportti/ark_kuva/{id}/pieni",			"Ark\ArkKuvaController@viewSmall");
-
+Route::get("/raportti/muistot_kuva/{id}/pieni",			"Muistot\MuistotKuvaController@viewSmall");
 
 /*
  * OAI-PMH routes, currently do not require authentication
  */
 Route::get("/oaipmh/", "FinnaController@index");
+
+
+Route::group(['middleware' => ['prikka']], function () {
+	Route::get("/prikka/muisto/{id}/",			"Muistot\MuistoController@getMuisto");
+	Route::post("/prikka/tallennamuistot",		"Muistot\MuistoController@saveMuistot");
+	Route::post("/prikka/tallennaaiheet",			"Muistot\AiheController@saveAiheet");
+	Route::post("/prikka/tallennaaiheet/force",			"Muistot\AiheController@saveAiheetForce");
+});
+
 
 /*
  * Inside of this routeGroup All the routes require user to be authenticated
@@ -165,6 +174,7 @@ Route::group(['middleware' => ['auth.jwt', 'setLocale']], function () {
 	Route::delete("/kiinteisto/{kiinteisto_id}/inventointiprojekti/",	"Rak\KiinteistoController@delete_inventoringproject");
 	Route::patch("/kiinteisto/{kiinteisto_id}/kuva/",					"Rak\KiinteistoController@updateKiinteistoImages");
 	Route::get("/kiinteisto/{kiinteisto_id}/historia/",					"Rak\KiinteistoController@historia");
+  Route::get("/kiinteisto/{kiinteisto_id}/muistot/",					"Rak\KiinteistoController@getMemories");
 
 	/*
 	 * KTJ Search
@@ -271,7 +281,10 @@ Route::group(['middleware' => ['auth.jwt', 'setLocale']], function () {
 	 */
 	Route::get("/rooli/{osio}/{entiteetti}/",								"RooliController@show");
 
-	/* Oikeudet tietylle entiteetille, käytetään vain arkeologian puolella */
+	/* 
+   * Oikeudet tietylle entiteetille, käytetään vain arkeologian puolella 
+   * Myös Muistot käyttävät tätä entiteetillä 'muistot_aihe' tarkistamaan käyttäjän oikeuksia aiheeseen.
+   */
 	Route::get("/oikeus/{osio}/{entiteetti}/{id}",							"RooliController@showPermissionsForEntity");
 
 	/*
@@ -702,4 +715,15 @@ Route::group(['middleware' => ['auth.jwt', 'setLocale']], function () {
 	*/
 	Route::get("/kyppi/paivitaMuinaisjaannokset/",				"Ark\KyppiController@muinaisjaannosPaivitys");
 
+	//Muistot
+	Route::get("/muistot/{muisto_id}/", "Muistot\MuistoController@show");
+	Route::get("/muistot/", "Muistot\MuistoController@index");
+	Route::get("/aiheet/{aihe_id}/", "Muistot\AiheController@show");
+  Route::get("/aiheet/{aihe_id}/muistot/",	"Muistot\AiheController@get_memories_by_topic");
+	Route::get("/aiheet/", "Muistot\AiheController@index");
+	Route::get("/muistot_kuva/",						"Muistot\MuistotKuvaController@index");
+	Route::get("/muistot_kuva/{kuva_id}/",				"Muistot\MuistotKuvaController@show");
+	Route::post("aiheet/{aihe_id}/kayttaja",					"Muistot\AiheController@editUsers");
+  // Todo: would be best to have dedicated route for updating estates
+  Route::put("/muistot/{muisto_id}/",      "Muistot\MuistoController@update_estates");
 });
