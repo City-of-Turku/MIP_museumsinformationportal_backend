@@ -35,7 +35,6 @@ class KonsToimenpiteetController extends Controller
             if(Auth::user()->ark_rooli == 'katselija' && $request->tutkimus_id) {
                 $tutkimus = Tutkimus::find($request->tutkimus_id);
                 $permissions = Kayttaja::getArkTutkimusPermissions($tutkimus);
-                // Varmistetaan että käyttäjä löytyy tutkimuksen oikeuksista
                 if(isset($permissions['katselu']) && $permissions['katselu'] && isset($permissions['kayttaja_id']) && $permissions['kayttaja_id'] == Auth::user()->id) {
                     $sallittu = true;
                 }
@@ -149,7 +148,7 @@ class KonsToimenpiteetController extends Controller
             if(Auth::user()->ark_rooli == 'katselija' && $request->tutkimus_id) {
                 $tutkimus = Tutkimus::find($request->tutkimus_id);
                 $permissions = Kayttaja::getArkTutkimusPermissions($tutkimus);
-                if(isset($permissions['katselu']) && $permissions['katselu']) {
+                if(isset($permissions['katselu']) && $permissions['katselu'] && isset($permissions['kayttaja_id']) && $permissions['kayttaja_id'] == Auth::user()->id) {
                     $sallittu = true;
                 }
             }
@@ -240,6 +239,7 @@ class KonsToimenpiteetController extends Controller
                     $sallittu = true;
                 }
             }
+            echo'STORE: sallittu: ' . ($sallittu ? 'true' : 'false') . PHP_EOL;
             if(!$sallittu) {
                 MipJson::setGeoJsonFeature();
                 MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
@@ -480,7 +480,6 @@ class KonsToimenpiteetController extends Controller
             if(Auth::user()->ark_rooli == 'katselija' && $tutkimus_id) {
                 $tutkimus = Tutkimus::find($tutkimus_id);
                 $permissions = Kayttaja::getArkTutkimusPermissions($tutkimus);
-                // Varmistetaan että käyttäjä löytyy tutkimuksen oikeuksista
                 if(isset($permissions['poisto']) && $permissions['poisto'] && isset($permissions['kayttaja_id']) && $permissions['kayttaja_id'] == Auth::user()->id) {
                     $sallittu = true;
                 }
