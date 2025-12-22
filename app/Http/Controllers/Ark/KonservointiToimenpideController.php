@@ -32,10 +32,20 @@ class KonservointiToimenpideController extends Controller
          * Käyttöoikeustarkistus
          */
         if(Auth::user()->ark_rooli != 'tutkija' && Auth::user()->ark_rooli != 'pääkäyttäjä') {
-            MipJson::setGeoJsonFeature();
-            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
-            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
-            return MipJson::getJson();
+            $sallittu = false;
+            if(Auth::user()->ark_rooli == 'katselija' && $request->tutkimus_id) {
+                $tutkimus = Tutkimus::find($request->tutkimus_id);
+                $permissions = Kayttaja::getArkTutkimusPermissions($tutkimus);
+                if(isset($permissions['katselu']) && $permissions['katselu']) {
+                    $sallittu = true;
+                }
+            }
+            if(!$sallittu) {
+                MipJson::setGeoJsonFeature();
+                MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+                MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+                return MipJson::getJson();
+            }
         }
 
         try {
@@ -103,10 +113,22 @@ class KonservointiToimenpideController extends Controller
          * Käyttöoikeustarkistus
          */
         if(Auth::user()->ark_rooli != 'tutkija' && Auth::user()->ark_rooli != 'pääkäyttäjä') {
-            MipJson::setGeoJsonFeature();
-            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
-            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
-            return MipJson::getJson();
+            $sallittu = false;
+            $tutkimus_id = $request->tutkimus_id ?? ($request->input('properties.tutkimus_id') ?? null);
+            if(Auth::user()->ark_rooli == 'katselija' && $tutkimus_id) {
+                $tutkimus = Tutkimus::find($tutkimus_id);
+                $permissions = Kayttaja::getArkTutkimusPermissions($tutkimus);
+                echo'STORE: permissions: ' . print_r($permissions, true) . PHP_EOL;
+                if(isset($permissions['luonti']) && $permissions['luonti']) {
+                    $sallittu = true;
+                }
+            }
+            if(!$sallittu) {
+                MipJson::setGeoJsonFeature();
+                MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+                MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+                return MipJson::getJson();
+            }
         }
 
         $validator = Validator::make($request->all()['properties'], [
@@ -165,10 +187,21 @@ class KonservointiToimenpideController extends Controller
          * Käyttöoikeustarkistus
          */
         if(Auth::user()->ark_rooli != 'tutkija' && Auth::user()->ark_rooli != 'pääkäyttäjä') {
-            MipJson::setGeoJsonFeature();
-            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
-            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
-            return MipJson::getJson();
+            $sallittu = false;
+            $tutkimus_id = $request->tutkimus_id ?? ($request->input('properties.tutkimus_id') ?? null);
+            if(Auth::user()->ark_rooli == 'katselija' && $tutkimus_id) {
+                $tutkimus = Tutkimus::find($tutkimus_id);
+                $permissions = Kayttaja::getArkTutkimusPermissions($tutkimus);
+                if(isset($permissions['muokkaus']) && $permissions['muokkaus']) {
+                    $sallittu = true;
+                }
+            }
+            if(!$sallittu) {
+                MipJson::setGeoJsonFeature();
+                MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+                MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+                return MipJson::getJson();
+            }
         }
 
         $validator = Validator::make($request->all()['properties'], [
@@ -236,10 +269,23 @@ class KonservointiToimenpideController extends Controller
          * Käyttöoikeustarkistus
          */
         if(Auth::user()->ark_rooli != 'tutkija' && Auth::user()->ark_rooli != 'pääkäyttäjä') {
-            MipJson::setGeoJsonFeature();
-            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
-            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
-            return MipJson::getJson();
+            $sallittu = false;
+            // Haetaan toimenpiteen tutkimus_id, jos mahdollista
+            $toimenpide = KonservointiToimenpide::find($id);
+            $tutkimus_id = $toimenpide ? $toimenpide->tutkimus_id : null;
+            if(Auth::user()->ark_rooli == 'katselija' && $tutkimus_id) {
+                $tutkimus = Tutkimus::find($tutkimus_id);
+                $permissions = Kayttaja::getArkTutkimusPermissions($tutkimus);
+                if(isset($permissions['poisto']) && $permissions['poisto']) {
+                    $sallittu = true;
+                }
+            }
+            if(!$sallittu) {
+                MipJson::setGeoJsonFeature();
+                MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+                MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+                return MipJson::getJson();
+            }
         }
 
         $toimenpide = KonservointiToimenpide::find($id);
