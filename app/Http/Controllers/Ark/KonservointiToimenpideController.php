@@ -36,7 +36,8 @@ class KonservointiToimenpideController extends Controller
             if(Auth::user()->ark_rooli == 'katselija' && $request->tutkimus_id) {
                 $tutkimus = Tutkimus::find($request->tutkimus_id);
                 $permissions = Kayttaja::getArkTutkimusPermissions($tutkimus);
-                if(isset($permissions['katselu']) && $permissions['katselu']) {
+                // Varmistetaan että käyttäjä löytyy tutkimuksen oikeuksista
+                if(isset($permissions['katselu']) && $permissions['katselu'] && isset($permissions['kayttaja_id']) && $permissions['kayttaja_id'] == Auth::user()->id) {
                     $sallittu = true;
                 }
             }
@@ -118,8 +119,8 @@ class KonservointiToimenpideController extends Controller
             if(Auth::user()->ark_rooli == 'katselija' && $tutkimus_id) {
                 $tutkimus = Tutkimus::find($tutkimus_id);
                 $permissions = Kayttaja::getArkTutkimusPermissions($tutkimus);
-                echo'STORE: permissions: ' . print_r($permissions, true) . PHP_EOL;
-                if(isset($permissions['luonti']) && $permissions['luonti']) {
+                // Varmistetaan että käyttäjä löytyy tutkimuksen oikeuksista
+                if(isset($permissions['luonti']) && $permissions['luonti'] && isset($permissions['kayttaja_id']) && $permissions['kayttaja_id'] == Auth::user()->id) {
                     $sallittu = true;
                 }
             }
@@ -192,7 +193,8 @@ class KonservointiToimenpideController extends Controller
             if(Auth::user()->ark_rooli == 'katselija' && $tutkimus_id) {
                 $tutkimus = Tutkimus::find($tutkimus_id);
                 $permissions = Kayttaja::getArkTutkimusPermissions($tutkimus);
-                if(isset($permissions['muokkaus']) && $permissions['muokkaus']) {
+                // Varmistetaan että käyttäjä löytyy tutkimuksen oikeuksista
+                if(isset($permissions['muokkaus']) && $permissions['muokkaus'] && isset($permissions['kayttaja_id']) && $permissions['kayttaja_id'] == Auth::user()->id) {
                     $sallittu = true;
                 }
             }
@@ -276,7 +278,8 @@ class KonservointiToimenpideController extends Controller
             if(Auth::user()->ark_rooli == 'katselija' && $tutkimus_id) {
                 $tutkimus = Tutkimus::find($tutkimus_id);
                 $permissions = Kayttaja::getArkTutkimusPermissions($tutkimus);
-                if(isset($permissions['poisto']) && $permissions['poisto']) {
+                // Varmistetaan että käyttäjä löytyy tutkimuksen oikeuksista
+                if(isset($permissions['poisto']) && $permissions['poisto'] && isset($permissions['kayttaja_id']) && $permissions['kayttaja_id'] == Auth::user()->id) {
                     $sallittu = true;
                 }
             }

@@ -35,7 +35,8 @@ class KonsToimenpiteetController extends Controller
             if(Auth::user()->ark_rooli == 'katselija' && $request->tutkimus_id) {
                 $tutkimus = Tutkimus::find($request->tutkimus_id);
                 $permissions = Kayttaja::getArkTutkimusPermissions($tutkimus);
-                if(isset($permissions['katselu']) && $permissions['katselu']) {
+                // Varmistetaan että käyttäjä löytyy tutkimuksen oikeuksista
+                if(isset($permissions['katselu']) && $permissions['katselu'] && isset($permissions['kayttaja_id']) && $permissions['kayttaja_id'] == Auth::user()->id) {
                     $sallittu = true;
                 }
             }
@@ -231,17 +232,14 @@ class KonsToimenpiteetController extends Controller
         if(Auth::user()->ark_rooli != 'tutkija' && Auth::user()->ark_rooli != 'pääkäyttäjä') {
             $sallittu = false;
             $tutkimus_id = $request->tutkimus_id ?? ($request->input('properties.tutkimus_id') ?? null);
-            echo'STORE: Käyttäjän rooli: ' . Auth::user()->ark_rooli . PHP_EOL;
-            echo'STORE: tutkimus_id: ' . print_r($tutkimus_id, true) . PHP_EOL;
             if(Auth::user()->ark_rooli == 'katselija' && $tutkimus_id) {
                 $tutkimus = Tutkimus::find($tutkimus_id);
                 $permissions = Kayttaja::getArkTutkimusPermissions($tutkimus);
-                echo'STORE: permissions: ' . print_r($permissions, true) . PHP_EOL;
-                if(isset($permissions['luonti']) && $permissions['luonti']) {
+                // Varmistetaan että käyttäjä löytyy tutkimuksen oikeuksista
+                if(isset($permissions['luonti']) && $permissions['luonti'] && isset($permissions['kayttaja_id']) && $permissions['kayttaja_id'] == Auth::user()->id) {
                     $sallittu = true;
                 }
             }
-            echo'STORE: sallittu: ' . ($sallittu ? 'true' : 'false') . PHP_EOL;
             if(!$sallittu) {
                 MipJson::setGeoJsonFeature();
                 MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
@@ -352,7 +350,8 @@ class KonsToimenpiteetController extends Controller
             if(Auth::user()->ark_rooli == 'katselija' && $tutkimus_id) {
                 $tutkimus = Tutkimus::find($tutkimus_id);
                 $permissions = Kayttaja::getArkTutkimusPermissions($tutkimus);
-                if(isset($permissions['muokkaus']) && $permissions['muokkaus']) {
+                // Varmistetaan että käyttäjä löytyy tutkimuksen oikeuksista
+                if(isset($permissions['muokkaus']) && $permissions['muokkaus'] && isset($permissions['kayttaja_id']) && $permissions['kayttaja_id'] == Auth::user()->id) {
                     $sallittu = true;
                 }
             }
@@ -481,7 +480,8 @@ class KonsToimenpiteetController extends Controller
             if(Auth::user()->ark_rooli == 'katselija' && $tutkimus_id) {
                 $tutkimus = Tutkimus::find($tutkimus_id);
                 $permissions = Kayttaja::getArkTutkimusPermissions($tutkimus);
-                if(isset($permissions['poisto']) && $permissions['poisto']) {
+                // Varmistetaan että käyttäjä löytyy tutkimuksen oikeuksista
+                if(isset($permissions['poisto']) && $permissions['poisto'] && isset($permissions['kayttaja_id']) && $permissions['kayttaja_id'] == Auth::user()->id) {
                     $sallittu = true;
                 }
             }
