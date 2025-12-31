@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Kayttaja;
 use App\Rak\Kuva;
 use App\Muistot\Muistot_kuva;
+use App\Muistot\Muistot_aihe;
 use App\Library\String\MipJson;
 use App\Utils;
 use Illuminate\Support\Facades\Auth;
@@ -71,6 +72,10 @@ class MuistotKuvaController extends Controller {
     			// $entities->withLimit($rivi, $riveja);
     			$entities = $entities->get();
 
+          // In listing, there's no need to show photographer name ever.
+          // Todo: Check based on user permissions, if needed in future.
+          $showPhotographerName = false;
+
           if(count($entities) <= 0) {
     				MipJson::initGeoJsonFeatureCollection(count($entities), $total_rows);
     				MipJson::addMessage(Lang::get('kuva.search_not_found'));
@@ -88,6 +93,7 @@ class MuistotKuvaController extends Controller {
               $entity->id = $entity->prikka_id; 
               $entity->otsikko = $entity->ottopaikka . " " . $entity->ottohetki; // modal title
               $entity->muisto_otsikko = $entity->muisto->kuvaus;
+              $entity->valokuvaaja = $showPhotographerName ? $entity->valokuvaaja : null;
     					MipJson::addGeoJsonFeatureCollectionFeaturePoint(null, $entity);
     				}
     				MipJson::addMessage(Lang::get('kuva.found_count',["count" => count($entities)]));
@@ -136,6 +142,19 @@ class MuistotKuvaController extends Controller {
     			else {
     				$entity->first();
 
+            // Photographer name can be hidden based on roles
+            // Same rule as for private memories.
+            $showPhotographerName =(Kayttaja::hasPermission('muistot.yksityinen_muisto.katselu')) ? true : false;
+            if (!$showPhotographerName) {
+              // If user has access to the related topic, allow seeing the photographer name
+              $aiheId = $entity->muisto->muistot_aihe_id; 
+              $aihe = Muistot_aihe::getSingle($aiheId)->first();
+              $userId = Auth::user()->id;
+              if ($aihe && $aihe->hasUser($userId)) {
+                $showPhotographerName = true;
+              }
+            }
+
             // huom. rakennuspuolen funkkari, mutta pitäisi toimia suoraan
     				$images = Kuva::getImageUrls($entity->polku.$entity->nimi); //
     				$entity->url = $images->original;
@@ -147,7 +166,7 @@ class MuistotKuvaController extends Controller {
             $entity->id = $entity->prikka_id; 
             $entity->otsikko = $entity->ottopaikka . " " . $entity->ottohetki; // modal title
             $entity->muisto_otsikko = $entity->muisto->kuvaus;
-
+            $entity->valokuvaaja = $showPhotographerName ? $entity->valokuvaaja : null;
     				MipJson::setGeoJsonFeature(null, $entity);
     				MipJson::addMessage(Lang::get('kuva.search_success'));
     			}
