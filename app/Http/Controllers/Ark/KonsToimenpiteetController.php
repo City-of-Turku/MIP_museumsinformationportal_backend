@@ -131,25 +131,18 @@ class KonsToimenpiteetController extends Controller
      * Konservointitoimenpiteen haku
      */
     public function show($id) {
+        //TODO hae konservointitoimenpide $id arvolla ja sieltä sen loyto_id
+        $ark_loyto_id = null;
+        $toimenpide = KonsToimenpiteet::getSingle($id)->with(array('loydot.loyto'))->first();
+        if($toimenpide && $toimenpide->loydot && count($toimenpide->loydot) > 0){
+            $ark_loyto_id = $toimenpide->loydot[0]->loyto->id;
+        }  
 
-        /*
-         * Käyttöoikeustarkistus
-         */
-        if(Auth::user()->ark_rooli != 'tutkija' && Auth::user()->ark_rooli != 'pääkäyttäjä') {
-            $sallittu = false;
-            $tutkimus_id = $this->getTutkimusIdFromRequest($request);
-            if(Auth::user()->ark_rooli == 'katselija' && $tutkimus_id) {
-                $permissions = Kayttaja::getArkTutkimusSubPermissions($tutkimus_id);
-                if(isset($permissions['katselu']) && $permissions['katselu'] && isset($permissions['kayttaja_id']) && $permissions['kayttaja_id'] == Auth::user()->id) {
-                    $sallittu = true;
-                }
-            }
-            if(!$sallittu) {
-                MipJson::setGeoJsonFeature();
-                MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
-                MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
-                return MipJson::getJson();
-            }
+    	if(!Kayttaja::hasPermissionForEntity('arkeologia.ark_loyto.katselu', $ark_loyto_id)) {
+            MipJson::setGeoJsonFeature();
+            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+            return MipJson::getJson();
         }
 
         if(!is_numeric($id)) {
@@ -217,26 +210,13 @@ class KonsToimenpiteetController extends Controller
      */
     public function store(Request $request) {
 
-        /*
-         * Käyttöoikeustarkistus
-         */
-        if(Auth::user()->ark_rooli != 'tutkija' && Auth::user()->ark_rooli != 'pääkäyttäjä') {
-            $sallittu = false;
-            $tutkimus_id = $this->getTutkimusIdFromRequest($request);
-            if(Auth::user()->ark_rooli == 'katselija' && $tutkimus_id) {
-                $permissions = Kayttaja::getArkTutkimusSubPermissions($tutkimus_id);
-                // Varmistetaan että käyttäjä löytyy tutkimuksen oikeuksista
-                if(isset($permissions['luonti']) && $permissions['luonti'] && isset($permissions['kayttaja_id']) && $permissions['kayttaja_id'] == Auth::user()->id) {
-                    $sallittu = true;
-                }
-            }
-            echo'STORE: sallittu: ' . ($sallittu ? 'true' : 'false') . PHP_EOL;
-            if(!$sallittu) {
-                MipJson::setGeoJsonFeature();
-                MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
-                MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
-                return MipJson::getJson();
-            }
+        $ark_loyto_id = $request->input('properties.ark_loyto_id');
+
+        if(!Kayttaja::hasPermissionForEntity('arkeologia.ark_loyto.luonti', $ark_loyto_id)) {
+            MipJson::setGeoJsonFeature();
+            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+            return MipJson::getJson();
         }
 
         $validator = Validator::make($request->all()['properties'], [
@@ -330,27 +310,18 @@ class KonsToimenpiteetController extends Controller
     /**
      * Päivitä konservointitoimenpide
      */
-    public function update(Request $request, $id) {
+    public function update(Request $request, $id) {                //TODO hae konservointitoimenpide $id arvolla ja sieltä sen loyto_id
+        $ark_loyto_id = null;
+        $toimenpide = KonsToimenpiteet::getSingle($id)->with(array('loydot.loyto'))->first();
+        if($toimenpide && $toimenpide->loydot && count($toimenpide->loydot) > 0){
+            $ark_loyto_id = $toimenpide->loydot[0]->loyto->id;
+        }  
 
-        /*
-         * Käyttöoikeustarkistus
-         */
-        if(Auth::user()->ark_rooli != 'tutkija' && Auth::user()->ark_rooli != 'pääkäyttäjä') {
-            $sallittu = false;
-            $tutkimus_id = $this->getTutkimusIdFromRequest($request);
-            if(Auth::user()->ark_rooli == 'katselija' && $tutkimus_id) {
-                $permissions = Kayttaja::getArkTutkimusSubPermissions($tutkimus_id);
-                // Varmistetaan että käyttäjä löytyy tutkimuksen oikeuksista
-                if(isset($permissions['muokkaus']) && $permissions['muokkaus'] && isset($permissions['kayttaja_id']) && $permissions['kayttaja_id'] == Auth::user()->id) {
-                    $sallittu = true;
-                }
-            }
-            if(!$sallittu) {
-                MipJson::setGeoJsonFeature();
-                MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
-                MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
-                return MipJson::getJson();
-            }
+        if(!Kayttaja::hasPermissionForEntity('arkeologia.ark_loyto.muokkaus', $ark_loyto_id)) {
+            MipJson::setGeoJsonFeature();
+            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+            return MipJson::getJson();
         }
 
         $validator = Validator::make($request->all()['properties'], [
@@ -459,27 +430,18 @@ class KonsToimenpiteetController extends Controller
      */
     public function destroy($id) {
 
-        /*
-         * Käyttöoikeustarkistus
-         */
-        if(Auth::user()->ark_rooli != 'tutkija' && Auth::user()->ark_rooli != 'pääkäyttäjä') {
-            $sallittu = false;
-            // Haetaan tutkimus_id requestista tai loyto_id:n perusteella
-            $request = request();
-            $tutkimus_id = $this->getTutkimusIdFromRequest($request);
-            if(Auth::user()->ark_rooli == 'katselija' && $tutkimus_id) {
-                $permissions = Kayttaja::getArkTutkimusSubPermissions($tutkimus_id);
-                if(isset($permissions['poisto']) && $permissions['poisto'] && isset($permissions['kayttaja_id']) && $permissions['kayttaja_id'] == Auth::user()->id) {
-                    $sallittu = true;
-                }
-            }
-            if(!$sallittu) {
-                MipJson::setGeoJsonFeature();
-                MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
-                MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
-                return MipJson::getJson();
-            }
+        //TODO hae konservointitoimenpide $id arvolla ja sieltä sen loyto_id
+        $ark_loyto_id = null;
+        $toimenpide = KonsToimenpiteet::getSingle($id)->with(array('loydot.loyto'))->first();
+        if($toimenpide && $toimenpide->loydot && count($toimenpide->loydot) > 0){
+            $ark_loyto_id = $toimenpide->loydot[0]->loyto->id;
         }
+        if(!Kayttaja::hasPermissionForEntity('arkeologia.ark_loyto.poisto', $ark_loyto_id)) {
+            MipJson::setGeoJsonFeature();
+            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+            return MipJson::getJson();
+        }  
 
         $toimenpide = KonsToimenpiteet::find($id);
 
