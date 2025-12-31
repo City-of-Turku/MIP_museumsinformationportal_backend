@@ -31,7 +31,7 @@ class KonservointiToimenpideController extends Controller
         /*
          * Käyttöoikeustarkistus
          */
-        if(Auth::user()->ark_rooli != 'tutkija' && Auth::user()->ark_rooli != 'pääkäyttäjä') {
+        if(Auth::user()->ark_rooli != 'tutkija' && Auth::user()->ark_rooli != 'pääkäyttäjä' && Auth::user()->ark_rooli != 'katselija') {
             MipJson::setGeoJsonFeature();
             MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
             MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
