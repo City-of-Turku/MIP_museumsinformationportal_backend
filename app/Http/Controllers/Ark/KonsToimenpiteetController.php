@@ -478,4 +478,36 @@ class KonsToimenpiteetController extends Controller
 
         return MipJson::getJson();
     }
+     /**
+     * Palauttaa tutkimus_id:n requestista tai loyto_id:n perusteella
+     */
+    private function getTutkimusIdFromRequest(Request $request) {
+        $tutkimus_id = $request->tutkimus_id ?? ($request->input('properties.tutkimus_id') ?? null);
+        if (!$tutkimus_id) {
+            $loyto_id = $request->header('loyto_id') ?? ($request->query('loyto_id') ?? (isset($request->all()['properties']['ark_loyto_id']) ? $request->all()['properties']['ark_loyto_id'] : null));
+            if ($loyto_id) {
+                $loyto = \App\Ark\Loyto::find($loyto_id);
+                if ($loyto) {
+                    // 1. Yritetään yksikön kautta
+                    if ($loyto->ark_tutkimusalue_yksikko_id) {
+                        $yksikko = \App\Ark\TutkimusalueYksikko::find($loyto->ark_tutkimusalue_yksikko_id);
+                        if ($yksikko && $yksikko->ark_tutkimusalue_id) {
+                            $tutkimusalue = \App\Ark\Tutkimusalue::find($yksikko->ark_tutkimusalue_id);
+                            if ($tutkimusalue && $tutkimusalue->ark_tutkimus_id) {
+                                $tutkimus_id = $tutkimusalue->ark_tutkimus_id;
+                            }
+                        }
+                    }
+                    // 2. Jos ei yksikön kautta, kokeillaan suoraan tutkimusalueen kautta
+                    if (!$tutkimus_id && $loyto->ark_tutkimusalue_id) {
+                        $tutkimusalue = \App\Ark\Tutkimusalue::find($loyto->ark_tutkimusalue_id);
+                        if ($tutkimusalue && $tutkimusalue->ark_tutkimus_id) {
+                            $tutkimus_id = $tutkimusalue->ark_tutkimus_id;
+                        }
+                    }
+                }
+            }
+        }
+        return $tutkimus_id;
+    }
 }
