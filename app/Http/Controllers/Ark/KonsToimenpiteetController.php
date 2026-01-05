@@ -210,7 +210,10 @@ class KonsToimenpiteetController extends Controller
      */
     public function store(Request $request) {
 
-        $ark_loyto_id = $request->input('properties.ark_loyto_id');
+        $ark_loyto_id = null;
+        if ($request->input('properties.loydot') && count($request->input('properties.loydot')) > 0) {
+            $ark_loyto_id = $request->input('properties.loydot')[0]['ark_loyto_id'];
+        }
 
         if(!Kayttaja::hasPermissionForEntity('arkeologia.ark_loyto.luonti', $ark_loyto_id)) {
             MipJson::setGeoJsonFeature();

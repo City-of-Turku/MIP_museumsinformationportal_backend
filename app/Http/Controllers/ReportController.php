@@ -171,9 +171,12 @@ class ReportController extends Controller {
 			    $tyyppi = 'Tarkastusraportti';
 			    break;
 			case 'Loyto_konservointiraportti':
-			    // Ainoastaan tutkijat ja pääkäyttäjät voivat tehdä ko. raportin
-			    if(Auth::user()->ark_rooli != 'tutkija' && Auth::user()->ark_rooli != 'pääkäyttäjä') {
-			        MipJson::setGeoJsonFeature();
+			    // Ainoastaan tutkijat ja pääkäyttäjät ja löytöön liitetyt katselijat 
+				// voivat tehdä ko. raportin
+			    $loytoId = $request->parameters['loytoId'];
+
+                if(!Kayttaja::hasPermissionForEntity('arkeologia.ark_loyto.luonti', $loytoId)) {
+					MipJson::setGeoJsonFeature();
 			        MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
 			        MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
 			        return MipJson::getJson();
