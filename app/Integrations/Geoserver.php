@@ -1064,8 +1064,8 @@ class Geoserver {
 		try {
 			Log::channel('geoserver')->info("Deleting layer " . self::generateLayername($julkaisuNimi, $tasoNimi));
 			$response = $this->deleteLayer($julkaisuNimi, $tasoNimi);
-			if ($response != "200"){
-				Log::channel('geoserver')->error("Exception: Layer not deleted");
+			if ($response->getStatusCode() != 200) {
+				Log::channel('geoserver')->error("Exception: Layer not deleted (status: " . $response->getStatusCode() . ")");
 				throw new Exception("Problem deleting layer.");
 			}
 			$this->deleteFeatureType($julkaisuNimi, $tasoNimi);
