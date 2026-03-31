@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Ark;
 
 use App\Utils;
+use App\Ark\Tutkimus;
 use App\Http\Controllers\Controller;
 use App\Library\String\MipJson;
 use App\Ark\KonservointiLoyto;
 use App\Ark\KonservointiNayte;
 use App\Ark\KonsToimenpiteet;
 use App\Ark\KonsToimenpideMateriaalit;
+use App\Kayttaja;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -30,12 +32,12 @@ class KonsToimenpiteetController extends Controller
         /*
          * Käyttöoikeustarkistus
          */
-        if(Auth::user()->ark_rooli != 'tutkija' && Auth::user()->ark_rooli != 'pääkäyttäjä') {
-            MipJson::setGeoJsonFeature();
-            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
-            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
-            return MipJson::getJson();
-        }
+        if(Auth::user()->ark_rooli != 'tutkija' && Auth::user()->ark_rooli != 'pääkäyttäjä'&& Auth::user()->ark_rooli != 'katselija') {
+                MipJson::setGeoJsonFeature();
+                MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+                MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+                return MipJson::getJson();
+            }
 
         try {
             $rivi = (isset($request->rivi) && is_numeric($request->rivi)) ? $request->rivi : 0;
@@ -129,11 +131,14 @@ class KonsToimenpiteetController extends Controller
      * Konservointitoimenpiteen haku
      */
     public function show($id) {
+        //TODO hae konservointitoimenpide $id arvolla ja sieltä sen loyto_id
+        $ark_loyto_id = null;
+        $toimenpide = KonsToimenpiteet::getSingle($id)->with(array('loydot.loyto'))->first();
+        if($toimenpide && $toimenpide->loydot && count($toimenpide->loydot) > 0){
+            $ark_loyto_id = $toimenpide->loydot[0]->loyto->id;
+        }  
 
-        /*
-         * Käyttöoikeustarkistus
-         */
-        if(Auth::user()->ark_rooli != 'tutkija' && Auth::user()->ark_rooli != 'pääkäyttäjä') {
+    	if(!Kayttaja::hasPermissionForEntity('arkeologia.ark_loyto.katselu', $ark_loyto_id)) {
             MipJson::setGeoJsonFeature();
             MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
             MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
@@ -205,10 +210,12 @@ class KonsToimenpiteetController extends Controller
      */
     public function store(Request $request) {
 
-        /*
-         * Käyttöoikeustarkistus
-         */
-        if(Auth::user()->ark_rooli != 'tutkija' && Auth::user()->ark_rooli != 'pääkäyttäjä') {
+        $ark_loyto_id = null;
+        if ($request->input('properties.loydot') && count($request->input('properties.loydot')) > 0) {
+            $ark_loyto_id = $request->input('properties.loydot')[0]['ark_loyto_id'];
+        }
+
+        if(!Kayttaja::hasPermissionForEntity('arkeologia.ark_loyto.luonti', $ark_loyto_id)) {
             MipJson::setGeoJsonFeature();
             MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
             MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
@@ -306,12 +313,14 @@ class KonsToimenpiteetController extends Controller
     /**
      * Päivitä konservointitoimenpide
      */
-    public function update(Request $request, $id) {
+    public function update(Request $request, $id) {                //TODO hae konservointitoimenpide $id arvolla ja sieltä sen loyto_id
+        $ark_loyto_id = null;
+        $toimenpide = KonsToimenpiteet::getSingle($id)->with(array('loydot.loyto'))->first();
+        if($toimenpide && $toimenpide->loydot && count($toimenpide->loydot) > 0){
+            $ark_loyto_id = $toimenpide->loydot[0]->loyto->id;
+        }  
 
-        /*
-         * Käyttöoikeustarkistus
-         */
-        if(Auth::user()->ark_rooli != 'tutkija' && Auth::user()->ark_rooli != 'pääkäyttäjä') {
+        if(!Kayttaja::hasPermissionForEntity('arkeologia.ark_loyto.muokkaus', $ark_loyto_id)) {
             MipJson::setGeoJsonFeature();
             MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
             MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
@@ -424,15 +433,18 @@ class KonsToimenpiteetController extends Controller
      */
     public function destroy($id) {
 
-        /*
-         * Käyttöoikeustarkistus
-         */
-        if(Auth::user()->ark_rooli != 'tutkija' && Auth::user()->ark_rooli != 'pääkäyttäjä') {
+        //TODO hae konservointitoimenpide $id arvolla ja sieltä sen loyto_id
+        $ark_loyto_id = null;
+        $toimenpide = KonsToimenpiteet::getSingle($id)->with(array('loydot.loyto'))->first();
+        if($toimenpide && $toimenpide->loydot && count($toimenpide->loydot) > 0){
+            $ark_loyto_id = $toimenpide->loydot[0]->loyto->id;
+        }
+        if(!Kayttaja::hasPermissionForEntity('arkeologia.ark_loyto.poisto', $ark_loyto_id)) {
             MipJson::setGeoJsonFeature();
             MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
             MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
             return MipJson::getJson();
-        }
+        }  
 
         $toimenpide = KonsToimenpiteet::find($id);
 
@@ -468,5 +480,37 @@ class KonsToimenpiteetController extends Controller
         }
 
         return MipJson::getJson();
+    }
+     /**
+     * Palauttaa tutkimus_id:n requestista tai loyto_id:n perusteella
+     */
+    private function getTutkimusIdFromRequest(Request $request) {
+        $tutkimus_id = $request->tutkimus_id ?? ($request->input('properties.tutkimus_id') ?? null);
+        if (!$tutkimus_id) {
+            $loyto_id = $request->header('loyto_id') ?? ($request->query('loyto_id') ?? (isset($request->all()['properties']['ark_loyto_id']) ? $request->all()['properties']['ark_loyto_id'] : null));
+            if ($loyto_id) {
+                $loyto = \App\Ark\Loyto::find($loyto_id);
+                if ($loyto) {
+                    // 1. Yritetään yksikön kautta
+                    if ($loyto->ark_tutkimusalue_yksikko_id) {
+                        $yksikko = \App\Ark\TutkimusalueYksikko::find($loyto->ark_tutkimusalue_yksikko_id);
+                        if ($yksikko && $yksikko->ark_tutkimusalue_id) {
+                            $tutkimusalue = \App\Ark\Tutkimusalue::find($yksikko->ark_tutkimusalue_id);
+                            if ($tutkimusalue && $tutkimusalue->ark_tutkimus_id) {
+                                $tutkimus_id = $tutkimusalue->ark_tutkimus_id;
+                            }
+                        }
+                    }
+                    // 2. Jos ei yksikön kautta, kokeillaan suoraan tutkimusalueen kautta
+                    if (!$tutkimus_id && $loyto->ark_tutkimusalue_id) {
+                        $tutkimusalue = \App\Ark\Tutkimusalue::find($loyto->ark_tutkimusalue_id);
+                        if ($tutkimusalue && $tutkimusalue->ark_tutkimus_id) {
+                            $tutkimus_id = $tutkimusalue->ark_tutkimus_id;
+                        }
+                    }
+                }
+            }
+        }
+        return $tutkimus_id;
     }
 }
