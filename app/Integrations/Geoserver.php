@@ -212,13 +212,34 @@ class Geoserver {
 		return $tasoNimi;
 	}
 
+	private static function generateGeometryXml($tasoNimi, $baseType) {
+		if($baseType === 'alue' || $baseType === 'arvoalue') {
+			if(self::isAreaGeometryLayer($tasoNimi)) {
+				// For _alue layers: aluerajaus is primary (first in SQL)
+				return '<geometry>
+          					     <name>aluerajaus</name>
+          					     <type>Geometry</type>
+          					     <srid>-1</srid>
+        					   </geometry>';
+			} else {
+				// For _piste layers: keskipiste is primary (first in SQL)
+				return '<geometry>
+          					     <name>keskipiste</name>
+          					     <type>Geometry</type>
+          					     <srid>-1</srid>
+        					   </geometry>';
+			}
+		}
+		return '';
+	}
+
 	private static function isAreaGeometryLayer($tasoNimi) {
-		return substr($tasoNimi, -5) === '_alue';
+		return substr($tasoNimi, -6) !== '_piste';
 	}
 
 	private static function getPublishedLayerNames($tasoNimi) {
 		if($tasoNimi === 'alue' || $tasoNimi === 'arvoalue') {
-			return [$tasoNimi . '_piste', $tasoNimi . '_alue'];
+			return [$tasoNimi . '_piste', $tasoNimi];
 		}
 
 		return [$tasoNimi];
@@ -855,9 +876,9 @@ class Geoserver {
 		} else if($baseTasoNimi== 'rakennus') {
 							$xml .= self::$rakennusGeometryXml;
 		} else if($baseTasoNimi== 'alue') {
-							$xml .= self::$alueGeometryXml;
+							$xml .= self::generateGeometryXml($tasoNimi, 'alue');
 		} else if($baseTasoNimi== 'arvoalue') {
-							$xml .= self::$arvoalueGeometryXml;
+							$xml .= self::generateGeometryXml($tasoNimi, 'arvoalue');
 						}
 			$xml .= '</virtualTable>
 					</entry>
