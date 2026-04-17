@@ -215,18 +215,28 @@ class Geoserver {
 	private static function generateGeometryXml($tasoNimi, $baseType) {
 		if($baseType === 'alue' || $baseType === 'arvoalue') {
 			if(self::isAreaGeometryLayer($tasoNimi)) {
-				// For _alue layers: aluerajaus is primary (first in SQL)
+				// For _alue layers: aluerajaus is primary (first in SQL), keskipiste is secondary
 				return '<geometry>
           					     <name>aluerajaus</name>
           					     <type>Geometry</type>
-          					     <srid>-1</srid>
+          					     <srid>3067</srid>
+        					   </geometry>
+        					   <geometry>
+          						 <name>keskipiste</name>
+          						 <type>Geometry</type>
+          						 <srid>3067</srid>
         					   </geometry>';
 			} else {
-				// For _piste layers: keskipiste is primary (first in SQL)
+				// For _piste layers: keskipiste is primary (first in SQL), aluerajaus is secondary
 				return '<geometry>
           					     <name>keskipiste</name>
           					     <type>Geometry</type>
-          					     <srid>-1</srid>
+          					     <srid>3067</srid>
+        					   </geometry>
+        					   <geometry>
+          						 <name>aluerajaus</name>
+          						 <type>Geometry</type>
+          						 <srid>3067</srid>
         					   </geometry>';
 			}
 		}
