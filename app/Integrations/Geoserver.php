@@ -243,6 +243,66 @@ class Geoserver {
 		return '';
 	}
 
+	private static function orderGeometryAttributes($allFields, $primaryGeometryKey, $secondaryGeometryKey) {
+		if(!isset($allFields[$primaryGeometryKey]) || !isset($allFields[$secondaryGeometryKey])) {
+			return $allFields;
+		}
+
+		$orderedFields = [];
+		foreach($allFields as $fieldKey => $fieldValue) {
+			if($fieldKey === $primaryGeometryKey || $fieldKey === $secondaryGeometryKey) {
+				continue;
+			}
+			$orderedFields[$fieldKey] = $fieldValue;
+		}
+
+		$insertAfterKey = array_search('alue.nykytila', array_keys($orderedFields), true);
+		if($insertAfterKey === false) {
+			$insertAfterKey = array_search('aalue.yhteenveto', array_keys($orderedFields), true);
+		}
+
+		if($insertAfterKey === false) {
+			$orderedFields[$primaryGeometryKey] = $allFields[$primaryGeometryKey];
+			$orderedFields[$secondaryGeometryKey] = $allFields[$secondaryGeometryKey];
+			return $orderedFields;
+		}
+
+		$keys = array_keys($orderedFields);
+		$values = array_values($orderedFields);
+		$insertPos = $insertAfterKey + 1;
+
+		array_splice($keys, $insertPos, 0, [$primaryGeometryKey, $secondaryGeometryKey]);
+		array_splice($values, $insertPos, 0, [$allFields[$primaryGeometryKey], $allFields[$secondaryGeometryKey]]);
+
+		return array_combine($keys, $values);
+	}
+
+	private static function getFeatureTypeFields($baseTasoNimi, $tasoNimi) {
+		if($baseTasoNimi == 'kiinteisto') {
+			return self::$kiinteisto_kentat;
+		}
+
+		if($baseTasoNimi == 'rakennus') {
+			return self::$rakennus_kentat;
+		}
+
+		if($baseTasoNimi == 'alue') {
+			if(self::isAreaGeometryLayer($tasoNimi)) {
+				return self::orderGeometryAttributes(self::$alue_kentat, 'alue.aluerajaus', 'alue.keskipiste');
+			}
+			return self::orderGeometryAttributes(self::$alue_kentat, 'alue.keskipiste', 'alue.aluerajaus');
+		}
+
+		if($baseTasoNimi == 'arvoalue') {
+			if(self::isAreaGeometryLayer($tasoNimi)) {
+				return self::orderGeometryAttributes(self::$arvoalue_kentat, 'aalue.aluerajaus', 'aalue.keskipiste');
+			}
+			return self::orderGeometryAttributes(self::$arvoalue_kentat, 'aalue.keskipiste', 'aalue.aluerajaus');
+		}
+
+		return [];
+	}
+
 	private static function isAreaGeometryLayer($tasoNimi) {
 		return substr($tasoNimi, -6) !== '_piste';
 	}
@@ -906,14 +966,9 @@ class Geoserver {
 				  <attributes>';
 
 			//Add the attribute elements to the xml above.
-			if($baseTasoNimi== 'kiinteisto') {
-				$xml .= self::generateXmlAttributes(self::$kiinteisto_kentat, $kentat);
-			} else if($baseTasoNimi== 'rakennus') {
-			    $xml .= self::generateXmlAttributes(self::$rakennus_kentat, $kentat);
-			} else if ($baseTasoNimi== 'alue') {
-			    $xml .= self::generateXmlAttributes(self::$alue_kentat, $kentat);
-			} else if($baseTasoNimi== 'arvoalue') {
-			    $xml .= self::generateXmlAttributes(self::$arvoalue_kentat, $kentat);
+			$featureTypeFields = self::getFeatureTypeFields($baseTasoNimi, $tasoNimi);
+			if(!empty($featureTypeFields)) {
+				$xml .= self::generateXmlAttributes($featureTypeFields, $kentat);
 			}
 
 		$xml .=  '</attributes></featureType>';
