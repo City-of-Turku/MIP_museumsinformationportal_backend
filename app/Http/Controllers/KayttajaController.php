@@ -292,6 +292,54 @@ class KayttajaController extends Controller {
     }
 
     /**
+     * Accept terms for the currently logged-in user.
+     *
+     * @param  int  $userId
+     * @return MipJson
+     */
+    public function acceptTerms($userId) {
+    	$token = JWTAuth::getToken();
+    	$currentUser = JWTAuth::toUser($token);
+
+    	if ($currentUser->id != $userId) {
+    		MipJson::setGeoJsonFeature();
+    		MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+    		MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+    		return MipJson::getJson();
+    	}
+
+    	try {
+    		$user = Kayttaja::find($userId);
+
+    		if (!$user) {
+    			MipJson::setGeoJsonFeature();
+    			MipJson::addMessage(Lang::get('auth.custom.user_not_found'));
+    			MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
+    			return MipJson::getJson();
+    		}
+
+    		DB::beginTransaction();
+    		Utils::setDBUser();
+    		$user->sopimus_hyvaksytty = true;
+    		$author_field = Kayttaja::UPDATED_BY;
+    		$user->$author_field = $currentUser->id;
+    		$user->save();
+    		DB::commit();
+
+    		MipJson::setGeoJsonFeature(null, ['id' => $user->id]);
+
+    		MipJson::setResponseStatus(Response::HTTP_OK);
+    	} catch (Exception $e) {
+    		DB::rollback();
+    		MipJson::setGeoJsonFeature();
+    		MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+    		MipJson::addMessage($e->getMessage());
+    	}
+
+    	return MipJson::getJson();
+    }
+
+    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request

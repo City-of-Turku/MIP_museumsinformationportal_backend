@@ -155,6 +155,7 @@ Route::group(['middleware' => ['auth.jwt', 'setLocale']], function () {
 	Route::get("/kayttaja/{kayttaja_id}", 							"KayttajaController@show"); 		// get SINGLE user details
 	Route::delete("/kayttaja/{kayttaja_id}/", 						"KayttajaController@destroy");		// Delete SINGLE user
 	Route::put("/kayttaja/{kayttaja_id}/", 							"KayttajaController@update");		// update SINGLE user
+	Route::put("/kayttaja/{kayttaja_id}/sopimus/", 					"KayttajaController@acceptTerms");	// accept terms and conditions
 	Route::get("/kayttaja/{kayttaja_id}/inventointiprojektit",		"KayttajaController@get_inventoringprojects"); //Get the users inventory projects
 
 	/*
