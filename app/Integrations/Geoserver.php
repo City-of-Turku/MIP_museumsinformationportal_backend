@@ -792,12 +792,12 @@ class Geoserver {
                 //Poikkeukset:
                 //Frontilta voi tulla esim "alueen sijainti", joka
                 //pitää mäpätä keskupisteeksi tai aluerajaukseksi
-                if($tyyppi == "alue" && $kkNimi == "keskipiste" || $kkNimi == "aluerajaus") {
+	                if($tyyppi == "alue" && ($kkNimi == "keskipiste" || $kkNimi == "aluerajaus")) {
                     if($valitutKentat[$j]['name'] == "alueen_sijainti") {
                         $selected = true;
                     }
                 }
-                if($tyyppi == "aalue" && $kkNimi == "keskipiste" || $kkNimi == "aluerajaus") {
+	                if($tyyppi == "aalue" && ($kkNimi == "keskipiste" || $kkNimi == "aluerajaus")) {
                     if($valitutKentat[$j]['name'] == "aalueen_sijainti") {
                         $selected = true;
                     }
