@@ -222,14 +222,14 @@ class Geoserver {
 	private static function generateGeometryXml($tasoNimi, $baseType) {
 		if($baseType === 'alue' || $baseType === 'arvoalue') {
 			if(self::isCombinedGeometryLayer($tasoNimi)) {
-				// For _ja_pisteet layers: both geometries, aluerajaus first (WMS shows both areas and points)
+				// For _ja_pisteet layers: keskipiste is primary (default), aluerajaus secondary
 				return '<geometry>
-          				     <name>aluerajaus</name>
+	          				     <name>keskipiste</name>
           				     <type>Geometry</type>
           				     <srid>3067</srid>
         				   </geometry>
         				   <geometry>
-          					 <name>keskipiste</name>
+	          					 <name>aluerajaus</name>
           					 <type>Geometry</type>
           					 <srid>3067</srid>
         				   </geometry>';
@@ -306,15 +306,15 @@ class Geoserver {
 		}
 
 		if($baseTasoNimi == 'alue') {
-			// _ja_pisteet and base alue: aluerajaus first; _piste: keskipiste first
-			if(self::isAreaGeometryLayer($tasoNimi) || self::isCombinedGeometryLayer($tasoNimi)) {
+			// base alue: aluerajaus first; _ja_pisteet and _piste: keskipiste first
+			if(self::isAreaGeometryLayer($tasoNimi)) {
 				return self::orderGeometryAttributes(self::$alue_kentat, 'alue.aluerajaus', 'alue.keskipiste');
 			}
 			return self::orderGeometryAttributes(self::$alue_kentat, 'alue.keskipiste', 'alue.aluerajaus');
 		}
 
 		if($baseTasoNimi == 'arvoalue') {
-			if(self::isAreaGeometryLayer($tasoNimi) || self::isCombinedGeometryLayer($tasoNimi)) {
+			if(self::isAreaGeometryLayer($tasoNimi)) {
 				return self::orderGeometryAttributes(self::$arvoalue_kentat, 'aalue.aluerajaus', 'aalue.keskipiste');
 			}
 			return self::orderGeometryAttributes(self::$arvoalue_kentat, 'aalue.keskipiste', 'aalue.aluerajaus');
