@@ -698,6 +698,7 @@ class Geoserver {
 					LEFT JOIN kuva on kuva.id = min_kuva.kuva_id
 					where alue.poistettu is null
                     and alue.id is not null";
+			$sql .= self::isAreaGeometryLayer($tasoNimi) ? " and alue.aluerajaus is not null" : " and alue.keskipiste is not null";
 		} else if($baseTasoNimi== 'arvoalue') {
 			$primaryGeometry = self::isAreaGeometryLayer($tasoNimi) ? 'aalue.aluerajaus' : 'aalue.keskipiste';
 			$secondaryGeometry = self::isAreaGeometryLayer($tasoNimi) ? 'aalue.keskipiste' : 'aalue.aluerajaus';
@@ -779,6 +780,7 @@ class Geoserver {
 					LEFT JOIN kuva on kuva.id = min_kuva.kuva_id
 					where aalue.poistettu is null
                     and aalue.id is not null";
+			$sql .= self::isAreaGeometryLayer($tasoNimi) ? " and aalue.aluerajaus is not null" : " and aalue.keskipiste is not null";
 		}
 
 		if(strlen($sql) == 0) {
@@ -815,12 +817,12 @@ class Geoserver {
                 //Poikkeukset:
                 //Frontilta voi tulla esim "alueen sijainti", joka
                 //pitää mäpätä keskupisteeksi tai aluerajaukseksi
-                if($tyyppi == "alue" && $kkNimi == "keskipiste" || $kkNimi == "aluerajaus") {
+		        if($tyyppi == "alue" && ($kkNimi == "keskipiste" || $kkNimi == "aluerajaus")) {
                     if($valitutKentat[$j]['name'] == "alueen_sijainti") {
                         $selected = true;
                     }
                 }
-                if($tyyppi == "aalue" && $kkNimi == "keskipiste" || $kkNimi == "aluerajaus") {
+		        if($tyyppi == "aalue" && ($kkNimi == "keskipiste" || $kkNimi == "aluerajaus")) {
                     if($valitutKentat[$j]['name'] == "aalueen_sijainti") {
                         $selected = true;
                     }
