@@ -203,6 +203,9 @@ class Geoserver {
         					   	  </geometry>';
 
 	private static function getBaseLayername($tasoNimi) {
+		if(substr($tasoNimi, -11) === '_ja_pisteet') {
+			return substr($tasoNimi, 0, -11);
+		}
 		if(substr($tasoNimi, -6) === '_piste') {
 			return substr($tasoNimi, 0, -6);
 		}
@@ -212,10 +215,26 @@ class Geoserver {
 		return $tasoNimi;
 	}
 
+	private static function isCombinedGeometryLayer($tasoNimi) {
+		return substr($tasoNimi, -11) === '_ja_pisteet';
+	}
+
 	private static function generateGeometryXml($tasoNimi, $baseType) {
 		if($baseType === 'alue' || $baseType === 'arvoalue') {
-			if(self::isAreaGeometryLayer($tasoNimi)) {
-				// For _alue layers: aluerajaus is primary (first in SQL), keskipiste is secondary
+			if(self::isCombinedGeometryLayer($tasoNimi)) {
+				// For _ja_pisteet layers: both geometries, aluerajaus first (WMS shows both areas and points)
+				return '<geometry>
+          				     <name>aluerajaus</name>
+          				     <type>Geometry</type>
+          				     <srid>3067</srid>
+        				   </geometry>
+        				   <geometry>
+          					 <name>keskipiste</name>
+          					 <type>Geometry</type>
+          					 <srid>3067</srid>
+        				   </geometry>';
+			} else if(self::isAreaGeometryLayer($tasoNimi)) {
+				// For base alue layer: aluerajaus primary, WFS-friendly
 				return '<geometry>
           					     <name>aluerajaus</name>
           					     <type>Geometry</type>
@@ -287,14 +306,15 @@ class Geoserver {
 		}
 
 		if($baseTasoNimi == 'alue') {
-			if(self::isAreaGeometryLayer($tasoNimi)) {
+			// _ja_pisteet and base alue: aluerajaus first; _piste: keskipiste first
+			if(self::isAreaGeometryLayer($tasoNimi) || self::isCombinedGeometryLayer($tasoNimi)) {
 				return self::orderGeometryAttributes(self::$alue_kentat, 'alue.aluerajaus', 'alue.keskipiste');
 			}
 			return self::orderGeometryAttributes(self::$alue_kentat, 'alue.keskipiste', 'alue.aluerajaus');
 		}
 
 		if($baseTasoNimi == 'arvoalue') {
-			if(self::isAreaGeometryLayer($tasoNimi)) {
+			if(self::isAreaGeometryLayer($tasoNimi) || self::isCombinedGeometryLayer($tasoNimi)) {
 				return self::orderGeometryAttributes(self::$arvoalue_kentat, 'aalue.aluerajaus', 'aalue.keskipiste');
 			}
 			return self::orderGeometryAttributes(self::$arvoalue_kentat, 'aalue.keskipiste', 'aalue.aluerajaus');
@@ -304,12 +324,13 @@ class Geoserver {
 	}
 
 	private static function isAreaGeometryLayer($tasoNimi) {
-		return substr($tasoNimi, -6) !== '_piste';
+		// Area-only layer = base alue name without any special suffix
+		return substr($tasoNimi, -6) !== '_piste' && !self::isCombinedGeometryLayer($tasoNimi);
 	}
 
 	private static function getPublishedLayerNames($tasoNimi) {
 		if($tasoNimi === 'alue' || $tasoNimi === 'arvoalue') {
-			return [$tasoNimi . '_piste', $tasoNimi];
+			return [$tasoNimi . '_ja_pisteet', $tasoNimi];
 		}
 
 		return [$tasoNimi];
@@ -698,7 +719,9 @@ class Geoserver {
 					LEFT JOIN kuva on kuva.id = min_kuva.kuva_id
 					where alue.poistettu is null
                     and alue.id is not null";
-			$sql .= self::isAreaGeometryLayer($tasoNimi) ? " and alue.aluerajaus is not null" : " and alue.keskipiste is not null";
+			if(!self::isCombinedGeometryLayer($tasoNimi)) {
+				$sql .= self::isAreaGeometryLayer($tasoNimi) ? " and alue.aluerajaus is not null" : " and alue.keskipiste is not null";
+			}
 		} else if($baseTasoNimi== 'arvoalue') {
 			$primaryGeometry = self::isAreaGeometryLayer($tasoNimi) ? 'aalue.aluerajaus' : 'aalue.keskipiste';
 			$secondaryGeometry = self::isAreaGeometryLayer($tasoNimi) ? 'aalue.keskipiste' : 'aalue.aluerajaus';
@@ -780,7 +803,9 @@ class Geoserver {
 					LEFT JOIN kuva on kuva.id = min_kuva.kuva_id
 					where aalue.poistettu is null
                     and aalue.id is not null";
-			$sql .= self::isAreaGeometryLayer($tasoNimi) ? " and aalue.aluerajaus is not null" : " and aalue.keskipiste is not null";
+			if(!self::isCombinedGeometryLayer($tasoNimi)) {
+				$sql .= self::isAreaGeometryLayer($tasoNimi) ? " and aalue.aluerajaus is not null" : " and aalue.keskipiste is not null";
+			}
 		}
 
 		if(strlen($sql) == 0) {
@@ -1199,9 +1224,10 @@ class Geoserver {
 		try {
 			$publishedLayerNames = self::getPublishedLayerNames($tasoNimi);
 
-			// Old publications used unsuffixed names. Keep cleanup backwards compatible.
+			// Old publications used unsuffixed or _piste suffixed names. Keep cleanup backwards compatible.
 			if($tasoNimi === 'alue' || $tasoNimi === 'arvoalue') {
 				$publishedLayerNames[] = $tasoNimi;
+				$publishedLayerNames[] = $tasoNimi . '_piste';
 			}
 
 			foreach(array_unique($publishedLayerNames) as $publishedLayerName) {
