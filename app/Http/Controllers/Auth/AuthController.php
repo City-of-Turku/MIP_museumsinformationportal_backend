@@ -3,13 +3,16 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Kayttaja;
+use App\Utils;
 use App\Http\Controllers\Controller;
 use App\Library\String\MipJson;
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
@@ -179,6 +182,21 @@ class AuthController extends Controller {
     					//Get the user from the token
     					//$user = JWTAuth::toUser($token);
     					$user = JWTAuth::User();
+
+						// Store latest successful login timestamp for the authenticated user.
+						try {
+							DB::beginTransaction();
+							Utils::setDBUser();
+							$user->viim_kirjautuminen = now();
+							$user->save();
+							DB::commit();
+						} catch (\Exception $e) {
+							DB::rollBack();
+							Log::error('Failed to update viim_kirjautuminen on login', [
+								'user_id' => $user->id ?? null,
+								'error' => $e->getMessage(),
+							]);
+						}
     					//Get the permissions for the user
     					$user->oikeudet = Kayttaja::getAllPermissions();
 
