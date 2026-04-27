@@ -202,11 +202,105 @@ class Geoserver {
           						 	 <srid>-1</srid>
         					   	  </geometry>';
 
+	static $alueAluerajausGeometryXml = '<geometry>
+	         				     <name>aluerajaus</name>
+	         				     <type>Geometry</type>
+	         				     <srid>-1</srid>
+	       				   </geometry>';
+
+	static $arvoalueAluerajausGeometryXml = '<geometry>
+	          				     <name>aluerajaus</name>
+	          				     <type>Geometry</type>
+	          				     <srid>-1</srid>
+	        				   </geometry>';
+
+	private static function getBaseLayername($tasoNimi) {
+		if(substr($tasoNimi, -4) === '_wfs') {
+			return substr($tasoNimi, 0, -4);
+		}
+
+		// Backwards compatibility for old naming model.
+		if(substr($tasoNimi, -11) === '_ja_pisteet') {
+			return substr($tasoNimi, 0, -11);
+		}
+
+		return $tasoNimi;
+	}
+
+	private static function isCombinedGeometryLayer($tasoNimi) {
+		return substr($tasoNimi, -4) !== '_wfs';
+	}
+
+	private static function getPublishedLayerNames($tasoNimi) {
+		if($tasoNimi === 'alue' || $tasoNimi === 'arvoalue') {
+			return [$tasoNimi, $tasoNimi . '_wfs'];
+		}
+
+		return [$tasoNimi];
+	}
+
+	private static function getLayerFields($tasoNimi) {
+		$baseTasoNimi = self::getBaseLayername($tasoNimi);
+
+		if($baseTasoNimi == 'kiinteisto') {
+			return self::$kiinteisto_kentat;
+		}
+
+		if($baseTasoNimi == 'rakennus') {
+			return self::$rakennus_kentat;
+		}
+
+		if($baseTasoNimi == 'alue') {
+			if(self::isCombinedGeometryLayer($tasoNimi)) {
+				return self::$alue_kentat;
+			}
+
+			$kentat = self::$alue_kentat;
+			unset($kentat['alue.keskipiste']);
+			return $kentat;
+		}
+
+		if($baseTasoNimi == 'arvoalue') {
+			if(self::isCombinedGeometryLayer($tasoNimi)) {
+				return self::$arvoalue_kentat;
+			}
+
+			$kentat = self::$arvoalue_kentat;
+			unset($kentat['aalue.keskipiste']);
+			return $kentat;
+		}
+
+		return [];
+	}
+
+	private static function getGeometryXml($tasoNimi) {
+		$baseTasoNimi = self::getBaseLayername($tasoNimi);
+
+		if($baseTasoNimi == 'kiinteisto') {
+			return self::$kiinteistoGeometryXml;
+		}
+
+		if($baseTasoNimi == 'rakennus') {
+			return self::$rakennusGeometryXml;
+		}
+
+		if($baseTasoNimi == 'alue') {
+			return self::isCombinedGeometryLayer($tasoNimi) ? self::$alueGeometryXml : self::$alueAluerajausGeometryXml;
+		}
+
+		if($baseTasoNimi == 'arvoalue') {
+			return self::isCombinedGeometryLayer($tasoNimi) ? self::$arvoalueGeometryXml : self::$arvoalueAluerajausGeometryXml;
+		}
+
+		return '';
+	}
+
 	/*
 	 * Generoidaan tasokohtainen Sql-lauseke, jota geoserverin sql-viewillä määritetty taso käyttää.
 	 */
 	private static function generateSql($tasoNimi, $inventointiprojektit, $kuntaIdt, $kylaIdt) {
 		$sql = '';
+		$baseTasoNimi = self::getBaseLayername($tasoNimi);
 		$inventointiprojektit_str = '';
 		$kentat_str = '';
 		$kunnat_str = '';
@@ -248,7 +342,7 @@ class Geoserver {
 		/*
 		 * Luodaan tason mukainen SQL-lauseke.
 		 */
-		if($tasoNimi== 'kiinteisto') {
+		if($baseTasoNimi == 'kiinteisto') {
 			$sql = "SELECT
 					kiinteisto.id,
 					kiinteisto.kiinteistotunnus,
@@ -346,7 +440,7 @@ class Geoserver {
 			}
 			$sql .= " kiinteisto.poistettu IS null
 					AND kiinteisto.julkinen = true";
-		} else if($tasoNimi== 'rakennus') {
+		} else if($baseTasoNimi == 'rakennus') {
 			$sql = "select
 					rakennus.id,
 					kunta.nimi as kunta,
@@ -516,15 +610,15 @@ class Geoserver {
 			$sql .= " kiinteisto.poistettu is null
 					and kiinteisto.julkinen = true
 					and rakennus.poistettu is null";
-		} else if($tasoNimi== 'alue') {
+		} else if($baseTasoNimi == 'alue') {
+			$geometryFields = self::isCombinedGeometryLayer($tasoNimi) ? "\n\t\t\t\t\talue.keskipiste,\n\t\t\t\t\talue.aluerajaus," : "\n\t\t\t\t\talue.aluerajaus,";
 			$sql = "select
 					alue.id,
 					alue.nimi,
 					alue.historia,
 					alue.maisema,
 					alue.nykytila,
-					alue.keskipiste,
-					alue.aluerajaus,
+					" . $geometryFields . "
                     alue.paikkakunta,
 					kk.kuntakyla,
 					kk.kuntakyla_se,
@@ -582,7 +676,11 @@ class Geoserver {
 					LEFT JOIN kuva on kuva.id = min_kuva.kuva_id
 					where alue.poistettu is null
                     and alue.id is not null";
-		} else if($tasoNimi== 'arvoalue') {
+			if(!self::isCombinedGeometryLayer($tasoNimi)) {
+				$sql .= " and alue.aluerajaus is not null";
+			}
+		} else if($baseTasoNimi == 'arvoalue') {
+			$geometryFields = self::isCombinedGeometryLayer($tasoNimi) ? "\n\t\t\t\t\taalue.keskipiste,\n\t\t\t\t\taalue.aluerajaus," : "\n\t\t\t\t\taalue.aluerajaus,";
 			$sql = "select
 					aalue.id,
 					alue.nimi as alue,
@@ -595,8 +693,7 @@ class Geoserver {
 					arvotustyyppi.nimi_se as arvoluokka_se,
 					aalue.kuvaus as perustelut,
 					aalue.yhteenveto,
-					aalue.keskipiste,
-					aalue.aluerajaus,
+					" . $geometryFields . "
 					aalue.inventointinumero,
                     aalue.paikkakunta,
 					kk.kuntakyla,
@@ -661,6 +758,9 @@ class Geoserver {
 					LEFT JOIN kuva on kuva.id = min_kuva.kuva_id
 					where aalue.poistettu is null
                     and aalue.id is not null";
+			if(!self::isCombinedGeometryLayer($tasoNimi)) {
+				$sql .= " and aalue.aluerajaus is not null";
+			}
 		}
 
 		if(strlen($sql) == 0) {
@@ -697,12 +797,12 @@ class Geoserver {
                 //Poikkeukset:
                 //Frontilta voi tulla esim "alueen sijainti", joka
                 //pitää mäpätä keskupisteeksi tai aluerajaukseksi
-                if($tyyppi == "alue" && $kkNimi == "keskipiste" || $kkNimi == "aluerajaus") {
+	                if($tyyppi == "alue" && ($kkNimi == "keskipiste" || $kkNimi == "aluerajaus")) {
                     if($valitutKentat[$j]['name'] == "alueen_sijainti") {
                         $selected = true;
                     }
                 }
-                if($tyyppi == "aalue" && $kkNimi == "keskipiste" || $kkNimi == "aluerajaus") {
+	                if($tyyppi == "aalue" && ($kkNimi == "keskipiste" || $kkNimi == "aluerajaus")) {
                     if($valitutKentat[$j]['name'] == "aalueen_sijainti") {
                         $selected = true;
                     }
@@ -776,6 +876,7 @@ class Geoserver {
 	 * Generoidaan XML jonka avulla tasoja voidaan luoda Geoserverille.
 	 */
 	private static function generateCreateXml($julkaisuNimi, $tasoNimi, $inventointiprojektit, $gnamespace, $geoserverUri, $workspace, $datastore, $kentat, $kuntaIdt, $kylaIdt) {
+		$baseTasoNimi = self::getBaseLayername($tasoNimi);
 		$kokonimi = self::generateLayername($julkaisuNimi, $tasoNimi);
 		$nimiAlaviivoilla = self::generateLayernameWithUnderscores($julkaisuNimi, $tasoNimi);
 		$sql = self::generateSql($tasoNimi, $inventointiprojektit, $kuntaIdt, $kylaIdt);
@@ -822,15 +923,7 @@ class Geoserver {
 						<sql> ' . $sql . '</sql>
 						<escapeSql>false</escapeSql>';
 
-		if($tasoNimi== 'kiinteisto') {
-							$xml .= self::$kiinteistoGeometryXml;
-		} else if($tasoNimi== 'rakennus') {
-							$xml .= self::$rakennusGeometryXml;
-		} else if($tasoNimi== 'alue') {
-							$xml .= self::$alueGeometryXml;
-		} else if($tasoNimi== 'arvoalue') {
-							$xml .= self::$arvoalueGeometryXml;
-						}
+		$xml .= self::getGeometryXml($tasoNimi);
 			$xml .= '</virtualTable>
 					</entry>
 					<entry key="cachingEnabled">false</entry>
@@ -847,14 +940,9 @@ class Geoserver {
 				  <attributes>';
 
 			//Add the attribute elements to the xml above.
-			if($tasoNimi== 'kiinteisto') {
-				$xml .= self::generateXmlAttributes(self::$kiinteisto_kentat, $kentat);
-			} else if($tasoNimi== 'rakennus') {
-			    $xml .= self::generateXmlAttributes(self::$rakennus_kentat, $kentat);
-			} else if ($tasoNimi== 'alue') {
-			    $xml .= self::generateXmlAttributes(self::$alue_kentat, $kentat);
-			} else if($tasoNimi== 'arvoalue') {
-			    $xml .= self::generateXmlAttributes(self::$arvoalue_kentat, $kentat);
+			$layerFields = self::getLayerFields($tasoNimi);
+			if(!empty($layerFields)) {
+				$xml .= self::generateXmlAttributes($layerFields, $kentat);
 			}
 
 		$xml .=  '</attributes></featureType>';
@@ -929,6 +1017,7 @@ class Geoserver {
 	 * HUOM2: Vaatii että mip:tasonimi niminen tyyli löytyy, eli kiinteisto, rakennus, alue, arvoalue.
 	 */
 	private function editFeatureType($julkaisuNimi, $tasoNimi, $kentat) {
+		$styleTasoNimi = self::getBaseLayername($tasoNimi);
 		$nimiAlaviivoilla = self::generateLayernameWithUnderscores($julkaisuNimi, $tasoNimi);
 
 		$updateAddress = $this->geoserverUri . "layers/" . $nimiAlaviivoilla;
@@ -940,23 +1029,23 @@ class Geoserver {
 		//Rakennuksella on voi olla purettu valittuna
 		$useStyleWithPurettu = false;
 
-		if($tasoNimi == 'rakennus') {
+		if($styleTasoNimi == 'rakennus') {
 		    $useStyleWithInventointinumero = self::isInventointinumeroSelected($kentat);
 		    $useStyleWithPurettu = self::isPurettuSelected($kentat);
 		    if($useStyleWithArvoluokka == true && $useStyleWithInventointinumero == true && $useStyleWithPurettu == true) {
-		        $tyyli = $tasoNimi;
+		        $tyyli = $styleTasoNimi;
 		    } else {
-		        $tyyli = $tasoNimi . "_nocolors";
+		        $tyyli = $styleTasoNimi . "_nocolors";
 		    }
-		} else if($tasoNimi == 'arvoalue') {
+		} else if($styleTasoNimi == 'arvoalue') {
 		    $useStyleWithInventointinumero = self::isInventointinumeroSelected($kentat);
 		    if($useStyleWithArvoluokka == true && $useStyleWithInventointinumero == true) {
-		        $tyyli = $tasoNimi;
+		        $tyyli = $styleTasoNimi;
 		    } else {
-		        $tyyli = $tasoNimi . "_nocolors";
+		        $tyyli = $styleTasoNimi . "_nocolors";
 		    }
 		} else {
-		  $tyyli = $useStyleWithArvoluokka == true ? $tasoNimi : $tasoNimi."_nocolors";
+		  $tyyli = $useStyleWithArvoluokka == true ? $styleTasoNimi : $styleTasoNimi."_nocolors";
 		}
 
 		$editXML = '<layer>
@@ -985,9 +1074,11 @@ class Geoserver {
 	 */
 	public function publishLayer($julkaisuNimi, $tasoNimi, $inventointiprojektit, $kentat, $kuntaIdt, $kylaIdt) {
 		try {
-		    $this->addFeatureType($julkaisuNimi, $tasoNimi, $inventointiprojektit, $kentat, $kuntaIdt, $kylaIdt);
-			$this->editFeatureType($julkaisuNimi, $tasoNimi, $kentat);
-			Log::channel('geoserver')->info(self::generateLayernameWithUnderscores($julkaisuNimi, $tasoNimi) ." tason luonti onnistui");
+			foreach(self::getPublishedLayerNames($tasoNimi) as $publishedLayerName) {
+		    	$this->addFeatureType($julkaisuNimi, $publishedLayerName, $inventointiprojektit, $kentat, $kuntaIdt, $kylaIdt);
+				$this->editFeatureType($julkaisuNimi, $publishedLayerName, $kentat);
+				Log::channel('geoserver')->info(self::generateLayernameWithUnderscores($julkaisuNimi, $publishedLayerName) ." tason luonti onnistui");
+			}
 		} catch (Exception $e) {
 			Log::channel('geoserver')->error("Exception " . $e);
 			throw $e;
@@ -1062,13 +1153,22 @@ class Geoserver {
 	 */
 	public function deleteLayerAndFeatureType($julkaisuNimi, $tasoNimi) {
 		try {
-			Log::channel('geoserver')->info("Deleting layer " . self::generateLayername($julkaisuNimi, $tasoNimi));
-			$response = $this->deleteLayer($julkaisuNimi, $tasoNimi);
-			if ($response->getStatusCode() != 200) {
-				Log::channel('geoserver')->error("Exception: Layer not deleted (status: " . $response->getStatusCode() . ")");
-				throw new Exception("Problem deleting layer.");
+			$publishedLayerNames = self::getPublishedLayerNames($tasoNimi);
+
+			// Backwards compatibility cleanup for old combined naming model.
+			if($tasoNimi === 'alue' || $tasoNimi === 'arvoalue') {
+				$publishedLayerNames[] = $tasoNimi . '_ja_pisteet';
 			}
-			$this->deleteFeatureType($julkaisuNimi, $tasoNimi);
+
+			foreach(array_unique($publishedLayerNames) as $publishedLayerName) {
+				Log::channel('geoserver')->info("Deleting layer " . self::generateLayername($julkaisuNimi, $publishedLayerName));
+				$response = $this->deleteLayer($julkaisuNimi, $publishedLayerName);
+				if ($response->getStatusCode() != 200) {
+					Log::channel('geoserver')->error("Exception: Layer not deleted (status: " . $response->getStatusCode() . ")");
+					throw new Exception("Problem deleting layer.");
+				}
+				$this->deleteFeatureType($julkaisuNimi, $publishedLayerName);
+			}
 		} catch (Exception $e) {
 			Log::channel('geoserver')->error("Exception: " . $e->getMessage());
 			throw $e;
