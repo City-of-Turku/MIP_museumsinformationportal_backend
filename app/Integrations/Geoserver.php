@@ -215,6 +215,11 @@ class Geoserver {
 	        				   </geometry>';
 
 	private static function getBaseLayername($tasoNimi) {
+		if(substr($tasoNimi, -4) === '_wfs') {
+			return substr($tasoNimi, 0, -4);
+		}
+
+		// Backwards compatibility for old naming model.
 		if(substr($tasoNimi, -11) === '_ja_pisteet') {
 			return substr($tasoNimi, 0, -11);
 		}
@@ -223,12 +228,12 @@ class Geoserver {
 	}
 
 	private static function isCombinedGeometryLayer($tasoNimi) {
-		return substr($tasoNimi, -11) === '_ja_pisteet';
+		return substr($tasoNimi, -4) !== '_wfs';
 	}
 
 	private static function getPublishedLayerNames($tasoNimi) {
 		if($tasoNimi === 'alue' || $tasoNimi === 'arvoalue') {
-			return [$tasoNimi . '_ja_pisteet', $tasoNimi];
+			return [$tasoNimi, $tasoNimi . '_wfs'];
 		}
 
 		return [$tasoNimi];
@@ -1148,7 +1153,14 @@ class Geoserver {
 	 */
 	public function deleteLayerAndFeatureType($julkaisuNimi, $tasoNimi) {
 		try {
-			foreach(self::getPublishedLayerNames($tasoNimi) as $publishedLayerName) {
+			$publishedLayerNames = self::getPublishedLayerNames($tasoNimi);
+
+			// Backwards compatibility cleanup for old combined naming model.
+			if($tasoNimi === 'alue' || $tasoNimi === 'arvoalue') {
+				$publishedLayerNames[] = $tasoNimi . '_ja_pisteet';
+			}
+
+			foreach(array_unique($publishedLayerNames) as $publishedLayerName) {
 				Log::channel('geoserver')->info("Deleting layer " . self::generateLayername($julkaisuNimi, $publishedLayerName));
 				$response = $this->deleteLayer($julkaisuNimi, $publishedLayerName);
 				if ($response->getStatusCode() != 200) {
