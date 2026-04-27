@@ -11,6 +11,9 @@ class User extends Authenticatable implements JWTSubject
 {
     use Notifiable;
 
+    const CREATED_AT = 'luotu';
+    const UPDATED_AT = 'muokattu';
+
     /**
 	 * The database table used by the model.
 	 *
