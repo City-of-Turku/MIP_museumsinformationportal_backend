@@ -171,6 +171,40 @@ class Kayttaja extends Model implements JWTSubject, Authenticatable {
 		return $query->where('aktiivinen', '=', $keyword);
 	}
 
+	public function scopeWithSopimusHyvaksyttyAlku($query, $date) {
+		$dateObject = \DateTime::createFromFormat('d.m.Y', $date);
+		if ($dateObject) {
+			return $query->where('sopimus_hyvaksytty', '>=', $dateObject->format('Y-m-d'));
+		}
+		return $query->where('sopimus_hyvaksytty', '>=', $date);
+	}
+
+	public function scopeWithSopimusHyvaksyttyLoppu($query, $date) {
+		$dateObject = \DateTime::createFromFormat('d.m.Y', $date);
+		if ($dateObject) {
+			$dateObject->modify('+1 day');
+			return $query->where('sopimus_hyvaksytty', '<', $dateObject->format('Y-m-d'));
+		}
+		return $query->where('sopimus_hyvaksytty', '<', $date);
+	}
+
+	public function scopeWithViimKirjautuminenAlku($query, $date) {
+		$dateObject = \DateTime::createFromFormat('d.m.Y', $date);
+		if ($dateObject) {
+			return $query->where('viim_kirjautuminen', '>=', $dateObject->format('Y-m-d'));
+		}
+		return $query->where('viim_kirjautuminen', '>=', $date);
+	}
+
+	public function scopeWithViimKirjautuminenLoppu($query, $date) {
+		$dateObject = \DateTime::createFromFormat('d.m.Y', $date);
+		if ($dateObject) {
+			$dateObject->modify('+1 day');
+			return $query->where('viim_kirjautuminen', '<', $dateObject->format('Y-m-d'));
+		}
+		return $query->where('viim_kirjautuminen', '<', $date);
+	}
+
 	public function scopeWithNoKatselijat($query) {
 		return $query->where('rooli', '!=', 'katselija');
 	}
