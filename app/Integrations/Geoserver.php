@@ -215,11 +215,18 @@ class Geoserver {
 	        				   </geometry>';
 
 	private static function getBaseLayername($tasoNimi) {
+		// Strip _wms_wfs or _polygon_wfs suffixes.
+		if(substr($tasoNimi, -8) === '_wms_wfs') {
+			return substr($tasoNimi, 0, -8);
+		}
+		if(substr($tasoNimi, -12) === '_polygon_wfs') {
+			return substr($tasoNimi, 0, -12);
+		}
+
+		// Backwards compatibility for old naming models.
 		if(substr($tasoNimi, -4) === '_wfs') {
 			return substr($tasoNimi, 0, -4);
 		}
-
-		// Backwards compatibility for old naming model.
 		if(substr($tasoNimi, -11) === '_ja_pisteet') {
 			return substr($tasoNimi, 0, -11);
 		}
@@ -228,12 +235,12 @@ class Geoserver {
 	}
 
 	private static function isCombinedGeometryLayer($tasoNimi) {
-		return substr($tasoNimi, -4) !== '_wfs';
+		return substr($tasoNimi, -12) !== '_polygon_wfs';
 	}
 
 	private static function getPublishedLayerNames($tasoNimi) {
 		if($tasoNimi === 'alue' || $tasoNimi === 'arvoalue') {
-			return [$tasoNimi, $tasoNimi . '_wfs'];
+			return [$tasoNimi . '_wms_wfs', $tasoNimi . '_polygon_wfs'];
 		}
 
 		return [$tasoNimi];
@@ -1155,9 +1162,9 @@ class Geoserver {
 		try {
 			$publishedLayerNames = self::getPublishedLayerNames($tasoNimi);
 
-			// Backwards compatibility cleanup for old combined naming model.
+			// Backwards compatibility cleanup for old naming models.
 			if($tasoNimi === 'alue' || $tasoNimi === 'arvoalue') {
-				$publishedLayerNames[] = $tasoNimi . '_ja_pisteet';
+				$publishedLayerNames[] = $tasoNimi . '_wfs';
 			}
 
 			foreach(array_unique($publishedLayerNames) as $publishedLayerName) {
