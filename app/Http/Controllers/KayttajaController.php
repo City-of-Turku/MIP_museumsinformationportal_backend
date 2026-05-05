@@ -51,8 +51,12 @@ class KayttajaController extends Controller {
     			'etunimi'			=> 'string',
     			'sukunimi'			=> 'string',
     			'organisaatio'		=> 'string',
-    			'sahkoposti'		=> 'string',
-    			'id'				=> 'numeric',
+					'sahkoposti'				=> 'string',
+					'id'					=> 'numeric',
+					'sopimus_hyvaksytty_alku'	=> 'string',
+					'sopimus_hyvaksytty_loppu'	=> 'string',
+					'viim_kirjautuminen_alku'	=> 'string',
+					'viim_kirjautuminen_loppu'	=> 'string',
     	]);
 
     	if ($validator->fails()) {
@@ -109,6 +113,18 @@ class KayttajaController extends Controller {
 	    	}
 	    	if($request->nimi) {
 	    		$users->withName($request->nimi);
+	    	}
+	    	if($request->sopimus_hyvaksytty_alku) {
+	    		$users->withSopimusHyvaksyttyAlku($request->sopimus_hyvaksytty_alku);
+	    	}
+	    	if($request->sopimus_hyvaksytty_loppu) {
+	    		$users->withSopimusHyvaksyttyLoppu($request->sopimus_hyvaksytty_loppu);
+	    	}
+	    	if($request->viim_kirjautuminen_alku) {
+	    		$users->withViimKirjautuminenAlku($request->viim_kirjautuminen_alku);
+	    	}
+	    	if($request->viim_kirjautuminen_loppu) {
+	    		$users->withViimKirjautuminenLoppu($request->viim_kirjautuminen_loppu);
 	    	}
 
 	    	// calculate the total rows of the search results
@@ -320,7 +336,7 @@ class KayttajaController extends Controller {
 
     		DB::beginTransaction();
     		Utils::setDBUser();
-    		$user->sopimus_hyvaksytty = true;
+    		$user->sopimus_hyvaksytty = now();
     		$author_field = Kayttaja::UPDATED_BY;
     		$user->$author_field = $currentUser->id;
     		$user->save();
