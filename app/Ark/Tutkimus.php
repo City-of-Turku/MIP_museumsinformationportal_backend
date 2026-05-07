@@ -266,9 +266,9 @@ class Tutkimus extends Model
      */
     public function scopeWithOrderBy($query, $jarjestys_kentta, $jarjestys_suunta, $bbox=null) {
         if ($jarjestys_kentta == "nimi") {
-            return $query->orderBy("ark_tutkimus.nimi", $jarjestys_suunta);
+            return $query->orderBy("ark_tutkimus.nimi", $jarjestys_suunta)->orderBy("ark_tutkimus.id", $jarjestys_suunta);
         } elseif($jarjestys_kentta == "alkuvuosi") {
-            return $query->orderBy("ark_tutkimus.kenttatyo_alkupvm", $jarjestys_suunta);
+            return $query->orderBy("ark_tutkimus.kenttatyo_alkupvm", $jarjestys_suunta)->orderBy("ark_tutkimus.id", $jarjestys_suunta);
         }
 
         // Sijainti ei ole sijainti-kentässä, vaan ark_tutkimusalue_sijainti taulussa (mahdollisesti useita rivejä)
@@ -278,7 +278,7 @@ class Tutkimus extends Model
 
         //todo muut kentät
 
-        return $query->orderBy("ark_tutkimus.nimi", $jarjestys_suunta);
+        return $query->orderBy("ark_tutkimus.nimi", $jarjestys_suunta)->orderBy("ark_tutkimus.id", $jarjestys_suunta);
     }
 
     public function kuvat($tutkimus_id) {

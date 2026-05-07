@@ -242,19 +242,19 @@ class Inventointiprojekti extends Model {
 	public function scopeWithOrder($query, $order_field=null, $order_direction=null) {
 				
 		if ($order_field == "inventointiprojektityyppi") {
-			return $query->orderBy('inventointiprojektityyppi.'.self::getLocalizedfieldname('nimi'), $order_direction);
+			return $query->orderBy('inventointiprojektityyppi.'.self::getLocalizedfieldname('nimi'), $order_direction)->orderBy('inventointiprojekti.id', $order_direction);
 		}
 		if ($order_field == "inventointiprojektilaji") {
-			return $query->orderBy('inventointiprojekti_laji.'.self::getLocalizedfieldname('nimi'), $order_direction);
+			return $query->orderBy('inventointiprojekti_laji.'.self::getLocalizedfieldname('nimi'), $order_direction)->orderBy('inventointiprojekti.id', $order_direction);
 		}
 		if ($order_field == "nimi") {
-			return $query->orderBy('inventointiprojekti.nimi', $order_direction);
+			return $query->orderBy('inventointiprojekti.nimi', $order_direction)->orderBy('inventointiprojekti.id', $order_direction);
 		}
 		if ($order_field == "toimeksiantaja") {
-			return $query->orderBy('inventointiprojekti.toimeksiantaja', $order_direction);
+			return $query->orderBy('inventointiprojekti.toimeksiantaja', $order_direction)->orderBy('inventointiprojekti.id', $order_direction);
 		}
 		if ($order_field == "inventointiaika") {
-			return $query->orderBy('inv_ajanjaksot.ajanjaksot', $order_direction);
+			return $query->orderBy('inv_ajanjaksot.ajanjaksot', $order_direction)->orderBy('inventointiprojekti.id', $order_direction);
 		}
 	
 	}

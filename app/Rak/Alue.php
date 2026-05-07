@@ -200,16 +200,16 @@ class Alue extends Model {
 		}
 
 		if($order_field == "kunta") {
-			return $query->orderBy("alue_kunnat.kunnat", $order_direction);
+			return $query->orderBy("alue_kunnat.kunnat", $order_direction)->orderBy("alue.id", $order_direction);
 		} else if($order_field == "kyla") {
-			return $query->orderBy("alue_kylat.kylat", $order_direction);
+			return $query->orderBy("alue_kylat.kylat", $order_direction)->orderBy("alue.id", $order_direction);
 		} else if ($order_field == "paikkakunta") {
-			return $query->orderBy("alue.paikkakunta", $order_direction);
+			return $query->orderBy("alue.paikkakunta", $order_direction)->orderBy("alue.id", $order_direction);
 		}else if ($order_field == "nimi") {
-			return $query->orderBy("alue.nimi", $order_direction);
+			return $query->orderBy("alue.nimi", $order_direction)->orderBy("alue.id", $order_direction);
 		}
 
-		return $query->orderBy("alue_kunnat.kunnat", $order_direction);
+		return $query->orderBy("alue_kunnat.kunnat", $order_direction)->orderBy("alue.id", $order_direction);
 	}
 
 	/**
