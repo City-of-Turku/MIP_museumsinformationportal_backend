@@ -539,7 +539,9 @@ class ArkKuvaController extends Controller {
             }
 
             $author_field = ArkKuva::UPDATED_BY;
+            $when_field = ArkKuva::UPDATED_AT;
             $entity->$author_field = Auth::user()->id;
+            $entity->$when_field = Carbon::now();
 
             $entity->save();
 

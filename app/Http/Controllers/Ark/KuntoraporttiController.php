@@ -88,7 +88,9 @@ class KuntoraporttiController extends Controller
 			$entity->fill($request->all()['properties']);
 
 			$author_field = ArkKuntoraportti::UPDATED_BY;
+			$when_field = ArkKuntoraportti::UPDATED_AT;
 			$entity->$author_field = Auth::user()->id;
+			$entity->$when_field = \Carbon\Carbon::now();
 			$entity->update();
 
 			DB::commit();
