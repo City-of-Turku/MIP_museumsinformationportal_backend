@@ -386,7 +386,8 @@ class Nayte extends Model
         if ($jarjestys_kentta == "luettelointinumero") {
             return $query->orderBy("luettelointinumero1", $jarjestys_suunta)
             ->orderBy("luettelointinumero2", $jarjestys_suunta)
-            ->orderBy("luettelointinumero3", $jarjestys_suunta);
+            ->orderBy("luettelointinumero3", $jarjestys_suunta)
+            ->orderBy("ark_nayte.id", $jarjestys_suunta);
         }
     }
 

@@ -269,6 +269,7 @@ class Muistot_muisto extends Model {
         // }
 
     		$query->orderBy($order_table.'.'.$order_field, $order_direction);
+    		$query->orderBy('muistot_muisto.id', $order_direction);
     	}
 
     	return $query;
