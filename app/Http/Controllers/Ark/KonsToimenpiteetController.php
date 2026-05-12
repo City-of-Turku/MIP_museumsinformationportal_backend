@@ -90,7 +90,9 @@ class KonsToimenpiteetController extends Controller
 
             // Alkamispäivän mukaan
             if($request->alkaa){
-                $toimenpiteet->whereDate('alkaa', '=', $request->alkaa);
+                $dateObject = \DateTime::createFromFormat('d.m.Y', $request->alkaa);
+                $alkaa = $dateObject ? $dateObject->format('Y-m-d') : $request->alkaa;
+                $toimenpiteet->whereDate('alkaa', '=', $alkaa);
             }
 
             // Käsittelyt
