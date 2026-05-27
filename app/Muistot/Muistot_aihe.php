@@ -155,6 +155,7 @@ class Muistot_aihe extends Model {
         }
 
     		$query->orderBy($order_table.'.'.$order_field, $order_direction);
+    		$query->orderBy('muistot_aihe.id', $order_direction);
     	}
 
     	return $query;

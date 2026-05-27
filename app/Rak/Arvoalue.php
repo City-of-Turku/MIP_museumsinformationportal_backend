@@ -269,22 +269,22 @@ class Arvoalue extends Model {
 			$order_direction = "asc";
 		}
 		if($order_field == "kunta") {
-			return $query->orderBy("arvoalue_kunnat.kunnat", $order_direction);
+			return $query->orderBy("arvoalue_kunnat.kunnat", $order_direction)->orderBy("arvoalue.id", $order_direction);
 		} else if($order_field == "kyla") {
-			return $query->orderBy("arvoalue_kylat.kylat", $order_direction);
+			return $query->orderBy("arvoalue_kylat.kylat", $order_direction)->orderBy("arvoalue.id", $order_direction);
 		}else if ($order_field == "paikkakunta") {
-			return $query->orderBy("arvoalue.paikkakunta", $order_direction);
+			return $query->orderBy("arvoalue.paikkakunta", $order_direction)->orderBy("arvoalue.id", $order_direction);
 		}else if ($order_field == "nimi") {
-			return $query->orderBy("arvoalue.nimi", $order_direction);
+			return $query->orderBy("arvoalue.nimi", $order_direction)->orderBy("arvoalue.id", $order_direction);
 		} else if ($order_field == "alue_nimi") {
-			return $query->orderBy("alue.nimi", $order_direction);
+			return $query->orderBy("alue.nimi", $order_direction)->orderBy("arvoalue.id", $order_direction);
 		} else if ($order_field == "arvotustyyppi_nimi") {
-			return $query->orderBy("arvotustyyppi.".self::getLocalizedfieldname('nimi'), $order_direction);
+			return $query->orderBy("arvotustyyppi.".self::getLocalizedfieldname('nimi'), $order_direction)->orderBy("arvoalue.id", $order_direction);
 		} else if ($order_field == "aluetyyppi_nimi") {
-			return $query->orderBy("aluetyyppi.".self::getLocalizedfieldname('nimi'), $order_direction);
+			return $query->orderBy("aluetyyppi.".self::getLocalizedfieldname('nimi'), $order_direction)->orderBy("arvoalue.id", $order_direction);
 		}
 
-		return $query->orderBy("arvoalue_kunnat.kunnat", $order_direction);
+		return $query->orderBy("arvoalue_kunnat.kunnat", $order_direction)->orderBy("arvoalue.id", $order_direction);
 	}
 
 	public static function getAllForInv() {

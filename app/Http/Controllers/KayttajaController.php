@@ -51,8 +51,12 @@ class KayttajaController extends Controller {
     			'etunimi'			=> 'string',
     			'sukunimi'			=> 'string',
     			'organisaatio'		=> 'string',
-    			'sahkoposti'		=> 'string',
-    			'id'				=> 'numeric',
+					'sahkoposti'				=> 'string',
+					'id'					=> 'numeric',
+					'sopimus_hyvaksytty_alku'	=> 'string',
+					'sopimus_hyvaksytty_loppu'	=> 'string',
+					'viim_kirjautuminen_alku'	=> 'string',
+					'viim_kirjautuminen_loppu'	=> 'string',
     	]);
 
     	if ($validator->fails()) {
@@ -109,6 +113,18 @@ class KayttajaController extends Controller {
 	    	}
 	    	if($request->nimi) {
 	    		$users->withName($request->nimi);
+	    	}
+	    	if($request->sopimus_hyvaksytty_alku) {
+	    		$users->withSopimusHyvaksyttyAlku($request->sopimus_hyvaksytty_alku);
+	    	}
+	    	if($request->sopimus_hyvaksytty_loppu) {
+	    		$users->withSopimusHyvaksyttyLoppu($request->sopimus_hyvaksytty_loppu);
+	    	}
+	    	if($request->viim_kirjautuminen_alku) {
+	    		$users->withViimKirjautuminenAlku($request->viim_kirjautuminen_alku);
+	    	}
+	    	if($request->viim_kirjautuminen_loppu) {
+	    		$users->withViimKirjautuminenLoppu($request->viim_kirjautuminen_loppu);
 	    	}
 
 	    	// calculate the total rows of the search results
@@ -288,6 +304,54 @@ class KayttajaController extends Controller {
 
     	MipJson::addMessage(Lang::get('auth.custom.token_is_valid'));
     	MipJson::setData(array('kayttaja' => $user));
+    	return MipJson::getJson();
+    }
+
+    /**
+     * Accept terms for the currently logged-in user.
+     *
+     * @param  int  $userId
+     * @return MipJson
+     */
+    public function acceptTerms($userId) {
+    	$token = JWTAuth::getToken();
+    	$currentUser = JWTAuth::toUser($token);
+
+    	if ($currentUser->id != $userId) {
+    		MipJson::setGeoJsonFeature();
+    		MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+    		MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+    		return MipJson::getJson();
+    	}
+
+    	try {
+    		$user = Kayttaja::find($userId);
+
+    		if (!$user) {
+    			MipJson::setGeoJsonFeature();
+    			MipJson::addMessage(Lang::get('auth.custom.user_not_found'));
+    			MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
+    			return MipJson::getJson();
+    		}
+
+    		DB::beginTransaction();
+    		Utils::setDBUser();
+    		$user->sopimus_hyvaksytty = now();
+    		$author_field = Kayttaja::UPDATED_BY;
+    		$user->$author_field = $currentUser->id;
+    		$user->save();
+    		DB::commit();
+
+    		MipJson::setGeoJsonFeature(null, ['id' => $user->id]);
+
+    		MipJson::setResponseStatus(Response::HTTP_OK);
+    	} catch (Exception $e) {
+    		DB::rollback();
+    		MipJson::setGeoJsonFeature();
+    		MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+    		MipJson::addMessage($e->getMessage());
+    	}
+
     	return MipJson::getJson();
     }
 

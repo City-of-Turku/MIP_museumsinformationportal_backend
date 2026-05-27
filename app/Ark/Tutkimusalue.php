@@ -92,7 +92,7 @@ class Tutkimusalue extends Model
         //}
         //todo muut kentät jos on
 
-        return $query->orderBy("ark_tutkimusalue.nimi", "asc");
+        return $query->orderBy("ark_tutkimusalue.nimi", "asc")->orderBy("ark_tutkimusalue.id", "asc");
     }
 
     public function scopeWithTutkimus($query, $id) {

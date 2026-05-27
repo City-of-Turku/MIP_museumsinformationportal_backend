@@ -160,6 +160,7 @@ class Kohde extends Model {
 			}
 
 			$query->orderBy($order_table.'.'.$order_field, $order_direction);
+			$query->orderBy('ark_kohde.id', $order_direction);
 		}
 
 		return $query;

@@ -196,37 +196,38 @@ class Rakennus extends Model {
 	public function scopeWithOrder($query, $order_field=null, $order_direction=null) {
 
 		if (is_null($order_field) && is_null($order_direction)) {
-    		return $query->orderBy('kunta.nimi', $order_direction);
+    		return $query->orderBy('kunta.nimi', $order_direction)->orderBy('rakennus.id', $order_direction ?? 'asc');
     	}
     	if ($order_field == "kunta") {
-			return $query->orderBy('kunta.nimi', $order_direction);
+			return $query->orderBy('kunta.nimi', $order_direction)->orderBy('rakennus.id', $order_direction);
 		}
 		if ($order_field == "kyla") {
-			return $query->orderBy('kyla.nimi', $order_direction);
+			return $query->orderBy('kyla.nimi', $order_direction)->orderBy('rakennus.id', $order_direction);
 		}
 		if ($order_field == "arvotustyyppi_nimi") {
-			return $query->orderBy('arvotustyyppi.'.self::getLocalizedfieldname('nimi'), $order_direction);
+			return $query->orderBy('arvotustyyppi.'.self::getLocalizedfieldname('nimi'), $order_direction)->orderBy('rakennus.id', $order_direction);
 		}
 		if ($order_field == "kiinteistotunnus") {
-			return $query->orderBy('kiinteisto.kiinteistotunnus', $order_direction);
+			return $query->orderBy('kiinteisto.kiinteistotunnus', $order_direction)->orderBy('rakennus.id', $order_direction);
 		}
 		if ($order_field == "paikkakunta") {
-			return $query->orderBy('kiinteisto.paikkakunta', $order_direction);
+			return $query->orderBy('kiinteisto.paikkakunta', $order_direction)->orderBy('rakennus.id', $order_direction);
 		}
 		if ($order_field == "kiinteisto_nimi") {
-			return $query->orderBy('kiinteisto.nimi', $order_direction);
+			return $query->orderBy('kiinteisto.nimi', $order_direction)->orderBy('rakennus.id', $order_direction);
 		}
 		if ($order_field == "osoite") {
-			return $query->orderBy('rak_osoitteet.osoitteet', $order_direction);
+			return $query->orderBy('rak_osoitteet.osoitteet', $order_direction)->orderBy('rakennus.id', $order_direction);
 		}
 		if ($order_field == "rakennustyyppi") {
-			return $query->orderBy('rak_rakennustyypit.rakennustyypit', $order_direction);
+			return $query->orderBy('rak_rakennustyypit.rakennustyypit', $order_direction)->orderBy('rakennus.id', $order_direction);
 		}
 		if ($order_field == "kaikki_suunnittelijat") {
-		    return $query->orderBy('rak_suunnittelijat.kaikki_suunnittelijat', $order_direction);
+		    return $query->orderBy('rak_suunnittelijat.kaikki_suunnittelijat', $order_direction)->orderBy('rakennus.id', $order_direction);
 		}
 
 		$query->orderBy('kunta.nimi', $order_direction);
+		$query->orderBy('rakennus.id', $order_direction ?? 'asc');
 
 	}
 

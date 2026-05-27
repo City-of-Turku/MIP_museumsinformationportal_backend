@@ -432,7 +432,9 @@ class ArkKarttaController extends Controller {
 
 
             $author_field = ArkKartta::UPDATED_BY;
+            $when_field = ArkKartta::UPDATED_AT;
             $entity->$author_field = Auth::user()->id;
+            $entity->$when_field = Carbon::now();
 
             $entity->save();
 

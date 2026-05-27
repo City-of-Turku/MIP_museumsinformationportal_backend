@@ -157,10 +157,18 @@ class Matkaraportti extends Model
 	}
 	
 	public function scopeWithMatkapvmAloitus($query, $date) {
+		$dateObject = \DateTime::createFromFormat('d.m.Y', $date);
+		if ($dateObject) {
+			$date = $dateObject->format('Y-m-d');
+		}
 		return $query->where('matkapvm', '>=', $date);	
 	}
 		
 	public function scopeWithMatkapvmLopetus($query, $date) {
+		$dateObject = \DateTime::createFromFormat('d.m.Y', $date);
+		if ($dateObject) {
+			$date = $dateObject->format('Y-m-d');
+		}
 		return $query->where('matkapvm', '<=', $date);
 	}
 	
