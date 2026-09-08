@@ -60,6 +60,11 @@ Route::group(['middleware' => ['prikka']], function () {
 Route::group(['middleware' => ['auth.jwt', 'setLocale']], function () {
 
 	/*
+	 * Vapaatekstihaku
+	 */
+	Route::get("/vapaatekstihaku/",			"VapaaTekstiHakuController@index");
+
+	/*
 	 * Userguide
 	 */
 	Route::get("/kayttoohje",				"KayttoohjeController@getKayttoohje");
@@ -638,11 +643,12 @@ Route::group(['middleware' => ['auth.jwt', 'setLocale']], function () {
 
 	/*
 	 * KonservoinninPrioriteetti
-	 */
+	
 	Route::get("/konservoinninprioriteetti/",				"Ark\KonservoinninPrioriteettiController@index");
 	Route::post("/konservoinninprioriteetti/",				"Ark\KonservoinninPrioriteettiController@store");
 	Route::put("/konservoinninprioriteetti/{id}/",			"Ark\KonservoinninPrioriteettiController@update");
 	Route::delete("/konservoinninprioriteetti/{id}/",		"Ark\KonservoinninPrioriteettiController@destroy");
+	 */
 
 	/*
 	 * KonservoinninLaatuluokka
