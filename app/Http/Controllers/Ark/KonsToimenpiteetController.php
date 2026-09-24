@@ -103,12 +103,11 @@ class KonsToimenpiteetController extends Controller
             // Sorttaus
             $toimenpiteet->withOrderBy($jarjestys_kentta, $jarjestys_suunta);
 
-            // Rivimäärien rajoitus parametrien mukaan
-            $toimenpiteet->withLimit($rivi, $riveja);
-
-
             // Rivien määrän laskenta
             $total_rows = Utils::getCount($toimenpiteet);
+
+            // Rivimäärien rajoitus parametrien mukaan
+            $toimenpiteet->withLimit($rivi, $riveja);
 
             // suorita query
             $toimenpiteet = $toimenpiteet->get();
