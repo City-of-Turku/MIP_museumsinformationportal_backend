@@ -286,6 +286,10 @@ class ArkKuva extends Model {
 	    return $this->hasMany('App\Ark\ArkKuvaKohde');
 	}
 
+	public function kuvatutkimusalueet() {
+	    return $this->hasMany('App\Ark\ArkKuvaTutkimusalue');
+	}
+
 	public function konservointivaihe() {
 	    return $this->belongsTo('App\Ark\Konservointivaihe', 'konservointivaihe_id');
 	}
@@ -355,6 +359,25 @@ class ArkKuva extends Model {
 	            $ky->luoja = Auth::user()->id;
 
 	            $ky->save();
+	        }
+	    }
+	}
+
+	//Poistetaan vanhat linkatut tutkimusalueet ja lisätään uudet jotka tulee $tutkimusalueet-listassa
+	public static function linkita_tutkimusalueet($kuva_id, $tutkimusalueet) {
+	    if(!is_null($tutkimusalueet)) {
+	        DB::table('ark_kuva_tutkimusalue')->where('ark_kuva_id', $kuva_id)->delete();
+
+	        foreach($tutkimusalueet as $tutkimusalue) {
+	            $maxJarjestys = DB::table('ark_kuva_tutkimusalue')->where('ark_tutkimusalue_id', '=', $tutkimusalue["id"])->max('jarjestys')+1;
+
+	            $kt = new ArkKuvaTutkimusalue();
+	            $kt->ark_kuva_id = $kuva_id;
+	            $kt->ark_tutkimusalue_id = $tutkimusalue["id"];
+	            $kt->jarjestys = $maxJarjestys;
+	            $kt->luoja = Auth::user()->id;
+
+	            $kt->save();
 	        }
 	    }
 	}
