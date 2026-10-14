@@ -18,6 +18,9 @@ class VapaaTekstiHakuController extends Controller {
      */
     private const ITEM_TYPES = [
         'kiinteisto' => ['domain' => 'RAK', 'permission' => 'rakennusinventointi.kiinteisto.katselu'],
+        'alue'       => ['domain' => 'RAK', 'permission' => 'rakennusinventointi.alue.katselu'],
+        'arvoalue'   => ['domain' => 'RAK', 'permission' => 'rakennusinventointi.arvoalue.katselu'],
+        'rakennus'   => ['domain' => 'RAK', 'permission' => 'rakennusinventointi.rakennus.katselu'],
         'ark_kohde'  => ['domain' => 'ARK', 'permission' => 'arkeologia.ark_kohde.katselu'],
     ];
 
