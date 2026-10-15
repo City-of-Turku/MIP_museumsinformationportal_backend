@@ -17,11 +17,13 @@ class VapaaTekstiHakuController extends Controller {
      * Uusi entiteetti lisätään hakuun lisäämällä tähän yksi rivi.
      */
     private const ITEM_TYPES = [
-        'kiinteisto' => ['domain' => 'RAK', 'permission' => 'rakennusinventointi.kiinteisto.katselu'],
-        'alue'       => ['domain' => 'RAK', 'permission' => 'rakennusinventointi.alue.katselu'],
-        'arvoalue'   => ['domain' => 'RAK', 'permission' => 'rakennusinventointi.arvoalue.katselu'],
-        'rakennus'   => ['domain' => 'RAK', 'permission' => 'rakennusinventointi.rakennus.katselu'],
-        'ark_kohde'  => ['domain' => 'ARK', 'permission' => 'arkeologia.ark_kohde.katselu'],
+        'kiinteisto'   => ['domain' => 'RAK', 'permission' => 'rakennusinventointi.kiinteisto.katselu'],
+        'alue'         => ['domain' => 'RAK', 'permission' => 'rakennusinventointi.alue.katselu'],
+        'arvoalue'     => ['domain' => 'RAK', 'permission' => 'rakennusinventointi.arvoalue.katselu'],
+        'rakennus'     => ['domain' => 'RAK', 'permission' => 'rakennusinventointi.rakennus.katselu'],
+        'ark_kohde'    => ['domain' => 'ARK', 'permission' => 'arkeologia.ark_kohde.katselu'],
+        'ark_tutkimus' => ['domain' => 'ARK', 'permission' => 'arkeologia.ark_tutkimus.katselu'],
+        'ark_loyto'    => ['domain' => 'ARK', 'permission' => 'arkeologia.ark_loyto.katselu'],
     ];
 
     /*
@@ -63,10 +65,16 @@ class VapaaTekstiHakuController extends Controller {
                         WHERE search_vector @@ q
                           AND domain IN (" . $domain_placeholders . ")
                           AND item_type IN (" . $type_placeholders . ")
-                        ORDER BY rank DESC, global_id
+                        ORDER BY CASE WHEN lower(trim(title)) = lower(?)
+                                        OR (item_type NOT IN ('rakennus', 'ark_loyto') AND lower(trim(tunnus)) = lower(?))
+                                      THEN 0 ELSE 1 END,
+                                 rank DESC, global_id
                         LIMIT ? OFFSET ?";
 
-                $bindings = array_merge([$hakusana], $domains, $allowed_types, [$riveja, $rivi]);
+                // Tunnisteet (esim. luettelointinumero) pilkkoutuvat useaksi hakusanaksi, joten
+                // tarkka osuma otsikkoon tai omaan tunnukseen nostetaan ensimmäiseksi.
+                // Rakennuksen ja löydön tunnus on emon (kiinteistö, tutkimus), joten sitä ei lasketa.
+                $bindings = array_merge([$hakusana], $domains, $allowed_types, [$hakusana, $hakusana, $riveja, $rivi]);
 
                 foreach(DB::select($sql, $bindings) as $row) {
                     $total_count = (int) $row->total_count;
