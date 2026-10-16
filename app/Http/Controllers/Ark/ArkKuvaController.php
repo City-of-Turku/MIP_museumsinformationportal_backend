@@ -351,6 +351,13 @@ class ArkKuvaController extends Controller {
             //Linkataan itemiin josta kuva lisättiin
             $this->linkToItem($entity, $request);
 
+            //Kohteella voi olla vain yksi tunnistekuva kerrallaan, nollataan muut.
+            //Lomakkeelta tuleva arvo on merkkijono, joten tyhjä/false ei kelpaa sellaisenaan ehdoksi.
+            $onTunnistekuva = filter_var($entity->tunnistekuva, FILTER_VALIDATE_BOOLEAN);
+            if($onTunnistekuva && $request->get('entiteetti_tyyppi') == 15 && $request->get('entiteetti_id')) {
+                ArkKuva::updateKohdeTunnistekuva($request->get('entiteetti_id'), $entity->id);
+            }
+
             MipJson::setGeoJsonFeature();
             MipJson::addMessage(Lang::get('kuva.save_success'));
             MipJson::setGeoJsonFeature(null, array("id" => $entity->id));
@@ -535,6 +542,9 @@ class ArkKuvaController extends Controller {
                 }
                 if($request->yksikot && $request->yksikot[0]['id']) {
                     ArkKuva::updateYksikkoTunnistekuva($request->yksikot[0]['id'], $entity->id);
+                }
+                if($request->kohteet && $request->kohteet[0]['id']) {
+                    ArkKuva::updateKohdeTunnistekuva($request->kohteet[0]['id'], $entity->id);
                 }
             }
 
