@@ -369,6 +369,9 @@ class ArkKuva extends Model {
 	        DB::table('ark_kuva_tutkimusalue')->where('ark_kuva_id', $kuva_id)->delete();
 
 	        foreach($tutkimusalueet as $tutkimusalue) {
+	            if(empty($tutkimusalue["id"])) {
+	                continue;
+	            }
 	            $maxJarjestys = DB::table('ark_kuva_tutkimusalue')->where('ark_tutkimusalue_id', '=', $tutkimusalue["id"])->max('jarjestys')+1;
 
 	            $kt = new ArkKuvaTutkimusalue();

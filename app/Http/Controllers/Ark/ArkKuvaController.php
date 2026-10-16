@@ -231,7 +231,10 @@ class ArkKuvaController extends Controller {
                 }
                 $tmpTutkimusalueet = [];
                 foreach($entity->kuvatutkimusalueet as $kt) {
-                    array_push($tmpTutkimusalueet, $kt->tutkimusalue);
+                    // Poistetun tutkimusalueen linkki jää kantaan, mutta relaatio palauttaa null
+                    if($kt->tutkimusalue) {
+                        array_push($tmpTutkimusalueet, $kt->tutkimusalue);
+                    }
                 }
                 $entity->loydot = $tmpLoydot;
                 $entity->naytteet = $tmpNaytteet;
