@@ -444,6 +444,18 @@ class ArkKuva extends Model {
 			);'), array('yId' => $yksikkoId, 'kId' => $kuvaId));
 }
 
+	public static function updateKohdeTunnistekuva($kohdeId, $kuvaId) {
+		DB::select(DB::raw('update ark_kuva set tunnistekuva = false
+			where ark_kuva.id in(
+				select ark_kuva.id
+				from ark_kuva
+				left join ark_kuva_kohde on ark_kuva.id = ark_kuva_kohde.ark_kuva_id
+				left join ark_kohde on ark_kohde.id = ark_kuva_kohde.ark_kohde_id
+				where ark_kohde.id = :khId
+				and ark_kuva.id != :kId
+			);'), array('khId' => $kohdeId, 'kId' => $kuvaId));
+	}
+
 	public static function tutkimus($kuvaId) {
 	    return Tutkimus::on()->fromQuery(DB::raw('select t.*
 				from ark_kuva k
