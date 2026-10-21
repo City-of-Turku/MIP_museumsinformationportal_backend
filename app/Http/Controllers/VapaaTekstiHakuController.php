@@ -24,6 +24,11 @@ class VapaaTekstiHakuController extends Controller {
         'ark_kohde'    => ['domain' => 'ARK', 'permission' => 'arkeologia.ark_kohde.katselu'],
         'ark_tutkimus' => ['domain' => 'ARK', 'permission' => 'arkeologia.ark_tutkimus.katselu'],
         'ark_loyto'    => ['domain' => 'ARK', 'permission' => 'arkeologia.ark_loyto.katselu'],
+        'kuva'         => ['domain' => 'RAK', 'permission' => 'rakennusinventointi.kuva.katselu'],
+        'tiedosto'     => ['domain' => 'RAK', 'permission' => 'rakennusinventointi.tiedosto.katselu'],
+        // ARK-kuville ja -tiedostoille ei ole omaa riviä jarjestelma_roolit-taulussa
+        'ark_kuva'     => ['domain' => 'ARK', 'permission' => 'arkeologia.ark_tutkimus.katselu'],
+        'ark_tiedosto' => ['domain' => 'ARK', 'permission' => 'arkeologia.ark_tutkimus.katselu'],
     ];
 
     /*
@@ -65,15 +70,17 @@ class VapaaTekstiHakuController extends Controller {
                         WHERE search_vector @@ q
                           AND domain IN (" . $domain_placeholders . ")
                           AND item_type IN (" . $type_placeholders . ")
-                        ORDER BY CASE WHEN lower(trim(title)) = lower(?)
-                                        OR (item_type NOT IN ('rakennus', 'ark_loyto') AND lower(trim(tunnus)) = lower(?))
+                        ORDER BY CASE WHEN (item_type NOT IN ('ark_loyto', 'kuva', 'ark_kuva', 'tiedosto', 'ark_tiedosto')
+                                            AND lower(trim(title)) = lower(?))
+                                        OR (item_type <> 'rakennus' AND lower(trim(tunnus)) = lower(?))
                                       THEN 0 ELSE 1 END,
                                  rank DESC, global_id
                         LIMIT ? OFFSET ?";
 
                 // Tunnisteet (esim. luettelointinumero) pilkkoutuvat useaksi hakusanaksi, joten
                 // tarkka osuma otsikkoon tai omaan tunnukseen nostetaan ensimmäiseksi.
-                // Rakennuksen ja löydön tunnus on emon (kiinteistö, tutkimus), joten sitä ei lasketa.
+                // Löydön otsikko on tutkimuksen nimi ja kuvien ja tiedostojen otsikot toistavat usein
+                // emon nimeä, joten niitä ei lasketa. Rakennuksen tunnus on kiinteistön, joten sitä ei lasketa.
                 $bindings = array_merge([$hakusana], $domains, $allowed_types, [$hakusana, $hakusana, $riveja, $rivi]);
 
                 foreach(DB::select($sql, $bindings) as $row) {
