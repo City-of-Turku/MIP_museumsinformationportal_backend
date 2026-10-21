@@ -22,7 +22,7 @@ class VapaatekstihakuBatch3 extends Migration
             RETURNS void LANGUAGE sql AS $$
                 INSERT INTO search_index (global_id, item_type, domain, source_id, title, tunnus, kunta, body, search_vector, updated_at)
                 SELECT 'ark_tutkimus:' || t.id, 'ark_tutkimus', 'ARK', t.id,
-                       t.nimi, t.tutkimuksen_lyhenne,
+                       t.nimi, t.loyto_paanumero,
                        -- own kunnat, else its Kohteet's kunnat (what most Tutkimus windows show)
                        coalesce(
                            (SELECT string_agg(DISTINCT ku.nimi, ', ' ORDER BY ku.nimi)
@@ -34,7 +34,7 @@ class VapaatekstihakuBatch3 extends Migration
                               JOIN ark_kohde_kuntakyla kk ON kk.ark_kohde_id = kt.ark_kohde_id
                               JOIN kunta ku ON ku.id = kk.kunta_id
                              WHERE kt.ark_tutkimus_id = t.id)),
-                       NULL, build_search_vector(concat_ws(' ', t.nimi, t.tutkimuksen_lyhenne), NULL), now()
+                       NULL, build_search_vector(concat_ws(' ', t.nimi, t.tutkimuksen_lyhenne, t.loyto_paanumero), NULL), now()
                 ON CONFLICT (global_id) DO UPDATE SET
                     title = EXCLUDED.title, tunnus = EXCLUDED.tunnus, kunta = EXCLUDED.kunta,
                     body = EXCLUDED.body, search_vector = EXCLUDED.search_vector, updated_at = EXCLUDED.updated_at;
@@ -167,8 +167,10 @@ class VapaatekstihakuBatch3 extends Migration
             RETURNS void LANGUAGE sql AS $$
                 INSERT INTO search_index (global_id, item_type, domain, source_id, title, tunnus, kunta, body, search_vector, updated_at)
                 SELECT 'ark_loyto:' || l.id, 'ark_loyto', 'ARK', l.id,
+                       -- its Tutkimus's name (display only), else its own number
+                       coalesce((SELECT nullif(t.nimi, '') FROM ark_tutkimus t WHERE t.id = search_ark_loyto_tutkimus_id(l)),
+                                l.luettelointinumero),
                        l.luettelointinumero,
-                       (SELECT t.tutkimuksen_lyhenne FROM ark_tutkimus t WHERE t.id = search_ark_loyto_tutkimus_id(l)),
                        NULL,
                        l.kuvaus, build_search_vector(l.luettelointinumero, l.kuvaus), now()
                 ON CONFLICT (global_id) DO UPDATE SET
@@ -202,7 +204,7 @@ class VapaatekstihakuBatch3 extends Migration
             FOR EACH ROW EXECUTE PROCEDURE sync_ark_loyto_search()
         ");
 
-        // A Tutkimus's lyhenne is shown on its Löydöt
+        // A Tutkimus's name is shown on its Löydöt
         DB::statement("
             CREATE FUNCTION sync_ark_tutkimus_loyto_search()
             RETURNS trigger LANGUAGE plpgsql AS $$
@@ -224,7 +226,7 @@ class VapaatekstihakuBatch3 extends Migration
             CREATE TRIGGER ark_tutkimus_loyto_search_sync
             AFTER UPDATE ON ark_tutkimus
             FOR EACH ROW
-            WHEN (OLD.tutkimuksen_lyhenne IS DISTINCT FROM NEW.tutkimuksen_lyhenne)
+            WHEN (OLD.nimi IS DISTINCT FROM NEW.nimi)
             EXECUTE PROCEDURE sync_ark_tutkimus_loyto_search()
         ");
 
