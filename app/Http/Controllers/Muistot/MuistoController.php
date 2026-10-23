@@ -32,10 +32,13 @@ use Exception;
 
 class MuistoController extends Controller {
 
-    public function getMuisto($id) 
+    /**
+     * Pelkkä testifunktio API:n toiminnan tarkistamiseen (esim. Bruno).
+     * Ei hae muistoa eikä ole varsinaisen Prikka-integraation käytössä.
+     */
+    public function getMuisto($id)
     {
-        Log::debug("Muistot " . $id . "api " . env("prikka_api_key"));
-        MipJson::addMessage("Muisto tallenneltu");
+        MipJson::addMessage("Prikka API toimii.");
         return MipJson::getJson();
     }
 
