@@ -101,6 +101,9 @@ class ArkKuvaController extends Controller {
                     'kuvaloydot.loyto',
                     'kuvanaytteet.nayte',
                     'kuvakohteet.kohde',
+                    'kuvatutkimusalueet.tutkimusalue' => function($query) {
+                        $query->select('id', 'nimi', 'ark_tutkimus_id');
+                    },
                     'tutkimukset',
                     'kuvatyyppi'
                 ))->orderBy($jarjestys_kentta, $jarjestys_suunta);
@@ -226,14 +229,23 @@ class ArkKuvaController extends Controller {
                 foreach($entity->kuvakohteet as $kk) {
                     array_push($tmpKohteet, $kk->kohde);
                 }
+                $tmpTutkimusalueet = [];
+                foreach($entity->kuvatutkimusalueet as $kt) {
+                    // Poistetun tutkimusalueen linkki jää kantaan, mutta relaatio palauttaa null
+                    if($kt->tutkimusalue) {
+                        array_push($tmpTutkimusalueet, $kt->tutkimusalue);
+                    }
+                }
                 $entity->loydot = $tmpLoydot;
                 $entity->naytteet = $tmpNaytteet;
                 $entity->yksikot = $tmpYksikot;
                 $entity->kohteet = $tmpKohteet;
+                $entity->tutkimusalueet = $tmpTutkimusalueet;
                 unset($entity->kuvaloydot);
                 unset($entity->kuvanaytteet);
                 unset($entity->kuvayksikot);
                 unset($entity->kuvakohteet);
+                unset($entity->kuvatutkimusalueet);
 
                 // Deserialisoidaan JSON string kannasta
                 $entity->migraatiodata = json_decode($entity->migraatiodata, true);
@@ -350,6 +362,13 @@ class ArkKuvaController extends Controller {
 
             //Linkataan itemiin josta kuva lisättiin
             $this->linkToItem($entity, $request);
+
+            //Kohteella voi olla vain yksi tunnistekuva kerrallaan, nollataan muut.
+            //Lomakkeelta tuleva arvo on merkkijono, joten tyhjä/false ei kelpaa sellaisenaan ehdoksi.
+            $onTunnistekuva = filter_var($entity->tunnistekuva, FILTER_VALIDATE_BOOLEAN);
+            if($onTunnistekuva && $request->get('entiteetti_tyyppi') == 15 && $request->get('entiteetti_id')) {
+                ArkKuva::updateKohdeTunnistekuva($request->get('entiteetti_id'), $entity->id);
+            }
 
             MipJson::setGeoJsonFeature();
             MipJson::addMessage(Lang::get('kuva.save_success'));
@@ -536,6 +555,9 @@ class ArkKuvaController extends Controller {
                 if($request->yksikot && $request->yksikot[0]['id']) {
                     ArkKuva::updateYksikkoTunnistekuva($request->yksikot[0]['id'], $entity->id);
                 }
+                if($request->kohteet && $request->kohteet[0]['id']) {
+                    ArkKuva::updateKohdeTunnistekuva($request->kohteet[0]['id'], $entity->id);
+                }
             }
 
             $author_field = ArkKuva::UPDATED_BY;
@@ -554,6 +576,7 @@ class ArkKuvaController extends Controller {
             ArkKuva::linkita_naytteet($entity->id, $request->naytteet);
             ArkKuva::linkita_yksikot($entity->id, $request->yksikot);
             ArkKuva::linkita_kohteet($entity->id, $request->kohteet);
+            ArkKuva::linkita_tutkimusalueet($entity->id, $request->tutkimusalueet);
 
             MipJson::setGeoJsonFeature();
             MipJson::addMessage(Lang::get('kuva.save_success'));
@@ -632,6 +655,7 @@ class ArkKuvaController extends Controller {
              ArkKuva::linkita_naytteet($entity->id, []);
              ArkKuva::linkita_yksikot($entity->id, []);
              ArkKuva::linkita_kohteet($entity->id, []);
+             ArkKuva::linkita_tutkimusalueet($entity->id, []);
 
              // Poistetaan mahdollinen kohde, tutkimus tai tutkimusalue kuva.
              // Poisto tehdään näin koska yhdistelmä PK tyylin modelissa ei tunnu laravel toimivan, kuten normi Id PK mallissa.
