@@ -149,6 +149,15 @@ class ArkKuvaController extends Controller {
             if($request->input("otsikko")) {
                 $entities->withOtsikko($request->input("otsikko"));
             }
+            if($request->input("kuvaus")) {
+                $entities->withKuvaus($request->input("kuvaus"));
+            }
+            if($request->input("lisatiedot")) {
+                $entities->withLisatiedot($request->input("lisatiedot"));
+            }
+            if($request->input("kuvaaja")) {
+                $entities->withKuvaaja($request->input("kuvaaja"));
+            }
             if($request->input("ark_rontgenkuva_id") && $request->input("ark_rontgenkuva_id") !== 'null') {
                 $entities->withRontgenKuva($request->input("ark_rontgenkuva_id"));
             }
