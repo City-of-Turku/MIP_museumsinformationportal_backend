@@ -212,40 +212,7 @@ class ArkKuvaController extends Controller {
                 $entity->url_medium = $images->medium;
                 $entity->url_large = $images->large;
 
-                //Fiksataan myös löydöt ja yksiköt
-                $tmpLoydot = [];
-                foreach($entity->kuvaloydot as $kl) {
-                    array_push($tmpLoydot, $kl->loyto);
-                }
-                $tmpNaytteet = [];
-                foreach($entity->kuvanaytteet as $kn) {
-                    array_push($tmpNaytteet, $kn->nayte);
-                }
-                $tmpYksikot = [];
-                foreach($entity->kuvayksikot as $ky) {
-                    array_push($tmpYksikot, $ky->yksikko);
-                }
-                $tmpKohteet = [];
-                foreach($entity->kuvakohteet as $kk) {
-                    array_push($tmpKohteet, $kk->kohde);
-                }
-                $tmpTutkimusalueet = [];
-                foreach($entity->kuvatutkimusalueet as $kt) {
-                    // Poistetun tutkimusalueen linkki jää kantaan, mutta relaatio palauttaa null
-                    if($kt->tutkimusalue) {
-                        array_push($tmpTutkimusalueet, $kt->tutkimusalue);
-                    }
-                }
-                $entity->loydot = $tmpLoydot;
-                $entity->naytteet = $tmpNaytteet;
-                $entity->yksikot = $tmpYksikot;
-                $entity->kohteet = $tmpKohteet;
-                $entity->tutkimusalueet = $tmpTutkimusalueet;
-                unset($entity->kuvaloydot);
-                unset($entity->kuvanaytteet);
-                unset($entity->kuvayksikot);
-                unset($entity->kuvakohteet);
-                unset($entity->kuvatutkimusalueet);
+                $this->muodostaLinkit($entity);
 
                 // Deserialisoidaan JSON string kannasta
                 $entity->migraatiodata = json_decode($entity->migraatiodata, true);
@@ -412,7 +379,18 @@ class ArkKuvaController extends Controller {
             return MipJson::getJson();
         }
         try {
-            $entity = ArkKuva::getSingle($id)->with('luoja')->with('muokkaaja')->first();
+            $entity = ArkKuva::getSingle($id)->with(
+                array('luoja',
+                    'muokkaaja',
+                    'asiasanat',
+                    'kuvayksikot.yksikko',
+                    'kuvaloydot.loyto',
+                    'kuvanaytteet.nayte',
+                    'kuvakohteet.kohde',
+                    'kuvatutkimusalueet.tutkimusalue' => function($query) {
+                        $query->select('id', 'nimi', 'ark_tutkimus_id');
+                    }
+                ))->first();
             if(!$entity) {
                 MipJson::setGeoJsonFeature();
                 MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
@@ -421,7 +399,6 @@ class ArkKuvaController extends Controller {
                 return MipJson::getJson();
             }
 
-            $entity->first();
             $images = ArkKuva::getImageUrls($entity->polku.$entity->tiedostonimi);
 
             $entity->url = $images->original;
@@ -429,6 +406,8 @@ class ArkKuvaController extends Controller {
             $entity->url_small = $images->small;
             $entity->url_medium = $images->medium;
             $entity->url_large = $images->large;
+
+            $this->muodostaLinkit($entity);
 
             MipJson::setGeoJsonFeature(null, $entity);
             MipJson::addMessage(Lang::get('kuva.search_success'));
@@ -961,6 +940,45 @@ class ArkKuvaController extends Controller {
         }
         $img_tiny = ArkKuva::createThumbnail($img, intval(explode(",",config('app.image_thumb_tiny'))[0]));
         $img_tiny->save($file_path.$file_name."_TINY.".$thumb_extension);
+    }
+
+    /*
+     * Fiksataan löydöt, näytteet, yksiköt, kohteet ja tutkimusalueet suoriksi listoiksi
+     */
+    private function muodostaLinkit($entity) {
+        $tmpLoydot = [];
+        foreach($entity->kuvaloydot as $kl) {
+            array_push($tmpLoydot, $kl->loyto);
+        }
+        $tmpNaytteet = [];
+        foreach($entity->kuvanaytteet as $kn) {
+            array_push($tmpNaytteet, $kn->nayte);
+        }
+        $tmpYksikot = [];
+        foreach($entity->kuvayksikot as $ky) {
+            array_push($tmpYksikot, $ky->yksikko);
+        }
+        $tmpKohteet = [];
+        foreach($entity->kuvakohteet as $kk) {
+            array_push($tmpKohteet, $kk->kohde);
+        }
+        $tmpTutkimusalueet = [];
+        foreach($entity->kuvatutkimusalueet as $kt) {
+            // Poistetun tutkimusalueen linkki jää kantaan, mutta relaatio palauttaa null
+            if($kt->tutkimusalue) {
+                array_push($tmpTutkimusalueet, $kt->tutkimusalue);
+            }
+        }
+        $entity->loydot = $tmpLoydot;
+        $entity->naytteet = $tmpNaytteet;
+        $entity->yksikot = $tmpYksikot;
+        $entity->kohteet = $tmpKohteet;
+        $entity->tutkimusalueet = $tmpTutkimusalueet;
+        unset($entity->kuvaloydot);
+        unset($entity->kuvanaytteet);
+        unset($entity->kuvayksikot);
+        unset($entity->kuvakohteet);
+        unset($entity->kuvatutkimusalueet);
     }
 
     /*
