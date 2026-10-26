@@ -17,8 +17,18 @@ class VapaaTekstiHakuController extends Controller {
      * Uusi entiteetti lisätään hakuun lisäämällä tähän yksi rivi.
      */
     private const ITEM_TYPES = [
-        'kiinteisto' => ['domain' => 'RAK', 'permission' => 'rakennusinventointi.kiinteisto.katselu'],
-        'ark_kohde'  => ['domain' => 'ARK', 'permission' => 'arkeologia.ark_kohde.katselu'],
+        'kiinteisto'   => ['domain' => 'RAK', 'permission' => 'rakennusinventointi.kiinteisto.katselu'],
+        'alue'         => ['domain' => 'RAK', 'permission' => 'rakennusinventointi.alue.katselu'],
+        'arvoalue'     => ['domain' => 'RAK', 'permission' => 'rakennusinventointi.arvoalue.katselu'],
+        'rakennus'     => ['domain' => 'RAK', 'permission' => 'rakennusinventointi.rakennus.katselu'],
+        'ark_kohde'    => ['domain' => 'ARK', 'permission' => 'arkeologia.ark_kohde.katselu'],
+        'ark_tutkimus' => ['domain' => 'ARK', 'permission' => 'arkeologia.ark_tutkimus.katselu'],
+        'ark_loyto'    => ['domain' => 'ARK', 'permission' => 'arkeologia.ark_loyto.katselu'],
+        'kuva'         => ['domain' => 'RAK', 'permission' => 'rakennusinventointi.kuva.katselu'],
+        'tiedosto'     => ['domain' => 'RAK', 'permission' => 'rakennusinventointi.tiedosto.katselu'],
+        // ARK-kuville ja -tiedostoille ei ole omaa riviä jarjestelma_roolit-taulussa
+        'ark_kuva'     => ['domain' => 'ARK', 'permission' => 'arkeologia.ark_tutkimus.katselu'],
+        'ark_tiedosto' => ['domain' => 'ARK', 'permission' => 'arkeologia.ark_tutkimus.katselu'],
     ];
 
     /*
@@ -60,10 +70,18 @@ class VapaaTekstiHakuController extends Controller {
                         WHERE search_vector @@ q
                           AND domain IN (" . $domain_placeholders . ")
                           AND item_type IN (" . $type_placeholders . ")
-                        ORDER BY rank DESC, global_id
+                        ORDER BY CASE WHEN (item_type NOT IN ('ark_loyto', 'kuva', 'ark_kuva', 'tiedosto', 'ark_tiedosto')
+                                            AND lower(trim(title)) = lower(?))
+                                        OR (item_type <> 'rakennus' AND lower(trim(tunnus)) = lower(?))
+                                      THEN 0 ELSE 1 END,
+                                 rank DESC, global_id
                         LIMIT ? OFFSET ?";
 
-                $bindings = array_merge([$hakusana], $domains, $allowed_types, [$riveja, $rivi]);
+                // Tunnisteet (esim. luettelointinumero) pilkkoutuvat useaksi hakusanaksi, joten
+                // tarkka osuma otsikkoon tai omaan tunnukseen nostetaan ensimmäiseksi.
+                // Löydön otsikko on tutkimuksen nimi ja kuvien ja tiedostojen otsikot toistavat usein
+                // emon nimeä, joten niitä ei lasketa. Rakennuksen tunnus on kiinteistön, joten sitä ei lasketa.
+                $bindings = array_merge([$hakusana], $domains, $allowed_types, [$hakusana, $hakusana, $riveja, $rivi]);
 
                 foreach(DB::select($sql, $bindings) as $row) {
                     $total_count = (int) $row->total_count;
