@@ -258,8 +258,8 @@ class MuistoController extends Controller {
                                       }
                                       else if($key == 'nimimerkki_kuvaajana')
                                       {
-                                          // Optional field, null or invalid value is saved as false
-                                          $entityKuva->nimimerkki_kuvaajana = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
+                                          // Optional field, null or invalid value is saved as true (same as the DB default)
+                                          $entityKuva->nimimerkki_kuvaajana = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? true;
                                       }
                                       else
                                       {

@@ -14,7 +14,7 @@ class AddColumnNimimerkkiKuvaajanaToMuistotKuva extends Migration
     public function up()
     {
         Schema::table('muistot_kuva', function (Blueprint $table) {
-            $table->boolean('nimimerkki_kuvaajana')->default(false);
+            $table->boolean('nimimerkki_kuvaajana')->default(true);
         });
     }
 
