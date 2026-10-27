@@ -153,6 +153,7 @@ class ArkKarttaController extends Controller {
                 $entities->withAlkupKarttanumero($request->input("alkup_karttanumero"));
             }
 
+            $total_rows = Utils::getCount($entities);
             $entities->withLimit($rivi, $riveja);
             $entities = $entities->get();
 
@@ -168,8 +169,6 @@ class ArkKarttaController extends Controller {
                     array_push($returnEntities, $entity);
                 }
             }
-
-            $total_rows = sizeof($returnEntities);
 
             MipJson::initGeoJsonFeatureCollection(count($returnEntities), $total_rows);
 
