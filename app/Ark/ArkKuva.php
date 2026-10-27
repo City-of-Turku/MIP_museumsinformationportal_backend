@@ -286,6 +286,10 @@ class ArkKuva extends Model {
 	    return $this->hasMany('App\Ark\ArkKuvaKohde');
 	}
 
+	public function kuvatutkimusalueet() {
+	    return $this->hasMany('App\Ark\ArkKuvaTutkimusalue');
+	}
+
 	public function konservointivaihe() {
 	    return $this->belongsTo('App\Ark\Konservointivaihe', 'konservointivaihe_id');
 	}
@@ -358,6 +362,28 @@ class ArkKuva extends Model {
 	        }
 	    }
 	}
+
+	//Poistetaan vanhat linkatut tutkimusalueet ja lisätään uudet jotka tulee $tutkimusalueet-listassa
+	public static function linkita_tutkimusalueet($kuva_id, $tutkimusalueet) {
+	    if(!is_null($tutkimusalueet)) {
+	        DB::table('ark_kuva_tutkimusalue')->where('ark_kuva_id', $kuva_id)->delete();
+
+	        foreach($tutkimusalueet as $tutkimusalue) {
+	            if(empty($tutkimusalue["id"])) {
+	                continue;
+	            }
+	            $maxJarjestys = DB::table('ark_kuva_tutkimusalue')->where('ark_tutkimusalue_id', '=', $tutkimusalue["id"])->max('jarjestys')+1;
+
+	            $kt = new ArkKuvaTutkimusalue();
+	            $kt->ark_kuva_id = $kuva_id;
+	            $kt->ark_tutkimusalue_id = $tutkimusalue["id"];
+	            $kt->jarjestys = $maxJarjestys;
+	            $kt->luoja = Auth::user()->id;
+
+	            $kt->save();
+	        }
+	    }
+	}
 	//Poistetaan vanhat linkatut kohteet ja lisätään uudet jotka tulee $kohteet-listassa
 	public static function linkita_kohteet($kuva_id, $kohteet) {
 		if(!is_null($kohteet)) {
@@ -417,6 +443,18 @@ class ArkKuva extends Model {
 				and ark_kuva.id != :kId
 			);'), array('yId' => $yksikkoId, 'kId' => $kuvaId));
 }
+
+	public static function updateKohdeTunnistekuva($kohdeId, $kuvaId) {
+		DB::select(DB::raw('update ark_kuva set tunnistekuva = false
+			where ark_kuva.id in(
+				select ark_kuva.id
+				from ark_kuva
+				left join ark_kuva_kohde on ark_kuva.id = ark_kuva_kohde.ark_kuva_id
+				left join ark_kohde on ark_kohde.id = ark_kuva_kohde.ark_kohde_id
+				where ark_kohde.id = :khId
+				and ark_kuva.id != :kId
+			);'), array('khId' => $kohdeId, 'kId' => $kuvaId));
+	}
 
 	public static function tutkimus($kuvaId) {
 	    return Tutkimus::on()->fromQuery(DB::raw('select t.*
