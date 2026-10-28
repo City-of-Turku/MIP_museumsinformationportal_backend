@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Ark;
 
 use App\Kayttaja;
 use App\Utils;
+use App\Ark\ArkKuva;
 use App\Ark\KiinteistoRakennus;
 use App\Ark\Kohde;
 use App\Ark\KohdeAjoitus;
@@ -225,6 +226,14 @@ class KohdeController extends Controller {
             $kohteet = $kohteet->get();
             //Log::debug(print_r(DB::getQueryLog(), true));
 
+            // Kuvagalleria: tunnistekuvan url vain pyydettäessä. Ehdot kuten kohteen ikkunassa (luetteloitu=false).
+            $tunnistekuvaUrlit = null;
+            if(filter_var($request->tunnistekuva_url, FILTER_VALIDATE_BOOLEAN)) {
+                $tunnistekuvaUrlit = ArkKuva::getTunnistekuvaUrls('ark_kuva_kohde', 'ark_kohde_id', $kohteet->pluck('id')->all(), function($query) {
+                    $query->whereRaw("coalesce(ark_kuva.luettelointinumero, '') = ''");
+                });
+            }
+
             MipJson::initGeoJsonFeatureCollection(count($kohteet), $total_rows);
 
             $userArkRole = Auth::user()->ark_rooli;
@@ -247,6 +256,9 @@ class KohdeController extends Controller {
                     }
                 }
 
+                if(!is_null($tunnistekuvaUrlit)) {
+                    $kohde->tunnistekuva_url = $tunnistekuvaUrlit[$kohde->id] ?? null;
+                }
 
                 //$properties = clone($kohde);
                 MipJson::addGeoJsonFeatureCollectionFeaturePoint(null, $kohde);

@@ -2,6 +2,7 @@
 
 namespace App\Ark;
 
+use App\Kayttaja;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
@@ -120,6 +121,81 @@ class ArkKuva extends Model {
 
 
         return $images;
+    }
+
+    /*
+     * Palauttaa pelkän MEDIUM-koon urlin samalla logiikalla kuin getImageUrls (url_medium).
+     * Tyhjä merkkijono, jos tiedostoa ei löydy.
+     */
+    public static function getMediumImageUrl($image_filename_path) {
+        $base_url = config('app.image_server')."/".config('app.image_server_baseurl').dirname($image_filename_path)."/";
+        $base_path = storage_path(config('app.image_upload_path'));
+        $file_dirname	= pathinfo($image_filename_path, PATHINFO_DIRNAME)."/";
+        $file_basename 	= pathinfo($image_filename_path, PATHINFO_FILENAME);
+
+        if(File::exists($base_path.$file_dirname.$file_basename.config('app.old_image_thumb_medium_name').".jpg")) {
+            return $base_url.$file_basename.config('app.old_image_thumb_medium_name').".jpg";
+        } else if(File::exists($base_path.$file_dirname.$file_basename."_MEDIUM.jpg")) {
+            return $base_url.$file_basename."_MEDIUM.jpg";
+        }
+        return "";
+    }
+
+    /*
+     * Hakee usean entiteetin tunnistekuvien MEDIUM-urlit yhdellä kyselyllä.
+     * Valinta vastaa entiteetin oman ikkunan kuvahakua (index): poistetut pois, pienin ark_kuva.id
+     * ja samat katseluoikeudet kuin index-metodin kuvakohtaisessa tarkistuksessa.
+     * $linkTable = välitaulu (esim. ark_kuva_kohde), $fkColumn = entiteetin id-sarake välitaulussa,
+     * $extraConditions = function($query) entiteettikohtaisille lisäehdoille.
+     * Palauttaa taulukon [entiteetin id => url].
+     */
+    public static function getTunnistekuvaUrls($linkTable, $fkColumn, $ids, $extraConditions = null) {
+        if(empty($ids)) {
+            return [];
+        }
+
+        $fk = $linkTable.".".$fkColumn;
+        $query = DB::table('ark_kuva')
+            ->join($linkTable, $linkTable.".ark_kuva_id", "=", "ark_kuva.id")
+            ->selectRaw("distinct on (".$fk.") ".$fk." as entiteetti_id, ark_kuva.polku, ark_kuva.tiedostonimi")
+            ->whereIn($fk, $ids)
+            ->whereNull('ark_kuva.poistettu')
+            ->whereNull($linkTable.".poistettu")
+            ->where('ark_kuva.tunnistekuva', '=', true)
+            ->orderBy($fk)
+            ->orderBy('ark_kuva.id');
+
+        self::lisaaKatseluoikeusEhdot($query);
+
+        if($extraConditions) {
+            $extraConditions($query);
+        }
+
+        $urls = [];
+        foreach($query->get() as $row) {
+            $urls[$row->entiteetti_id] = self::getMediumImageUrl($row->polku.$row->tiedostonimi);
+        }
+        return $urls;
+    }
+
+    /*
+     * Sama sääntö kuin ArkKuvaController@index: tutkimukseen kuuluvassa kuvassa tutkimuksen katseluoikeus
+     * (Kayttaja::getArkTutkimusSubPermissions), muissa ark_kohde-entiteetin katseluoikeus.
+     */
+    private static function lisaaKatseluoikeusEhdot($query) {
+        $kohdeKatselu = Kayttaja::getPermissionsByEntityOnly('ark_kohde')['katselu'] == true;
+        $kaikkiTutkimukset = in_array(Auth::user()->ark_rooli, ['pääkäyttäjä', 'tutkija']);
+
+        $query->where(function($q) use ($kohdeKatselu, $kaikkiTutkimukset) {
+            if($kohdeKatselu) {
+                $q->whereNull('ark_kuva.ark_tutkimus_id');
+            }
+            if($kaikkiTutkimukset) {
+                $q->orWhereNotNull('ark_kuva.ark_tutkimus_id');
+            } else {
+                $q->orWhereIn('ark_kuva.ark_tutkimus_id', Tutkimus::getAll()->select('ark_tutkimus.id'));
+            }
+        });
     }
 
     public static function createThumbnail($img, $size) {
