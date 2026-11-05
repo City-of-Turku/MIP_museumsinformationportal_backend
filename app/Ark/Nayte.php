@@ -20,10 +20,13 @@ class Nayte extends Model
         'ark_tutkimusalue_yksikko_id', 'ark_tutkimusalue_kerros_id', 'ark_naytekoodi_id', 'ark_naytetyyppi_id', 'ark_talteenottotapa_id', 'ark_nayte_tila_id',
         'luettelointinumero', 'alanumero', 'kuvaus', 'koordinaatti_n', 'koordinaatti_e', 'koordinaatti_z', 'koordinaatti_n_min', 'koordinaatti_n_max', 'koordinaatti_e_min',
         'koordinaatti_e_max', 'koordinaatti_z_min', 'koordinaatti_z_max', 'laboratorion_arvio', 'luokka', 'luunayte_maara', 'luunayte_maara_yksikko',
-        'maanayte_maara', 'rf_naytteen_koko', 'lisatiedot', 'naytetta_jaljella', 'ark_tutkimusalue_id', 'vakituinen_sailytystila_id', 'vakituinen_hyllypaikka', 'tilapainen_sijainti',
+        'maanayte_maara', 'rf_naytteen_koko', 'lisatiedot', 'naytetta_jaljella', 'ark_tutkimusalue_id', 'vakituinen_sailytystila', 'vakituinen_hyllypaikka', 'tilapainen_sijainti',
         'paino_ennen', 'paino_ennen_yksikko', 'paino_jalkeen', 'paino_jalkeen_yksikko', 'kunto', 'kunto_paivamaara', 'sailytysolosuhteet', 'konservointi_lisatiedot',
         'alkup_luetnro'
     );
+
+    // 26948: korvattu tekstikentällä vakituinen_sailytystila, ei enää käytössä
+    protected $hidden = ['vakituinen_sailytystila_id'];
 
     /**
      * Laravel ei ymmärrä kaikkia SQL-tyyppejä. Castataan kentät, jotta erityisesti floatit menevät oikein.
@@ -219,7 +222,11 @@ class Nayte extends Model
         return $this->belongsTo('App\Ark\NayteTalteenottotapa', 'ark_talteenottotapa_id');
     }
     public function tapahtumat(){
-        return $this->hasMany('App\Ark\NayteTapahtumat', 'ark_nayte_id');
+        // Ilman järjestystä rivit tulevat fyysisessä järjestyksessä, joka muuttuu päivityksissä
+        return $this->hasMany('App\Ark\NayteTapahtumat', 'ark_nayte_id')
+            ->orderBy('ark_nayte_tapahtumat.tapahtumapaivamaara')
+            ->orderBy('ark_nayte_tapahtumat.luotu')
+            ->orderBy('ark_nayte_tapahtumat.id');
     }
     public function luoja() {
         return $this->belongsTo('App\Kayttaja', 'luoja');
@@ -239,10 +246,6 @@ class Nayte extends Model
     //IRTOLÖYTÖ.
     public function tutkimusalue() {
         return $this->belongsTo('App\Ark\Tutkimusalue', 'ark_tutkimusalue_id');
-    }
-
-    public function sailytystila() {
-        return $this->belongsTo('App\Ark\ArkSailytystila', 'vakituinen_sailytystila_id');
     }
 
     /**
@@ -400,8 +403,8 @@ class Nayte extends Model
         ->where('ark_tutkimusalue.id', '=', $keyword);
     }
 
-    public function scopeWithSailytystila($query, $id){
-        return $query->where('ark_nayte.vakituinen_sailytystila_id', '=', $id);
+    public function scopeWithSailytystila($query, $keyword){
+        return $query->where('ark_nayte.vakituinen_sailytystila', 'ILIKE', $keyword);
     }
 
     public function scopeWithHyllypaikka($query, $keyword){

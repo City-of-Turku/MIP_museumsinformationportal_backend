@@ -61,7 +61,6 @@ class LoytoController extends Controller
                 'muokkaaja',
                 'luettelointinrohistoria',
                 'tutkimusalue.tutkimus',//IRTOLÖYTÖ tai tarkastus
-                'sailytystila',
                 'rontgenkuvat'
             ));
 
@@ -312,15 +311,15 @@ class LoytoController extends Controller
             $tutkimus = $loyto->yksikko->tutkimusalue->tutkimus;
 
             if(! $tutkimusIds->contains($tutkimus->id)){
-                $loyto->makeHidden(['sailytystila']);
+                $loyto->makeHidden(['vakituinen_sailytystila']);
                 $loyto->makeHidden(['tilapainen_sijainti']);
                 $loyto->makeHidden(['vakituinen_hyllypaikka']);
-                $loyto->makeHidden(['vakituinen_sailytystila_id']);
                 if(!is_null($loyto->tapahtumat)) {
                     foreach($loyto->tapahtumat as $tapahtuma) {
                          $tapahtuma->makeHidden('kuvaus');
                         $tapahtuma->makeHidden('lainaaja');
                         $tapahtuma->makeHidden(['tilapainen_sijainti']);
+                        $tapahtuma->makeHidden(['vakituinen_sailytystila', 'vakituinen_hyllypaikka']);
                     }
                 }
             }
@@ -329,15 +328,15 @@ class LoytoController extends Controller
             $tutkimus = $loyto->tutkimusalue->tutkimus;
 
             if(! $tutkimusIds->contains($tutkimus->id)){
-                $loyto->makeHidden(['sailytystila']);
+                $loyto->makeHidden(['vakituinen_sailytystila']);
                 $loyto->makeHidden(['tilapainen_sijainti']);
                 $loyto->makeHidden(['vakituinen_hyllypaikka']);
-                $loyto->makeHidden(['vakituinen_sailytystila_id']);
                 if(!is_null($loyto->tapahtumat)) {
                     foreach($loyto->tapahtumat as $tapahtuma) {
                         $tapahtuma->makeHidden('kuvaus');
                         $tapahtuma->makeHidden('lainaaja');
                         $tapahtuma->makeHidden(['tilapainen_sijainti']);
+                        $tapahtuma->makeHidden(['vakituinen_sailytystila', 'vakituinen_hyllypaikka']);
                     }
                 }
             }
@@ -386,7 +385,6 @@ class LoytoController extends Controller
                     'loydonTila',
                     'tapahtumat.tapahtumaTyyppi',
                     'tapahtumat.luoja',
-                    'tapahtumat.sailytystila',
                     'tekija',
                     'luoja',
                     'muokkaaja',
@@ -396,7 +394,6 @@ class LoytoController extends Controller
                     'luettelointinrohistoria.loytoTapahtuma',
                     'luettelointinrohistoria.luoja',
                     'tutkimusalue.tutkimus',//irtolöytö tai tarkastus
-                    'sailytystila',
                     'kuntoraportit' => function($query) {
                         $query->orderBy('luotu', 'DESC');
                     }))->first();
@@ -640,14 +637,12 @@ class LoytoController extends Controller
                 'loydonTila',
                 'tapahtumat.tapahtumaTyyppi',
                 'tapahtumat.luoja',
-                'tapahtumat.sailytystila',
                 'luettelointinrohistoria' => function($query) {
                     $query->orderBy('luotu', 'ASC');
                 },
                 'luettelointinrohistoria.loytoTapahtuma',
                 'luettelointinrohistoria.luoja',
                 'tutkimusalue.tutkimus',
-                'sailytystila'
             ))->first();
 
             // US10297
@@ -717,15 +712,14 @@ class LoytoController extends Controller
                         $loyto->ark_loyto_tyyppi_id = $request->input('properties.loytotyyppi.id');
                         $loyto->ark_loyto_ensisijainen_materiaali_id = $request->input('properties.ensisijainen_materiaali.id');
                         $loyto->loydon_tila_id = $request->input('properties.loydon_tila.id');
-                        $loyto->vakituinen_sailytystila_id = $request->input('properties.sailytystila.id');
 
                         $loyto->ark_loyto_tyyppi_id = $request->input('properties.loytotyyppi.id');
                         $loyto->ark_loyto_ensisijainen_materiaali_id = $request->input('properties.ensisijainen_materiaali.id');
                         $loyto->loydon_tila_id = $request->input('properties.loydon_tila.id');
 
                         // Ei ylikirjoiteta tyhjää arvoa säilytystilatietoihin
-                        if($request->input('properties.sailytystila.id') && strlen($request->input('properties.sailytystila.id')) > 0) {
-                            $loyto->vakituinen_sailytystila_id = $request->input('properties.sailytystila.id');
+                        if($request->input('properties.vakituinen_sailytystila') && strlen($request->input('properties.vakituinen_sailytystila')) > 0) {
+                            $loyto->vakituinen_sailytystila = $request->input('properties.vakituinen_sailytystila');
                         }
                         if($request->input('properties.vakituinen_hyllypaikka') && strlen($request->input('properties.vakituinen_hyllypaikka'))>0) {
                             $loyto->vakituinen_hyllypaikka = $request->input('properties.vakituinen_hyllypaikka');
@@ -790,7 +784,6 @@ class LoytoController extends Controller
                         'loydonTila',
                         'tapahtumat.tapahtumaTyyppi',
                         'tapahtumat.luoja',
-                        'tapahtumat.sailytystila',
                         'tekija',
                         'luoja',
                         'muokkaaja','luettelointinrohistoria' => function($query) {
@@ -799,7 +792,7 @@ class LoytoController extends Controller
                         'luettelointinrohistoria.loytoTapahtuma',
                         'luettelointinrohistoria.luoja',
                         'tutkimusalue.tutkimus',//irtolöytö tai tarkastus
-                        'sailytystila'))->first();
+                        ))->first();
 
                         // Deserialisoidaan JSON string kannasta
                         $loyto->migraatiodata = json_decode($loyto->migraatiodata, true);
@@ -867,8 +860,8 @@ class LoytoController extends Controller
                     if($request->input('properties.tilapainen_sijainti')) {
                         $loyto->tilapainen_sijainti = $request->input('properties.tilapainen_sijainti');
                     }
-                    if($request->input('properties.sailytystila.id')) {
-                        $loyto->vakituinen_sailytystila_id = $request->input('properties.sailytystila.id');
+                    if($request->input('properties.vakituinen_sailytystila')) {
+                        $loyto->vakituinen_sailytystila = $request->input('properties.vakituinen_sailytystila');
                     }
                     if($request->input('properties.vakituinen_hyllypaikka')) {
                         $loyto->vakituinen_hyllypaikka = $request->input('properties.vakituinen_hyllypaikka');
@@ -1050,7 +1043,6 @@ class LoytoController extends Controller
                     'loydonTila',
                     'tapahtumat.tapahtumaTyyppi',
                     'tapahtumat.luoja',
-                    'tapahtumat.sailytystila',
                     'tekija',
                     'luoja',
                     'muokkaaja',
@@ -1060,7 +1052,7 @@ class LoytoController extends Controller
                     'luettelointinrohistoria.loytoTapahtuma',
                     'luettelointinrohistoria.luoja',
                     'tutkimusalue.tutkimus',//irtolöytö tai tarkastus
-                    'sailytystila'))->first();
+                    ))->first();
 
                     // US10297
                     if(Auth::user()->ark_rooli == 'katselija') {
@@ -1156,7 +1148,7 @@ class LoytoController extends Controller
 
         //Tallennetaan Kokoelmassa -tapahtumalle
         if($uusiTapahtuma->ark_loyto_tapahtuma_id == 9) {
-            $uusiTapahtuma->vakituinen_sailytystila_id = $request->input('properties.sailytystila.id');
+            $uusiTapahtuma->vakituinen_sailytystila = $request->input('properties.vakituinen_sailytystila');
             $uusiTapahtuma->vakituinen_hyllypaikka = $request->input('properties.vakituinen_hyllypaikka');
         }
         // Log::debug("Uusi tapahtuma:");
@@ -1320,7 +1312,6 @@ class LoytoController extends Controller
             'loydonTila',
             'tapahtumat.tapahtumaTyyppi',
             'tapahtumat.luoja',
-            'tapahtumat.sailytystila',
             'tekija',
             'luoja',
             'muokkaaja',
@@ -1330,7 +1321,6 @@ class LoytoController extends Controller
             'luettelointinrohistoria.loytoTapahtuma',
             'luettelointinrohistoria.luoja',
             'tutkimusalue.tutkimus',//irtolöytö tai tarkastus
-            'sailytystila',
             'kuntoraportit' => function($query) {
                 $query->orderBy('luotu', 'DESC');
             }))->first();

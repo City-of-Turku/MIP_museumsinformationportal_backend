@@ -25,10 +25,13 @@ class Loyto extends Model
         'kuvaus', 'kappalemaara', 'paino', 'painoyksikko', 'pituus', 'pituusyksikko', 'leveys', 'leveysyksikko', 'korkeus', 'korkeusyksikko', 'halkaisija',
         'halkaisijayksikko', 'paksuus', 'paksuusyksikko', 'muut_mitat', 'tulkinta', 'alkuvuosi', 'alkuvuosi_ajanlasku', 'paatosvuosi',
         'paatosvuosi_ajanlasku', 'ajoitus_kuvaus', 'ajoituksen_perusteet', 'tutkimukset_lahteet', 'lisatiedot', 'loydon_tila_id', 'konservointi',
-        'loytopaivamaara', 'kappalemaara_arvio', 'ark_tutkimusalue_id', 'vakituinen_sailytystila_id', 'vakituinen_hyllypaikka', 'tilapainen_sijainti',
+        'loytopaivamaara', 'kappalemaara_arvio', 'ark_tutkimusalue_id', 'vakituinen_sailytystila', 'vakituinen_hyllypaikka', 'tilapainen_sijainti',
         'paino_ennen', 'paino_ennen_yksikko', 'paino_jalkeen', 'paino_jalkeen_yksikko', 'kunto', 'kunto_paivamaara', 'sailytysolosuhteet', 'konservointi_lisatiedot',
         'siirtyy_finnaan', 'sisaiset_lisatiedot'
     );
+
+    // 26948: korvattu tekstikentällä vakituinen_sailytystila, ei enää käytössä
+    protected $hidden = ['vakituinen_sailytystila_id'];
 
     /**
      * Laravel ei ymmärrä kaikkia SQL-tyyppejä. Castataan kentät, jotta erityisesti floatit menevät oikein.
@@ -539,8 +542,8 @@ class Loyto extends Model
         return $query->where('ark_loyto.id', '=', $id);
     }
 
-    public function scopeWithSailytystila($query, $id){
-        return $query->where('ark_loyto.vakituinen_sailytystila_id', '=', $id);
+    public function scopeWithSailytystila($query, $keyword){
+        return $query->where('ark_loyto.vakituinen_sailytystila', 'ILIKE', $keyword);
     }
 
     public function scopeWithHyllypaikka($query, $keyword){
@@ -650,7 +653,11 @@ class Loyto extends Model
      * Löydön tapahtumat
      */
     public function tapahtumat(){
-        return $this->hasMany('App\Ark\LoytoTapahtumat', 'ark_loyto_id');
+        // Ilman järjestystä rivit tulevat fyysisessä järjestyksessä, joka muuttuu päivityksissä
+        return $this->hasMany('App\Ark\LoytoTapahtumat', 'ark_loyto_id')
+            ->orderBy('ark_loyto_tapahtumat.tapahtumapaivamaara')
+            ->orderBy('ark_loyto_tapahtumat.luotu')
+            ->orderBy('ark_loyto_tapahtumat.id');
     }
 
     public function luettelointinrohistoria() {
@@ -679,10 +686,6 @@ class Loyto extends Model
     //IRTOLÖYTÖ tai tarkastus
     public function tutkimusalue() {
         return $this->belongsTo('App\Ark\Tutkimusalue', 'ark_tutkimusalue_id');
-    }
-
-    public function sailytystila() {
-        return $this->belongsTo('App\Ark\ArkSailytystila', 'vakituinen_sailytystila_id');
     }
 
     /*

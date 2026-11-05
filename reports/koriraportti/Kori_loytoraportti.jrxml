@@ -51,7 +51,7 @@ then 'Ehkä'
 end as vaatii_konservointia,
 l.konservointi_lisatiedot, l.loytopaivamaara, l.tilapainen_sijainti, l.paino_ennen, l.paino_ennen_yksikko, l.paino_jalkeen, l.paino_jalkeen_yksikko, l.kunto, l.kunto_paivamaara,
 l.tekija, l.sailytysolosuhteet, l.vakituinen_hyllypaikka,
-st.nimi_fi as vakituinen_sijainti, 
+l.vakituinen_sailytystila as vakituinen_sijainti, 
 ty.yksikkotunnus,
 --tutkimusalue_kerros_id
 ta.nimi as tutkimusalue_nimi,
@@ -71,7 +71,6 @@ muut_materiaalit.materiaalit,
 merkinnat.merkinnat,
 ltila.nimi_fi as loydon_tila
 from ark_loyto l
-left join ark_sailytystila st on st.id = l.vakituinen_sailytystila_id
 left join ark_tutkimusalue_yksikko ty on ty.id = l.ark_tutkimusalue_yksikko_id
 left join ark_loyto_materiaalikoodi lmk on lmk.id = l.ark_loyto_materiaalikoodi_id
 left join ark_loyto_tyyppi ltyyppi on ltyyppi.id = l.ark_loyto_tyyppi_id

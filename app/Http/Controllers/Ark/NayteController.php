@@ -59,7 +59,6 @@ class NayteController extends Controller
                 'luoja',
                 'muokkaaja',
                 'tutkimusalue.tutkimus', //IRTOLÖYTÖ
-                'sailytystila'
             ));
 
             // Luettelointinumeron uniikki-tarkistus
@@ -241,9 +240,7 @@ class NayteController extends Controller
                 'luoja',
                 'tapahtumat.tapahtumaTyyppi',
                 'tapahtumat.luoja',
-                'tapahtumat.sailytystila',
                 'tutkimusalue.tutkimus.nayteKokoelmalaji', //IRTOLÖYTÖ
-                'sailytystila'
                  ))->first();
 
             if(!$nayte) {
@@ -449,9 +446,7 @@ class NayteController extends Controller
                 'luoja',
                 'tapahtumat.tapahtumaTyyppi',
                 'tapahtumat.luoja',
-                'tapahtumat.sailytystila',
                 'tutkimusalue.tutkimus.nayteKokoelmalaji', //IRTOLÖYTÖ
-                'sailytystila'
                     ))->first();
 
             MipJson::addMessage(Lang::get('nayte.save_success'));
@@ -548,7 +543,6 @@ class NayteController extends Controller
                         $nayte->ark_naytetyyppi_id = $request->input('properties.naytetyyppi.id');
                         $nayte->ark_talteenottotapa_id = $request->input('properties.talteenottotapa.id');
                         $nayte->ark_nayte_tila_id = $request->input('properties.tila.id');
-                        $nayte->vakituinen_sailytystila_id = $request->input('properties.sailytystila.id');
 
                         $author_field = Nayte::UPDATED_BY;
                         $nayte->$author_field = Auth::user()->id;
@@ -590,12 +584,10 @@ class NayteController extends Controller
                         'tila',
                         'tapahtumat.tapahtumaTyyppi',
                         'tapahtumat.luoja',
-                        'tapahtumat.sailytystila',
                         'tekija',
                         'luoja',
                         'muokkaaja',
                         'tutkimusalue.tutkimus.nayteKokoelmalaji', //IRTOLÖYTÖ
-                        'sailytystila'
                             ))->first();
 
                     // Deserialisoidaan JSON string kannasta
@@ -682,8 +674,8 @@ class NayteController extends Controller
                     if($request->input('properties.tilapainen_sijainti')) {
                         $nayte->tilapainen_sijainti = $request->input('properties.tilapainen_sijainti');
                     }
-                    if($request->input('properties.sailytystila.id')) {
-                        $nayte->vakituinen_sailytystila_id = $request->input('properties.sailytystila.id');
+                    if($request->input('properties.vakituinen_sailytystila')) {
+                        $nayte->vakituinen_sailytystila = $request->input('properties.vakituinen_sailytystila');
                     }
                     if($request->input('properties.vakituinen_hyllypaikka')) {
                         $nayte->vakituinen_hyllypaikka = $request->input('properties.vakituinen_hyllypaikka');
@@ -798,7 +790,7 @@ class NayteController extends Controller
 
         //Tallennetaan Kokoelmassa -tapahtumalle
         if($uusiTapahtuma->ark_nayte_tapahtuma_id == 6) {
-            $uusiTapahtuma->vakituinen_sailytystila_id = $request->input('properties.sailytystila.id');
+            $uusiTapahtuma->vakituinen_sailytystila = $request->input('properties.vakituinen_sailytystila');
             $uusiTapahtuma->vakituinen_hyllypaikka = $request->input('properties.vakituinen_hyllypaikka');
         }
 
@@ -837,9 +829,7 @@ class NayteController extends Controller
               'luoja',
               'tapahtumat.tapahtumaTyyppi',
               'tapahtumat.luoja',
-              'tapahtumat.sailytystila',
               'tutkimusalue.tutkimus.nayteKokoelmalaji', //IRTOLÖYTÖ
-              'sailytystila'
                ))->first();
           if(!$nayte) {
               MipJson::setGeoJsonFeature();
