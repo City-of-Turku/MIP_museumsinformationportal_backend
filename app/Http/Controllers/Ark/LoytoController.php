@@ -15,6 +15,7 @@ use App\Http\Controllers\Controller;
 use App\Library\String\MipJson;
 use App\Utils;
 use App\Kayttaja;
+use App\Ark\ArkKuva;
 use App\Ark\Loyto;
 use App\Ark\LoytoMateriaalit;
 use App\Ark\LoytoMerkinnat;
@@ -280,8 +281,19 @@ class LoytoController extends Controller
                 }
             }
 
+            // Kuvagalleria: tunnistekuvan url vain pyydettäessä. Ehdot kuten löydön ikkunassa (luetteloitu=false).
+            $tunnistekuvaUrlit = null;
+            if(filter_var($request->tunnistekuva_url, FILTER_VALIDATE_BOOLEAN)) {
+                $tunnistekuvaUrlit = ArkKuva::getTunnistekuvaUrls('ark_kuva_loyto', 'ark_loyto_id', $loydot->pluck('id')->all(), function($query) {
+                    $query->whereRaw("coalesce(ark_kuva.luettelointinumero, '') = ''");
+                });
+            }
+
             MipJson::initGeoJsonFeatureCollection(count($loydot), $total_rows);
             foreach ($loydot as $loyto) {
+                if(!is_null($tunnistekuvaUrlit)) {
+                    $loyto->tunnistekuva_url = $tunnistekuvaUrlit[$loyto->id] ?? null;
+                }
                 // löydön lisäys feature listaan
                 MipJson::addGeoJsonFeatureCollectionFeaturePoint(null, $loyto);
             }
