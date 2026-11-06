@@ -281,12 +281,10 @@ class LoytoController extends Controller
                 }
             }
 
-            // Kuvagalleria: tunnistekuvan url vain pyydettäessä. Ehdot kuten löydön ikkunassa (luetteloitu=false).
+            // Kuvagalleria: tunnistekuvan url vain pyydettäessä.
             $tunnistekuvaUrlit = null;
             if(filter_var($request->tunnistekuva_url, FILTER_VALIDATE_BOOLEAN)) {
-                $tunnistekuvaUrlit = ArkKuva::getTunnistekuvaUrls('ark_kuva_loyto', 'ark_loyto_id', $loydot->pluck('id')->all(), function($query) {
-                    $query->whereRaw("coalesce(ark_kuva.luettelointinumero, '') = ''");
-                });
+                $tunnistekuvaUrlit = ArkKuva::getTunnistekuvaUrls(17, $loydot->pluck('id')->all());
             }
 
             MipJson::initGeoJsonFeatureCollection(count($loydot), $total_rows);
@@ -418,6 +416,9 @@ class LoytoController extends Controller
                     MipJson::addMessage(Lang::get('loyto.search_not_found'));
                     return MipJson::getJson();
                 }
+
+                // Palautetaan vain voimassa oleva tunnistekuva
+                $loyto->tunnistekuva_kuva_id = ArkKuva::tunnistekuvaId(17, $loyto->id);
 
                 // US10297
                 if(Auth::user()->ark_rooli == 'katselija') {
