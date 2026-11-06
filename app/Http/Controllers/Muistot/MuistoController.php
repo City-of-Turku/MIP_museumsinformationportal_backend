@@ -32,10 +32,13 @@ use Exception;
 
 class MuistoController extends Controller {
 
-    public function getMuisto($id) 
+    /**
+     * Pelkkä testifunktio API:n toiminnan tarkistamiseen (esim. Bruno).
+     * Ei hae muistoa eikä ole varsinaisen Prikka-integraation käytössä.
+     */
+    public function getMuisto($id)
     {
-        Log::debug("Muistot " . $id . "api " . env("prikka_api_key"));
-        MipJson::addMessage("Muisto tallenneltu");
+        MipJson::addMessage("Prikka API toimii.");
         return MipJson::getJson();
     }
 
@@ -253,7 +256,12 @@ class MuistoController extends Controller {
                                               Log::channel('prikka')->error("Picture save failed for muisto" . $muistoEntity->prikka_id);
                                           }
                                       }
-                                      else 
+                                      else if($key == 'nimimerkki_kuvaajana')
+                                      {
+                                          // Optional field, null or invalid value is saved as true (same as the DB default)
+                                          $entityKuva->nimimerkki_kuvaajana = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? true;
+                                      }
+                                      else
                                       {
                                           $entityKuva->$key = $value;
                                       }
@@ -544,7 +552,7 @@ class MuistoController extends Controller {
 
             if(!in_array('kuvatiedosto', array_keys($kuva)) || $kuva['kuvatiedosto'] == null)
             {
-                array_push($errorArray, $muisto['muisto_id'] . ' kuva ' . $kuva['$kuva_id'] . ' Kuvatiedosto value null');
+                array_push($errorArray, $muisto['muisto_id'] . ' kuva ' . $kuva['kuva_id'] . ' Kuvatiedosto value null');
             }
         }
 
