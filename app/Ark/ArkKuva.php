@@ -40,8 +40,7 @@ class ArkKuva extends Model {
         "kuvaussuunta",
         "otsikko",
         "konservointivaihe_id",
-        "lisatiedot",
-        "tunnistekuva"
+        "lisatiedot"
     ];
 
     public $timestamps = false;
@@ -180,6 +179,13 @@ class ArkKuva extends Model {
         }
 
         return $query;
+    }
+
+    /*
+     * Entiteetin voimassa olevan tunnistekuvan id tai null.
+     */
+    public static function tunnistekuvaId($tyyppi, $id) {
+        return self::tunnistekuvat($tyyppi, [$id])->value('ark_kuva.id');
     }
 
     /*

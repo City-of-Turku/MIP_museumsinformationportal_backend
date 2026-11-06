@@ -418,7 +418,7 @@ class LoytoController extends Controller
                 }
 
                 // Palautetaan vain voimassa oleva tunnistekuva
-                $loyto->tunnistekuva_kuva_id = ArkKuva::tunnistekuvat(17, [$loyto->id])->first()?->id;
+                $loyto->tunnistekuva_kuva_id = ArkKuva::tunnistekuvaId(17, $loyto->id);
 
                 // US10297
                 if(Auth::user()->ark_rooli == 'katselija') {

@@ -255,7 +255,7 @@ class NayteController extends Controller
             }
 
             // Palautetaan vain voimassa oleva tunnistekuva
-            $nayte->tunnistekuva_kuva_id = ArkKuva::tunnistekuvat(18, [$nayte->id])->first()?->id;
+            $nayte->tunnistekuva_kuva_id = ArkKuva::tunnistekuvaId(18, $nayte->id);
 
             // Muodostetaan propparit
             $properties = clone($nayte);

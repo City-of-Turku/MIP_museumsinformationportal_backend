@@ -336,8 +336,7 @@ class ArkKuvaController extends Controller {
             /*
              * Create the file and store it into DB and filesystem
              */
-            // ark_kuva.tunnistekuva on vanhaa dataa, eikä sitä enää kirjoiteta
-            $entity = new ArkKuva($request->except('tunnistekuva'));
+            $entity = new ArkKuva($request->all());
 
             //PHP / Laravel castaa sisään tulevan null arvon "null" arvoksi
             //Korjataan tämä
@@ -431,7 +430,7 @@ class ArkKuvaController extends Controller {
             // Ikkunan entiteetin mukaan, kuten kuvalistassa. Ilman entiteettiä vanha ark_kuva.tunnistekuva.
             $ikkuna = $this->ikkunanEntiteetti($request);
             if($ikkuna) {
-                $entity->tunnistekuva = ArkKuva::tunnistekuvat($ikkuna[0], [$ikkuna[1]])->first()?->id == $entity->id;
+                $entity->tunnistekuva = ArkKuva::tunnistekuvaId($ikkuna[0], $ikkuna[1]) == $entity->id;
             }
 
             MipJson::setGeoJsonFeature(null, $entity);
@@ -527,8 +526,7 @@ class ArkKuvaController extends Controller {
                 MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
                 return MipJson::getJson();
             }
-            // ark_kuva.tunnistekuva on vanhaa dataa, eikä sitä enää kirjoiteta
-            $entity->fill($request->except('tunnistekuva'));
+            $entity->fill($request->all());
 
             //Jos kuvalla on ollut luettelointinumero, tarkasta sen uniikkius ja tallenna
             if($luetteloitu) {
@@ -983,10 +981,10 @@ class ArkKuvaController extends Controller {
      * Ikkunan entiteetti [entiteetti_tyyppi, entiteetti_id], jos se on tunnistekuvallinen. Muuten null.
      */
     private function ikkunanEntiteetti($request) {
-        $tyyppi = $request->input('entiteetti_tyyppi');
-        $entiteettiId = $request->input('entiteetti_id');
+        $tyyppi = filter_var($request->input('entiteetti_tyyppi'), FILTER_VALIDATE_INT);
+        $entiteettiId = filter_var($request->input('entiteetti_id'), FILTER_VALIDATE_INT);
 
-        if(!array_key_exists($tyyppi, ArkKuva::TUNNISTEKUVA_ENTITEETIT) || !is_numeric($entiteettiId)) {
+        if($tyyppi === false || $entiteettiId === false || !array_key_exists($tyyppi, ArkKuva::TUNNISTEKUVA_ENTITEETIT)) {
             return null;
         }
         return [$tyyppi, $entiteettiId];
@@ -1004,16 +1002,16 @@ class ArkKuvaController extends Controller {
         if($request->input("searchPage") == 'true') {
             $tunnistekuvaId = null;
         } else if($annettu('ark_loyto_id')) {
-            $tunnistekuvaId = ArkKuva::tunnistekuvat(17, [$request->input('ark_loyto_id')])->first()?->id;
+            $tunnistekuvaId = ArkKuva::tunnistekuvaId(17, $request->input('ark_loyto_id'));
         } else if($annettu('ark_nayte_id')) {
-            $tunnistekuvaId = ArkKuva::tunnistekuvat(18, [$request->input('ark_nayte_id')])->first()?->id;
+            $tunnistekuvaId = ArkKuva::tunnistekuvaId(18, $request->input('ark_nayte_id'));
         } else if($annettu('ark_yksikko_id') || $request->input('yksikkotunnus') || $annettu('ark_tutkimusalue_id')
             || $annettu('ark_rontgenkuva_id') || $annettu('ark_kuntoraportti_id')) {
             return;
         } else if($annettu('ark_kohde_id')) {
-            $tunnistekuvaId = ArkKuva::tunnistekuvat(15, [$request->input('ark_kohde_id')])->first()?->id;
+            $tunnistekuvaId = ArkKuva::tunnistekuvaId(15, $request->input('ark_kohde_id'));
         } else if($annettu('ark_tutkimus_id')) {
-            $tunnistekuvaId = ArkKuva::tunnistekuvat(14, [$request->input('ark_tutkimus_id')])->first()?->id;
+            $tunnistekuvaId = ArkKuva::tunnistekuvaId(14, $request->input('ark_tutkimus_id'));
         } else {
             return;
         }

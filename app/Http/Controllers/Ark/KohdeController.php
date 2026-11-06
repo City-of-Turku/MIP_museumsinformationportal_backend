@@ -341,7 +341,7 @@ class KohdeController extends Controller {
                 	MipJson::addMessage(Lang::get('kohde.search_not_found'));
                 } else {
                     // Palautetaan vain voimassa oleva tunnistekuva
-                    $kohde->tunnistekuva_kuva_id = ArkKuva::tunnistekuvat(15, [$kohde->id])->first()?->id;
+                    $kohde->tunnistekuva_kuva_id = ArkKuva::tunnistekuvaId(15, $kohde->id);
                 }
 
                 $properties = clone($kohde);

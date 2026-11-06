@@ -335,7 +335,7 @@ class TutkimusController extends Controller
                     MipJson::addMessage(Lang::get('tutkimus.search_not_found'));
                 } else {
                     // Palautetaan vain voimassa oleva tunnistekuva
-                    $tutkimus->tunnistekuva_kuva_id = ArkKuva::tunnistekuvat(14, [$tutkimus->id])->first()?->id;
+                    $tutkimus->tunnistekuva_kuva_id = ArkKuva::tunnistekuvaId(14, $tutkimus->id);
                 }
 
                 // Inventointi-tutkimukselle palautetaan tutkimuskäyttäjälle asetettu organisaatio sekä inventoinnin kohteet.
