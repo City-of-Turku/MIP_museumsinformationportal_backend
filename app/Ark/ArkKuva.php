@@ -142,34 +142,97 @@ class ArkKuva extends Model {
     }
 
     /*
+     * Tunnistekuvan omaavat entiteetit entiteetti_tyypin mukaan: [taulu, välitaulu, entiteetin id-sarake välitaulussa].
+     * Tutkimuksella ei ole välitaulua, vaan kuva kuuluu tutkimukseen ark_kuva.ark_tutkimus_id:n kautta.
+     */
+    const TUNNISTEKUVA_ENTITEETIT = [
+        14 => ['ark_tutkimus', null, null],
+        15 => ['ark_kohde', 'ark_kuva_kohde', 'ark_kohde_id'],
+        17 => ['ark_loyto', 'ark_kuva_loyto', 'ark_loyto_id'],
+        18 => ['ark_nayte', 'ark_kuva_nayte', 'ark_nayte_id'],
+    ];
+
+    /*
+     * Entiteettien voimassa olevat tunnistekuvat. Osoitin (tunnistekuva_kuva_id) huomioidaan vain, jos kuvaa
+     * ei ole poistettu ja se on yhä liitetty entiteettiin. Kaikki tunnistekuvan lukijat käyttävät tätä.
+     * $ids = null hakee kaikki. Rivillä ark_kuva.* ja entiteetti_id.
+     */
+    public static function tunnistekuvat($tyyppi, $ids = null) {
+        list($taulu, $valitaulu, $sarake) = self::TUNNISTEKUVA_ENTITEETIT[$tyyppi];
+
+        $query = ArkKuva::select('ark_kuva.*', $taulu.'.id as entiteetti_id')
+            ->join($taulu, $taulu.'.tunnistekuva_kuva_id', '=', 'ark_kuva.id');
+
+        if(!is_null($ids)) {
+            $query->whereIn($taulu.'.id', $ids);
+        }
+
+        if($valitaulu) {
+            $query->whereExists(function($q) use ($taulu, $valitaulu, $sarake) {
+                $q->select(DB::raw(1))
+                ->from($valitaulu)
+                ->whereColumn($valitaulu.'.ark_kuva_id', 'ark_kuva.id')
+                ->whereColumn($valitaulu.'.'.$sarake, $taulu.'.id')
+                ->whereNull($valitaulu.'.poistettu');
+            });
+        } else {
+            $query->whereColumn('ark_kuva.ark_tutkimus_id', $taulu.'.id');
+        }
+
+        return $query;
+    }
+
+    /*
+     * Tutkimuksen kuvien joukosta ne, jotka ovat jonkin entiteetin voimassa oleva tunnistekuva.
+     */
+    public static function tutkimuksenTunnistekuvaIdt($tutkimusId) {
+        $idt = [];
+        foreach(array_keys(self::TUNNISTEKUVA_ENTITEETIT) as $tyyppi) {
+            $idt = array_merge($idt, self::tunnistekuvat($tyyppi)->where('ark_kuva.ark_tutkimus_id', '=', $tutkimusId)->pluck('ark_kuva.id')->all());
+        }
+        return array_values(array_unique($idt));
+    }
+
+    /*
+     * Asettaa tai poistaa entiteetin tunnistekuvan. true asettaa osoittimen tähän kuvaan,
+     * false poistaa osoittimen vain, jos se osoittaa tähän kuvaan.
+     */
+    public static function asetaTunnistekuva($kuvaId, $tyyppi, $entiteettiId, $onTunnistekuva) {
+        $taulu = self::TUNNISTEKUVA_ENTITEETIT[$tyyppi][0];
+
+        if($onTunnistekuva) {
+            DB::table($taulu)->where('id', '=', $entiteettiId)
+            ->whereRaw('tunnistekuva_kuva_id is distinct from ?', [$kuvaId])
+            ->update(['tunnistekuva_kuva_id' => $kuvaId]);
+        } else {
+            DB::table($taulu)->where('id', '=', $entiteettiId)
+            ->where('tunnistekuva_kuva_id', '=', $kuvaId)
+            ->update(['tunnistekuva_kuva_id' => null]);
+        }
+    }
+
+    /*
+     * Poistetun kuvan osoittimet nollataan kaikilta entiteeteiltä.
+     */
+    public static function poistaTunnistekuvaOsoittimet($kuvaId) {
+        foreach(self::TUNNISTEKUVA_ENTITEETIT as $entiteetti) {
+            DB::table($entiteetti[0])->where('tunnistekuva_kuva_id', '=', $kuvaId)->update(['tunnistekuva_kuva_id' => null]);
+        }
+    }
+
+    /*
      * Hakee usean entiteetin tunnistekuvien MEDIUM-urlit yhdellä kyselyllä.
-     * Valinta vastaa entiteetin oman ikkunan kuvahakua (index): poistetut pois, pienin ark_kuva.id
-     * ja samat katseluoikeudet kuin index-metodin kuvakohtaisessa tarkistuksessa.
-     * $linkTable = välitaulu (esim. ark_kuva_kohde), $fkColumn = entiteetin id-sarake välitaulussa,
-     * $extraConditions = function($query) entiteettikohtaisille lisäehdoille.
+     * Samat katseluoikeudet kuin index-metodin kuvakohtaisessa tarkistuksessa.
      * Palauttaa taulukon [entiteetin id => url].
      */
-    public static function getTunnistekuvaUrls($linkTable, $fkColumn, $ids, $extraConditions = null) {
+    public static function getTunnistekuvaUrls($tyyppi, $ids) {
         if(empty($ids)) {
             return [];
         }
 
-        $fk = $linkTable.".".$fkColumn;
-        $query = DB::table('ark_kuva')
-            ->join($linkTable, $linkTable.".ark_kuva_id", "=", "ark_kuva.id")
-            ->selectRaw("distinct on (".$fk.") ".$fk." as entiteetti_id, ark_kuva.polku, ark_kuva.tiedostonimi")
-            ->whereIn($fk, $ids)
-            ->whereNull('ark_kuva.poistettu')
-            ->whereNull($linkTable.".poistettu")
-            ->where('ark_kuva.tunnistekuva', '=', true)
-            ->orderBy($fk)
-            ->orderBy('ark_kuva.id');
+        $query = self::tunnistekuvat($tyyppi, $ids);
 
         self::lisaaKatseluoikeusEhdot($query);
-
-        if($extraConditions) {
-            $extraConditions($query);
-        }
 
         $urls = [];
         foreach($query->get() as $row) {
@@ -267,12 +330,14 @@ class ArkKuva extends Model {
 	//Kaikilla paitsi kohteella pitää löytyä ark_tutkimus_id
 	public function scopeWithTutkimusId($query, $id, $tutkimusView = false) {
 		if($tutkimusView == true) {
-			return $query->where("ark_tutkimus_id", "=", $id)->whereRaw(
+			// Konservointikuvat jätetään pois, paitsi tunnistekuvat. Yksiköillä on yhä vanha ark_kuva.tunnistekuva-lippu.
+			$tunnistekuvaIdt = self::tutkimuksenTunnistekuvaIdt($id);
+			return $query->where("ark_tutkimus_id", "=", $id)->where(function($q) use ($tunnistekuvaIdt) {
+				$q->whereNull('ark_kuva.konservointivaihe_id')
+				->orWhereIn('ark_kuva.id', $tunnistekuvaIdt)
+				->orWhereRaw('(ark_kuva.tunnistekuva is not false and ark_kuva.id in (select aky.ark_kuva_id from ark_kuva_yksikko aky))');
+			})->whereRaw(
 				'(ark_kuva.id not in (
-						select ak.id
-						from ark_kuva ak
-						where ak.konservointivaihe_id is not null and ak.tunnistekuva is false
-				union
 						select akk2.ark_kuva_id
 						from ark_kuva_kuntoraportti akk2
 				union
@@ -495,43 +560,6 @@ class ArkKuva extends Model {
 	    return false;
 	}
 
-	public static function updateLoytoTunnistekuva($loytoId, $kuvaId) {
-	    DB::select(DB::raw('update ark_kuva set tunnistekuva = false
-				where ark_kuva.id in(
-					select ark_kuva.id
-					from ark_kuva
-					left join ark_kuva_loyto on ark_kuva.id = ark_kuva_loyto.ark_kuva_id
-					left join ark_loyto on ark_loyto.id = ark_kuva_loyto.ark_loyto_id
-					where ark_loyto.id = :lId
-					and ark_kuva.luettelointinumero is null
-					and ark_kuva.id != :kId
-				);'), array('lId' => $loytoId, 'kId' => $kuvaId));
-	}
-
-	public static function updateYksikkoTunnistekuva($yksikkoId, $kuvaId) {
-		DB::select(DB::raw('update ark_kuva set tunnistekuva = false
-			where ark_kuva.id in(
-				select ark_kuva.id
-				from ark_kuva
-				left join ark_kuva_yksikko on ark_kuva.id = ark_kuva_yksikko.ark_kuva_id
-				left join ark_tutkimusalue_yksikko on ark_tutkimusalue_yksikko.id = ark_kuva_yksikko.ark_yksikko_id
-				where ark_tutkimusalue_yksikko.id = :yId
-				and ark_kuva.id != :kId
-			);'), array('yId' => $yksikkoId, 'kId' => $kuvaId));
-}
-
-	public static function updateKohdeTunnistekuva($kohdeId, $kuvaId) {
-		DB::select(DB::raw('update ark_kuva set tunnistekuva = false
-			where ark_kuva.id in(
-				select ark_kuva.id
-				from ark_kuva
-				left join ark_kuva_kohde on ark_kuva.id = ark_kuva_kohde.ark_kuva_id
-				left join ark_kohde on ark_kohde.id = ark_kuva_kohde.ark_kohde_id
-				where ark_kohde.id = :khId
-				and ark_kuva.id != :kId
-			);'), array('khId' => $kohdeId, 'kId' => $kuvaId));
-	}
-
 	public static function tutkimus($kuvaId) {
 	    return Tutkimus::on()->fromQuery(DB::raw('select t.*
 				from ark_kuva k
@@ -548,11 +576,6 @@ class ArkKuva extends Model {
 	}
 
 	public static function loytoTunnistekuva($loytoId) {
-	    return ArkKuva::select('ark_kuva.*')
-	    ->leftJoin('ark_kuva_loyto', 'ark_kuva_loyto.ark_kuva_id', '=', 'ark_kuva.id')
-	    ->leftJoin('ark_loyto', 'ark_loyto.id', '=', 'ark_kuva_loyto.ark_loyto_id')
-	    ->where('ark_loyto.id', '=', $loytoId)
-	    ->where('ark_kuva.tunnistekuva', '=', true)
-	    ->where('ark_kuva.poistettu', '=', null);
+	    return self::tunnistekuvat(17, [$loytoId]);
 	}
 }

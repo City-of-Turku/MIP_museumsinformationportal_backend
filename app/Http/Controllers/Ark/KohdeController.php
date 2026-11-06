@@ -226,12 +226,10 @@ class KohdeController extends Controller {
             $kohteet = $kohteet->get();
             //Log::debug(print_r(DB::getQueryLog(), true));
 
-            // Kuvagalleria: tunnistekuvan url vain pyydettäessä. Ehdot kuten kohteen ikkunassa (luetteloitu=false).
+            // Kuvagalleria: tunnistekuvan url vain pyydettäessä.
             $tunnistekuvaUrlit = null;
             if(filter_var($request->tunnistekuva_url, FILTER_VALIDATE_BOOLEAN)) {
-                $tunnistekuvaUrlit = ArkKuva::getTunnistekuvaUrls('ark_kuva_kohde', 'ark_kohde_id', $kohteet->pluck('id')->all(), function($query) {
-                    $query->whereRaw("coalesce(ark_kuva.luettelointinumero, '') = ''");
-                });
+                $tunnistekuvaUrlit = ArkKuva::getTunnistekuvaUrls(15, $kohteet->pluck('id')->all());
             }
 
             MipJson::initGeoJsonFeatureCollection(count($kohteet), $total_rows);
@@ -341,6 +339,9 @@ class KohdeController extends Controller {
                 	MipJson::setGeoJsonFeature();
                 	MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
                 	MipJson::addMessage(Lang::get('kohde.search_not_found'));
+                } else {
+                    // Palautetaan vain voimassa oleva tunnistekuva
+                    $kohde->tunnistekuva_kuva_id = ArkKuva::tunnistekuvat(15, [$kohde->id])->first()?->id;
                 }
 
                 $properties = clone($kohde);

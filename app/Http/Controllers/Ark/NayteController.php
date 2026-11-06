@@ -14,6 +14,7 @@ use App\Http\Controllers\Controller;
 use App\Library\String\MipJson;
 use App\Utils;
 use App\Kayttaja;
+use App\Ark\ArkKuva;
 use App\Ark\Nayte;
 use App\Ark\Naytekoodi;
 use App\Ark\NayteTapahtuma;
@@ -252,6 +253,9 @@ class NayteController extends Controller
                 MipJson::addMessage(Lang::get('nayte.search_not_found'));
                 return MipJson::getJson();
             }
+
+            // Palautetaan vain voimassa oleva tunnistekuva
+            $nayte->tunnistekuva_kuva_id = ArkKuva::tunnistekuvat(18, [$nayte->id])->first()?->id;
 
             // Muodostetaan propparit
             $properties = clone($nayte);
