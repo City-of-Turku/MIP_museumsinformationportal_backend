@@ -195,14 +195,26 @@ class ArkKuva extends Model {
 
     /*
      * Asettaa tai poistaa entiteetin tunnistekuvan. true asettaa osoittimen tähän kuvaan,
-     * false poistaa osoittimen vain, jos se osoittaa tähän kuvaan.
+     * false poistaa osoittimen vain, jos se osoittaa tähän kuvaan. Liittämätöntä kuvaa ei aseteta.
      */
     public static function asetaTunnistekuva($kuvaId, $tyyppi, $entiteettiId, $onTunnistekuva) {
-        $taulu = self::TUNNISTEKUVA_ENTITEETIT[$tyyppi][0];
+        list($taulu, $valitaulu, $sarake) = self::TUNNISTEKUVA_ENTITEETIT[$tyyppi];
 
         if($onTunnistekuva) {
             DB::table($taulu)->where('id', '=', $entiteettiId)
             ->whereRaw('tunnistekuva_kuva_id is distinct from ?', [$kuvaId])
+            ->whereExists(function($q) use ($valitaulu, $sarake, $kuvaId, $entiteettiId) {
+                if($valitaulu) {
+                    $q->select(DB::raw(1))->from($valitaulu)
+                    ->where($valitaulu.'.ark_kuva_id', '=', $kuvaId)
+                    ->where($valitaulu.'.'.$sarake, '=', $entiteettiId)
+                    ->whereNull($valitaulu.'.poistettu');
+                } else {
+                    $q->select(DB::raw(1))->from('ark_kuva')
+                    ->where('ark_kuva.id', '=', $kuvaId)
+                    ->where('ark_kuva.ark_tutkimus_id', '=', $entiteettiId);
+                }
+            })
             ->update(['tunnistekuva_kuva_id' => $kuvaId]);
         } else {
             DB::table($taulu)->where('id', '=', $entiteettiId)
