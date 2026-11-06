@@ -552,7 +552,7 @@ class MuistoController extends Controller {
 
             if(!in_array('kuvatiedosto', array_keys($kuva)) || $kuva['kuvatiedosto'] == null)
             {
-                array_push($errorArray, $muisto['muisto_id'] . ' kuva ' . $kuva['$kuva_id'] . ' Kuvatiedosto value null');
+                array_push($errorArray, $muisto['muisto_id'] . ' kuva ' . $kuva['kuva_id'] . ' Kuvatiedosto value null');
             }
         }
 
