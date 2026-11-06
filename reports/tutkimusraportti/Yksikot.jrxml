@@ -25,13 +25,11 @@
     coalesce(k.kuvaus, '') as kuvaus,
     coalesce(coalesce(k.kuvauspvm, null)::text, '') as kuvauspvm,
     coalesce(k.kuvaaja, '') as kuvaaja
-from ark_kuva k
-left join ark_kuva_yksikko yk on yk.ark_kuva_id = k.id
-left join ark_tutkimusalue_yksikko y on y.id = yk.ark_yksikko_id
+from ark_tutkimusalue_yksikko y
+join ark_kuva k on k.id = y.tunnistekuva_kuva_id and k.poistettu is null
 where y.id = $P{yksikkoId}
-and k.tunnistekuva = true
-and k.poistettu is null
-limit 1;]]>
+and exists (select 1 from ark_kuva_yksikko yk
+            where yk.ark_yksikko_id = y.id and yk.ark_kuva_id = k.id and yk.poistettu is null);]]>
 		</queryString>
 		<field name="id" class="java.lang.Long"/>
 		<field name="otsake" class="java.lang.String"/>

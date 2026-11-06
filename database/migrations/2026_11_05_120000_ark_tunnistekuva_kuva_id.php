@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Schema;
 
 /*
  * Tunnistekuva siirretään ark_kuva.tunnistekuva-lipusta entiteetin omaksi osoittimeksi.
- * ark_kuva.tunnistekuva jää vanhaksi dataksi (yksiköt ja raporttien ak.*).
+ * ark_kuva.tunnistekuva jää vanhaksi dataksi. Yksiköt: 2026_11_06_120000_ark_yksikko_tunnistekuva_kuva_id.
  */
 class ArkTunnistekuvaKuvaId extends Migration
 {

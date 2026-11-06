@@ -145,6 +145,7 @@ class ArkKuva extends Model {
      * Tutkimuksella ei ole välitaulua, vaan kuva kuuluu tutkimukseen ark_kuva.ark_tutkimus_id:n kautta.
      */
     const TUNNISTEKUVA_ENTITEETIT = [
+        13 => ['ark_tutkimusalue_yksikko', 'ark_kuva_yksikko', 'ark_yksikko_id'],
         14 => ['ark_tutkimus', null, null],
         15 => ['ark_kohde', 'ark_kuva_kohde', 'ark_kohde_id'],
         17 => ['ark_loyto', 'ark_kuva_loyto', 'ark_loyto_id'],
@@ -348,12 +349,11 @@ class ArkKuva extends Model {
 	//Kaikilla paitsi kohteella pitää löytyä ark_tutkimus_id
 	public function scopeWithTutkimusId($query, $id, $tutkimusView = false) {
 		if($tutkimusView == true) {
-			// Konservointikuvat jätetään pois, paitsi tunnistekuvat. Yksiköillä on yhä vanha ark_kuva.tunnistekuva-lippu.
+			// Konservointikuvat jätetään pois, paitsi tunnistekuvat.
 			$tunnistekuvaIdt = self::tutkimuksenTunnistekuvaIdt($id);
 			return $query->where("ark_tutkimus_id", "=", $id)->where(function($q) use ($tunnistekuvaIdt) {
 				$q->whereNull('ark_kuva.konservointivaihe_id')
-				->orWhereIn('ark_kuva.id', $tunnistekuvaIdt)
-				->orWhereRaw('(ark_kuva.tunnistekuva is not false and ark_kuva.id in (select aky.ark_kuva_id from ark_kuva_yksikko aky))');
+				->orWhereIn('ark_kuva.id', $tunnistekuvaIdt);
 			})->whereRaw(
 				'(ark_kuva.id not in (
 						select akk2.ark_kuva_id

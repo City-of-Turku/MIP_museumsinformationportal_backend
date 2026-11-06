@@ -992,7 +992,7 @@ class ArkKuvaController extends Controller {
 
     /*
      * Kuvan tunnistekuva-kenttä lasketaan ikkunan entiteetin osoittimesta. Haussa kentällä ei ole yhtä merkitystä, joten false.
-     * Yksikön, tutkimusalueen, röntgenkuvan ja kuntoraportin ikkunoissa jää vanha ark_kuva.tunnistekuva.
+     * Tutkimusalueen, röntgenkuvan ja kuntoraportin ikkunoissa jää vanha ark_kuva.tunnistekuva.
      */
     private function asetaTunnistekuvaKentta($entities, $request) {
         $annettu = function($kentta) use ($request) {
@@ -1005,8 +1005,12 @@ class ArkKuvaController extends Controller {
             $tunnistekuvaId = ArkKuva::tunnistekuvaId(17, $request->input('ark_loyto_id'));
         } else if($annettu('ark_nayte_id')) {
             $tunnistekuvaId = ArkKuva::tunnistekuvaId(18, $request->input('ark_nayte_id'));
-        } else if($annettu('ark_yksikko_id') || $request->input('yksikkotunnus') || $annettu('ark_tutkimusalue_id')
-            || $annettu('ark_rontgenkuva_id') || $annettu('ark_kuntoraportti_id')) {
+        } else if($annettu('ark_yksikko_id')) {
+            $tunnistekuvaId = ArkKuva::tunnistekuvaId(13, $request->input('ark_yksikko_id'));
+        } else if($request->input('yksikkotunnus')) {
+            // Tunnuksella voi osua useaan yksikköön
+            $tunnistekuvaId = null;
+        } else if($annettu('ark_tutkimusalue_id') || $annettu('ark_rontgenkuva_id') || $annettu('ark_kuntoraportti_id')) {
             return;
         } else if($annettu('ark_kohde_id')) {
             $tunnistekuvaId = ArkKuva::tunnistekuvaId(15, $request->input('ark_kohde_id'));
