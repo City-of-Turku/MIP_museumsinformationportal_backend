@@ -53,6 +53,11 @@ class ArkTunnistekuvaKuvaId extends Migration
                 where v.entiteetti_id = e.id
             ");
         }
+
+        // Kuvan poisto nollaa osoittimet tunnistekuva_kuva_id:n perusteella
+        foreach($this->taulut as $taulu) {
+            DB::statement("create index {$taulu}_tunnistekuva_kuva_id_index on $taulu (tunnistekuva_kuva_id) where tunnistekuva_kuva_id is not null");
+        }
     }
 
     /**
@@ -77,6 +82,7 @@ class ArkTunnistekuvaKuvaId extends Migration
         ");
 
         foreach($this->taulut as $taulu) {
+            DB::statement("drop index if exists {$taulu}_tunnistekuva_kuva_id_index");
             Schema::table($taulu, function (Blueprint $table) {
                 $table->dropForeign(['tunnistekuva_kuva_id']);
                 $table->dropColumn('tunnistekuva_kuva_id');
