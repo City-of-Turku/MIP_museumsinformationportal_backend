@@ -182,8 +182,17 @@ class NayteController extends Controller
             // suorita query
             $naytteet = $naytteet->get();
 
+            // Kuvagalleria: tunnistekuvan url vain pyydettäessä.
+            $tunnistekuvaUrlit = null;
+            if(filter_var($request->tunnistekuva_url, FILTER_VALIDATE_BOOLEAN)) {
+                $tunnistekuvaUrlit = ArkKuva::getTunnistekuvaUrls(18, $naytteet->pluck('id')->all());
+            }
+
             MipJson::initGeoJsonFeatureCollection(count($naytteet), $total_rows);
             foreach ($naytteet as $nayte) {
+                if(!is_null($tunnistekuvaUrlit)) {
+                    $nayte->tunnistekuva_url = $tunnistekuvaUrlit[$nayte->id] ?? null;
+                }
                 // näytteen lisäys feature listaan
                 MipJson::addGeoJsonFeatureCollectionFeaturePoint(null, $nayte);
             }

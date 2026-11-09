@@ -256,9 +256,18 @@ class TutkimusController extends Controller
                 }
             }
 
+            // Kuvagalleria: tunnistekuvan url vain pyydettäessä.
+            $tunnistekuvaUrlit = null;
+            if(filter_var($request->tunnistekuva_url, FILTER_VALIDATE_BOOLEAN)) {
+                $tunnistekuvaUrlit = ArkKuva::getTunnistekuvaUrls(14, $tutkimukset->pluck('id')->all());
+            }
+
             MipJson::initGeoJsonFeatureCollection(count($tutkimukset), $total_rows);
 
             foreach ($tutkimukset as $tutkimus) {
+                if(!is_null($tunnistekuvaUrlit)) {
+                    $tutkimus->tunnistekuva_url = $tunnistekuvaUrlit[$tutkimus->id] ?? null;
+                }
                 MipJson::addGeoJsonFeatureCollectionFeaturePoint(null, $tutkimus);
             }
             MipJson::addMessage(Lang::get('tutkimus.search_success'));
