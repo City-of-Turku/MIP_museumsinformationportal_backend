@@ -152,8 +152,17 @@ class AlueController extends Controller {
     			// Execute the query
     			$entities = $entities->get();
 
+    			// Kuvagalleria: ensimmäisen kuvan url vain pyydettäessä.
+    			$tunnistekuvaUrlit = null;
+    			if(filter_var($request->tunnistekuva_url, FILTER_VALIDATE_BOOLEAN)) {
+    				$tunnistekuvaUrlit = Kuva::getTunnistekuvaUrls('kuva_alue', 'alue_id', $entities->pluck('id')->all());
+    			}
+
     			MipJson::initGeoJsonFeatureCollection(count($entities), $total_rows);
 		    	foreach ($entities as $entity) {
+		    		if(!is_null($tunnistekuvaUrlit)) {
+		    			$entity->tunnistekuva_url = $tunnistekuvaUrlit[$entity->id] ?? null;
+		    		}
 
 		    		/*
 		    		 * clone $entity so we can handle the "properties" separately
