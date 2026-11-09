@@ -80,7 +80,8 @@ class KuvaController extends Controller {
     			$jarjestys_kentta = (isset($request->jarjestys)) ? $request->jarjestys : "id";
     			$jarjestys_suunta = (isset($request->jarjestys_suunta)) ? ($request->jarjestys_suunta == "laskeva" ? "desc" : "asc") : "asc";
 
-    			$entities = Kuva::orderBy($jarjestys_kentta, $jarjestys_suunta);
+    			// kuva.id ratkaisee tasatilanteet, jotta ensimmäinen kuva on sama kuin Kuva::getTunnistekuvaUrls
+    			$entities = Kuva::orderBy($jarjestys_kentta, $jarjestys_suunta)->orderBy('kuva.id', 'asc');
 
     			if($request->input("kiinteisto_id")) {
     				$entities->withEstateID($request->input("kiinteisto_id"));
