@@ -10,7 +10,7 @@ use App;
 
 class Alue extends Model {
 
-	use SoftDeletes;
+	use SoftDeletes, KuvaSuodatin;
 
 
 	protected $table = "alue";

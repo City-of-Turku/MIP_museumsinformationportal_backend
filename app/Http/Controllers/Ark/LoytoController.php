@@ -252,6 +252,11 @@ class LoytoController extends Controller
                 $loydot->withRontgenkuvat($request->rontgenkuvat);
             }
 
+            // Kuva: 1 = kyllä, 2 = ei, 3 = kaikki.
+            if($request->kuva) {
+                $loydot->withKuva($request->kuva);
+            }
+
             // Rivien määrän laskenta
             $total_rows = Utils::getCount($loydot);
 

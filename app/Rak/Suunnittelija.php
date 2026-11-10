@@ -10,7 +10,7 @@ use App;
 
 class Suunnittelija extends Model {
 
-	use SoftDeletes;
+	use SoftDeletes, KuvaSuodatin;
 
 	protected $table = "suunnittelija";
 

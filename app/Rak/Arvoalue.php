@@ -10,7 +10,7 @@ use App;
 
 class Arvoalue extends Model {
 
-	use SoftDeletes;
+	use SoftDeletes, KuvaSuodatin;
 
 	protected $table = "arvoalue";
 

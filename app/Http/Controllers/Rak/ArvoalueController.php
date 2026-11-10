@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Rak;
 
+use App\Rak\Kuva;
 use App\Kayttaja;
 use App\Utils;
 use App\Http\Controllers\Controller;
@@ -161,6 +162,11 @@ class ArvoalueController extends Controller {
     			// order the results by given parameters
     			$entities->withOrderBy($request->aluerajaus, $jarjestys_kentta, $jarjestys_suunta);
 
+    			// Kuva: 1 = kyllä, 2 = ei, 3 = kaikki.
+    			if($request->kuva) {
+    				$entities->withKuva($request->kuva);
+    			}
+
     			// calculate the total rows of the search results
     			$total_rows = Utils::getCount($entities);
 
@@ -173,8 +179,17 @@ class ArvoalueController extends Controller {
     			// Execute the query
     			$entities = $entities->get();
 
+    			// Kuvagalleria: ensimmäisen kuvan url vain pyydettäessä.
+    			$tunnistekuvaUrlit = null;
+    			if(filter_var($request->tunnistekuva_url, FILTER_VALIDATE_BOOLEAN)) {
+    				$tunnistekuvaUrlit = Kuva::getTunnistekuvaUrls('kuva_arvoalue', 'arvoalue_id', $entities->pluck('id')->all());
+    			}
+
     			MipJson::initGeoJsonFeatureCollection(count($entities), $total_rows);
 		    	foreach ($entities as $entity) {
+		    		if(!is_null($tunnistekuvaUrlit)) {
+		    			$entity->tunnistekuva_url = $tunnistekuvaUrlit[$entity->id] ?? null;
+		    		}
 
 		    		/*
 		    		 * -> remove "sijainti" from props

@@ -252,6 +252,10 @@ class ArkKuva extends Model {
         $query = self::tunnistekuvat($tyyppi, $ids);
 
         self::lisaaKatseluoikeusEhdot($query);
+        // Tutkimuksen tunnistekuva vain, jos se näkyy tutkimuksen ikkunassa.
+        if($tyyppi == 14) {
+            self::lisaaTutkimusnakymanEhdot($query);
+        }
 
         $urls = [];
         foreach($query->get() as $row) {
@@ -264,7 +268,7 @@ class ArkKuva extends Model {
      * Sama sääntö kuin ArkKuvaController@index: tutkimukseen kuuluvassa kuvassa tutkimuksen katseluoikeus
      * (Kayttaja::getArkTutkimusSubPermissions), muissa ark_kohde-entiteetin katseluoikeus.
      */
-    private static function lisaaKatseluoikeusEhdot($query) {
+    public static function lisaaKatseluoikeusEhdot($query) {
         $kohdeKatselu = Kayttaja::getPermissionsByEntityOnly('ark_kohde')['katselu'] == true;
         $kaikkiTutkimukset = in_array(Auth::user()->ark_rooli, ['pääkäyttäjä', 'tutkija']);
 
@@ -277,6 +281,78 @@ class ArkKuva extends Model {
             } else {
                 $q->orWhereIn('ark_kuva.ark_tutkimus_id', Tutkimus::getAll()->select('ark_tutkimus.id'));
             }
+        });
+    }
+
+    /*
+     * Hakulistojen Kuva-suodatin (1 = kyllä, 2 = ei, muut = ei suodatusta): näkyykö entiteetin ikkunassa
+     * käyttäjälle ainakin yksi kuva. $ehto rajaa ark_kuva-rivit entiteettiin (ulompi taulu) ikkunan ehdoilla.
+     */
+    public static function lisaaKuvaSuodatin($query, $valinta, $ehto) {
+        if($valinta != 1 && $valinta != 2) {
+            return $query;
+        }
+
+        $kysely = function($q) use ($ehto) {
+            $q->select(DB::raw(1))
+            ->from('ark_kuva')
+            ->whereNull('ark_kuva.poistettu');
+            $ehto($q);
+            self::lisaaKatseluoikeusEhdot($q);
+        };
+
+        return $valinta == 1 ? $query->whereExists($kysely) : $query->whereNotExists($kysely);
+    }
+
+    /*
+     * Tutkimusnäkymän rajaukset kuten scopeWithTutkimusId(.., true): konservointikuva vain, jos se on jonkin
+     * entiteetin voimassa oleva tunnistekuva, eikä kuntoraporttien tai röntgenkuvien kuvia.
+     */
+    public static function lisaaTutkimusnakymanEhdot($query) {
+        $query->where(function($w) {
+            $w->whereNull('ark_kuva.konservointivaihe_id');
+            foreach(self::TUNNISTEKUVA_ENTITEETIT as list($taulu, $valitaulu, $sarake)) {
+                $w->orWhereExists(function($e) use ($taulu, $valitaulu, $sarake) {
+                    $e->select(DB::raw(1))
+                    ->from($taulu.' as tke')
+                    ->whereColumn('tke.tunnistekuva_kuva_id', 'ark_kuva.id');
+                    if($valitaulu) {
+                        $e->whereExists(function($v) use ($valitaulu, $sarake) {
+                            $v->select(DB::raw(1))
+                            ->from($valitaulu.' as tkv')
+                            ->whereColumn('tkv.ark_kuva_id', 'ark_kuva.id')
+                            ->whereColumn('tkv.'.$sarake, 'tke.id')
+                            ->whereNull('tkv.poistettu');
+                        });
+                    } else {
+                        $e->whereColumn('ark_kuva.ark_tutkimus_id', 'tke.id');
+                    }
+                });
+            }
+        })->whereRaw('(ark_kuva.id not in (
+                select akk2.ark_kuva_id from ark_kuva_kuntoraportti akk2
+                union
+                select akr.ark_kuva_id from ark_kuva_rontgenkuva akr
+            ))');
+    }
+
+    /*
+     * Liittää löydön tai näytteen ($alias) oman tutkimuksen tutkimusalueet: yksikön kautta (otya) ja
+     * irtolöytötutkimusalueen kautta (otia), kuten Loyto/Nayte::joinTutkimus.
+     */
+    public static function liitaOmaTutkimus($query, $alias) {
+        $query->leftJoin('ark_tutkimusalue_yksikko as oty', 'oty.id', '=', $alias.'.ark_tutkimusalue_yksikko_id')
+        ->leftJoin('ark_tutkimusalue as otya', 'otya.id', '=', 'oty.ark_tutkimusalue_id')
+        ->leftJoin('ark_tutkimusalue as otia', 'otia.id', '=', $alias.'.ark_tutkimusalue_id');
+    }
+
+    /*
+     * Kuva kuuluu liitaOmaTutkimus-liitoksen tutkimukseen.
+     */
+    public static function lisaaOmanTutkimuksenEhto($query) {
+        $query->where(function($t) {
+            $t->whereColumn('ark_kuva.ark_tutkimus_id', 'otya.ark_tutkimus_id')
+            ->orWhereColumn('ark_kuva.ark_tutkimus_id', 'otia.ark_tutkimus_id');
         });
     }
 

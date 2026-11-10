@@ -216,6 +216,11 @@ class KohdeController extends Controller {
 
             $kohteet->withOrderBy($request->aluerajaus, $jarjestys_kentta, $jarjestys_suunta);
 
+            // Kuva: 1 = kyllä, 2 = ei, 3 = kaikki.
+            if($request->kuva) {
+                $kohteet->withKuva($request->kuva);
+            }
+
             // calculate the total rows of the search results
             $total_rows = Utils::getCount($kohteet);
 

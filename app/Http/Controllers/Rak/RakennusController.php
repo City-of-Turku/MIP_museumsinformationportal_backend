@@ -241,6 +241,11 @@ class RakennusController extends Controller {
 					$entities->withKuvaukset($request->kuvaukset);
 				}
 
+				// Kuva: 1 = kyllä, 2 = ei, 3 = kaikki.
+				if($request->kuva) {
+					$entities->withKuva($request->kuva);
+				}
+
 				// calculate the total rows of the search results
 				//$total_rows = $entities->count();
 				$total_rows = Utils::getCount($entities);
@@ -260,8 +265,17 @@ class RakennusController extends Controller {
 		    	// Execute the query
 		    	$entities = $entities->get();
 
+				// Kuvagalleria: ensimmäisen kuvan url vain pyydettäessä.
+				$tunnistekuvaUrlit = null;
+				if(filter_var($request->tunnistekuva_url, FILTER_VALIDATE_BOOLEAN)) {
+					$tunnistekuvaUrlit = Kuva::getTunnistekuvaUrls('kuva_rakennus', 'rakennus_id', $entities->pluck('id')->all());
+				}
+
 				MipJson::initGeoJsonFeatureCollection(count($entities), $total_rows);
 		    	foreach ($entities as $entity) {
+		    		if(!is_null($tunnistekuvaUrlit)) {
+		    			$entity->tunnistekuva_url = $tunnistekuvaUrlit[$entity->id] ?? null;
+		    		}
 		    		$properties = clone($entity);
 		    		unset($properties['sijainti']);
 

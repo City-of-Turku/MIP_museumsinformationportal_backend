@@ -155,6 +155,11 @@ class KiinteistoController extends Controller {
             // order the results by given parameters
             $kiinteistot->withOrderBy($request->aluerajaus, $jarjestys_kentta, $jarjestys_suunta);
 
+            // Kuva: 1 = kyllä, 2 = ei, 3 = kaikki.
+            if($request->kuva) {
+            	$kiinteistot->withKuva($request->kuva);
+            }
+
             // calculate the total rows of the search results
             $total_rows = Utils::getCount($kiinteistot);//count($kiinteistot->get());
 
@@ -167,8 +172,17 @@ class KiinteistoController extends Controller {
             // Execute the query
             $kiinteistot = $kiinteistot->get();
 
+            // Kuvagalleria: ensimmäisen kuvan url vain pyydettäessä.
+            $tunnistekuvaUrlit = null;
+            if(filter_var($request->tunnistekuva_url, FILTER_VALIDATE_BOOLEAN)) {
+                $tunnistekuvaUrlit = Kuva::getTunnistekuvaUrls('kuva_kiinteisto', 'kiinteisto_id', $kiinteistot->pluck('id')->all());
+            }
+
             MipJson::initGeoJsonFeatureCollection(count($kiinteistot), $total_rows);
             foreach ($kiinteistot as $kiinteisto) {
+                if(!is_null($tunnistekuvaUrlit)) {
+                    $kiinteisto->tunnistekuva_url = $tunnistekuvaUrlit[$kiinteisto->id] ?? null;
+                }
 
                 /*
                  * clone $kiinteisto so we can handle the "properties" separately
