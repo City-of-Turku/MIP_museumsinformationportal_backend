@@ -32,6 +32,7 @@ class KuvaIndexes extends Migration
      */
     public function up()
     {
+        DB::statement("set local lock_timeout = '5s'");
         foreach($this->indeksit as $nimi => $kohde) {
             DB::statement("create index if not exists $nimi on $kohde");
         }
@@ -44,6 +45,7 @@ class KuvaIndexes extends Migration
      */
     public function down()
     {
+        DB::statement("set local lock_timeout = '5s'");
         foreach($this->indeksit as $nimi => $kohde) {
             DB::statement("drop index if exists $nimi");
         }
