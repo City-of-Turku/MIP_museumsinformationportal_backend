@@ -252,6 +252,10 @@ class ArkKuva extends Model {
         $query = self::tunnistekuvat($tyyppi, $ids);
 
         self::lisaaKatseluoikeusEhdot($query);
+        // Tutkimuksen tunnistekuva vain, jos se näkyy tutkimuksen ikkunassa.
+        if($tyyppi == 14) {
+            self::lisaaTutkimusnakymanEhdot($query);
+        }
 
         $urls = [];
         foreach($query->get() as $row) {
@@ -283,7 +287,6 @@ class ArkKuva extends Model {
     /*
      * Hakulistojen Kuva-suodatin (1 = kyllä, 2 = ei, muut = ei suodatusta): näkyykö entiteetin ikkunassa
      * käyttäjälle ainakin yksi kuva. $ehto rajaa ark_kuva-rivit entiteettiin (ulompi taulu) ikkunan ehdoilla.
-     * Kutsutaan mallin scopesta, jolloin aiemmat ehdot (myös orWhere) ryhmitellään omiin sulkuihinsa.
      */
     public static function lisaaKuvaSuodatin($query, $valinta, $ehto) {
         if($valinta != 1 && $valinta != 2) {

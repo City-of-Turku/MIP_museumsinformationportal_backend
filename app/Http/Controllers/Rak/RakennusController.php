@@ -241,7 +241,7 @@ class RakennusController extends Controller {
 					$entities->withKuvaukset($request->kuvaukset);
 				}
 
-				// Kuva: 1 = kyllä, 2 = ei, 3 = kaikki. Viimeisenä, jotta aiemmat ehdot ryhmitellään scopessa.
+				// Kuva: 1 = kyllä, 2 = ei, 3 = kaikki.
 				if($request->kuva) {
 					$entities->withKuva($request->kuva);
 				}

@@ -252,7 +252,7 @@ class LoytoController extends Controller
                 $loydot->withRontgenkuvat($request->rontgenkuvat);
             }
 
-            // Kuva: 1 = kyllä, 2 = ei, 3 = kaikki. Viimeisenä, jotta aiemmat ehdot ryhmitellään scopessa.
+            // Kuva: 1 = kyllä, 2 = ei, 3 = kaikki.
             if($request->kuva) {
                 $loydot->withKuva($request->kuva);
             }

@@ -213,19 +213,21 @@ class TutkimusController extends Controller
 
             $tutkimukset->withOrderBy($jarjestys_kentta, $jarjestys_suunta, $request->aluerajaus);
 
-            // Kuva: 1 = kyllä, 2 = ei, 3 = kaikki. Viimeisenä, jotta aiemmat ehdot ryhmitellään scopessa.
+            // Kuva: 1 = kyllä, 2 = ei, 3 = kaikki.
             if($request->kuva) {
                 $tutkimukset->withKuva($request->kuva);
             }
 
-            // Kuvasuodattimen kustannusarvio ylittää JIT-rajat: käännös kestää sekunteja, itse haku millisekunteja.
-            // SET LOCAL on voimassa vain tämän transaktion ajan.
+            // Kuvasuodatettu haku ilman JIT:iä (vain tämä transaktio).
             $jitPois = $request->kuva == 1 || $request->kuva == 2;
             if($jitPois) {
                 DB::beginTransaction();
-                DB::statement('set local jit = off');
             }
             try {
+                if($jitPois) {
+                    DB::statement('set local jit = off');
+                }
+
                 // Rivien määrän laskenta
                 $total_rows = Utils::getCount($tutkimukset);
 
@@ -235,10 +237,15 @@ class TutkimusController extends Controller
                 // Execute the query
                 // HUOM: ilman ark_tutkimus samannimiset kentät ylikirjoittuvat joinien mukana
                 $tutkimukset = $tutkimukset->get('ark_tutkimus.*');
-            } finally {
+
                 if($jitPois) {
                     DB::commit();
                 }
+            } catch(\Throwable $e) {
+                if($jitPois) {
+                    DB::rollBack();
+                }
+                throw $e;
             }
 
             // Tutkimukseen liitetyiltä käyttäjiltä kaivetaan organisaatiot.

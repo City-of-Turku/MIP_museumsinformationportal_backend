@@ -167,7 +167,7 @@ class NayteController extends Controller
                 $naytteet->withTilapainenSijainti($request->tilapainen_sijainti);
             }
 
-            // Kuva: 1 = kyllä, 2 = ei, 3 = kaikki. Viimeisenä, jotta aiemmat ehdot ryhmitellään scopessa.
+            // Kuva: 1 = kyllä, 2 = ei, 3 = kaikki.
             if($request->kuva) {
                 $naytteet->withKuva($request->kuva);
             }

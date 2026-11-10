@@ -248,7 +248,6 @@ class Nayte extends Model
     /**
      * Suodatukset
      */
-    // Rivien mukaan
     /*
      * Kuva-suodatin näytteen ikkunan mukaan: kuva näytteen omasta tutkimuksesta.
      * Muut kuvat: luetteloimaton. Luetteloidut kuvat: luetteloitu, tutkimusnäkymän rajauksin.
@@ -271,6 +270,7 @@ class Nayte extends Model
         });
     }
 
+    // Rivien mukaan
     public function scopeWithLimit($query, $start_row, $row_count) {
         return $query->skip($start_row)->take($row_count);
     }

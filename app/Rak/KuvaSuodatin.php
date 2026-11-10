@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\DB;
  * Hakulistojen Kuva-suodatin (1 = kyllä, 2 = ei, muut = ei suodatusta).
  * Sama ehto kuin Kuva::getTunnistekuvaUrls: välitaulun rivi (kuva_<taulu>.<taulu>_id) ja kuva.poistettu is null.
  * Ilman kuvien katseluoikeutta kaikki tulkitaan kuvattomiksi.
- * Scopena aiemmat ehdot (myös orWhere) ryhmitellään omiin sulkuihinsa, joten suodatin ei ohitu.
  */
 trait KuvaSuodatin {
 
