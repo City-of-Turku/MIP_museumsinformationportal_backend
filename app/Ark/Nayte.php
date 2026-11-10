@@ -249,6 +249,28 @@ class Nayte extends Model
      * Suodatukset
      */
     // Rivien mukaan
+    /*
+     * Kuva-suodatin näytteen ikkunan mukaan: kuva näytteen omasta tutkimuksesta.
+     * Muut kuvat: luetteloimaton. Luetteloidut kuvat: luetteloitu, tutkimusnäkymän rajauksin.
+     */
+    public function scopeWithKuva($query, $valinta) {
+        return ArkKuva::lisaaKuvaSuodatin($query, $valinta, function($q) {
+            $q->join('ark_kuva_nayte as kv', 'kv.ark_kuva_id', '=', 'ark_kuva.id')
+            ->join('ark_nayte as ke', 'ke.id', '=', 'kv.ark_nayte_id')
+            ->whereColumn('kv.ark_nayte_id', 'ark_nayte.id');
+            ArkKuva::liitaOmaTutkimus($q, 'ke');
+            ArkKuva::lisaaOmanTutkimuksenEhto($q);
+
+            $q->where(function($w) {
+                $w->whereRaw("coalesce(ark_kuva.luettelointinumero, '') = ''")
+                ->orWhere(function($l) {
+                    $l->whereRaw("coalesce(ark_kuva.luettelointinumero, '') <> ''");
+                    ArkKuva::lisaaTutkimusnakymanEhdot($l);
+                });
+            });
+        });
+    }
+
     public function scopeWithLimit($query, $start_row, $row_count) {
         return $query->skip($start_row)->take($row_count);
     }

@@ -166,6 +166,16 @@ class Kohde extends Model {
 		return $query;
 	}
 
+	/*
+	 * Kuva-suodatin: kohteen ikkunan kuvat (Muut ja Luetteloidut) ovat kaikki välitauluun liitetyt kuvat.
+	 */
+	public function scopeWithKuva($query, $valinta) {
+		return ArkKuva::lisaaKuvaSuodatin($query, $valinta, function($q) {
+			$q->join('ark_kuva_kohde as kv', 'kv.ark_kuva_id', '=', 'ark_kuva.id')
+			->whereColumn('kv.ark_kohde_id', 'ark_kohde.id');
+		});
+	}
+
 	public function scopeWithLimit($query, $start_row, $row_count) {
 		return $query->skip($start_row)->take($row_count);
 	}
