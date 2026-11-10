@@ -241,6 +241,11 @@ class RakennusController extends Controller {
 					$entities->withKuvaukset($request->kuvaukset);
 				}
 
+				// Kuva: 1 = kyllä, 2 = ei, 3 = kaikki. Viimeisenä, jotta aiemmat ehdot ryhmitellään scopessa.
+				if($request->kuva) {
+					$entities->withKuva($request->kuva);
+				}
+
 				// calculate the total rows of the search results
 				//$total_rows = $entities->count();
 				$total_rows = Utils::getCount($entities);

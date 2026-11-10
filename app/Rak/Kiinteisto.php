@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 class Kiinteisto extends Model {
 
-    use SoftDeletes;
+    use SoftDeletes, KuvaSuodatin;
 
     protected $table = "kiinteisto";
 
