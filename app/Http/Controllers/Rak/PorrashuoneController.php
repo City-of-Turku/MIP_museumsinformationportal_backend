@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Rak;
 
+use App\Rak\Kuva;
 use App\Kayttaja;
 use App\Utils;
 use App\Http\Controllers\Controller;
@@ -134,6 +135,11 @@ class PorrashuoneController extends Controller {
    				$entities->withLuoja($request->luoja);
    			}
 
+   			// Kuva: 1 = kyllä, 2 = ei, 3 = kaikki.
+   			if($request->kuva) {
+   				$entities->withKuva($request->kuva);
+   			}
+
    			// calculate the total rows of the search results
    			$total_rows = Utils::getCount($entities);
 
@@ -145,8 +151,17 @@ class PorrashuoneController extends Controller {
    			// Execute the query
    			$entities = $entities->get();
 
+   			// Kuvagalleria: ensimmäisen kuvan url vain pyydettäessä.
+   			$tunnistekuvaUrlit = null;
+   			if(filter_var($request->tunnistekuva_url, FILTER_VALIDATE_BOOLEAN)) {
+   				$tunnistekuvaUrlit = Kuva::getTunnistekuvaUrls('kuva_porrashuone', 'porrashuone_id', $entities->pluck('id')->all());
+   			}
+
 			MipJson::initGeoJsonFeatureCollection(count($entities), $total_rows);
 			foreach ($entities as $entity) {
+   				if(!is_null($tunnistekuvaUrlit)) {
+   					$entity->tunnistekuva_url = $tunnistekuvaUrlit[$entity->id] ?? null;
+   				}
    				MipJson::addGeoJsonFeatureCollectionFeaturePoint(null, $entity);
    			}
    			MipJson::addMessage(Lang::get('porrashuone.search_success'));

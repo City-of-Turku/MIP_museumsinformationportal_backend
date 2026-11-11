@@ -166,6 +166,8 @@ class ArkKuvaController extends Controller {
                 return MipJson::getJson();
             }
 
+            $this->asetaTunnistekuvaKentta($entities, $request);
+
             if($request->input("searchPage") != 'true') {
                 // Luetteloitujen ja luetteloimattomien suodatus
                 if($request->input("luetteloitu") == 'true'){
@@ -193,8 +195,8 @@ class ArkKuvaController extends Controller {
                     if(!$request->input("kuvatyyppi")) {
                     array_push($returnEntities, $entity);
                 }
-                    else{ //Palautetaan kuvat näkymän perusteella löytö/konservointi, paitsi tunnistekuva näytetään aina
-                        $loydonkuva = (($entity->kuvatyyppi && $entity->kuvatyyppi->kuva_tyyppi == $request->input("kuvatyyppi")) || $entity->tunnistekuva == true);
+                    else{ //Palautetaan kuvat näkymän perusteella löytö/konservointi, paitsi tunnistekuva näytetään aina löydön kuvissa (tyyppi 1)
+                        $loydonkuva = (($entity->kuvatyyppi && $entity->kuvatyyppi->kuva_tyyppi == $request->input("kuvatyyppi")) || ($entity->tunnistekuva == true && $request->input("kuvatyyppi") == 1));
                         if ($loydonkuva){
                             array_push($returnEntities, $entity);
                         }
@@ -330,12 +332,7 @@ class ArkKuvaController extends Controller {
             //Linkataan itemiin josta kuva lisättiin
             $this->linkToItem($entity, $request);
 
-            //Kohteella voi olla vain yksi tunnistekuva kerrallaan, nollataan muut.
-            //Lomakkeelta tuleva arvo on merkkijono, joten tyhjä/false ei kelpaa sellaisenaan ehdoksi.
-            $onTunnistekuva = filter_var($entity->tunnistekuva, FILTER_VALIDATE_BOOLEAN);
-            if($onTunnistekuva && $request->get('entiteetti_tyyppi') == 15 && $request->get('entiteetti_id')) {
-                ArkKuva::updateKohdeTunnistekuva($request->get('entiteetti_id'), $entity->id);
-            }
+            $this->paivitaTunnistekuva($entity->id, $request);
 
             MipJson::setGeoJsonFeature();
             MipJson::addMessage(Lang::get('kuva.save_success'));
@@ -361,7 +358,7 @@ class ArkKuvaController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id) {
+    public function show(Request $request, $id) {
 
         /*
          * Role check
@@ -408,6 +405,12 @@ class ArkKuvaController extends Controller {
             $entity->url_large = $images->large;
 
             $this->muodostaLinkit($entity);
+
+            // Ikkunan entiteetin mukaan, kuten kuvalistassa. Ilman entiteettiä vanha ark_kuva.tunnistekuva.
+            $ikkuna = $this->ikkunanEntiteetti($request);
+            if($ikkuna) {
+                $entity->tunnistekuva = ArkKuva::tunnistekuvaId($ikkuna[0], $ikkuna[1]) == $entity->id;
+            }
 
             MipJson::setGeoJsonFeature(null, $entity);
             MipJson::addMessage(Lang::get('kuva.search_success'));
@@ -527,18 +530,6 @@ class ArkKuvaController extends Controller {
                 }
             }
 
-            if($entity->tunnistekuva) {
-                if($request->loydot && $request->loydot[0]['id']) {
-                    ArkKuva::updateLoytoTunnistekuva($request->loydot[0]['id'], $entity->id);
-                }
-                if($request->yksikot && $request->yksikot[0]['id']) {
-                    ArkKuva::updateYksikkoTunnistekuva($request->yksikot[0]['id'], $entity->id);
-                }
-                if($request->kohteet && $request->kohteet[0]['id']) {
-                    ArkKuva::updateKohdeTunnistekuva($request->kohteet[0]['id'], $entity->id);
-                }
-            }
-
             $author_field = ArkKuva::UPDATED_BY;
             $when_field = ArkKuva::UPDATED_AT;
             $entity->$author_field = Auth::user()->id;
@@ -556,6 +547,8 @@ class ArkKuvaController extends Controller {
             ArkKuva::linkita_yksikot($entity->id, $request->yksikot);
             ArkKuva::linkita_kohteet($entity->id, $request->kohteet);
             ArkKuva::linkita_tutkimusalueet($entity->id, $request->tutkimusalueet);
+
+            $this->paivitaTunnistekuva($entity->id, $request);
 
             MipJson::setGeoJsonFeature();
             MipJson::addMessage(Lang::get('kuva.save_success'));
@@ -635,6 +628,8 @@ class ArkKuvaController extends Controller {
              ArkKuva::linkita_yksikot($entity->id, []);
              ArkKuva::linkita_kohteet($entity->id, []);
              ArkKuva::linkita_tutkimusalueet($entity->id, []);
+
+             ArkKuva::poistaTunnistekuvaOsoittimet($entity->id);
 
              // Poistetaan mahdollinen kohde, tutkimus tai tutkimusalue kuva.
              // Poisto tehdään näin koska yhdistelmä PK tyylin modelissa ei tunnu laravel toimivan, kuten normi Id PK mallissa.
@@ -979,6 +974,73 @@ class ArkKuvaController extends Controller {
         unset($entity->kuvayksikot);
         unset($entity->kuvakohteet);
         unset($entity->kuvatutkimusalueet);
+    }
+
+    /*
+     * Asettaa ikkunan entiteetin (entiteetti_tyyppi, entiteetti_id) tunnistekuvan. Ilman entiteettiä tunnistekuva ohitetaan.
+     * true asettaa osoittimen tähän kuvaan, false poistaa sen vain jos se osoittaa tähän kuvaan.
+     */
+    private function paivitaTunnistekuva($kuvaId, $request) {
+        $ikkuna = $this->ikkunanEntiteetti($request);
+        if(!$ikkuna || !$request->has('tunnistekuva')) {
+            return;
+        }
+
+        // POST-lomakkeelta arvo tulee merkkijonona
+        $onTunnistekuva = filter_var($request->input('tunnistekuva'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        if(is_null($onTunnistekuva)) {
+            return;
+        }
+
+        ArkKuva::asetaTunnistekuva($kuvaId, $ikkuna[0], $ikkuna[1], $onTunnistekuva);
+    }
+
+    /*
+     * Ikkunan entiteetti [entiteetti_tyyppi, entiteetti_id], jos se on tunnistekuvallinen. Muuten null.
+     */
+    private function ikkunanEntiteetti($request) {
+        $tyyppi = filter_var($request->input('entiteetti_tyyppi'), FILTER_VALIDATE_INT);
+        $entiteettiId = filter_var($request->input('entiteetti_id'), FILTER_VALIDATE_INT);
+
+        if($tyyppi === false || $entiteettiId === false || !array_key_exists($tyyppi, ArkKuva::TUNNISTEKUVA_ENTITEETIT)) {
+            return null;
+        }
+        return [$tyyppi, $entiteettiId];
+    }
+
+    /*
+     * Kuvan tunnistekuva-kenttä lasketaan ikkunan entiteetin osoittimesta. Haussa kentällä ei ole yhtä merkitystä, joten false.
+     * Tutkimusalueen, röntgenkuvan ja kuntoraportin ikkunoissa jää vanha ark_kuva.tunnistekuva.
+     */
+    private function asetaTunnistekuvaKentta($entities, $request) {
+        $annettu = function($kentta) use ($request) {
+            return $request->input($kentta) && $request->input($kentta) !== 'null';
+        };
+
+        if($request->input("searchPage") == 'true') {
+            $tunnistekuvaId = null;
+        } else if($annettu('ark_loyto_id')) {
+            $tunnistekuvaId = ArkKuva::tunnistekuvaId(17, $request->input('ark_loyto_id'));
+        } else if($annettu('ark_nayte_id')) {
+            $tunnistekuvaId = ArkKuva::tunnistekuvaId(18, $request->input('ark_nayte_id'));
+        } else if($annettu('ark_yksikko_id')) {
+            $tunnistekuvaId = ArkKuva::tunnistekuvaId(13, $request->input('ark_yksikko_id'));
+        } else if($request->input('yksikkotunnus')) {
+            // Tunnuksella voi osua useaan yksikköön
+            $tunnistekuvaId = null;
+        } else if($annettu('ark_tutkimusalue_id') || $annettu('ark_rontgenkuva_id') || $annettu('ark_kuntoraportti_id')) {
+            return;
+        } else if($annettu('ark_kohde_id')) {
+            $tunnistekuvaId = ArkKuva::tunnistekuvaId(15, $request->input('ark_kohde_id'));
+        } else if($annettu('ark_tutkimus_id')) {
+            $tunnistekuvaId = ArkKuva::tunnistekuvaId(14, $request->input('ark_tutkimus_id'));
+        } else {
+            return;
+        }
+
+        foreach($entities as $entity) {
+            $entity->tunnistekuva = !is_null($tunnistekuvaId) && $entity->id == $tunnistekuvaId;
+        }
     }
 
     /*

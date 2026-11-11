@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Rak\Kuva;
 use App\Kayttaja;
 use App\Kyla;
 use App\KylaMuutoshistoria;
@@ -108,6 +109,11 @@ class KylaController extends Controller {
 					$entities->withLuoja($request->luoja);
 				}
 
+				// Kuva: 1 = kyllä, 2 = ei, 3 = kaikki.
+				if($request->kuva) {
+					$entities->withKuva($request->kuva);
+				}
+
 				// calculate the total rows of the search results
 				$total_rows = Utils::getCount($entities);
 
@@ -117,9 +123,17 @@ class KylaController extends Controller {
 				// Execute the query
 				$entities = $entities->get()->toArray();
 
+				// Kuvagalleria: ensimmäisen kuvan url vain pyydettäessä.
+				$tunnistekuvaUrlit = null;
+				if(filter_var($request->tunnistekuva_url, FILTER_VALIDATE_BOOLEAN)) {
+					$tunnistekuvaUrlit = Kuva::getTunnistekuvaUrls('kuva_kyla', 'kyla_id', array_column($entities, 'id'));
+				}
 
 				MipJson::initGeoJsonFeatureCollection(count($entities), $total_rows);
 				foreach ($entities as $entity) {
+					if(!is_null($tunnistekuvaUrlit)) {
+						$entity['tunnistekuva_url'] = $tunnistekuvaUrlit[$entity['id']] ?? null;
+					}
 					MipJson::addGeoJsonFeatureCollectionFeaturePoint(null, $entity);
 				}
 				MipJson::addMessage(Lang::get('kyla.search_success'));
