@@ -245,6 +245,12 @@ class KohdeController extends Controller {
                         }
                         $it->pivot->inventoija = $inventoijaNimi;
                     }
+
+                    if($userArkRole === 'katselija') {
+                        foreach ($it->tutkimuskayttajat as $tk) {
+                            $tk->setVisible(Kayttaja::NIMITIEDOT);
+                        }
+                    }
                 }
 
 
