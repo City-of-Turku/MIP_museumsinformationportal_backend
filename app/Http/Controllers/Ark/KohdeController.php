@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Ark;
 
 use App\Kayttaja;
 use App\Utils;
+use App\Ark\ArkKuva;
 use App\Ark\KiinteistoRakennus;
 use App\Ark\Kohde;
 use App\Ark\KohdeAjoitus;
@@ -215,6 +216,11 @@ class KohdeController extends Controller {
 
             $kohteet->withOrderBy($request->aluerajaus, $jarjestys_kentta, $jarjestys_suunta);
 
+            // Kuva: 1 = kyllä, 2 = ei, 3 = kaikki.
+            if($request->kuva) {
+                $kohteet->withKuva($request->kuva);
+            }
+
             // calculate the total rows of the search results
             $total_rows = Utils::getCount($kohteet);
 
@@ -224,6 +230,12 @@ class KohdeController extends Controller {
             // Execute the query
             $kohteet = $kohteet->get();
             //Log::debug(print_r(DB::getQueryLog(), true));
+
+            // Kuvagalleria: tunnistekuvan url vain pyydettäessä.
+            $tunnistekuvaUrlit = null;
+            if(filter_var($request->tunnistekuva_url, FILTER_VALIDATE_BOOLEAN)) {
+                $tunnistekuvaUrlit = ArkKuva::getTunnistekuvaUrls(15, $kohteet->pluck('id')->all());
+            }
 
             MipJson::initGeoJsonFeatureCollection(count($kohteet), $total_rows);
 
@@ -247,6 +259,9 @@ class KohdeController extends Controller {
                     }
                 }
 
+                if(!is_null($tunnistekuvaUrlit)) {
+                    $kohde->tunnistekuva_url = $tunnistekuvaUrlit[$kohde->id] ?? null;
+                }
 
                 //$properties = clone($kohde);
                 MipJson::addGeoJsonFeatureCollectionFeaturePoint(null, $kohde);
@@ -329,6 +344,9 @@ class KohdeController extends Controller {
                 	MipJson::setGeoJsonFeature();
                 	MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
                 	MipJson::addMessage(Lang::get('kohde.search_not_found'));
+                } else {
+                    // Palautetaan vain voimassa oleva tunnistekuva
+                    $kohde->tunnistekuva_kuva_id = ArkKuva::tunnistekuvaId(15, $kohde->id);
                 }
 
                 $properties = clone($kohde);

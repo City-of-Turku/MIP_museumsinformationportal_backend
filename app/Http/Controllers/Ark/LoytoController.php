@@ -15,6 +15,7 @@ use App\Http\Controllers\Controller;
 use App\Library\String\MipJson;
 use App\Utils;
 use App\Kayttaja;
+use App\Ark\ArkKuva;
 use App\Ark\Loyto;
 use App\Ark\LoytoMateriaalit;
 use App\Ark\LoytoMerkinnat;
@@ -251,6 +252,11 @@ class LoytoController extends Controller
                 $loydot->withRontgenkuvat($request->rontgenkuvat);
             }
 
+            // Kuva: 1 = kyllä, 2 = ei, 3 = kaikki.
+            if($request->kuva) {
+                $loydot->withKuva($request->kuva);
+            }
+
             // Rivien määrän laskenta
             $total_rows = Utils::getCount($loydot);
 
@@ -280,8 +286,17 @@ class LoytoController extends Controller
                 }
             }
 
+            // Kuvagalleria: tunnistekuvan url vain pyydettäessä.
+            $tunnistekuvaUrlit = null;
+            if(filter_var($request->tunnistekuva_url, FILTER_VALIDATE_BOOLEAN)) {
+                $tunnistekuvaUrlit = ArkKuva::getTunnistekuvaUrls(17, $loydot->pluck('id')->all());
+            }
+
             MipJson::initGeoJsonFeatureCollection(count($loydot), $total_rows);
             foreach ($loydot as $loyto) {
+                if(!is_null($tunnistekuvaUrlit)) {
+                    $loyto->tunnistekuva_url = $tunnistekuvaUrlit[$loyto->id] ?? null;
+                }
                 // löydön lisäys feature listaan
                 MipJson::addGeoJsonFeatureCollectionFeaturePoint(null, $loyto);
             }
@@ -406,6 +421,9 @@ class LoytoController extends Controller
                     MipJson::addMessage(Lang::get('loyto.search_not_found'));
                     return MipJson::getJson();
                 }
+
+                // Palautetaan vain voimassa oleva tunnistekuva
+                $loyto->tunnistekuva_kuva_id = ArkKuva::tunnistekuvaId(17, $loyto->id);
 
                 // US10297
                 if(Auth::user()->ark_rooli == 'katselija') {

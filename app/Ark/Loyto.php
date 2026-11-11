@@ -243,6 +243,36 @@ class Loyto extends Model
         });
     }
 
+    /*
+     * Kuva-suodatin löydön ikkunan mukaan.
+     * Muut kuvat: luetteloimaton löytökuva (kuva_tyyppi 1) tai löydön tunnistekuva.
+     * Luetteloidut kuvat: luetteloitu kuva löydön omasta tutkimuksesta.
+     */
+    public function scopeWithKuva($query, $valinta) {
+        return ArkKuva::lisaaKuvaSuodatin($query, $valinta, function($q) {
+            $q->join('ark_kuva_loyto as kv', 'kv.ark_kuva_id', '=', 'ark_kuva.id')
+            ->join('ark_loyto as ke', 'ke.id', '=', 'kv.ark_loyto_id')
+            ->whereColumn('kv.ark_loyto_id', 'ark_loyto.id');
+            ArkKuva::liitaOmaTutkimus($q, 'ke');
+
+            $q->where(function($w) {
+                $w->where(function($m) {
+                    $m->whereRaw("coalesce(ark_kuva.luettelointinumero, '') = ''")
+                    ->where(function($t) {
+                        $t->where('kv.kuva_tyyppi', '=', 1)
+                        ->orWhere(function($p) {
+                            $p->whereColumn('ke.tunnistekuva_kuva_id', 'ark_kuva.id')
+                            ->whereNull('kv.poistettu');
+                        });
+                    });
+                })->orWhere(function($l) {
+                    $l->whereRaw("coalesce(ark_kuva.luettelointinumero, '') <> ''");
+                    ArkKuva::lisaaOmanTutkimuksenEhto($l);
+                });
+            });
+        });
+    }
+
     public function scopeWithLimit($query, $start_row, $row_count) {
         return $query->skip($start_row)->take($row_count);
     }
