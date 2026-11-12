@@ -248,6 +248,8 @@ class Suunnittelija extends Model {
 	public function rakennukset() {
 		return $this->belongsToMany('App\Rak\Rakennus', 'suunnittelija_rakennus')
 			->withPivot('lisatieto', 'suunnitteluvuosi_alku', 'suunnitteluvuosi_loppu', 'suunnittelija_tyyppi_id')
+			->wherePivotNull('poistettu')
+			->whereHas('kiinteisto')
 			->addSelect('*')
 			->addSelect(DB::raw(MipGis::getGeometryFieldQueryString("rakennuksen_sijainti", "sijainti")));
 	}

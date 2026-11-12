@@ -147,6 +147,7 @@ class Rakennus extends Model {
  		$rak_suunnittelijat_sql .= " string_agg( suunnittelija.sukunimi || ' ' || coalesce(suunnittelija.etunimi, ''), '<br />' ) as kaikki_suunnittelijat ";
 		$rak_suunnittelijat_sql .= "  from suunnittelija_rakennus ";
 		$rak_suunnittelijat_sql .= "  left join suunnittelija suunnittelija on (suunnittelija.id = suunnittelija_rakennus.suunnittelija_id) ";
+		$rak_suunnittelijat_sql .= "  where suunnittelija_rakennus.poistettu is null ";
 		$rak_suunnittelijat_sql .= "  group by rakennus_id";
 		$rak_suunnittelijat_sql .= ") as rak_suunnittelijat ";
 
@@ -498,6 +499,7 @@ class Rakennus extends Model {
 	 */
 	public function scopeWithDesigner($query, $keyword) {
 		return $query->join('suunnittelija_rakennus', 'suunnittelija_rakennus.rakennus_id', '=', 'rakennus.id')
+			->whereNull('suunnittelija_rakennus.poistettu')
 			->join('suunnittelija', 'suunnittelija.id', '=', 'suunnittelija_rakennus.suunnittelija_id')
 			->where("suunnittelija.id", "=", $keyword);
 	}
