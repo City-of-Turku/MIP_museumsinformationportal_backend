@@ -249,6 +249,7 @@ class TutkimusController extends Controller
             }
 
             // Tutkimukseen liitetyiltä käyttäjiltä kaivetaan organisaatiot.
+            $onKatselija = Auth::user()->ark_rooli === 'katselija';
             $i = 0;
             foreach ($tutkimukset as $tutkimus) {
                 // Tutkimusten organisaatiot palautetaan erikseen hakuja varten
@@ -259,6 +260,9 @@ class TutkimusController extends Controller
                         if(!in_array($tk->organisaatio, $organisaatiot, true)){
                             array_push($organisaatiot, $tk->organisaatio);
                         }
+                    }
+                    if($onKatselija) {
+                        $tk->setVisible(Kayttaja::NIMITIEDOT);
                     }
                 }
 
@@ -370,6 +374,29 @@ class TutkimusController extends Controller
                 } else {
                     // Palautetaan vain voimassa oleva tunnistekuva
                     $tutkimus->tunnistekuva_kuva_id = ArkKuva::tunnistekuvaId(14, $tutkimus->id);
+                }
+
+                // Katselijalle käyttäjistä vain nimet, ei tarkastuksen muistiinpanoja.
+                if($tutkimus && Auth::user()->ark_rooli === 'katselija') {
+                    foreach ($tutkimus->tutkimuskayttajat as $tk) {
+                        $tk->setVisible(Kayttaja::NIMITIEDOT);
+                    }
+                    // getRelation: luoja, muokkaaja ja tarkastaja ovat myös sarakkeita.
+                    $kayttajat = [$tutkimus->getRelation('luoja'), $tutkimus->getRelation('muokkaaja')];
+                    if($tutkimus->tarkastus) {
+                        $kayttajat[] = $tutkimus->tarkastus->getRelation('tarkastaja');
+                    }
+                    foreach ($kayttajat as $kayttaja) {
+                        if($kayttaja) {
+                            $kayttaja->setVisible(Kayttaja::NIMITIEDOT);
+                        }
+                    }
+                    if(!empty($kohde)) {
+                        unset($kohde->tarkastus_muistiinpano);
+                    }
+                    foreach ($tutkimus->inventointiKohteet as $invKohde) {
+                        unset($invKohde->tarkastus_muistiinpano);
+                    }
                 }
 
                 // Inventointi-tutkimukselle palautetaan tutkimuskäyttäjälle asetettu organisaatio sekä inventoinnin kohteet.

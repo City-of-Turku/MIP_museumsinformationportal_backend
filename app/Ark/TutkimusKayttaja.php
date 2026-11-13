@@ -19,6 +19,9 @@ class TutkimusKayttaja extends Model
         'ark_tutkimus_id', 'kayttaja_id', 'organisaatio'
     );
 
+    // Tutkimus::tutkimuskayttajat() joinaa kayttaja-taulun, joten sen salasanakentät eivät saa päätyä JSONiin.
+    protected $hidden = ['salasana', 'salasana_avain'];
+
     /*
      * Aikaleimat päivitetään automaattisesti by Laravel
      */

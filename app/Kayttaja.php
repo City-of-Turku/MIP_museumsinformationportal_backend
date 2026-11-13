@@ -43,6 +43,9 @@ class Kayttaja extends Model implements JWTSubject, Authenticatable {
 	const UPDATED_BY		= 'muokkaaja';
 	const DELETED_BY		= 'poistaja';
 
+	// Katselijalle palautettavat käyttäjäkentät.
+	const NIMITIEDOT = ['id', 'etunimi', 'sukunimi'];
+
 	protected $table = "kayttaja";
 
 	/**
