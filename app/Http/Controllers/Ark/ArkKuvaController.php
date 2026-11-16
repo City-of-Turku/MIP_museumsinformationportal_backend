@@ -300,6 +300,20 @@ class ArkKuvaController extends Controller {
             return MipJson::getJson();
         }
 
+        //Käyttäjän antama luettelointinumero, tarkastetaan ennen tiedoston tallennusta
+        $annettuLuettelointinumero = trim((string) $request->input('luettelointinumero'));
+        if($annettuLuettelointinumero == "null") {
+            $annettuLuettelointinumero = "";
+        }
+        if($request->luetteloi == "true" && $annettuLuettelointinumero !== "") {
+            if(!ArkKuva::isLuettelointinumeroVapaa($annettuLuettelointinumero)) {
+                MipJson::setGeoJsonFeature();
+                MipJson::addMessage("Luettelointinumero ei ole uniikki");
+                MipJson::setResponseStatus(Response::HTTP_BAD_REQUEST);
+                return MipJson::getJson();
+            }
+        }
+
         // wrap the operations into a transaction
         DB::beginTransaction();
         Utils::setDBUser();
@@ -348,9 +362,13 @@ class ArkKuvaController extends Controller {
             $author_field = ArkKuva::CREATED_BY;
             $entity->$author_field = Auth::user()->id;
 
-            //Luodaan luettelointinumero jos luetteloi on true
+            //Luodaan luettelointinumero jos luetteloi on true, ellei käyttäjä antanut omaa
             if($request->luetteloi == "true") {
-                $this->createLuettelointinumero($request, $entity);
+                if($annettuLuettelointinumero !== "") {
+                    $entity->luettelointinumero = $annettuLuettelointinumero;
+                } else {
+                    $entity->luettelointinumero = $this->seuraavaLuettelointinumeroFor($request->entiteetti_tyyppi, $request->input('entiteetti_id'), $entity->ark_tutkimus_id);
+                }
             }
 
             $entity->save();
@@ -721,21 +739,54 @@ class ArkKuvaController extends Controller {
     }
 
     /*
-     * Esimerkiksi jos päänumero on 2015:25 -> luettelointinumero on DT2015:25:1
+     * Palauttaa luettelointinumeron, jonka POST antaisi nyt. Ei tallenna mitään.
      */
-    private function createLuettelointinumero($request, $entity) {
+    public function seuraavaLuettelointinumero(Request $request) {
+
+        /*
+         * Role check - sama kuin POST
+         */
+        if(!Kayttaja::hasArkTutkimusSubPermission('arkeologia.ark_kuva.luonti', $request->input('ark_tutkimus_id'))) {
+            MipJson::setGeoJsonFeature();
+            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+            return MipJson::getJson();
+        }
+
+        try {
+            $arkTutkimusId = $request->input('ark_tutkimus_id');
+            if($arkTutkimusId == "null") {
+                $arkTutkimusId = null;
+            }
+            $ln = $this->seuraavaLuettelointinumeroFor($request->input('entiteetti_tyyppi'), $request->input('entiteetti_id'), $arkTutkimusId);
+
+            MipJson::setGeoJsonFeature(null, ['luettelointinumero' => $ln]);
+        }
+        catch(Exception $e) {
+            Log::debug($e);
+            MipJson::addMessage("Luettelointinumeron haku epäonnistui");
+            MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        return MipJson::getJson();
+    }
+
+    /*
+     * Esimerkiksi jos päänumero on 2015:25 -> luettelointinumero on DT2015:25:1
+     * Palauttaa null, jos numeroa ei anneta. Käytössä POST ja seuraavaluettelointinumero.
+     */
+    private function seuraavaLuettelointinumeroFor($entiteettiTyyppi, $entiteettiId, $arkTutkimusId) {
 
         $ln = "DT";
-        if($request->entiteetti_tyyppi == 17) {
+        if($entiteettiTyyppi == 17) {
             //Löytö - varmistetaan tutkimuksen löytyminen myös irtolöytö tyypeillä
-            if($entity->ark_tutkimus_id){
+            if($arkTutkimusId){
 
                 //Päänumero tutkimukselta
-                $tutkimus = Tutkimus::getSingle($entity->ark_tutkimus_id)->first();
+                $tutkimus = Tutkimus::getSingle($arkTutkimusId)->first();
                 $ln .= $tutkimus->digikuva_paanumero;
-                $viimeisinLuettelointinumero = Tutkimus::getViimeisinLuettelointinumero($entity->ark_tutkimus_id);
+                $viimeisinLuettelointinumero = Tutkimus::getViimeisinLuettelointinumero($arkTutkimusId);
             }else{
-                $l = Loyto::getSingle($request->input('entiteetti_id'))->with('yksikko.tutkimusalue.tutkimus')->first();
+                $l = Loyto::getSingle($entiteettiId)->with('yksikko.tutkimusalue.tutkimus')->first();
                 //Päänumero tutkimukselta
                 $ln .= $l->yksikko->tutkimusalue->tutkimus->digikuva_paanumero;
                 $viimeisinLuettelointinumero = Tutkimus::getViimeisinLuettelointinumero($l->yksikko->tutkimusalue->tutkimus->id);
@@ -748,35 +799,35 @@ class ArkKuvaController extends Controller {
                 $next = intval($viimeisinJuoksevaNumero)+1;
                 $ln .= ":" . $next;
 
-                $entity->luettelointinumero = $ln;
+                return $ln;
 
             }else{
                 // ensimmäinen lisäys
                 $ln .= ":" . 1;
-                $entity->luettelointinumero = $ln;
+                return $ln;
             }
-        } else if($request->entiteetti_tyyppi == 18){
+        } else if($entiteettiTyyppi == 18){
             // Näyte
-            if($entity->ark_tutkimus_id){
+            if($arkTutkimusId){
                 //Päänumero tutkimukselta
-                $tutkimus = Tutkimus::getSingle($entity->ark_tutkimus_id)->first();
+                $tutkimus = Tutkimus::getSingle($arkTutkimusId)->first();
                 $ln .= $tutkimus->digikuva_paanumero;
 
-                $nayte = Nayte::getSingle($request->input('entiteetti_id'));
+                $nayte = Nayte::getSingle($entiteettiId);
 
-                $viimeisinLuettelointinumero = Tutkimus::getViimeisinLuettelointinumero($entity->ark_tutkimus_id);
+                $viimeisinLuettelointinumero = Tutkimus::getViimeisinLuettelointinumero($arkTutkimusId);
                 //Otetaan luettelointinumeron viimeinen osio viimeisimmän : merkin jälkeen:
                 $startIndex = strrpos($viimeisinLuettelointinumero, ':');
                 $viimeisinJuoksevaNumero = substr($viimeisinLuettelointinumero, $startIndex+1);
                 $next = intval($viimeisinJuoksevaNumero)+1;
                 $ln .= ":" . $next;
 
-                $entity->luettelointinumero = $ln;
+                return $ln;
 
             }
-        } else if($request->entiteetti_tyyppi == 13) {
+        } else if($entiteettiTyyppi == 13) {
             //Yksikko - haetaan tutkimukselta päänumero
-            $y = TutkimusalueYksikko::getSingle($request->input('entiteetti_id'))->with('tutkimusalue.tutkimus')->first();
+            $y = TutkimusalueYksikko::getSingle($entiteettiId)->with('tutkimusalue.tutkimus')->first();
             if($y) {
                 //Päänumero tutkimukselta
                 $ln .= $y->tutkimusalue->tutkimus->digikuva_paanumero;
@@ -788,11 +839,11 @@ class ArkKuvaController extends Controller {
                 $next = intval($viimeisinJuoksevaNumero)+1;
                 $ln .= ":" . $next;
 
-                $entity->luettelointinumero = $ln;
+                return $ln;
             }
-        } else if($request->entiteetti_tyyppi == 14) {
+        } else if($entiteettiTyyppi == 14) {
             //Tutkimus - haetaan tutkimukselta päänumero
-            $t = Tutkimus::getSingle($request->input('entiteetti_id'))->first();
+            $t = Tutkimus::getSingle($entiteettiId)->first();
 
             if($t) {
                 //Päänumero tutkimukselta
@@ -806,11 +857,11 @@ class ArkKuvaController extends Controller {
                 $next = intval($viimeisinJuoksevaNumero)+1;
                 $ln .= ":" . $next;
 
-                $entity->luettelointinumero = $ln;
+                return $ln;
             }
-        } else if($request->entiteetti_tyyppi == 16) {
+        } else if($entiteettiTyyppi == 16) {
             //Tutkimusalue - haetaan tutkimukselta päänumero
-            $tk = Tutkimus::getSingle($entity->ark_tutkimus_id)->first();
+            $tk = Tutkimus::getSingle($arkTutkimusId)->first();
 
             if($tk) {
                 //Päänumero tutkimukselta
@@ -823,9 +874,10 @@ class ArkKuvaController extends Controller {
                 $next = intval($viimeisinJuoksevaNumero)+1;
                 $ln .= ":" . $next;
 
-                $entity->luettelointinumero = $ln;
+                return $ln;
             }
         }
+        return null;
     }
 
     private function linkToItem($entity, $request) {

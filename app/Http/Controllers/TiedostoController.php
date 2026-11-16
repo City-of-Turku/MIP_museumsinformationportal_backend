@@ -463,4 +463,44 @@ class TiedostoController extends Controller {
 
     	return MipJson::getJson();
     }
+
+    /*
+     * Palauttaa voimassa olevan latausrajan tavuina kuville ja tiedostoille.
+     * Pienin sovelluksen rajasta (KB) ja php.ini:n upload_max_filesize / post_max_size -arvoista.
+     */
+    public function latausraja() {
+    	$iniRajat = [
+    		self::iniTavuina(ini_get('upload_max_filesize')),
+    		self::iniTavuina(ini_get('post_max_size'))
+    	];
+
+    	MipJson::setGeoJsonFeature(null, [
+    		'kuva'		=> self::pieninRaja(array_merge($iniRajat, [self::kbTavuina(config('app.max_image_size'))])),
+    		'tiedosto'	=> self::pieninRaja(array_merge($iniRajat, [self::kbTavuina(config('app.max_file_size'))]))
+    	]);
+    	return MipJson::getJson();
+    }
+
+    // php.ini lyhenne (esim. 52M, 512k, 1G, 1048576) tavuiksi. 0, tyhjä tai virheellinen -> null (ei rajaa)
+    private static function iniTavuina($arvo) {
+    	if(!preg_match('/^\s*(\d+)\s*([kmg]?)\s*$/i', (string) $arvo, $osat)) {
+    		return null;
+    	}
+    	$kertoimet = ['' => 1, 'k' => 1024, 'm' => 1024 * 1024, 'g' => 1024 * 1024 * 1024];
+    	$tavut = intval($osat[1]) * $kertoimet[strtolower($osat[2])];
+    	return $tavut > 0 ? $tavut : null;
+    }
+
+    // Sovelluksen raja on kilotavuina (Laravelin max-sääntö, 1 KB = 1024 tavua)
+    private static function kbTavuina($kb) {
+    	if(!is_numeric($kb) || $kb <= 0) {
+    		return null;
+    	}
+    	return (int) floor($kb * 1024);
+    }
+
+    private static function pieninRaja($rajat) {
+    	$rajat = array_filter($rajat, function($r) { return $r !== null; });
+    	return count($rajat) > 0 ? min($rajat) : null;
+    }
 }

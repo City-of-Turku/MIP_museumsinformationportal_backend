@@ -419,6 +419,14 @@ class ArkKuva extends Model {
 	    return false;
 	}
 
+	// Tarkka vertailu (kirjainkoko ei merkitse, ei ilike-jokerimerkkejä)
+	public static function isLuettelointinumeroVapaa($ln) {
+	    return !DB::table('ark_kuva')
+	        ->whereRaw('lower(luettelointinumero) = lower(?)', [$ln])
+	        ->whereNull('poistettu')
+	        ->exists();
+	}
+
 	public static function updateLoytoTunnistekuva($loytoId, $kuvaId) {
 	    DB::select(DB::raw('update ark_kuva set tunnistekuva = false
 				where ark_kuva.id in(
