@@ -403,27 +403,18 @@ class ArkKuva extends Model {
 		}
 }
 
-	public static function isLuettelointinumeroUnique($ln, $nykyisenKuvanId) {
-	    $q = DB::select(DB::raw('select count(k.id)
-                                from ark_kuva k
-                                where k.luettelointinumero ilike :ln
-                                and k.poistettu is null
-                                and k.id != :nykyId;'), array('ln' => $ln, 'nykyId' => $nykyisenKuvanId));
-
-	    if(sizeof($q) > 0) {
-	        if($q[0]->count ==  0) {
-	            return true;
-	        }
-	        return false;
+	// Tarkka vertailu (trimmattu, kirjainkoko ei merkitse, ei ilike-jokerimerkkejä).
+	// $nykyisenKuvanId jätetään vertailusta pois; 0/null = uusi kuva.
+	public static function isLuettelointinumeroUnique($ln, $nykyisenKuvanId = 0) {
+	    $ln = trim((string) $ln);
+	    // Tyhjä numero on uniikki, kuten ennen (ilike NULL ei osunut mihinkään)
+	    if($ln === "") {
+	        return true;
 	    }
-	    return false;
-	}
-
-	// Tarkka vertailu (kirjainkoko ei merkitse, ei ilike-jokerimerkkejä)
-	public static function isLuettelointinumeroVapaa($ln) {
 	    return !DB::table('ark_kuva')
-	        ->whereRaw('lower(luettelointinumero) = lower(?)', [$ln])
+	        ->whereRaw('lower(trim(luettelointinumero)) = lower(?)', [$ln])
 	        ->whereNull('poistettu')
+	        ->where('id', '!=', (int) $nykyisenKuvanId)
 	        ->exists();
 	}
 

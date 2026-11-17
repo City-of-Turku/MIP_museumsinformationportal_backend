@@ -28,6 +28,9 @@ use Exception;
 
 class TiedostoController extends Controller {
 
+    // post_max_size kattaa koko multipart-pyynnön, joten tiedostolle jätetään vara muille kentille
+    const POST_VARA = 64 * 1024;
+
     /**
      * Display a listing of the resource.
      *
@@ -469,9 +472,10 @@ class TiedostoController extends Controller {
      * Pienin sovelluksen rajasta (KB) ja php.ini:n upload_max_filesize / post_max_size -arvoista.
      */
     public function latausraja() {
+    	$postRaja = self::iniTavuina(ini_get('post_max_size'));
     	$iniRajat = [
     		self::iniTavuina(ini_get('upload_max_filesize')),
-    		self::iniTavuina(ini_get('post_max_size'))
+    		$postRaja !== null ? max($postRaja - self::POST_VARA, 0) : null
     	];
 
     	MipJson::setGeoJsonFeature(null, [

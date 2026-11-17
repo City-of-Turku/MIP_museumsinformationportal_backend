@@ -38,6 +38,7 @@ use App\Ark\ArkKuvaTutkimusalue;
 use Illuminate\Database\QueryException;
 use App\Ark\Rontgenkuva;
 use App\Ark\ArkKuvaRontgenkuva;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 
 class ArkKuvaController extends Controller {
@@ -306,7 +307,7 @@ class ArkKuvaController extends Controller {
             $annettuLuettelointinumero = "";
         }
         if($request->luetteloi == "true" && $annettuLuettelointinumero !== "") {
-            if(!ArkKuva::isLuettelointinumeroVapaa($annettuLuettelointinumero)) {
+            if(!ArkKuva::isLuettelointinumeroUnique($annettuLuettelointinumero)) {
                 MipJson::setGeoJsonFeature();
                 MipJson::addMessage("Luettelointinumero ei ole uniikki");
                 MipJson::setResponseStatus(Response::HTTP_BAD_REQUEST);
@@ -753,14 +754,37 @@ class ArkKuvaController extends Controller {
             return MipJson::getJson();
         }
 
-        try {
-            $arkTutkimusId = $request->input('ark_tutkimus_id');
-            if($arkTutkimusId == "null") {
-                $arkTutkimusId = null;
+        $input = $request->all();
+        if(isset($input['ark_tutkimus_id']) && $input['ark_tutkimus_id'] == "null") {
+            $input['ark_tutkimus_id'] = null;
+        }
+
+        $validator = Validator::make($input, [
+            "entiteetti_tyyppi" => "required|numeric|in:13,14,15,16,17,18,19,22",
+            "entiteetti_id"     => "required|numeric",
+            "ark_tutkimus_id"   => "nullable|numeric|exists:ark_tutkimus,id"
+        ]);
+
+        if ($validator->fails()) {
+            MipJson::setGeoJsonFeature();
+            MipJson::addMessage(Lang::get('validation.custom.user_input_validation_failed'));
+            foreach($validator->errors()->all() as $error) {
+                MipJson::addMessage($error);
+                MipJson::setResponseStatus(Response::HTTP_BAD_REQUEST);
             }
-            $ln = $this->seuraavaLuettelointinumeroFor($request->input('entiteetti_tyyppi'), $request->input('entiteetti_id'), $arkTutkimusId);
+            return MipJson::getJson();
+        }
+
+        try {
+            $arkTutkimusId = $input['ark_tutkimus_id'] ?? null;
+            $ln = $this->seuraavaLuettelointinumeroFor($input['entiteetti_tyyppi'], $input['entiteetti_id'], $arkTutkimusId, true);
 
             MipJson::setGeoJsonFeature(null, ['luettelointinumero' => $ln]);
+        }
+        catch(BadRequestHttpException $e) {
+            MipJson::setGeoJsonFeature();
+            MipJson::addMessage($e->getMessage());
+            MipJson::setResponseStatus(Response::HTTP_BAD_REQUEST);
         }
         catch(Exception $e) {
             Log::debug($e);
@@ -773,8 +797,13 @@ class ArkKuvaController extends Controller {
     /*
      * Esimerkiksi jos päänumero on 2015:25 -> luettelointinumero on DT2015:25:1
      * Palauttaa null, jos numeroa ei anneta. Käytössä POST ja seuraavaluettelointinumero.
+     * $tiukka: puuttuva kohde -> BadRequestHttpException (seuraavaluettelointinumero). POST:n käytös ennallaan.
      */
-    private function seuraavaLuettelointinumeroFor($entiteettiTyyppi, $entiteettiId, $arkTutkimusId) {
+    private function seuraavaLuettelointinumeroFor($entiteettiTyyppi, $entiteettiId, $arkTutkimusId, $tiukka = false) {
+
+        if($tiukka) {
+            $this->tarkistaNumeroinninKohde($entiteettiTyyppi, $entiteettiId, $arkTutkimusId);
+        }
 
         $ln = "DT";
         if($entiteettiTyyppi == 17) {
@@ -878,6 +907,45 @@ class ArkKuvaController extends Controller {
             }
         }
         return null;
+    }
+
+    /*
+     * Varmistaa, että seuraavaLuettelointinumeroFor löytää kohteen ja tutkimuksen, jolta päänumero haetaan.
+     * Tyypit ilman numerointia (kohde, röntgen, kuntoraportti) ohitetaan.
+     */
+    private function tarkistaNumeroinninKohde($entiteettiTyyppi, $entiteettiId, $arkTutkimusId) {
+        $mallit = [13 => TutkimusalueYksikko::class, 14 => Tutkimus::class, 16 => Tutkimusalue::class, 17 => Loyto::class, 18 => Nayte::class];
+        if(!isset($mallit[$entiteettiTyyppi])) {
+            return;
+        }
+
+        $kysely = $mallit[$entiteettiTyyppi]::getSingle($entiteettiId);
+        if($entiteettiTyyppi == 13) {
+            $kysely->with('tutkimusalue.tutkimus');
+        } else if($entiteettiTyyppi == 17) {
+            $kysely->with('yksikko.tutkimusalue.tutkimus');
+        }
+        $kohde = $kysely->first();
+        if(!$kohde) {
+            throw new BadRequestHttpException("Kohdetta ei löydy");
+        }
+
+        // Tutkimus samalla tavalla kuin seuraavaLuettelointinumeroFor sen hakee
+        if($entiteettiTyyppi == 13) {
+            $tutkimus = optional($kohde->tutkimusalue)->tutkimus;
+        } else if($entiteettiTyyppi == 14) {
+            $tutkimus = $kohde;
+        } else if($entiteettiTyyppi == 17 && !$arkTutkimusId) {
+            $tutkimus = optional(optional($kohde->yksikko)->tutkimusalue)->tutkimus;
+        } else if(!$arkTutkimusId) {
+            // Näyte ja tutkimusalue ilman tutkimusta: POST tallentaa ilman numeroa -> null
+            return;
+        } else {
+            $tutkimus = Tutkimus::getSingle($arkTutkimusId)->first();
+        }
+        if(!$tutkimus) {
+            throw new BadRequestHttpException("Tutkimusta ei löydy");
+        }
     }
 
     private function linkToItem($entity, $request) {
