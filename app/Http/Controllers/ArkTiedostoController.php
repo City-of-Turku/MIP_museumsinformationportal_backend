@@ -734,15 +734,51 @@ class ArkTiedostoController extends Controller {
 			MipJson::setResponseStatus ( Response::HTTP_BAD_REQUEST );
 		} else {
 			try {
-				$entity = ArkTiedosto::find ( $id )->with ( 'luoja' )->with ( 'muokkaaja' )->first ();
+				$entity = ArkTiedosto::getSingle ( $id )->with ( array (
+						'luoja',
+						'muokkaaja',
+						'tiedostoloydot.loyto',
+						'tiedostonaytteet.nayte',
+						'tiedostoyksikot.yksikko',
+						'tiedostotutkimus.tutkimus'
+				) )->first ();
 
 				if (! $entity) {
 					MipJson::setGeoJsonFeature ();
 					MipJson::setResponseStatus ( Response::HTTP_NOT_FOUND );
 					MipJson::addMessage ( Lang::get ( 'tiedosto.search_not_found' ) );
 				} else {
-					$entity->first ();
 					$entity->url = config ( 'app.attachment_server' ) . "/" . config ( 'app.attachment_server_baseurl' ) . $entity->polku . $entity->tiedostonimi;
+
+					// Linkitykset samassa muodossa kuin listauksessa (index)
+					$tmpLoydot = [];
+					foreach($entity->tiedostoloydot as $kl) {
+					    array_push($tmpLoydot, $kl->loyto);
+					}
+					$tmpNaytteet = [];
+					foreach($entity->tiedostonaytteet as $kn) {
+					    array_push($tmpNaytteet, $kn->nayte);
+					}
+					$tmpYksikot = [];
+					foreach($entity->tiedostoyksikot as $ky) {
+					    array_push($tmpYksikot, $ky->yksikko);
+					}
+
+					if($entity->tiedostotutkimus) {
+					    $entity->tutkimus = $entity->tiedostotutkimus->tutkimus;
+					    unset($entity->tiedostotutkimus);
+					}
+
+					$entity->loydot = $tmpLoydot;
+					$entity->naytteet = $tmpNaytteet;
+					$entity->yksikot = $tmpYksikot;
+					unset($entity->tiedostoloydot);
+					unset($entity->tiedostonaytteet);
+					unset($entity->tiedostoyksikot);
+
+					// Tiedostolla ei ole omaa tutkimus-saraketta, joten tutkimus päätellään linkityksistä
+					$entity->ark_tutkimus_id = ArkTiedosto::tutkimusId($id);
+
 					MipJson::setGeoJsonFeature ( null, $entity );
 					MipJson::addMessage ( Lang::get ( 'tiedosto.search_success' ) );
 				}

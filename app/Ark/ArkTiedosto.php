@@ -95,6 +95,31 @@ class ArkTiedosto extends Model {
                 and t.poistettu is null;'), array('tid' => $tiedosto_id));
     }
 
+    // Tiedoston tutkimus: suora linkitys, muuten linkitetyn löydön, näytteen tai yksikön tutkimus.
+    // Kohteen, röntgenkuvan ja konservoinnin tiedostoille null.
+    public static function tutkimusId($tiedosto_id) {
+        $row = DB::selectOne('select coalesce(
+                (select tt.ark_tutkimus_id from ark_tiedosto_tutkimus tt
+                  where tt.ark_tiedosto_id = ? limit 1),
+                (select ta.ark_tutkimus_id from ark_tiedosto_loyto tl
+                   join ark_loyto l on l.id = tl.ark_loyto_id
+                   left join ark_tutkimusalue_yksikko y on y.id = l.ark_tutkimusalue_yksikko_id
+                   join ark_tutkimusalue ta on ta.id = coalesce(y.ark_tutkimusalue_id, l.ark_tutkimusalue_id)
+                  where tl.ark_tiedosto_id = ? limit 1),
+                (select ta.ark_tutkimus_id from ark_tiedosto_nayte tn
+                   join ark_nayte n on n.id = tn.ark_nayte_id
+                   left join ark_tutkimusalue_yksikko y on y.id = n.ark_tutkimusalue_yksikko_id
+                   join ark_tutkimusalue ta on ta.id = coalesce(y.ark_tutkimusalue_id, n.ark_tutkimusalue_id)
+                  where tn.ark_tiedosto_id = ? limit 1),
+                (select ta.ark_tutkimus_id from ark_tiedosto_yksikko ty
+                   join ark_tutkimusalue_yksikko y on y.id = ty.ark_yksikko_id
+                   join ark_tutkimusalue ta on ta.id = y.ark_tutkimusalue_id
+                  where ty.ark_tiedosto_id = ? limit 1)
+            ) as ark_tutkimus_id', [$tiedosto_id, $tiedosto_id, $tiedosto_id, $tiedosto_id]);
+
+        return $row->ark_tutkimus_id;
+    }
+
     public function loyto() {
         return $this->hasOne('App\Ark\ArkTiedostoLoyto', 'ark_tiedosto_id');
     }

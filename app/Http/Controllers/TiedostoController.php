@@ -286,7 +286,7 @@ class TiedostoController extends Controller {
     	}
     	else {
     		try {
-    			$entity = Tiedosto::find($id)->with('luoja')->with('muokkaaja')->first();
+    			$entity = Tiedosto::getSingle($id)->with('luoja')->with('muokkaaja')->first();
 
     			if(!$entity) {
     				MipJson::setGeoJsonFeature();
@@ -294,7 +294,6 @@ class TiedostoController extends Controller {
     				MipJson::addMessage(Lang::get('tiedosto.search_not_found'));
     			}
     			else {
-    				$entity->first();
     				$entity->url = config('app.attachment_server')."/".config('app.attachment_server_baseurl').$entity->polku.$entity->nimi;
     				MipJson::setGeoJsonFeature(null, $entity);
     				MipJson::addMessage(Lang::get('tiedosto.search_success'));
