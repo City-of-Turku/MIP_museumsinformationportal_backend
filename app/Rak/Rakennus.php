@@ -11,7 +11,7 @@ use App;
 
 class Rakennus extends Model {
 
-	use SoftDeletes;
+	use SoftDeletes, KuvaSuodatin;
 
 	protected $table = "rakennus";
 

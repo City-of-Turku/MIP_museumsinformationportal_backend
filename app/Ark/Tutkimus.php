@@ -163,6 +163,16 @@ class Tutkimus extends Model
         });
     }
 
+    /*
+     * Kuva-suodatin tutkimuksen ikkunan mukaan: tutkimuksen kuvat tutkimusnäkymän rajauksin.
+     */
+    public function scopeWithKuva($query, $valinta) {
+        return ArkKuva::lisaaKuvaSuodatin($query, $valinta, function($q) {
+            $q->whereColumn('ark_kuva.ark_tutkimus_id', 'ark_tutkimus.id');
+            ArkKuva::lisaaTutkimusnakymanEhdot($q);
+        });
+    }
+
     // Rivimäärän rajoitus
     public function scopeWithLimit($query, $start_row, $row_count) {
         return $query->skip($start_row)->take($row_count);

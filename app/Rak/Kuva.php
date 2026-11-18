@@ -5,6 +5,9 @@ namespace App\Rak;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\DB;
+use App\Kayttaja;
+use App\Ark\ArkKuva;
 
 class Kuva extends Model {
 
@@ -157,6 +160,35 @@ class Kuva extends Model {
 
 
 		return $images;
+	}
+
+	/*
+	 * Hakee usean entiteetin ensimmäisen kuvan MEDIUM-urlit yhdellä kyselyllä.
+	 * Järjestys kuten ikkunan kuvahaussa (index): välitaulun jarjestys, tasatilanteessa kuva.id.
+	 * Ilman kuvien katseluoikeutta ei palauteta urleja.
+	 * Palauttaa taulukon [entiteetin id => url], tyhjä merkkijono jos tiedostoa ei löydy.
+	 */
+	public static function getTunnistekuvaUrls($linkTable, $fkColumn, $ids) {
+		if(empty($ids) || !Kayttaja::hasPermission('rakennusinventointi.kuva.katselu')) {
+			return [];
+		}
+
+		$fk = $linkTable.".".$fkColumn;
+		$rows = DB::table('kuva')
+			->join($linkTable, $linkTable.".kuva_id", "=", "kuva.id")
+			->selectRaw("distinct on (".$fk.") ".$fk." as entiteetti_id, kuva.polku, kuva.nimi")
+			->whereIn($fk, $ids)
+			->whereNull('kuva.poistettu')
+			->orderBy($fk)
+			->orderByRaw($linkTable.".jarjestys asc nulls last")
+			->orderBy('kuva.id')
+			->get();
+
+		$urls = [];
+		foreach($rows as $row) {
+			$urls[$row->entiteetti_id] = ArkKuva::getMediumImageUrl($row->polku.$row->nimi);
+		}
+		return $urls;
 	}
 
 	public static function createThumbnail($img, $size) {

@@ -65,14 +65,12 @@
 		<parameter name="loytoId" class="java.lang.Long"/>
 		<parameter name="MIP_BACKEND_URL" class="java.lang.String"/>
 		<queryString language="SQL">
-			<![CDATA[select ak.* 
-from ark_kuva ak
-left join ark_kuva_loyto akl on akl.ark_kuva_id = ak.id 
-left join ark_loyto l on l.id = akl.ark_loyto_id 
+			<![CDATA[select ak.*
+from ark_loyto l
+join ark_kuva ak on ak.id = l.tunnistekuva_kuva_id and ak.poistettu is null
 where l.id = $P{loytoId}
-and ak.tunnistekuva = true
-order by id asc
-limit 1]]>
+and exists (select 1 from ark_kuva_loyto akl
+            where akl.ark_loyto_id = l.id and akl.ark_kuva_id = ak.id and akl.poistettu is null)]]>
 		</queryString>
 		<field name="id" class="java.lang.Long"/>
 		<field name="kuvaaja" class="java.lang.String"/>

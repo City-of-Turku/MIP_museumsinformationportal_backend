@@ -1099,17 +1099,7 @@ class Geoserver {
 		$nimiAlaviivoilla = self::generateLayernameWithUnderscores($julkaisuNimi, $tasoNimi);
 		$deleteLayerAddress = $this->geoserverUri . "layers/" . $nimiAlaviivoilla;
 
-		//Send the delete layer request
-		$client = new Client();
-
-		$res = $client->request('DELETE', $deleteLayerAddress, [
-				'auth' => [$this->username, $this->password]
-		]);
-
-		if($res->getStatusCode() !="200") {
-			throw new Exception("Deleting layer " . $deleteLayerAddress. " failed: " . $res->getStatusCode() . " : " . $res->getReasonPhrase());
-		}
-		return $res;
+		$this->sendDeleteIgnoringNotFound($deleteLayerAddress, "layer " . $nimiAlaviivoilla);
 	}
 
 	/*
@@ -1121,15 +1111,31 @@ class Geoserver {
 
 		$deleteFeatureTypeAddress = $this->geoserverUri . "workspaces/" . $this->workspace . "/datastores/" . $this->datastore . "/featuretypes/" . $nimiAlaviivoilla;
 
-		//Send the delete layer request
+		$this->sendDeleteIgnoringNotFound($deleteFeatureTypeAddress, "featuretype " . $nimiAlaviivoilla);
+	}
+
+	/*
+	 * Lähettää DELETE-pyynnön. 404 Not Found tulkitaan onnistumiseksi (resurssi on jo poistettu),
+	 * jotta jo aiemmin poistettu taso ei estä muiden tasojen ja inventointijulkaisun poistoa.
+	 * Muut virheet heitetään eteenpäin.
+	 */
+	private function sendDeleteIgnoringNotFound($deleteAddress, $kuvaus) {
 		$client = new Client();
 
-		$res = $client->request('DELETE', $deleteFeatureTypeAddress, [
-				'auth' => [$this->username, $this->password]
-		]);
+		try {
+			$res = $client->request('DELETE', $deleteAddress, [
+					'auth' => [$this->username, $this->password]
+			]);
+		} catch (ClientException $e) {
+			if ($e->hasResponse() && $e->getResponse()->getStatusCode() == 404) {
+				Log::channel('geoserver')->warning("Deleting " . $kuvaus . " skipped: not found (already deleted)");
+				return;
+			}
+			throw $e;
+		}
 
-		if($res->getStatusCode() !="200") {
-			throw new Exception("Deleting featuretype " . $nimiAlaviivoilla. " failed: " . $res->getStatusCode() . " : " . $res->getReasonPhrase());
+		if ($res->getStatusCode() != 200) {
+			throw new Exception("Deleting " . $kuvaus . " failed: " . $res->getStatusCode() . " : " . $res->getReasonPhrase());
 		}
 	}
 
@@ -1169,11 +1175,9 @@ class Geoserver {
 
 			foreach(array_unique($publishedLayerNames) as $publishedLayerName) {
 				Log::channel('geoserver')->info("Deleting layer " . self::generateLayername($julkaisuNimi, $publishedLayerName));
-				$response = $this->deleteLayer($julkaisuNimi, $publishedLayerName);
-				if ($response->getStatusCode() != 200) {
-					Log::channel('geoserver')->error("Exception: Layer not deleted (status: " . $response->getStatusCode() . ")");
-					throw new Exception("Problem deleting layer.");
-				}
+				// Puuttuva taso/featuretype (404) ohitetaan, muut virheet keskeyttävät.
+				// Featuretype poistetaan myös silloin kun taso puuttui, ettei orpo featuretype estä uudelleenjulkaisua.
+				$this->deleteLayer($julkaisuNimi, $publishedLayerName);
 				$this->deleteFeatureType($julkaisuNimi, $publishedLayerName);
 			}
 		} catch (Exception $e) {

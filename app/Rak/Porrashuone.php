@@ -10,7 +10,7 @@ use App;
 
 class Porrashuone extends Model {
 
-	use SoftDeletes;
+	use SoftDeletes, KuvaSuodatin;
 
 	protected $table = "porrashuone";
 

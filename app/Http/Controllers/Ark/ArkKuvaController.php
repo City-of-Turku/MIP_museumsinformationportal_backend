@@ -38,6 +38,7 @@ use App\Ark\ArkKuvaTutkimusalue;
 use Illuminate\Database\QueryException;
 use App\Ark\Rontgenkuva;
 use App\Ark\ArkKuvaRontgenkuva;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 
 class ArkKuvaController extends Controller {
@@ -149,6 +150,15 @@ class ArkKuvaController extends Controller {
             if($request->input("otsikko")) {
                 $entities->withOtsikko($request->input("otsikko"));
             }
+            if($request->input("kuvaus")) {
+                $entities->withKuvaus($request->input("kuvaus"));
+            }
+            if($request->input("lisatiedot")) {
+                $entities->withLisatiedot($request->input("lisatiedot"));
+            }
+            if($request->input("kuvaaja")) {
+                $entities->withKuvaaja($request->input("kuvaaja"));
+            }
             if($request->input("ark_rontgenkuva_id") && $request->input("ark_rontgenkuva_id") !== 'null') {
                 $entities->withRontgenKuva($request->input("ark_rontgenkuva_id"));
             }
@@ -165,6 +175,8 @@ class ArkKuvaController extends Controller {
                 MipJson::addMessage(Lang::get('kuva.search_not_found'));
                 return MipJson::getJson();
             }
+
+            $this->asetaTunnistekuvaKentta($entities, $request);
 
             if($request->input("searchPage") != 'true') {
                 // Luetteloitujen ja luetteloimattomien suodatus
@@ -193,8 +205,8 @@ class ArkKuvaController extends Controller {
                     if(!$request->input("kuvatyyppi")) {
                     array_push($returnEntities, $entity);
                 }
-                    else{ //Palautetaan kuvat näkymän perusteella löytö/konservointi, paitsi tunnistekuva näytetään aina
-                        $loydonkuva = (($entity->kuvatyyppi && $entity->kuvatyyppi->kuva_tyyppi == $request->input("kuvatyyppi")) || $entity->tunnistekuva == true);
+                    else{ //Palautetaan kuvat näkymän perusteella löytö/konservointi, paitsi tunnistekuva näytetään aina löydön kuvissa (tyyppi 1)
+                        $loydonkuva = (($entity->kuvatyyppi && $entity->kuvatyyppi->kuva_tyyppi == $request->input("kuvatyyppi")) || ($entity->tunnistekuva == true && $request->input("kuvatyyppi") == 1));
                         if ($loydonkuva){
                             array_push($returnEntities, $entity);
                         }
@@ -300,6 +312,20 @@ class ArkKuvaController extends Controller {
             return MipJson::getJson();
         }
 
+        //Käyttäjän antama luettelointinumero, tarkastetaan ennen tiedoston tallennusta
+        $annettuLuettelointinumero = trim((string) $request->input('luettelointinumero'));
+        if($annettuLuettelointinumero == "null") {
+            $annettuLuettelointinumero = "";
+        }
+        if($request->luetteloi == "true" && $annettuLuettelointinumero !== "") {
+            if(!ArkKuva::isLuettelointinumeroUnique($annettuLuettelointinumero)) {
+                MipJson::setGeoJsonFeature();
+                MipJson::addMessage("Luettelointinumero ei ole uniikki");
+                MipJson::setResponseStatus(Response::HTTP_BAD_REQUEST);
+                return MipJson::getJson();
+            }
+        }
+
         // wrap the operations into a transaction
         DB::beginTransaction();
         Utils::setDBUser();
@@ -348,9 +374,13 @@ class ArkKuvaController extends Controller {
             $author_field = ArkKuva::CREATED_BY;
             $entity->$author_field = Auth::user()->id;
 
-            //Luodaan luettelointinumero jos luetteloi on true
+            //Luodaan luettelointinumero jos luetteloi on true, ellei käyttäjä antanut omaa
             if($request->luetteloi == "true") {
-                $this->createLuettelointinumero($request, $entity);
+                if($annettuLuettelointinumero !== "") {
+                    $entity->luettelointinumero = $annettuLuettelointinumero;
+                } else {
+                    $entity->luettelointinumero = $this->seuraavaLuettelointinumeroFor($request->entiteetti_tyyppi, $request->input('entiteetti_id'), $entity->ark_tutkimus_id);
+                }
             }
 
             $entity->save();
@@ -363,12 +393,7 @@ class ArkKuvaController extends Controller {
             //Linkataan itemiin josta kuva lisättiin
             $this->linkToItem($entity, $request);
 
-            //Kohteella voi olla vain yksi tunnistekuva kerrallaan, nollataan muut.
-            //Lomakkeelta tuleva arvo on merkkijono, joten tyhjä/false ei kelpaa sellaisenaan ehdoksi.
-            $onTunnistekuva = filter_var($entity->tunnistekuva, FILTER_VALIDATE_BOOLEAN);
-            if($onTunnistekuva && $request->get('entiteetti_tyyppi') == 15 && $request->get('entiteetti_id')) {
-                ArkKuva::updateKohdeTunnistekuva($request->get('entiteetti_id'), $entity->id);
-            }
+            $this->paivitaTunnistekuva($entity->id, $request);
 
             MipJson::setGeoJsonFeature();
             MipJson::addMessage(Lang::get('kuva.save_success'));
@@ -394,7 +419,7 @@ class ArkKuvaController extends Controller {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id) {
+    public function show(Request $request, $id) {
 
         /*
          * Role check
@@ -429,6 +454,12 @@ class ArkKuvaController extends Controller {
             $entity->url_small = $images->small;
             $entity->url_medium = $images->medium;
             $entity->url_large = $images->large;
+
+            // Ikkunan entiteetin mukaan, kuten kuvalistassa. Ilman entiteettiä vanha ark_kuva.tunnistekuva.
+            $ikkuna = $this->ikkunanEntiteetti($request);
+            if($ikkuna) {
+                $entity->tunnistekuva = ArkKuva::tunnistekuvaId($ikkuna[0], $ikkuna[1]) == $entity->id;
+            }
 
             MipJson::setGeoJsonFeature(null, $entity);
             MipJson::addMessage(Lang::get('kuva.search_success'));
@@ -548,18 +579,6 @@ class ArkKuvaController extends Controller {
                 }
             }
 
-            if($entity->tunnistekuva) {
-                if($request->loydot && $request->loydot[0]['id']) {
-                    ArkKuva::updateLoytoTunnistekuva($request->loydot[0]['id'], $entity->id);
-                }
-                if($request->yksikot && $request->yksikot[0]['id']) {
-                    ArkKuva::updateYksikkoTunnistekuva($request->yksikot[0]['id'], $entity->id);
-                }
-                if($request->kohteet && $request->kohteet[0]['id']) {
-                    ArkKuva::updateKohdeTunnistekuva($request->kohteet[0]['id'], $entity->id);
-                }
-            }
-
             $author_field = ArkKuva::UPDATED_BY;
             $when_field = ArkKuva::UPDATED_AT;
             $entity->$author_field = Auth::user()->id;
@@ -577,6 +596,8 @@ class ArkKuvaController extends Controller {
             ArkKuva::linkita_yksikot($entity->id, $request->yksikot);
             ArkKuva::linkita_kohteet($entity->id, $request->kohteet);
             ArkKuva::linkita_tutkimusalueet($entity->id, $request->tutkimusalueet);
+
+            $this->paivitaTunnistekuva($entity->id, $request);
 
             MipJson::setGeoJsonFeature();
             MipJson::addMessage(Lang::get('kuva.save_success'));
@@ -657,6 +678,8 @@ class ArkKuvaController extends Controller {
              ArkKuva::linkita_kohteet($entity->id, []);
              ArkKuva::linkita_tutkimusalueet($entity->id, []);
 
+             ArkKuva::poistaTunnistekuvaOsoittimet($entity->id);
+
              // Poistetaan mahdollinen kohde, tutkimus tai tutkimusalue kuva.
              // Poisto tehdään näin koska yhdistelmä PK tyylin modelissa ei tunnu laravel toimivan, kuten normi Id PK mallissa.
              switch ($request->input('entiteetti_tyyppi')) {
@@ -721,21 +744,82 @@ class ArkKuvaController extends Controller {
     }
 
     /*
-     * Esimerkiksi jos päänumero on 2015:25 -> luettelointinumero on DT2015:25:1
+     * Palauttaa luettelointinumeron, jonka POST antaisi nyt. Ei tallenna mitään.
      */
-    private function createLuettelointinumero($request, $entity) {
+    public function seuraavaLuettelointinumero(Request $request) {
+
+        /*
+         * Role check - sama kuin POST
+         */
+        if(!Kayttaja::hasArkTutkimusSubPermission('arkeologia.ark_kuva.luonti', $request->input('ark_tutkimus_id'))) {
+            MipJson::setGeoJsonFeature();
+            MipJson::setResponseStatus(Response::HTTP_FORBIDDEN);
+            MipJson::addMessage(Lang::get('validation.custom.permission_denied'));
+            return MipJson::getJson();
+        }
+
+        $input = $request->all();
+        if(isset($input['ark_tutkimus_id']) && $input['ark_tutkimus_id'] == "null") {
+            $input['ark_tutkimus_id'] = null;
+        }
+
+        $validator = Validator::make($input, [
+            "entiteetti_tyyppi" => "required|numeric|in:13,14,15,16,17,18,19,22",
+            "entiteetti_id"     => "required|numeric",
+            "ark_tutkimus_id"   => "nullable|numeric|exists:ark_tutkimus,id"
+        ]);
+
+        if ($validator->fails()) {
+            MipJson::setGeoJsonFeature();
+            MipJson::addMessage(Lang::get('validation.custom.user_input_validation_failed'));
+            foreach($validator->errors()->all() as $error) {
+                MipJson::addMessage($error);
+                MipJson::setResponseStatus(Response::HTTP_BAD_REQUEST);
+            }
+            return MipJson::getJson();
+        }
+
+        try {
+            $arkTutkimusId = $input['ark_tutkimus_id'] ?? null;
+            $ln = $this->seuraavaLuettelointinumeroFor($input['entiteetti_tyyppi'], $input['entiteetti_id'], $arkTutkimusId, true);
+
+            MipJson::setGeoJsonFeature(null, ['luettelointinumero' => $ln]);
+        }
+        catch(BadRequestHttpException $e) {
+            MipJson::setGeoJsonFeature();
+            MipJson::addMessage($e->getMessage());
+            MipJson::setResponseStatus(Response::HTTP_BAD_REQUEST);
+        }
+        catch(Exception $e) {
+            Log::debug($e);
+            MipJson::addMessage("Luettelointinumeron haku epäonnistui");
+            MipJson::setResponseStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        return MipJson::getJson();
+    }
+
+    /*
+     * Esimerkiksi jos päänumero on 2015:25 -> luettelointinumero on DT2015:25:1
+     * Palauttaa null, jos numeroa ei anneta. Käytössä POST ja seuraavaluettelointinumero.
+     * $tiukka: puuttuva kohde -> BadRequestHttpException (seuraavaluettelointinumero). POST:n käytös ennallaan.
+     */
+    private function seuraavaLuettelointinumeroFor($entiteettiTyyppi, $entiteettiId, $arkTutkimusId, $tiukka = false) {
+
+        if($tiukka) {
+            $this->tarkistaNumeroinninKohde($entiteettiTyyppi, $entiteettiId, $arkTutkimusId);
+        }
 
         $ln = "DT";
-        if($request->entiteetti_tyyppi == 17) {
+        if($entiteettiTyyppi == 17) {
             //Löytö - varmistetaan tutkimuksen löytyminen myös irtolöytö tyypeillä
-            if($entity->ark_tutkimus_id){
+            if($arkTutkimusId){
 
                 //Päänumero tutkimukselta
-                $tutkimus = Tutkimus::getSingle($entity->ark_tutkimus_id)->first();
+                $tutkimus = Tutkimus::getSingle($arkTutkimusId)->first();
                 $ln .= $tutkimus->digikuva_paanumero;
-                $viimeisinLuettelointinumero = Tutkimus::getViimeisinLuettelointinumero($entity->ark_tutkimus_id);
+                $viimeisinLuettelointinumero = Tutkimus::getViimeisinLuettelointinumero($arkTutkimusId);
             }else{
-                $l = Loyto::getSingle($request->input('entiteetti_id'))->with('yksikko.tutkimusalue.tutkimus')->first();
+                $l = Loyto::getSingle($entiteettiId)->with('yksikko.tutkimusalue.tutkimus')->first();
                 //Päänumero tutkimukselta
                 $ln .= $l->yksikko->tutkimusalue->tutkimus->digikuva_paanumero;
                 $viimeisinLuettelointinumero = Tutkimus::getViimeisinLuettelointinumero($l->yksikko->tutkimusalue->tutkimus->id);
@@ -748,35 +832,35 @@ class ArkKuvaController extends Controller {
                 $next = intval($viimeisinJuoksevaNumero)+1;
                 $ln .= ":" . $next;
 
-                $entity->luettelointinumero = $ln;
+                return $ln;
 
             }else{
                 // ensimmäinen lisäys
                 $ln .= ":" . 1;
-                $entity->luettelointinumero = $ln;
+                return $ln;
             }
-        } else if($request->entiteetti_tyyppi == 18){
+        } else if($entiteettiTyyppi == 18){
             // Näyte
-            if($entity->ark_tutkimus_id){
+            if($arkTutkimusId){
                 //Päänumero tutkimukselta
-                $tutkimus = Tutkimus::getSingle($entity->ark_tutkimus_id)->first();
+                $tutkimus = Tutkimus::getSingle($arkTutkimusId)->first();
                 $ln .= $tutkimus->digikuva_paanumero;
 
-                $nayte = Nayte::getSingle($request->input('entiteetti_id'));
+                $nayte = Nayte::getSingle($entiteettiId);
 
-                $viimeisinLuettelointinumero = Tutkimus::getViimeisinLuettelointinumero($entity->ark_tutkimus_id);
+                $viimeisinLuettelointinumero = Tutkimus::getViimeisinLuettelointinumero($arkTutkimusId);
                 //Otetaan luettelointinumeron viimeinen osio viimeisimmän : merkin jälkeen:
                 $startIndex = strrpos($viimeisinLuettelointinumero, ':');
                 $viimeisinJuoksevaNumero = substr($viimeisinLuettelointinumero, $startIndex+1);
                 $next = intval($viimeisinJuoksevaNumero)+1;
                 $ln .= ":" . $next;
 
-                $entity->luettelointinumero = $ln;
+                return $ln;
 
             }
-        } else if($request->entiteetti_tyyppi == 13) {
+        } else if($entiteettiTyyppi == 13) {
             //Yksikko - haetaan tutkimukselta päänumero
-            $y = TutkimusalueYksikko::getSingle($request->input('entiteetti_id'))->with('tutkimusalue.tutkimus')->first();
+            $y = TutkimusalueYksikko::getSingle($entiteettiId)->with('tutkimusalue.tutkimus')->first();
             if($y) {
                 //Päänumero tutkimukselta
                 $ln .= $y->tutkimusalue->tutkimus->digikuva_paanumero;
@@ -788,11 +872,11 @@ class ArkKuvaController extends Controller {
                 $next = intval($viimeisinJuoksevaNumero)+1;
                 $ln .= ":" . $next;
 
-                $entity->luettelointinumero = $ln;
+                return $ln;
             }
-        } else if($request->entiteetti_tyyppi == 14) {
+        } else if($entiteettiTyyppi == 14) {
             //Tutkimus - haetaan tutkimukselta päänumero
-            $t = Tutkimus::getSingle($request->input('entiteetti_id'))->first();
+            $t = Tutkimus::getSingle($entiteettiId)->first();
 
             if($t) {
                 //Päänumero tutkimukselta
@@ -806,11 +890,11 @@ class ArkKuvaController extends Controller {
                 $next = intval($viimeisinJuoksevaNumero)+1;
                 $ln .= ":" . $next;
 
-                $entity->luettelointinumero = $ln;
+                return $ln;
             }
-        } else if($request->entiteetti_tyyppi == 16) {
+        } else if($entiteettiTyyppi == 16) {
             //Tutkimusalue - haetaan tutkimukselta päänumero
-            $tk = Tutkimus::getSingle($entity->ark_tutkimus_id)->first();
+            $tk = Tutkimus::getSingle($arkTutkimusId)->first();
 
             if($tk) {
                 //Päänumero tutkimukselta
@@ -823,8 +907,48 @@ class ArkKuvaController extends Controller {
                 $next = intval($viimeisinJuoksevaNumero)+1;
                 $ln .= ":" . $next;
 
-                $entity->luettelointinumero = $ln;
+                return $ln;
             }
+        }
+        return null;
+    }
+
+    /*
+     * Varmistaa, että seuraavaLuettelointinumeroFor löytää kohteen ja tutkimuksen, jolta päänumero haetaan.
+     * Tyypit ilman numerointia (kohde, röntgen, kuntoraportti) ohitetaan.
+     */
+    private function tarkistaNumeroinninKohde($entiteettiTyyppi, $entiteettiId, $arkTutkimusId) {
+        $mallit = [13 => TutkimusalueYksikko::class, 14 => Tutkimus::class, 16 => Tutkimusalue::class, 17 => Loyto::class, 18 => Nayte::class];
+        if(!isset($mallit[$entiteettiTyyppi])) {
+            return;
+        }
+
+        $kysely = $mallit[$entiteettiTyyppi]::getSingle($entiteettiId);
+        if($entiteettiTyyppi == 13) {
+            $kysely->with('tutkimusalue.tutkimus');
+        } else if($entiteettiTyyppi == 17) {
+            $kysely->with('yksikko.tutkimusalue.tutkimus');
+        }
+        $kohde = $kysely->first();
+        if(!$kohde) {
+            throw new BadRequestHttpException("Kohdetta ei löydy");
+        }
+
+        // Tutkimus samalla tavalla kuin seuraavaLuettelointinumeroFor sen hakee
+        if($entiteettiTyyppi == 13) {
+            $tutkimus = optional($kohde->tutkimusalue)->tutkimus;
+        } else if($entiteettiTyyppi == 14) {
+            $tutkimus = $kohde;
+        } else if($entiteettiTyyppi == 17 && !$arkTutkimusId) {
+            $tutkimus = optional(optional($kohde->yksikko)->tutkimusalue)->tutkimus;
+        } else if(!$arkTutkimusId) {
+            // Näyte ja tutkimusalue ilman tutkimusta: POST tallentaa ilman numeroa -> null
+            return;
+        } else {
+            $tutkimus = Tutkimus::getSingle($arkTutkimusId)->first();
+        }
+        if(!$tutkimus) {
+            throw new BadRequestHttpException("Tutkimusta ei löydy");
         }
     }
 
@@ -961,6 +1085,73 @@ class ArkKuvaController extends Controller {
         }
         $img_tiny = ArkKuva::createThumbnail($img, intval(explode(",",config('app.image_thumb_tiny'))[0]));
         $img_tiny->save($file_path.$file_name."_TINY.".$thumb_extension);
+    }
+
+    /*
+     * Asettaa ikkunan entiteetin (entiteetti_tyyppi, entiteetti_id) tunnistekuvan. Ilman entiteettiä tunnistekuva ohitetaan.
+     * true asettaa osoittimen tähän kuvaan, false poistaa sen vain jos se osoittaa tähän kuvaan.
+     */
+    private function paivitaTunnistekuva($kuvaId, $request) {
+        $ikkuna = $this->ikkunanEntiteetti($request);
+        if(!$ikkuna || !$request->has('tunnistekuva')) {
+            return;
+        }
+
+        // POST-lomakkeelta arvo tulee merkkijonona
+        $onTunnistekuva = filter_var($request->input('tunnistekuva'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        if(is_null($onTunnistekuva)) {
+            return;
+        }
+
+        ArkKuva::asetaTunnistekuva($kuvaId, $ikkuna[0], $ikkuna[1], $onTunnistekuva);
+    }
+
+    /*
+     * Ikkunan entiteetti [entiteetti_tyyppi, entiteetti_id], jos se on tunnistekuvallinen. Muuten null.
+     */
+    private function ikkunanEntiteetti($request) {
+        $tyyppi = filter_var($request->input('entiteetti_tyyppi'), FILTER_VALIDATE_INT);
+        $entiteettiId = filter_var($request->input('entiteetti_id'), FILTER_VALIDATE_INT);
+
+        if($tyyppi === false || $entiteettiId === false || !array_key_exists($tyyppi, ArkKuva::TUNNISTEKUVA_ENTITEETIT)) {
+            return null;
+        }
+        return [$tyyppi, $entiteettiId];
+    }
+
+    /*
+     * Kuvan tunnistekuva-kenttä lasketaan ikkunan entiteetin osoittimesta. Haussa kentällä ei ole yhtä merkitystä, joten false.
+     * Tutkimusalueen, röntgenkuvan ja kuntoraportin ikkunoissa jää vanha ark_kuva.tunnistekuva.
+     */
+    private function asetaTunnistekuvaKentta($entities, $request) {
+        $annettu = function($kentta) use ($request) {
+            return $request->input($kentta) && $request->input($kentta) !== 'null';
+        };
+
+        if($request->input("searchPage") == 'true') {
+            $tunnistekuvaId = null;
+        } else if($annettu('ark_loyto_id')) {
+            $tunnistekuvaId = ArkKuva::tunnistekuvaId(17, $request->input('ark_loyto_id'));
+        } else if($annettu('ark_nayte_id')) {
+            $tunnistekuvaId = ArkKuva::tunnistekuvaId(18, $request->input('ark_nayte_id'));
+        } else if($annettu('ark_yksikko_id')) {
+            $tunnistekuvaId = ArkKuva::tunnistekuvaId(13, $request->input('ark_yksikko_id'));
+        } else if($request->input('yksikkotunnus')) {
+            // Tunnuksella voi osua useaan yksikköön
+            $tunnistekuvaId = null;
+        } else if($annettu('ark_tutkimusalue_id') || $annettu('ark_rontgenkuva_id') || $annettu('ark_kuntoraportti_id')) {
+            return;
+        } else if($annettu('ark_kohde_id')) {
+            $tunnistekuvaId = ArkKuva::tunnistekuvaId(15, $request->input('ark_kohde_id'));
+        } else if($annettu('ark_tutkimus_id')) {
+            $tunnistekuvaId = ArkKuva::tunnistekuvaId(14, $request->input('ark_tutkimus_id'));
+        } else {
+            return;
+        }
+
+        foreach($entities as $entity) {
+            $entity->tunnistekuva = !is_null($tunnistekuvaId) && $entity->id == $tunnistekuvaId;
+        }
     }
 
     /*

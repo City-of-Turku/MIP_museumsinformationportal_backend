@@ -213,17 +213,43 @@ class TutkimusController extends Controller
 
             $tutkimukset->withOrderBy($jarjestys_kentta, $jarjestys_suunta, $request->aluerajaus);
 
-            // Rivien määrän laskenta
-            $total_rows = Utils::getCount($tutkimukset);
+            // Kuva: 1 = kyllä, 2 = ei, 3 = kaikki.
+            if($request->kuva) {
+                $tutkimukset->withKuva($request->kuva);
+            }
 
-            // limit the results rows by given params
-            $tutkimukset->withLimit($rivi, $riveja);
+            // Kuvasuodatettu haku ilman JIT:iä (vain tämä transaktio).
+            $jitPois = $request->kuva == 1 || $request->kuva == 2;
+            if($jitPois) {
+                DB::beginTransaction();
+            }
+            try {
+                if($jitPois) {
+                    DB::statement('set local jit = off');
+                }
 
-            // Execute the query
-            // HUOM: ilman ark_tutkimus samannimiset kentät ylikirjoittuvat joinien mukana
-            $tutkimukset = $tutkimukset->get('ark_tutkimus.*');
+                // Rivien määrän laskenta
+                $total_rows = Utils::getCount($tutkimukset);
+
+                // limit the results rows by given params
+                $tutkimukset->withLimit($rivi, $riveja);
+
+                // Execute the query
+                // HUOM: ilman ark_tutkimus samannimiset kentät ylikirjoittuvat joinien mukana
+                $tutkimukset = $tutkimukset->get('ark_tutkimus.*');
+
+                if($jitPois) {
+                    DB::commit();
+                }
+            } catch(\Throwable $e) {
+                if($jitPois) {
+                    DB::rollBack();
+                }
+                throw $e;
+            }
 
             // Tutkimukseen liitetyiltä käyttäjiltä kaivetaan organisaatiot.
+            $onKatselija = Auth::user()->ark_rooli === 'katselija';
             $i = 0;
             foreach ($tutkimukset as $tutkimus) {
                 // Tutkimusten organisaatiot palautetaan erikseen hakuja varten
@@ -234,6 +260,9 @@ class TutkimusController extends Controller
                         if(!in_array($tk->organisaatio, $organisaatiot, true)){
                             array_push($organisaatiot, $tk->organisaatio);
                         }
+                    }
+                    if($onKatselija) {
+                        $tk->setVisible(Kayttaja::NIMITIEDOT);
                     }
                 }
 
@@ -256,9 +285,18 @@ class TutkimusController extends Controller
                 }
             }
 
+            // Kuvagalleria: tunnistekuvan url vain pyydettäessä.
+            $tunnistekuvaUrlit = null;
+            if(filter_var($request->tunnistekuva_url, FILTER_VALIDATE_BOOLEAN)) {
+                $tunnistekuvaUrlit = ArkKuva::getTunnistekuvaUrls(14, $tutkimukset->pluck('id')->all());
+            }
+
             MipJson::initGeoJsonFeatureCollection(count($tutkimukset), $total_rows);
 
             foreach ($tutkimukset as $tutkimus) {
+                if(!is_null($tunnistekuvaUrlit)) {
+                    $tutkimus->tunnistekuva_url = $tunnistekuvaUrlit[$tutkimus->id] ?? null;
+                }
                 MipJson::addGeoJsonFeatureCollectionFeaturePoint(null, $tutkimus);
             }
             MipJson::addMessage(Lang::get('tutkimus.search_success'));
@@ -333,6 +371,32 @@ class TutkimusController extends Controller
                     MipJson::setGeoJsonFeature();
                     MipJson::setResponseStatus(Response::HTTP_NOT_FOUND);
                     MipJson::addMessage(Lang::get('tutkimus.search_not_found'));
+                } else {
+                    // Palautetaan vain voimassa oleva tunnistekuva
+                    $tutkimus->tunnistekuva_kuva_id = ArkKuva::tunnistekuvaId(14, $tutkimus->id);
+                }
+
+                // Katselijalle käyttäjistä vain nimet, ei tarkastuksen muistiinpanoja.
+                if($tutkimus && Auth::user()->ark_rooli === 'katselija') {
+                    foreach ($tutkimus->tutkimuskayttajat as $tk) {
+                        $tk->setVisible(Kayttaja::NIMITIEDOT);
+                    }
+                    // getRelation: luoja, muokkaaja ja tarkastaja ovat myös sarakkeita.
+                    $kayttajat = [$tutkimus->getRelation('luoja'), $tutkimus->getRelation('muokkaaja')];
+                    if($tutkimus->tarkastus) {
+                        $kayttajat[] = $tutkimus->tarkastus->getRelation('tarkastaja');
+                    }
+                    foreach ($kayttajat as $kayttaja) {
+                        if($kayttaja) {
+                            $kayttaja->setVisible(Kayttaja::NIMITIEDOT);
+                        }
+                    }
+                    if(!empty($kohde)) {
+                        unset($kohde->tarkastus_muistiinpano);
+                    }
+                    foreach ($tutkimus->inventointiKohteet as $invKohde) {
+                        unset($invKohde->tarkastus_muistiinpano);
+                    }
                 }
 
                 // Inventointi-tutkimukselle palautetaan tutkimuskäyttäjälle asetettu organisaatio sekä inventoinnin kohteet.

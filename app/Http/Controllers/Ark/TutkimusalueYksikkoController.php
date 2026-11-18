@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Ark;
 
 use App\Kayttaja;
 use App\Utils;
+use App\Ark\ArkKuva;
 use App\Ark\TutkimusalueYksikko;
 use App\Ark\YksikkoMuutMaalajit;
 use App\Ark\YksikkoPaasekoitteet;
@@ -201,6 +202,9 @@ class TutkimusalueYksikkoController extends Controller
 
                 // Näytteiden lista yksikölle
                 self::muodostaNaytelista($yksikko);
+
+                // Palautetaan vain voimassa oleva tunnistekuva
+                $yksikko->tunnistekuva_kuva_id = ArkKuva::tunnistekuvaId(13, $yksikko->id);
 
                 // US9906 vain muokkausoikeuksilla näkyy muistiinpanot
                 if(!Kayttaja::hasPermissionForEntity('arkeologia.ark_yksikko.muokkaus', $id)) {

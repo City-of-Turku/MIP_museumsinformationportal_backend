@@ -7,6 +7,7 @@ use App\Kayttaja;
 use App\Rak\Kuva;
 use App\Muistot\Muistot_kuva;
 use App\Muistot\Muistot_aihe;
+use App\Muistot\Muistot_henkilo;
 use App\Library\String\MipJson;
 use App\Utils;
 use Illuminate\Support\Facades\Auth;
@@ -72,9 +73,8 @@ class MuistotKuvaController extends Controller {
     			// $entities->withLimit($rivi, $riveja);
     			$entities = $entities->get();
 
-          // In listing, there's no need to show photographer name ever.
-          // Todo: Check based on user permissions, if needed in future.
-          $showPhotographerName = false;
+          // Photographer name (or nickname) is resolved per photo based on roles
+          $photographerCache = [];
 
           if(count($entities) <= 0) {
     				MipJson::initGeoJsonFeatureCollection(count($entities), $total_rows);
@@ -93,7 +93,7 @@ class MuistotKuvaController extends Controller {
               $entity->id = $entity->prikka_id; 
               $entity->otsikko = $entity->ottopaikka . " " . $entity->ottohetki; // modal title
               $entity->muisto_otsikko = $entity->muisto->kuvaus;
-              $entity->valokuvaaja = $showPhotographerName ? $entity->valokuvaaja : null;
+              $entity->valokuvaaja = $this->resolvePhotographer($entity, $photographerCache);
     					MipJson::addGeoJsonFeatureCollectionFeaturePoint(null, $entity);
     				}
     				MipJson::addMessage(Lang::get('kuva.found_count',["count" => count($entities)]));
@@ -142,18 +142,8 @@ class MuistotKuvaController extends Controller {
     			else {
     				$entity->first();
 
-            // Photographer name can be hidden based on roles
-            // Same rule as for private memories.
-            $showPhotographerName =(Kayttaja::hasPermission('muistot.yksityinen_muisto.katselu')) ? true : false;
-            if (!$showPhotographerName) {
-              // If user has access to the related topic, allow seeing the photographer name
-              $aiheId = $entity->muisto->muistot_aihe_id; 
-              $aihe = Muistot_aihe::getSingle($aiheId)->first();
-              $userId = Auth::user()->id;
-              if ($aihe && $aihe->hasUser($userId)) {
-                $showPhotographerName = true;
-              }
-            }
+            // Photographer name (or nickname) is resolved based on roles
+            $photographerCache = [];
 
             // huom. rakennuspuolen funkkari, mutta pitäisi toimia suoraan
     				$images = Kuva::getImageUrls($entity->polku.$entity->nimi); //
@@ -166,7 +156,7 @@ class MuistotKuvaController extends Controller {
             $entity->id = $entity->prikka_id; 
             $entity->otsikko = $entity->ottopaikka . " " . $entity->ottohetki; // modal title
             $entity->muisto_otsikko = $entity->muisto->kuvaus;
-            $entity->valokuvaaja = $showPhotographerName ? $entity->valokuvaaja : null;
+            $entity->valokuvaaja = $this->resolvePhotographer($entity, $photographerCache);
     				MipJson::setGeoJsonFeature(null, $entity);
     				MipJson::addMessage(Lang::get('kuva.search_success'));
     			}
@@ -177,6 +167,50 @@ class MuistotKuvaController extends Controller {
     		}
     	}
     	return MipJson::getJson();
+    }
+
+    /**
+     * Value for 'valokuvaaja' of the given image, based on the user's role.
+     * - Users with private memory access, and users attached to the muisto's aihe, see the real name.
+     * - Others see the nickname if the photographer chose so (nimimerkki_kuvaajana), otherwise the real name.
+     * - If the nickname is wanted but missing, nothing is shown.
+     * Note:Prikka limits pictures to one per muisto, but this function is prepared for 
+     * multiple as well (cache)
+     *
+     * @param Muistot_kuva $entity Image with 'muisto' relation loaded
+     * @param array $cache Per-request cache
+     * @return string|null
+     */
+    private function resolvePhotographer(Muistot_kuva $entity, array &$cache) {
+
+        if (!isset($cache['full_access'])) {
+            $cache['full_access'] = Kayttaja::hasPermission('muistot.yksityinen_muisto.katselu') ? true : false;
+        }
+        if ($cache['full_access']) {
+            return $entity->valokuvaaja;
+        }
+
+        // If user has access to the related topic, allow seeing the photographer name
+        $aiheId = $entity->muisto->muistot_aihe_id;
+        if (!isset($cache['aihe'][$aiheId])) {
+            $aihe = Muistot_aihe::getSingle($aiheId)->first();
+            $cache['aihe'][$aiheId] = ($aihe && $aihe->hasUser(Auth::user()->id)) ? true : false;
+        }
+        if ($cache['aihe'][$aiheId]) {
+            return $entity->valokuvaaja;
+        }
+
+        if (!$entity->nimimerkki_kuvaajana) {
+            return $entity->valokuvaaja;
+        }
+
+        // Only the nickname is read, so no personal data gets into the response
+        $henkiloId = $entity->muisto->muistot_henkilo_id;
+        if (!array_key_exists($henkiloId, $cache['nimimerkki'] ?? [])) {
+            $nimimerkki = Muistot_henkilo::getSingle($henkiloId)->value('nimimerkki');
+            $cache['nimimerkki'][$henkiloId] = ($nimimerkki === null || trim($nimimerkki) === '') ? null : $nimimerkki;
+        }
+        return $cache['nimimerkki'][$henkiloId];
     }
 
     /**

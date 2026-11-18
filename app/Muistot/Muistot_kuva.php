@@ -39,7 +39,8 @@ class Muistot_kuva extends Model {
         'kuvaus',
         'ottohetki',
         'ottopaikka',
-        'valokuvaaja'
+        'valokuvaaja',
+        'nimimerkki_kuvaajana'
     ];
 
     public function muisto() {

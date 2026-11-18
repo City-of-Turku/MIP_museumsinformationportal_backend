@@ -15,6 +15,9 @@ class Muistot_aihe_kayttaja extends Model
         "muistot_aihe_id", "kayttaja_id"
     );
 
+    // Muistot_aihe::aihe_kayttajat() joinaa kayttaja-taulun.
+    protected $hidden = ['salasana', 'salasana_avain'];
+
     public $timestamps = true;
 
     const CREATED_AT 		= 'luotu';
