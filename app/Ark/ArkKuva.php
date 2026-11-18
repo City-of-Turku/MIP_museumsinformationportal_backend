@@ -489,6 +489,18 @@ class ArkKuva extends Model {
 	    return $query->where('ark_kuva.otsikko', 'ilike', "%".$keyword."%");
 	}
 
+	public function scopeWithKuvaus($query, $keyword) {
+	    return $query->where('ark_kuva.kuvaus', 'ilike', "%".$keyword."%");
+	}
+
+	public function scopeWithLisatiedot($query, $keyword) {
+	    return $query->where('ark_kuva.lisatiedot', 'ilike', "%".$keyword."%");
+	}
+
+	public function scopeWithKuvaaja($query, $keyword) {
+	    return $query->where('ark_kuva.kuvaaja', 'ilike', "%".$keyword."%");
+	}
+
 	public function scopeWithRontgenKuva($query, $id) {
 	    return $query->join("ark_kuva_rontgenkuva", "ark_kuva_rontgenkuva.ark_kuva_id", "=", "ark_kuva.id")
 	    ->where("ark_kuva_rontgenkuva.ark_rontgenkuva_id", "=", $id);
@@ -638,20 +650,19 @@ class ArkKuva extends Model {
 		}
 }
 
-	public static function isLuettelointinumeroUnique($ln, $nykyisenKuvanId) {
-	    $q = DB::select(DB::raw('select count(k.id)
-                                from ark_kuva k
-                                where k.luettelointinumero ilike :ln
-                                and k.poistettu is null
-                                and k.id != :nykyId;'), array('ln' => $ln, 'nykyId' => $nykyisenKuvanId));
-
-	    if(sizeof($q) > 0) {
-	        if($q[0]->count ==  0) {
-	            return true;
-	        }
-	        return false;
+	// Tarkka vertailu (trimmattu, kirjainkoko ei merkitse, ei ilike-jokerimerkkejä).
+	// $nykyisenKuvanId jätetään vertailusta pois; 0/null = uusi kuva.
+	public static function isLuettelointinumeroUnique($ln, $nykyisenKuvanId = 0) {
+	    $ln = trim((string) $ln);
+	    // Tyhjä numero on uniikki, kuten ennen (ilike NULL ei osunut mihinkään)
+	    if($ln === "") {
+	        return true;
 	    }
-	    return false;
+	    return !DB::table('ark_kuva')
+	        ->whereRaw('lower(trim(luettelointinumero)) = lower(?)', [$ln])
+	        ->whereNull('poistettu')
+	        ->where('id', '!=', (int) $nykyisenKuvanId)
+	        ->exists();
 	}
 
 	public static function tutkimus($kuvaId) {

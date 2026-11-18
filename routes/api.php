@@ -224,6 +224,7 @@ Route::group(['middleware' => ['auth.jwt', 'setLocale']], function () {
 	 * ArkKuva
 	 */
 	Route::get("/ark_kuva/uniikkiluettelointinumero/", "Ark\ArkKuvaController@isLuettelointinumeroUnique");
+	Route::get("/ark_kuva/seuraavaluettelointinumero", "Ark\ArkKuvaController@seuraavaLuettelointinumero");
 	Route::get("/ark_kuva/",						"Ark\ArkKuvaController@index");
 	Route::get("/ark_kuva/{kuva_id}/",				"Ark\ArkKuvaController@show");
 	Route::post("/ark_kuva/",						"Ark\ArkKuvaController@store");
@@ -326,6 +327,7 @@ Route::group(['middleware' => ['auth.jwt', 'setLocale']], function () {
 	/*
 	 * Tiedosto
 	 */
+	Route::get("/tiedosto/latausraja",						"TiedostoController@latausraja");
 	Route::get("/tiedosto/",								"TiedostoController@index");
 	Route::post("/tiedosto/",								"TiedostoController@store");
 	Route::get("/tiedosto/{tiedosto_id}/",					"TiedostoController@show");
