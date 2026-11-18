@@ -56,7 +56,7 @@ n.koordinaatti_n_min, n.koordinaatti_n_max,
 n.koordinaatti_e_min, n.koordinaatti_e_max,
 n.koordinaatti_z_min, n.koordinaatti_z_max,
 n.lisatiedot,
-st.nimi_fi as sailytystila,
+n.vakituinen_sailytystila as sailytystila,
 n.vakituinen_hyllypaikka,
 n.tilapainen_sijainti,
 case n.naytetta_jaljella 
@@ -88,7 +88,6 @@ left join ark_naytekoodi nk on nk.id = n.ark_naytekoodi_id
 left join ark_naytetyyppi nt on nt.id = n.ark_naytetyyppi_id
 left join ark_nayte_talteenottotapa ntt on ntt.id = n.ark_talteenottotapa_id
 left join ark_nayte_tila ntila on ntila.id = n.ark_nayte_tila_id
-left join ark_sailytystila st on st.id = n.vakituinen_sailytystila_id
 left join kayttaja muokkaaja on muokkaaja.id = n.muokkaaja
 left join kayttaja luoja on luoja.id = n.luoja
 left join kayttaja tekija on tekija.id = n.tekija

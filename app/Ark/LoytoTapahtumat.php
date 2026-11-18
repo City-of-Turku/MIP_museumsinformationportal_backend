@@ -13,6 +13,9 @@ class LoytoTapahtumat extends Model
 
     protected $fillable = array('ark_loyto_id', 'ark_loyto_tapahtuma_id', 'kuvaus', 'tapahtumapaivamaara', 'luoja', 'luotu');
 
+    // 26948: korvattu tekstikentällä vakituinen_sailytystila, ei enää käytössä
+    protected $hidden = ['vakituinen_sailytystila_id'];
+
     /*
      * Aikaleimat päivitetään manuaalisesti
      */
@@ -75,9 +78,5 @@ class LoytoTapahtumat extends Model
     }
     public function poistaja() {
         return $this->belongsTo('App\Kayttaja', 'poistaja');
-    }
-
-    public function sailytystila() {
-        return $this->belongsTo('App\Ark\ArkSailytystila', 'vakituinen_sailytystila_id');
     }
 }
