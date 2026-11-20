@@ -42,6 +42,7 @@ class ArkTunnistekuvaKuvaId extends Migration
         foreach($this->valitaulut as $taulu => list($valitaulu, $sarake)) {
             $jarjestys = $taulu == 'ark_loyto' ? "coalesce(k.luettelointinumero, '') <> '', k.id" : "k.id";
 
+            DB::statement("alter table $taulu disable trigger audit_trigger_row");
             DB::statement("
                 update $taulu e set tunnistekuva_kuva_id = v.kuva_id from (
                     select distinct on (x.$sarake) x.$sarake as entiteetti_id, k.id as kuva_id
@@ -52,6 +53,7 @@ class ArkTunnistekuvaKuvaId extends Migration
                 ) v
                 where v.entiteetti_id = e.id
             ");
+            DB::statement("alter table $taulu enable trigger audit_trigger_row");
         }
 
         // Kuvan poisto nollaa osoittimet tunnistekuva_kuva_id:n perusteella

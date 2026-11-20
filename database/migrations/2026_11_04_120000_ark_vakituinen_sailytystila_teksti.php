@@ -27,6 +27,10 @@ class ArkVakituinenSailytystilaTeksti extends Migration
                     $table->text('vakituinen_sailytystila')->nullable();
                 });
 
+                $audit = in_array($taulu, ['ark_loyto', 'ark_nayte']);
+                if ($audit) {
+                    DB::statement("alter table $taulu disable trigger audit_trigger_row");
+                }
                 DB::statement("
                     UPDATE $taulu t
                     SET vakituinen_sailytystila = btrim(s.nimi_fi)
@@ -34,6 +38,9 @@ class ArkVakituinenSailytystilaTeksti extends Migration
                     WHERE s.id = t.vakituinen_sailytystila_id
                       AND nullif(btrim(s.nimi_fi), '') IS NOT NULL
                 ");
+                if ($audit) {
+                    DB::statement("alter table $taulu enable trigger audit_trigger_row");
+                }
             }
         } catch (Exception $e) {
             DB::rollback();
