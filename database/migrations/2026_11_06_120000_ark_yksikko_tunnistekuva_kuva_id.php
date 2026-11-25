@@ -28,6 +28,7 @@ class ArkYksikkoTunnistekuvaKuvaId extends Migration
         });
 
         // Yksi kuva per yksikkö: pienin id
+        DB::statement("alter table ark_tutkimusalue_yksikko disable trigger audit_trigger_row");
         DB::statement("
             update ark_tutkimusalue_yksikko e set tunnistekuva_kuva_id = v.kuva_id from (
                 select distinct on (x.ark_yksikko_id) x.ark_yksikko_id as entiteetti_id, k.id as kuva_id
@@ -38,6 +39,7 @@ class ArkYksikkoTunnistekuvaKuvaId extends Migration
             ) v
             where v.entiteetti_id = e.id
         ");
+        DB::statement("alter table ark_tutkimusalue_yksikko enable trigger audit_trigger_row");
 
         // Kuvan poisto nollaa osoittimet tunnistekuva_kuva_id:n perusteella
         DB::statement("create index ark_tutkimusalue_yksikko_tunnistekuva_kuva_id_index on ark_tutkimusalue_yksikko (tunnistekuva_kuva_id) where tunnistekuva_kuva_id is not null");
